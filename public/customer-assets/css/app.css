@@ -1,0 +1,78 @@
+/* General form styles */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc3545;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-google, .btn-facebook {
+    background-color: #db4437; /* Google red */
+    border-color: #db4437;
+    color: #fff;
+    margin-left: 10px;
+}
+
+.btn-facebook {
+    background-color: #4267b2; /* Facebook blue */
+    border-color: #4267b2;
+}
+
+.btn-google:hover, .btn-facebook:hover {
+    opacity: 0.8;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .card {
+        margin-top: 10px;
+    }
+    .bg-login-image {
+        /*background-image: url('/customer-assets/img/slide-3.jpg');*/
+        background-size: cover; /* Ensures the image covers the entire div */
+        background-position: center; /* Centers the image */
+        background-repeat: no-repeat; /* Prevents the image from repeating */
+    }
+
+}

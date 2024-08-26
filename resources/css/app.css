@@ -1,0 +1,8 @@
+@import '~flatpickr/dist/flatpickr.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.car-number-input {
+    max-width: 120px; /* Adjust width as needed */
+}
