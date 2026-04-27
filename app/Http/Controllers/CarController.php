@@ -17,7 +17,7 @@ class CarController extends Controller
 
     public function index()
     {
-        $ownerId = auth()->id();
+        $ownerId = auth('owner')->id();
 
         $cars = Car::where('owner_id', $ownerId)->get();
 
@@ -103,7 +103,7 @@ class CarController extends Controller
             'driving_experience' => $request->driving_experience,
             'available' => $request->input('available', 'no'),
             'status' => $request->input('status', 'pending'),
-            'owner_id' => auth()->id(),
+            'owner_id' => auth('owner')->id(),
         ]);
 
         return redirect()->route('cars.index')->with('success', 'Car added successfully.');
