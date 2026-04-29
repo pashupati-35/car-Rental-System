@@ -18,9 +18,6 @@ Route::middleware('guest:owner')->prefix('owner')->name('owner.')->group(functio
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 Route::middleware('auth:owner')->prefix('owner')->name('owner.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('owner.dashboard');
-    })->middleware(['verified'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -38,7 +35,7 @@ Route::middleware('auth:owner')->group(function () {
     Route::post('/owner/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('owner.bookings.cancel');
 
     Route::get('/auth/verified-cars', [OwnerController::class, 'VerifiedCars'])->name('cars.verified');
-    Route::get('/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
+    Route::get('/owner/dashboard', [OwnerController::class, 'dashboard'])->name('owner.dashboard');
     Route::post('/search', [OwnerController::class, 'search'])->name('owner.search');
 
 
