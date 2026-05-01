@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AI\AIController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use Illuminate\Support\Facades\Route;
@@ -26,3 +27,8 @@ Route::get('/car-calendar/{id}', [DashboardController::class, 'showCalendar'])->
 Route::get('/map', function () {
     return view('map');
 });
+Route::get('/chat/ask-ai', function () {
+    return view('AI.ai');
+})->name('ask-ai');
+Route::get('/ask-ai/history', [AIController::class, 'history'])->name('ask-ai.history');
+Route::post('/ask-ai', [AIController::class, 'ask'])->name('ask-ai.submit');
