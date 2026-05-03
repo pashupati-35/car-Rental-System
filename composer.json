@@ -7,7 +7,7 @@
     "require": {
         "php": "^8.4",
         "barryvdh/laravel-dompdf": "^3.0",
-        "guzzlehttp/guzzle": "^7.9",
+        "guzzlehttp/guzzle": "^7.10",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",

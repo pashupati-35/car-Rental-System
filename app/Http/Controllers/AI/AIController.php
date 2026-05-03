@@ -3,63 +3,50 @@
 namespace App\Http\Controllers\AI;
 
 use App\Http\Controllers\Controller;
-use App\Models\AiChat;
-use App\Services\AI\ChatService;
+use App\Services\AI\AiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AIController extends Controller
 {
+    public function __construct(protected AiService $aiService) {}
+
     public function history(Request $request)
     {
         $sessionId = $request->session()->getId();
         $userId = Auth::id();
 
-        $query = AiChat::query()->orderBy('id');
-
-        if ($userId) {
-            $query->where(function ($builder) use ($userId, $sessionId) {
-                $builder->where('user_id', $userId)
-                    ->orWhere('session_id', $sessionId);
-            });
-        } else {
-            $query->where('session_id', $sessionId);
-        }
+        $messages = $this->aiService->getHistory($sessionId, $userId);
 
         return response()->json([
-            'messages' => $query->limit(50)->get(['prompt', 'response'])
+            'messages' => $messages
         ]);
     }
 
-    public function ask(Request $request, ChatService $chat)
+    public function ask(Request $request)
     {
         $request->validate([
             'prompt' => 'required|string|max:2000'
         ]);
 
         $prompt = $request->string('prompt')->toString();
+        $sessionId = $request->session()?->getId();
 
         try {
-            $response = $chat->ask($prompt);
+            $response = $this->aiService->ask($prompt, $sessionId);
+            
+            try {
+                $this->aiService->storeChat($sessionId, $prompt, $response);
+            } catch (\Throwable $e) {
+                report($e);
+            }
         } catch (\Throwable $e) {
+            report($e);
+
             return response()->json([
                 'message' => 'Unable to get AI response right now. Please try again.'
             ], 500);
         }
-
-        $userId = Auth::id() ?? null;
-        if ($userId) {
-            $userName = Auth::user()->name ?? 'User';
-        } else {
-            $userName = 'Guest';
-        }
-        AiChat::create([
-            'user_id' => $userId,
-            'user_name' => $userName,
-            'session_id' => $request->session()?->getId(),
-            'prompt' => $prompt,
-            'response' => $response,
-        ]);
 
         return response()->json([
             'response' => $response

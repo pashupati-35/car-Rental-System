@@ -27,6 +27,9 @@ Route::get('/car-calendar/{id}', [DashboardController::class, 'showCalendar'])->
 Route::get('/map', function () {
     return view('map');
 });
+Route::get('/login', function () {
+    return redirect()->route('customer.login');
+})->name('login');
 Route::get('/chat/ask-ai', function () {
     return view('AI.ai');
 })->name('ask-ai');
