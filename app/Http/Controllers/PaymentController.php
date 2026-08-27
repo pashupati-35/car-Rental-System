@@ -2,58 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Car;
-use Illuminate\Http\Request;
-use App\Models\Payment;
-use App\Models\BookingCar;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\Payment\StorePaymentRequest;
+use App\Services\PaymentService;
 
 class PaymentController extends Controller
 {
-    /**
-     * Show the payment form.
-     */
+    public function __construct(
+        protected PaymentService $paymentService,
+    ) {}
+
     public function show($bookingId)
     {
-        $booking = BookingCar::findOrFail($bookingId);
+        $booking = $this->paymentService->getPaymentForm($bookingId);
+
         return view('customer.payment', compact('booking'));
     }
 
-    /**
-     * Process the payment and store payment details.
-     */
-    public function process(Request $request)
+    public function process(StorePaymentRequest $request)
     {
-        // Validate payment details
-        $validated = $request->validate([
-            'booking_id' => 'required|exists:booking_cars,id',
-            'customer_name' => 'required|string|max:255',
-            'cvv' => 'required|string',
-        ]);
+        $this->paymentService->processPayment($request->data());
 
-        // Find the booking
-        $booking = BookingCar::findOrFail($validated['booking_id']);
-
-        // Store payment details
-        Payment::create([
-            'booking_id' => $booking->id,
-            'customer_id' => Auth::id(),
-            'car_id' => $booking->car_id,
-            'amount' => $booking->total_price,
-            'cvv' => $validated['cvv'],
-            'status' => 'completed', // Assume payment is completed for this example
-        ]);
-        $bookingId = $request->input('booking_id');
-
-        // Redirect to a confirmation page or any other page
-        return redirect()->route('payment.confirmation', ['booking' => $bookingId])
+        return redirect()
+            ->route('payment.confirmation', ['booking' => $request->validated('booking_id')])
             ->with('success', 'Payment successful!');
     }
 
     public function confirmation($bookingId)
     {
-        $booking = BookingCar::findOrFail($bookingId);
+        $booking = $this->paymentService->getConfirmation($bookingId);
+
         return view('customer.confirmation', compact('booking'));
     }
-
 }

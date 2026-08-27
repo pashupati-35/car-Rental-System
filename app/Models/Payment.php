@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,6 +17,15 @@ class Payment extends Model
         'card_number',
         'expiry_date',
         'cvv',
+    ];
+
+    protected $casts = [
+        'amount' => 'float',
+    ];
+
+    protected $hidden = [
+        'cvv',
+        'card_number',
     ];
 
     // Define relationships

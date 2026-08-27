@@ -20,8 +20,14 @@ class BookingCar extends Model
         'status',
         'car_id',
         'customer_id',
-        'purpose',        
-        'other_purpose', 
+        'purpose',
+        'other_purpose',
+    ];
+
+    protected $casts = [
+        'pick_up_date' => 'datetime',
+        'last_date' => 'datetime',
+        'total_price' => 'float',
     ];
 
     /**

@@ -3,72 +3,114 @@
 namespace App\Services;
 
 use App\DTOs\CarDTO;
+use App\DTOs\Filters\CarFilterDTO;
 use App\Http\Resources\CarResource;
+use App\Models\Car;
 use App\Repositories\CarRepositoryInterface;
 use Illuminate\Support\Collection;
 
 class CarService
 {
     public function __construct(
-        private CarRepositoryInterface $carRepository
+        private CarRepositoryInterface $carRepository,
     ) {}
 
-    public function getAllCars()
+    public function getAllCars(CarFilterDTO $filter = new CarFilterDTO): Collection
     {
-        $cars = $this->carRepository->all();
-        return CarResource::collection($cars);
+        $query = $this->buildQuery($filter);
+
+        return $query->get();
     }
 
-    public function getCarById($id)
+    public function getCarById(int $id): Car
     {
-        $car = $this->carRepository->findOrFail($id);
-        return new CarResource($car);
+        return $this->carRepository->findOrFail($id);
     }
 
-    public function getCarsByOwner($ownerId)
+    public function getCarsByOwner(int $ownerId): Collection
     {
-        $cars = $this->carRepository->findByOwner($ownerId);
-        return CarResource::collection($cars);
+        return $this->carRepository->findByOwner($ownerId);
     }
 
-    public function getVerifiedCars($ownerId)
+    public function getVerifiedCars(int $ownerId): Collection
     {
-        $cars = $this->carRepository->getVerifiedCars($ownerId);
-        return CarResource::collection($cars);
+        return $this->carRepository->getVerifiedCars($ownerId);
     }
 
-    public function searchCars($query)
+    public function searchCars(string $query): Collection
     {
-        $cars = $this->carRepository->searchCars($query);
-        return CarResource::collection($cars);
+        return $query === ''
+            ? $this->carRepository->all()
+            : $this->carRepository->searchCars($query);
     }
 
-    public function getAvailableCars()
+    public function getAvailableCars(): Collection
     {
-        $cars = $this->carRepository->getAvailableCars();
-        return CarResource::collection($cars);
+        return $this->carRepository->getAvailableCars();
     }
 
-    public function createCar(CarDTO $carDTO)
+    public function createCar(CarDTO $carDTO): Car
     {
-        $car = $this->carRepository->create($carDTO->toArray());
-        return new CarResource($car);
+        return $this->carRepository->create($carDTO->toArray());
     }
 
-    public function updateCar($id, CarDTO $carDTO)
+    public function updateCar(int $id, CarDTO $carDTO): Car
     {
-        $car = $this->carRepository->update($id, array_filter($carDTO->toArray()));
-        return new CarResource($car);
+        $this->carRepository->update($id, $carDTO->toArray());
+
+        return $this->carRepository->findOrFail($id);
     }
 
-    public function deleteCar($id): bool
+    public function deleteCar(int $id): bool
     {
         return $this->carRepository->delete($id);
     }
 
-    public function paginateCars($perPage = 15)
+    public function toResource(Car $car): CarResource
     {
-        $cars = $this->carRepository->paginate($perPage);
+        return new CarResource($car);
+    }
+
+    public function toCollection(Collection $cars): CarResource
+    {
         return CarResource::collection($cars);
+    }
+
+    private function buildQuery(CarFilterDTO $filter)
+    {
+        $query = $this->carRepository->with([]);
+
+        if ($filter->search !== null) {
+            $query = $query->where(function ($q) use ($filter) {
+                $q->where('car_name', 'like', "%{$filter->search}%")
+                    ->orWhere('car_model', 'like', "%{$filter->search}%")
+                    ->orWhere('car_number', 'like', "%{$filter->search}%");
+            });
+        }
+
+        if ($filter->fuel_type !== null) {
+            $query = $query->where('fuel_type', $filter->fuel_type);
+        }
+
+        if ($filter->transmission !== null) {
+            $query = $query->where('transmission', $filter->transmission);
+        }
+
+        if ($filter->status !== null) {
+            $query = $query->where('status', $filter->status);
+        }
+
+        if ($filter->available !== null) {
+            $query = $query->where('available', $filter->available);
+        }
+
+        if ($filter->owner_id !== null) {
+            $query = $query->where('owner_id', $filter->owner_id);
+        }
+
+        $direction = $filter->sort_dir === 'asc' ? 'asc' : 'desc';
+        $query = $query->orderBy($filter->sort_by ?? 'created_at', $direction);
+
+        return $query;
     }
 }
