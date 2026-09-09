@@ -1,11 +1,11 @@
 import type { IconAliases, IconProps } from 'vuetify'
 import { h } from 'vue'
 
-import checkboxChecked from '@/assets/svg/checkbox-checked.svg'
-import checkboxIndeterminate from '@/assets/svg/checkbox-indeterminate.svg'
-import checkboxUnchecked from '@/assets/svg/checkbox-unchecked.svg'
-import radioChecked from '@/assets/svg/radio-checked.svg'
-import radioUnchecked from '@/assets/svg/radio-unchecked.svg'
+import checkboxChecked from '../../assets/svg/checkbox-checked.svg'
+import checkboxIndeterminate from '../../assets/svg/checkbox-indeterminate.svg'
+import checkboxUnchecked from '../../assets/svg/checkbox-unchecked.svg'
+import radioChecked from '../../assets/svg/radio-checked.svg'
+import radioUnchecked from '../../assets/svg/radio-unchecked.svg'
 
 const customIcons: Record<string, unknown> = {
   'mdi-checkbox-blank-outline': checkboxUnchecked,

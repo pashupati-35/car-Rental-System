@@ -13,6 +13,8 @@ declare module 'vue' {
     PasswordCheckList: typeof import('./resources/ts/components/PasswordCheckList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TableContent: typeof import('./resources/ts/components/table/components/table/TableContent.vue')['default']
+    TableFooter: typeof import('./resources/ts/components/table/components/table/footer/TableFooter.vue')['default']
     ValidationError: typeof import('./resources/ts/components/ValidationError.vue')['default']
   }
 }
