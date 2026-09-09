@@ -33,13 +33,17 @@ const submitBooking = () => {
             :src="car.image ? '/' + car.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
             class="w-full h-80 sm:h-96 object-cover rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800"
             :alt="car.model"
-          />
+          >
 
           <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
             <div class="flex items-start justify-between">
               <div>
-                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">{{ car.brand }} {{ car.model }}</h1>
-                <p class="text-sm text-gray-500 font-mono">{{ car.car_number || car.plate_number }} &bull; {{ car.year || '2024' }}</p>
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">
+                  {{ car.brand }} {{ car.model }}
+                </h1>
+                <p class="text-sm text-gray-500 font-mono">
+                  {{ car.car_number || car.plate_number }} &bull; {{ car.year || '2024' }}
+                </p>
               </div>
               <div class="text-right">
                 <span class="text-2xl font-black text-blue-600">${{ car.price_per_day || car.rate || 0 }}</span>
@@ -48,7 +52,9 @@ const submitBooking = () => {
             </div>
 
             <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
-              <h3 class="font-bold text-base text-gray-900 dark:text-white mb-2">Specifications</h3>
+              <h3 class="font-bold text-base text-gray-900 dark:text-white mb-2">
+                Specifications
+              </h3>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800">
                   <span class="text-gray-500 block">Transmission</span>
@@ -74,13 +80,26 @@ const submitBooking = () => {
         <!-- Booking Sidebar -->
         <div>
           <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-lg sticky top-24 space-y-5">
-            <h3 class="font-bold text-xl text-gray-900 dark:text-white">Reserve this Vehicle</h3>
+            <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+              Reserve this Vehicle
+            </h3>
 
-            <div v-if="!auth?.customer && !auth?.admin && !auth?.owner" class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs">
-              Please <Link href="/customer/login" class="font-bold underline">sign in</Link> to reserve this vehicle.
+            <div
+              v-if="!auth?.customer && !auth?.admin && !auth?.owner"
+              class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs"
+            >
+              Please <Link
+                href="/customer/login"
+                class="font-bold underline"
+              >
+                sign in
+              </Link> to reserve this vehicle.
             </div>
 
-            <form @submit.prevent="submitBooking" class="space-y-4">
+            <form
+              class="space-y-4"
+              @submit.prevent="submitBooking"
+            >
               <div>
                 <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Pickup Date</label>
                 <input
@@ -88,7 +107,7 @@ const submitBooking = () => {
                   type="date"
                   required
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
 
               <div>
@@ -98,7 +117,7 @@ const submitBooking = () => {
                   type="date"
                   required
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
 
               <div>
@@ -107,7 +126,7 @@ const submitBooking = () => {
                   v-model="form.purpose"
                   type="text"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
 
               <button

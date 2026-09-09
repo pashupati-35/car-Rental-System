@@ -33,8 +33,12 @@ const submit = () => {
     <div class="max-w-3xl mx-auto space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-xl text-gray-900 dark:text-white">List Your Vehicle</h3>
-          <p class="text-xs text-gray-500 mt-0.5">Provide vehicle specifications, pricing, and photos</p>
+          <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+            List Your Vehicle
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Provide vehicle specifications, pricing, and photos
+          </p>
         </div>
         <Link
           href="/owner/cars"
@@ -45,7 +49,10 @@ const submit = () => {
       </div>
 
       <div class="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-        <form @submit.prevent="submit" class="space-y-4">
+        <form
+          class="space-y-4"
+          @submit.prevent="submit"
+        >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Brand / Make</label>
@@ -55,7 +62,7 @@ const submit = () => {
                 required
                 placeholder="e.g. Toyota"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
+              >
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Model Name</label>
@@ -65,7 +72,7 @@ const submit = () => {
                 required
                 placeholder="e.g. Camry, RAV4"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -78,7 +85,7 @@ const submit = () => {
                 required
                 placeholder="BA-1-PA-1234"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none font-mono"
-              />
+              >
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Manufacturing Year</label>
@@ -87,7 +94,7 @@ const submit = () => {
                 type="number"
                 required
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
+              >
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price Per Day ($)</label>
@@ -96,7 +103,7 @@ const submit = () => {
                 type="number"
                 required
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -107,8 +114,12 @@ const submit = () => {
                 v-model="form.transmission"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
+                <option value="Automatic">
+                  Automatic
+                </option>
+                <option value="Manual">
+                  Manual
+                </option>
               </select>
             </div>
             <div>
@@ -117,10 +128,18 @@ const submit = () => {
                 v-model="form.fuel_type"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               >
-                <option value="Petrol">Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="Electric">Electric</option>
+                <option value="Petrol">
+                  Petrol
+                </option>
+                <option value="Diesel">
+                  Diesel
+                </option>
+                <option value="Hybrid">
+                  Hybrid
+                </option>
+                <option value="Electric">
+                  Electric
+                </option>
               </select>
             </div>
             <div>
@@ -129,7 +148,7 @@ const submit = () => {
                 v-model="form.seats"
                 type="number"
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -137,10 +156,10 @@ const submit = () => {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vehicle Photo</label>
             <input
               type="file"
-              @input="form.image = ($event.target as HTMLInputElement).files?.[0] || null"
               accept="image/*"
               class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
-            />
+              @input="form.image = ($event.target as HTMLInputElement).files?.[0] || null"
+            >
           </div>
 
           <div>
@@ -150,7 +169,7 @@ const submit = () => {
               rows="4"
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
               placeholder="Key vehicle features (Bluetooth, GPS, Leather seats...)"
-            ></textarea>
+            />
           </div>
 
           <div class="pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-end gap-3">
