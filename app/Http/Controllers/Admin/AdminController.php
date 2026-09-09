@@ -1,24 +1,29 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Customer;
-use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class AdminController extends Controller
 {
     public function index()
     {
-        $cars = Car::all();
-        return view('admin.cars_list', compact('cars'));
+        $cars = Car::with('owner')->get();
+        return Inertia::render('admin/CarsList', [
+            'cars' => $cars,
+        ]);
     }
 
     public function show($id)
     {
-        $car = Car::findOrFail($id);
-        return view('admin.car_details', compact('car'));
+        $car = Car::with('owner')->findOrFail($id);
+        return Inertia::render('cars/Show', [
+            'car' => $car,
+        ]);
     }
 
     public function verifyCar(Car $car)
@@ -40,11 +45,15 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'Car has been rejected.');
     }
+
     public function viewCustomers()
     {
-        $customers = Customer::all(); // Fetch all customers
-        return view('admin.customers_list', compact('customers'));
+        $customers = Customer::all();
+        return Inertia::render('admin/CustomersList', [
+            'customers' => $customers,
+        ]);
     }
+
     public function destroy($id)
     {
         $customer = Customer::findOrFail($id);
@@ -55,9 +64,12 @@ class AdminController extends Controller
 
     public function viewBookings()
     {
-        $bookings = BookingCar::with('car', 'customer')->get(); // Fetch all bookings with associated car and customer
-        return view('admin.booked_car', compact('bookings'));
+        $bookings = BookingCar::with('car', 'customer')->get();
+        return Inertia::render('admin/BookedCars', [
+            'bookedCars' => $bookings,
+        ]);
     }
+
     public function destroyBooking($id)
     {
         $booking = BookingCar::findOrFail($id);
@@ -65,8 +77,4 @@ class AdminController extends Controller
 
         return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
     }
-
-
-
-
 }

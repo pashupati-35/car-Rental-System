@@ -41,7 +41,7 @@ class CarController extends Controller
             return redirect()->back()->withErrors(['car_number' => 'The car number has already been taken.']);
         }
 
-        $this->carService->createCar($request->data());
+        $this->carService->createCar($request->toDTO());
 
         return redirect()->route('cars.index')->with('success', 'Car added successfully.');
     }
@@ -64,7 +64,7 @@ class CarController extends Controller
     {
         $this->authorize('update', $car);
 
-        $this->carService->updateCar($car->id, $request->data());
+        $this->carService->updateCar($car->id, $request->toDTO());
 
         return redirect()->route('cars.index')->with('success', 'Car updated successfully.');
     }

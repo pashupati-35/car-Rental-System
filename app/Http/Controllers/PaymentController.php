@@ -20,7 +20,7 @@ class PaymentController extends Controller
 
     public function process(StorePaymentRequest $request)
     {
-        $this->paymentService->processPayment($request->data());
+        $this->paymentService->processPayment($request->toDTO());
 
         return redirect()
             ->route('payment.confirmation', ['booking' => $request->validated('booking_id')])

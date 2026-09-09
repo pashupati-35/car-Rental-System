@@ -2,25 +2,31 @@
 
 namespace App\Http\Middleware;
 
-use Closure;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Inertia\Middleware;
-use Symfony\Component\HttpFoundation\Response;
 
 class HandleInertiaRequests extends Middleware
 {
     /**
-     * The root template that is loaded on the first page visit.
+     * The root template that's loaded on the first page visit.
+     *
+     * @see https://inertiajs.com/server-side-setup#root-template
      *
      * @var string
      */
     protected $rootView = 'app';
 
+    public function rootView(Request $request): string
+    {
+        return $this->rootView;
+    }
+
     /**
-     * Determine the current asset version.
+     * Determines the current asset version.
+     *
+     * @see https://inertiajs.com/asset-versioning
      */
-    public function version(Request $request): string|null
+    public function version(Request $request): ?string
     {
         return parent::version($request);
     }
@@ -28,22 +34,25 @@ class HandleInertiaRequests extends Middleware
     /**
      * Define the props that are shared by default.
      *
+     * @see https://inertiajs.com/shared-data
+     *
      * @return array<string, mixed>
      */
     public function share(Request $request): array
     {
-        return [
-            ...parent::share($request),
+        return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user(),
-                'owner' => auth('owner')->user(),
-                'admin' => auth('admin')->user(),
+                'admin' => fn () => $request->user('admin'),
+                'owner' => fn () => $request->user('owner'),
+                'customer' => fn () => $request->user('customer'),
+                'user' => fn () => $request->user('admin') ?? $request->user('owner') ?? $request->user('customer'),
             ],
             'flash' => [
-                'success' => $request->session()->get('success'),
-                'error' => $request->session()->get('error'),
-                'message' => $request->session()->get('message'),
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+                'message' => fn () => $request->session()->get('message'),
             ],
-        ];
+            'appName' => config('app.name', 'Car Rental System'),
+        ]);
     }
 }

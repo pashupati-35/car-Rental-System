@@ -1,0 +1,55 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./resources/ts/*"
+      ],
+      "@core/*": [
+        "./resources/ts/core/*"
+      ],
+      "@core": [
+        "./resources/ts/core"
+      ],
+      "@assets/*": [
+        "./resources/ts/assets/*"
+      ],
+      "@assets": [
+        "./resources/ts/assets"
+      ],
+      "@styles/*": [
+        "./resources/ts/assets/styles/*"
+      ],
+      "@styles": [
+        "./resources/ts/assets/styles"
+      ],
+      "@components/*": [
+        "resources/ts/pages/components/*"
+      ],
+      "@components": [
+        "resources/ts/pages/components"
+      ]
+    },
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false,
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ]
+  },
+  "include": [
+    "vite.config.*",
+    "*.d.ts",
+    "resources/ts/**/*",
+    "resources/ts/**/*.vue",
+    "auto-imports.d.ts",
+    "components.d.ts"
+  ],
+  "exclude": [
+    "./dist",
+    "./node_modules"
+  ]
+}

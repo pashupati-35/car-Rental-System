@@ -1,59 +1,15 @@
 <?php
-//
-//namespace App\Http\Controllers\Admin\Auth;
-//
-//use App\Http\Controllers\Controller;
-//use App\Http\Requests\Auth\AdminLoginRequest;
-//use Illuminate\Http\RedirectResponse;
-//use Illuminate\Http\Request;
-//use Illuminate\Support\Facades\Auth;
-//use Illuminate\View\View;
-//
-//class AuthenticatedSessionController extends Controller
-//{
-//    /**
-//     * Display the login view.
-//     */
-//    public function create(): View
-//    {
-//        return view('admin.auth.login');
-//    }
-//
-//    /**
-//     * Handle an incoming authentication request.
-//     */
-//    public function store(AdminLoginRequest $request): RedirectResponse
-//    {
-//        $request->authenticate();
-//
-//        $request->session()->regenerate();
-//
-//        return redirect()->intended(route('admin.dashboard', absolute: false));
-//    }
-//
-//    /**
-//     * Destroy an authenticated session.
-//     */
-//    public function destroy(Request $request): RedirectResponse
-//    {
-//        Auth::guard('admin')->logout();
-//
-//        $request->session()->invalidate();
-//
-//        $request->session()->regenerateToken();
-//
-//        return redirect('/');
-//    }
-//}
-
-
 
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BookingCar;
+use App\Models\Car;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -62,13 +18,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function create()
     {
-        return view('admin.auth.login');
+        return Inertia::render('auth/Login', [
+            'guard' => 'admin',
+        ]);
     }
 
     /**
      * Handle an incoming authentication request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request)
     {
@@ -79,9 +35,8 @@ class AuthenticatedSessionController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        if (Auth::guard('admin')->attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -96,20 +51,23 @@ class AuthenticatedSessionController extends Controller
     public function destroy(Request $request)
     {
         Auth::guard('admin')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect(route('home'));
     }
+
     public function dashboard()
     {
         if (Auth::guard('admin')->check()) {
-            return view('admin.dashboard');
+            return Inertia::render('admin/Dashboard', [
+                'totalCars' => Car::count(),
+                'totalCustomers' => Customer::count(),
+                'totalBookings' => BookingCar::count(),
+                'totalRevenue' => BookingCar::sum('total_price') ?: 0,
+            ]);
         }
 
         return redirect(route('admin.login'))->with('error', 'Please login to access the dashboard.');
     }
 }
-

@@ -33,7 +33,7 @@ class BookingController extends Controller
 
     public function store(StoreBookingRequest $request)
     {
-        $dto = $request->data();
+        $dto = $request->toDTO();
         $distanceTraveled = $request->validated('distance_traveled', 0);
 
         $booking = $this->bookingService->reserveCar($dto, $distanceTraveled);

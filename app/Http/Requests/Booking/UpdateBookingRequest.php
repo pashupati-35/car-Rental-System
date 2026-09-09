@@ -44,7 +44,7 @@ class UpdateBookingRequest extends FormRequest
         ];
     }
 
-    public function data(): BookingDTO
+    public function toDTO(): BookingDTO
     {
         $validated = $this->validated();
         $bookingId = $this->route('booking') instanceof BookingCar

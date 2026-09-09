@@ -1,0 +1,379 @@
+// Student portal dark mode — text white/light on dark surfaces, dark hovers throughout
+
+html.v-theme--dark,
+html.dark {
+  body {
+    background: #020618 !important;
+    color: #f1f5f9;
+  }
+}
+
+.v-theme--dark,
+html.dark {
+  // ── Base: default text on dark pages ───────────────────────────────────────
+  .min-h-screen,
+  main {
+    color: #f1f5f9;
+  }
+
+  // ── Navbar ─────────────────────────────────────────────────────────────────
+  nav,
+  .student-dashboard-nav {
+    background-color: #020618 !important;
+    border-color: #334155 !important;
+    color: #f1f5f9;
+  }
+
+  nav {
+    .text-slate-900,
+    .text-slate-800,
+    .text-slate-700,
+    .text-gray-900,
+    .text-gray-800,
+    .text-gray-700 { color: #f1f5f9 !important; }
+
+    .text-slate-600,
+    .text-slate-500,
+    .text-gray-600,
+    .text-gray-500 { color: #cbd5e1 !important; }
+
+    .text-slate-400,
+    .text-gray-400 { color: #94a3b8 !important; }
+
+    .border-slate-200,
+    .border-slate-100,
+    .border-gray-100,
+    .border-gray-200 { border-color: #334155 !important; }
+
+    .bg-white { background-color: #020618 !important; }
+    .bg-slate-50 { background-color: #1e293b !important; }
+    .bg-cyan-50 { background-color: rgba(8, 76, 97, 0.35) !important; }
+  }
+
+  // ── Hover states (layout + pages) ────────────────────────────────────────────
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-white:hover,
+  .hover\:bg-gray-50:hover,
+  .hover\:bg-gray-100:hover,
+  .hover\:\!bg-slate-50:hover {
+    background-color: #334155 !important;
+    color: #f1f5f9;
+  }
+
+  .hover\:bg-cyan-50:hover,
+  .hover\:\!bg-cyan-50:hover {
+    background-color: rgba(8, 76, 97, 0.45) !important;
+  }
+
+  .hover\:bg-red-50:hover,
+  .hover\:\!bg-red-50:hover {
+    background-color: rgba(127, 29, 29, 0.35) !important;
+  }
+
+  .hover\:text-\[\#084c61\]:hover,
+  .group:hover .group-hover\:text-\[\#084c61\] {
+    color: #5eead4 !important;
+  }
+
+  .hover\:opacity-80:hover {
+    opacity: 0.9;
+  }
+
+  // Active nav items (mobile)
+  .bg-cyan-50 {
+    background-color: rgba(8, 76, 97, 0.4) !important;
+  }
+
+  // ── Main content ─────────────────────────────────────────────────────────────
+  main,
+  .dashboard-page,
+  .dashboard-wrapper {
+    background-color: #020618 !important;
+    color: #f1f5f9;
+
+    .bg-white,
+    .bg-\[\#f8fafc\] { background-color: #1e293b !important; }
+
+    .bg-slate-50,
+    .bg-gray-50 { background-color: #020618 !important; }
+
+    .bg-gray-100 { background-color: #1e293b !important; }
+
+    .border-slate-100,
+    .border-slate-200,
+    .border-gray-100,
+    .border-gray-200,
+    .border-gray-300 { border-color: #334155 !important; }
+
+    .text-slate-900,
+    .text-slate-800,
+    .text-gray-900,
+    .text-gray-800 { color: #f1f5f9 !important; }
+
+    .text-slate-700,
+    .text-slate-600,
+    .text-gray-700,
+    .text-gray-600 { color: #e2e8f0 !important; }
+
+    .text-slate-500,
+    .text-gray-500 { color: #cbd5e1 !important; }
+
+    .text-slate-400,
+    .text-gray-400 { color: #94a3b8 !important; }
+
+    // Notification rows
+    p.text-sm.text-slate-800,
+    .text-slate-800 {
+      color: #f1f5f9 !important;
+    }
+  }
+
+  // ── Vuetify components ─────────────────────────────────────────────────────
+  .v-card {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+  }
+
+  .v-card-title,
+  .v-card-text,
+  .v-card-subtitle {
+    color: #f1f5f9 !important;
+  }
+
+  .v-list {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+  }
+
+  .v-list-item {
+    color: #f1f5f9 !important;
+
+    &:hover {
+      background-color: #334155 !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .v-list-item-title {
+    color: #f1f5f9 !important;
+  }
+
+  .v-list-item:hover .v-list-item-title {
+    color: #ffffff !important;
+  }
+
+  .v-list-item--active {
+    background-color: rgba(8, 76, 97, 0.4) !important;
+  }
+
+  .v-divider {
+    border-color: #334155 !important;
+  }
+
+  .v-field {
+    background-color: #020618 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .v-field__input,
+  .v-field__field {
+    color: #f1f5f9 !important;
+  }
+
+  .v-label {
+    color: #cbd5e1 !important;
+  }
+
+  .v-field__outline {
+    color: #475569 !important;
+  }
+
+  .v-field:hover .v-field__outline {
+    color: #64748b !important;
+  }
+
+  .v-field--focused .v-field__outline {
+    color: #5eead4 !important;
+  }
+
+  .v-select__selection-text,
+  .v-autocomplete__selection-text {
+    color: #f1f5f9 !important;
+  }
+
+  .v-chip {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  .v-btn--variant-outlined {
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
+
+    &:hover {
+      background-color: #334155 !important;
+    }
+  }
+
+  .v-menu > .v-overlay__content,
+  .v-overlay__content .v-list {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+  }
+
+  .v-dialog > .v-overlay__content > .v-card {
+    background-color: #1e293b !important;
+  }
+
+  .v-progress-circular {
+    color: #5eead4 !important;
+  }
+
+  // ── Home page scoped classes ─────────────────────────────────────────────────
+  main {
+    .welcome-card,
+    .section-card {
+      background: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9;
+    }
+
+    .welcome-content { background: #1e293b; }
+
+    .welcome-heading,
+    .section-title,
+    .app-info-value,
+    .notice-trigger__title,
+    .timeline__title,
+    .welcome-name {
+      color: #f1f5f9 !important;
+    }
+
+    .welcome-description,
+    .app-info-label,
+    .empty-state__text,
+    .timeline__note,
+    .timeline__meta {
+      color: #cbd5e1 !important;
+    }
+
+    .welcome-description strong { color: #f1f5f9 !important; }
+
+    .welcome-deco {
+      background: #020618 !important;
+      border-color: #334155 !important;
+    }
+
+    .deco-chip {
+      background: #1e293b !important;
+      border-color: #475569 !important;
+      color: #a5b4fc !important;
+    }
+
+    .tab-pill {
+      background: #020618 !important;
+      border-color: #475569 !important;
+      color: #e2e8f0 !important;
+
+      &:hover {
+        background: #334155 !important;
+        border-color: #5eead4 !important;
+        color: #f1f5f9 !important;
+      }
+
+      &--active {
+        background: #084c61 !important;
+        border-color: #084c61 !important;
+        color: #fff !important;
+      }
+    }
+
+    .app-info-bar {
+      background: #020618 !important;
+      border-color: #334155 !important;
+    }
+
+    .notice-trigger:hover,
+    .notice-body {
+      background: #334155 !important;
+      color: #f1f5f9;
+    }
+
+    .timeline__dot { border-color: #1e293b !important; }
+
+    .timeline__line {
+      background: linear-gradient(180deg, #334155 0%, rgba(51, 65, 85, 0.3) 100%) !important;
+    }
+  }
+
+  // ── Application detail ───────────────────────────────────────────────────────
+  .ai-tab-btn {
+    color: #e2e8f0 !important;
+
+    &:hover {
+      background: #334155 !important;
+      color: #ffffff !important;
+    }
+  }
+
+  .ai-tab-active {
+    background: rgba(8, 76, 97, 0.5) !important;
+    color: #5eead4 !important;
+  }
+
+  .ai-panel,
+  .ai-info-card,
+  .ai-detail-row,
+  .ai-tab-bar {
+    background: #1e293b !important;
+    border-color: #334155 !important;
+    color: #f1f5f9 !important;
+  }
+
+  // ── Tables ───────────────────────────────────────────────────────────────────
+  table {
+    color: #f1f5f9;
+
+    thead th {
+      background-color: #020618 !important;
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+
+    tbody tr {
+      border-color: #334155 !important;
+
+      &:hover {
+        background-color: #334155 !important;
+      }
+    }
+
+    tbody td {
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+  }
+
+  // ── Links & footer actions ───────────────────────────────────────────────────
+  a.hover\:bg-slate-50:hover,
+  a.block.hover\:bg-slate-50:hover {
+    background-color: #334155 !important;
+    color: #5eead4 !important;
+  }
+
+  // Keep brand accent readable
+  .text-\[\#084c61\] {
+    color: #5eead4 !important;
+  }
+
+  // Status colors stay visible
+.text-red-500,
+.text-red-600,
+.\!text-red-600 {
+  color: #f87171 !important;
+}
+  .text-green-500,
+  .text-green-600 { color: #4ade80 !important; }
+
+  .text-yellow-500 { color: #facc15 !important; }
+}

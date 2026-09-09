@@ -1,0 +1,13 @@
+.bg-futech {
+    background: #21BE9F !important;
+}
+
+.text-futech {
+    color: #21BE9F !important;
+}
+
+.v-menu>.v-overlay__content>.v-card,
+.v-menu>.v-overlay__content>.v-sheet,
+.v-menu>.v-overlay__content>.v-list {
+    background: transparent !important;
+}

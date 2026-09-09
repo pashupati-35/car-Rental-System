@@ -1,6 +1,8 @@
 <?php
+
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Auth\RegisteredAdminController;
+use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
@@ -15,7 +17,6 @@ Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(functio
 
 Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])
-        ->middleware(['verified'])
         ->name('dashboard');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -23,6 +24,9 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    // Email templates management
+    Route::resource('email-templates', EmailTemplateController::class);
 
     // Routes for managing owners
     Route::get('/owners', [OwnerController::class, 'index'])->name('owner.index');
@@ -32,16 +36,16 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::patch('/owner/update/{id}', [OwnerController::class, 'update'])->name('owner.update');
 
     // Routes for managing cars
+    Route::get('cars', [AdminController::class, 'index'])->name('cars.index');
     Route::get('cars-list', [AdminController::class, 'index'])->name('cars-list');
     Route::get('cars/{id}', [AdminController::class, 'show'])->name('cars.show');
 
     Route::get('/customers', [AdminController::class, 'viewCustomers'])->name('customers');
     Route::delete('/customers/{id}', [AdminController::class, 'destroy'])->name('customer.destroy');
+    Route::get('/booked-cars', [AdminController::class, 'viewBookings'])->name('booked-cars');
     Route::get('/bookings', [AdminController::class, 'viewBookings'])->name('bookings');
     Route::delete('/bookings/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
-
 });
 
 Route::patch('/cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('cars.verify');
 Route::patch('/cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('cars.reject');
-

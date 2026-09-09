@@ -48,7 +48,7 @@ class UpdateCarRequest extends FormRequest
         ];
     }
 
-    public function data(): CarDTO
+    public function toDTO(): CarDTO
     {
         $validated = $this->validated();
         $car = $this->route('car') instanceof Car

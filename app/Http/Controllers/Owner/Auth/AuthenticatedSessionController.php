@@ -1,33 +1,40 @@
 <?php
 
-
 namespace App\Http\Controllers\Owner\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Car;
+use App\Models\BookingCar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return view('owner.auth.login');
+        return Inertia::render('auth/Login', [
+            'guard' => 'owner',
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (Auth::guard('owner')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::guard('owner')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('owner.dashboard'));
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
         ]);
     }
 
@@ -42,14 +49,21 @@ class AuthenticatedSessionController extends Controller
 
     public function dashboard()
     {
+        $owner = Auth::guard('owner')->user();
+        if ($owner) {
+            $myCars = Car::where('owner_id', $owner->id)->get();
+            $carIds = $myCars->pluck('id');
+            $activeRentals = BookingCar::whereIn('car_id', $carIds)->where('status', 'confirmed')->count();
+            $earnings = BookingCar::whereIn('car_id', $carIds)->sum('total_price') ?: 0;
 
-        if (Auth::guard('owner')->check()) {
-            $owner = Auth::guard('owner')->user();
-
-            return view('owner.dashboard', compact('owner'));
+            return Inertia::render('owner/Dashboard', [
+                'myCarsCount' => $myCars->count(),
+                'activeRentals' => $activeRentals,
+                'earnings' => $earnings,
+                'recentCars' => $myCars->take(5),
+            ]);
         }
 
         return redirect(route('owner.login'))->with('error', 'Please login to access the dashboard.');
     }
-
 }

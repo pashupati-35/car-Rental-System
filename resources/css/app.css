@@ -1,6 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *, .v-theme--dark, .v-theme--dark *));
+
 .car-number-input {
-    max-width: 120px; /* Adjust width as needed */
+    max-width: 120px;
 }

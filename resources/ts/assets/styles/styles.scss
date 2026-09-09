@@ -1,0 +1,8 @@
+@use './variables/variables' as *;
+@use './base' as *;
+@use './_table' as *;
+
+
+.v-btn {
+      text-transform: none !important;
+}

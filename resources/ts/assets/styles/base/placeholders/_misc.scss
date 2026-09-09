@@ -1,0 +1,30 @@
+%blurry-bg {
+  /* stylelint-disable property-no-vendor-prefix */
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  /* stylelint-enable */
+  background-color: rgb(var(--v-theme-surface), 0.9);
+}
+
+%style-scroll-bar {
+  &::-webkit-scrollbar {
+    background: rgb(var(--v-theme-surface));
+    block-size: 8px;
+    border-end-end-radius: 14px;
+    border-start-end-radius: 14px;
+    inline-size: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 0.5rem;
+    background: rgb(var(--v-theme-perfect-scrollbar-thumb));
+  }
+
+  &::-webkit-scrollbar-corner {
+    display: none;
+  }
+}

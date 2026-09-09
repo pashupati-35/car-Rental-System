@@ -31,7 +31,7 @@ class StorePaymentRequest extends FormRequest
         ];
     }
 
-    public function data(): PaymentDTO
+    public function toDTO(): PaymentDTO
     {
         $validated = $this->validated();
 

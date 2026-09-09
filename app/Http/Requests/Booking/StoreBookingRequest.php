@@ -40,7 +40,7 @@ class StoreBookingRequest extends FormRequest
         ];
     }
 
-    public function data(): BookingDTO
+    public function toDTO(): BookingDTO
     {
         $validated = $this->validated();
 

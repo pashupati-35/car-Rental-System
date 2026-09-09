@@ -1,0 +1,184 @@
+@use 'sass:color';
+
+// Variables (fallbacks if not provided by theme variables)
+$table-border: var(--v-theme-border, #ffffff);
+$table-bg: var(--v-theme-background, #ffffff);
+$table-head-bg: var(--v-theme-background, #ffffff);
+$table-text: #212529;
+$table-muted: #6c757d;
+$table-hover: rgba(0,0,0,0.05);
+$table-hover-strong: rgba(0,0,0,0.08);
+$primary: #0d6efd;
+
+// Dark theme fallbacks
+$table-bg-dark: var(--v-theme-background, #0f1115);
+$table-head-bg-dark: var(--v-theme-background, #0f1115);
+$table-text-dark: #e6eef8;
+$table-muted-dark: #9aa4b2;
+$table-border-dark: rgba(255,255,255,0.06);
+$table-hover-dark: rgba(255,255,255,0.03);
+
+.custom-table-wrapper {
+  border: 1px solid $table-border;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background-color: $table-bg;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  font-family: inherit;
+  color: $table-text;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.custom-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+  font-size: 0.95rem;
+}
+
+.custom-table-wrapper thead th {
+  padding: 0.75rem 1rem;
+  background-color: $table-head-bg;
+  border-bottom: 2px solid $table-border;
+  font-weight: 600;
+  // Use color.adjust to avoid deprecated color functions (Sass 1.93.2+)
+  color: color.adjust($table-text, $lightness: -6%);
+  text-align: center;
+  vertical-align: bottom;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.custom-table-wrapper tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid $table-border;
+  vertical-align: middle;
+}
+
+.custom-table-wrapper tbody tr:nth-child(even) {
+  background-color: rgba(0,0,0,0.02);
+}
+
+.custom-table-wrapper tbody tr:hover {
+  background-color: $table-hover;
+  transition: background-color 0.12s ease-in-out;
+}
+
+.custom-table-wrapper .empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: $table-muted;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Checkboxes and alignment */
+.custom-table-wrapper th[style*="width"],
+.custom-table-wrapper td[style*="width"] {
+  white-space: nowrap;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sort-icon {
+  margin-left: 0.5rem;
+  opacity: 0.8;
+}
+
+/* Loading overlay */
+.table-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $table-muted;
+}
+
+/* Footer / Pagination */
+.table-footer {
+  padding: 0.75rem 1rem;
+  background-color: $table-head-bg;
+  border-top: 1px solid $table-border;
+}
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .custom-table-wrapper thead th,
+  .custom-table-wrapper tbody td {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.88rem;
+  }
+  .custom-table-wrapper thead th {
+    position: sticky;
+    top: 0;
+  }
+}
+
+/* Small utility classes */
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.fw-semibold { font-weight: 600; }
+
+// End of table styles
+
+// Dark mode adjustments when Vuetify toggles dark class on body or root
+.v-theme--dark .custom-table-wrapper,
+body.v-theme--dark .custom-table-wrapper,
+.theme--dark .custom-table-wrapper,
+[data-theme="dark"] .custom-table-wrapper {
+  /* wrapper-level overrides */
+  background-color: $table-bg-dark !important;
+  color: $table-text-dark !important;
+  border-color: $table-border-dark !important;
+
+  /* table-level overrides */
+  table {
+    color: $table-text-dark !important;
+  }
+
+  thead th {
+    background-color: $table-head-bg-dark !important;
+    border-bottom-color: $table-border-dark !important;
+    color: color.adjust($table-text-dark, $lightness: -6%) !important;
+  }
+
+  tbody tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.01) !important;
+  }
+
+  tbody tr:hover {
+    background-color: $table-hover-dark !important;
+  }
+
+  .table-loading-overlay {
+    background: rgba(15,17,21,0.7) !important;
+  }
+}

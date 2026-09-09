@@ -1,34 +1,39 @@
 <?php
 
-
 namespace App\Http\Controllers\Customer\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
+use App\Models\BookingCar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return view('customer.auth.login');
+        return Inertia::render('auth/Login', [
+            'guard' => 'customer',
+        ]);
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (Auth::guard('customer')->attempt($request->only('email', 'password'), $request->filled('remember'))) {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('customer.dashboard'));
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+        throw ValidationException::withMessages([
+            'email' => __('auth.failed'),
         ]);
     }
 
@@ -43,15 +48,15 @@ class AuthenticatedSessionController extends Controller
 
     public function dashboard()
     {
-        if (Auth::guard('customer')->check()) {
-            $cars = Car::where('available', 'yes')->get();
-
-//            return view('customer.dashboard');
-            return view('customer.dashboard', compact('cars'));
-
+        $customer = Auth::guard('customer')->user();
+        if ($customer) {
+            $bookings = BookingCar::with('car')->where('customer_id', $customer->id)->get();
+            return Inertia::render('customer/Dashboard', [
+                'activeBookings' => $bookings,
+                'totalRentedCars' => $bookings->count(),
+            ]);
         }
 
         return redirect(route('customer.login'))->with('error', 'Please login to access the dashboard.');
     }
-
 }
