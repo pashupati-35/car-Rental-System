@@ -1,6 +1,7 @@
 import { createApp, h, DefineComponent } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
-import { createHead, useHead } from '@vueuse/head'
+import { useHead } from '@unhead/vue'
+import { createHead } from '@unhead/vue/client'
 import { registerPlugins } from './utils/plugins'
 import './styles/tailwind.css'
 
@@ -17,6 +18,7 @@ createInertiaApp({
       const entry = Object.entries(pages).find(([path]) =>
         path.toLowerCase().endsWith(`/${name.toLowerCase()}.vue`),
       )
+
       importer = entry ? entry[1] : undefined
     }
 
@@ -25,6 +27,7 @@ createInertiaApp({
     }
 
     const page = (await importer()) as { default: DefineComponent & { layout?: DefineComponent } }
+
     page.default.layout = page.default.layout || undefined
 
     return page.default
@@ -34,6 +37,7 @@ createInertiaApp({
     const app = createApp({
       setup() {
         useHead({ title: DEFAULT_HEAD_TITLE })
+
         return () => h(App, props)
       },
     })

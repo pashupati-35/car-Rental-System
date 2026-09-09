@@ -23,17 +23,19 @@ const sendMessage = async () => {
   if (!userInput.value.trim() || loading.value) return
 
   const prompt = userInput.value
+
   messages.value.push({ role: 'user', content: prompt })
   userInput.value = ''
   loading.value = true
 
   try {
     const res = await axios.post('/ai-chat', { message: prompt })
+
     messages.value.push({
       role: 'assistant',
       content: res.data.reply || res.data.response || 'I am here to assist with your rental needs!',
     })
-  } catch (err) {
+  } catch {
     messages.value.push({
       role: 'assistant',
       content: 'Sorry, I encountered an issue processing your request. Please try again.',
@@ -53,11 +55,15 @@ const sendMessage = async () => {
         <!-- Chat Header -->
         <div class="p-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center gap-3">
           <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-xl">
-            <i class="ri-sparkling-fill"></i>
+            <i class="ri-sparkling-fill" />
           </div>
           <div>
-            <h3 class="font-bold text-base">Car Rental AI Assistant</h3>
-            <p class="text-xs text-blue-100">Powered by Llama & LLPhant</p>
+            <h3 class="font-bold text-base">
+              Car Rental AI Assistant
+            </h3>
+            <p class="text-xs text-blue-100">
+              Powered by Llama & LLPhant
+            </p>
           </div>
         </div>
 
@@ -88,18 +94,18 @@ const sendMessage = async () => {
         <div class="p-4 bg-gray-50 dark:bg-gray-850 border-t border-gray-100 dark:border-gray-800 flex gap-2">
           <input
             v-model="userInput"
-            @keyup.enter="sendMessage"
             type="text"
             placeholder="Ask about car recommendations, pricing, availability..."
             class="flex-1 px-4 py-3 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          />
+            @keyup.enter="sendMessage"
+          >
           <button
-            @click="sendMessage"
             :disabled="loading"
             class="px-5 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center gap-1.5"
+            @click="sendMessage"
           >
             <span>Send</span>
-            <i class="ri-send-plane-fill"></i>
+            <i class="ri-send-plane-fill" />
           </button>
         </div>
       </div>

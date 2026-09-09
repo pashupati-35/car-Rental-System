@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { Head, Link, router } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 
-const props = defineProps<{
+defineProps<{
   templates: {
     data: Array<any>
     links: Array<any>
@@ -27,8 +27,12 @@ const props = defineProps<{
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-xl text-gray-900 dark:text-white">System Email Templates</h3>
-          <p class="text-xs text-gray-500 mt-0.5">Customize automatic system notifications and transactional emails</p>
+          <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+            System Email Templates
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Customize automatic system notifications and transactional emails
+          </p>
         </div>
       </div>
 
@@ -36,15 +40,29 @@ const props = defineProps<{
         <table class="w-full text-left text-sm">
           <thead class="bg-gray-50 dark:bg-gray-800/50 text-gray-500 text-xs font-semibold uppercase tracking-wider">
             <tr>
-              <th class="py-3.5 px-6">Template Title</th>
-              <th class="py-3.5 px-6">Identifier</th>
-              <th class="py-3.5 px-6">Role</th>
-              <th class="py-3.5 px-6">Status</th>
-              <th class="py-3.5 px-6 text-right">Actions</th>
+              <th class="py-3.5 px-6">
+                Template Title
+              </th>
+              <th class="py-3.5 px-6">
+                Identifier
+              </th>
+              <th class="py-3.5 px-6">
+                Role
+              </th>
+              <th class="py-3.5 px-6">
+                Status
+              </th>
+              <th class="py-3.5 px-6 text-right">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            <tr v-for="template in templates.data" :key="template.id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+            <tr
+              v-for="template in templates.data"
+              :key="template.id"
+              class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40"
+            >
               <td class="py-4 px-6 font-medium text-gray-900 dark:text-white">
                 {{ template.title }}
               </td>
@@ -57,7 +75,10 @@ const props = defineProps<{
                 </span>
               </td>
               <td class="py-4 px-6">
-                <span :class="template.is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600'" class="px-2 py-0.5 rounded-full text-xs font-medium">
+                <span
+                  :class="template.is_active ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600'"
+                  class="px-2 py-0.5 rounded-full text-xs font-medium"
+                >
                   {{ template.is_active ? 'Active' : 'Disabled' }}
                 </span>
               </td>

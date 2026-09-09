@@ -24,14 +24,18 @@ const deleteCar = (id: number) => {
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-xl text-gray-900 dark:text-white">Your Vehicle Portfolio</h3>
-          <p class="text-xs text-gray-500 mt-0.5">Manage your cars available for customer rent</p>
+          <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+            Your Vehicle Portfolio
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Manage your cars available for customer rent
+          </p>
         </div>
         <Link
           href="/owner/cars/create"
           class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5"
         >
-          <i class="ri-add-line"></i>
+          <i class="ri-add-line" />
           Add New Vehicle
         </Link>
       </div>
@@ -47,11 +51,15 @@ const deleteCar = (id: number) => {
               :src="car.image ? '/' + car.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'"
               class="w-full h-44 object-cover rounded-xl mb-4"
               alt="Car image"
-            />
+            >
             <div class="flex items-start justify-between">
               <div>
-                <h4 class="font-bold text-base text-gray-900 dark:text-white">{{ car.brand }} {{ car.model }}</h4>
-                <p class="text-xs text-gray-500 font-mono">{{ car.car_number || car.plate_number }} &bull; {{ car.year || '2024' }}</p>
+                <h4 class="font-bold text-base text-gray-900 dark:text-white">
+                  {{ car.brand }} {{ car.model }}
+                </h4>
+                <p class="text-xs text-gray-500 font-mono">
+                  {{ car.car_number || car.plate_number }} &bull; {{ car.year || '2024' }}
+                </p>
               </div>
               <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                 ${{ car.price_per_day || car.rate || 0 }}/day
@@ -67,8 +75,8 @@ const deleteCar = (id: number) => {
               Edit Car
             </Link>
             <button
-              @click="deleteCar(car.id)"
               class="px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-medium transition-colors"
+              @click="deleteCar(car.id)"
             >
               Delete
             </button>

@@ -13,8 +13,12 @@ defineProps<{
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <div>
-        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">Our Rental Fleet</h1>
-        <p class="text-sm text-gray-500 mt-1">Select from our fleet of high-quality, verified rental vehicles</p>
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">
+          Our Rental Fleet
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Select from our fleet of high-quality, verified rental vehicles
+        </p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -28,12 +32,16 @@ defineProps<{
               :src="car.image ? '/' + car.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'"
               class="w-full h-48 object-cover"
               :alt="car.model"
-            />
+            >
             <div class="p-5">
               <div class="flex items-start justify-between">
                 <div>
-                  <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ car.brand }} {{ car.model }}</h3>
-                  <p class="text-xs text-gray-500 font-mono">{{ car.car_number || car.plate_number }}</p>
+                  <h3 class="font-bold text-lg text-gray-900 dark:text-white">
+                    {{ car.brand }} {{ car.model }}
+                  </h3>
+                  <p class="text-xs text-gray-500 font-mono">
+                    {{ car.car_number || car.plate_number }}
+                  </p>
                 </div>
                 <div class="text-right">
                   <span class="text-lg font-extrabold text-blue-600">${{ car.price_per_day || car.rate || 0 }}</span>

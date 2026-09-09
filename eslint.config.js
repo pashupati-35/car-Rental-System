@@ -13,7 +13,10 @@ export default defineConfig([
   // Global igonres
   {
     ignores: [
-      'src/plugins/iconify/*.js',
+      'resources/ts/plugins/iconify/**',
+      // Legacy files reference source modules that are not part of this application.
+      'resources/ts/composable/useDashboardTheme.ts',
+      'resources/ts/composable/useOtpVerification.ts',
       'node_modules/**',
       'dist/**',
       '*.d.ts',
@@ -58,7 +61,6 @@ export default defineConfig([
         multiline: 'below',
       }],
 
-      'antfu/top-level-function': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
 
       'indent': ['error', 2],

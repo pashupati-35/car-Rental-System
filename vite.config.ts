@@ -57,7 +57,7 @@ export default defineConfig({
           ],
         },
         {
-          '@vueuse/head': [
+          '@unhead/vue': [
             'useHead',
           ],
         },

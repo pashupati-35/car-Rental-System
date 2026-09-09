@@ -18,8 +18,12 @@ defineProps<{
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="font-bold text-xl text-gray-900 dark:text-white">Active & Past Rentals</h3>
-          <p class="text-xs text-gray-500 mt-0.5">Track your reservations, invoices, and vehicle returns</p>
+          <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+            Active & Past Rentals
+          </h3>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Track your reservations, invoices, and vehicle returns
+          </p>
         </div>
         <Link
           href="/cars"
@@ -33,15 +37,29 @@ defineProps<{
         <table class="w-full text-left text-sm">
           <thead class="bg-gray-50 dark:bg-gray-800/50 text-gray-500 text-xs font-semibold uppercase tracking-wider">
             <tr>
-              <th class="py-3.5 px-6">Booking Reference</th>
-              <th class="py-3.5 px-6">Vehicle</th>
-              <th class="py-3.5 px-6">Rental Dates</th>
-              <th class="py-3.5 px-6">Amount</th>
-              <th class="py-3.5 px-6">Status</th>
+              <th class="py-3.5 px-6">
+                Booking Reference
+              </th>
+              <th class="py-3.5 px-6">
+                Vehicle
+              </th>
+              <th class="py-3.5 px-6">
+                Rental Dates
+              </th>
+              <th class="py-3.5 px-6">
+                Amount
+              </th>
+              <th class="py-3.5 px-6">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-            <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40">
+            <tr
+              v-for="booking in bookings"
+              :key="booking.id"
+              class="hover:bg-gray-50/50 dark:hover:bg-gray-800/40"
+            >
               <td class="py-4 px-6 font-mono text-xs text-gray-500">
                 #BK-{{ booking.id }}
               </td>
@@ -55,11 +73,14 @@ defineProps<{
                 ${{ booking.total_price || booking.amount || 0 }}
               </td>
               <td class="py-4 px-6">
-                <span :class="{
-                  'bg-emerald-50 text-emerald-700': booking.status === 'confirmed' || booking.status === 'completed',
-                  'bg-amber-50 text-amber-700': booking.status === 'pending',
-                  'bg-rose-50 text-rose-700': booking.status === 'cancelled',
-                }" class="px-2.5 py-1 rounded-full text-xs font-medium capitalize">
+                <span
+                  :class="{
+                    'bg-emerald-50 text-emerald-700': booking.status === 'confirmed' || booking.status === 'completed',
+                    'bg-amber-50 text-amber-700': booking.status === 'pending',
+                    'bg-rose-50 text-rose-700': booking.status === 'cancelled',
+                  }"
+                  class="px-2.5 py-1 rounded-full text-xs font-medium capitalize"
+                >
                   {{ booking.status || 'Active' }}
                 </span>
               </td>

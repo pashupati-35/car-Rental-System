@@ -67,31 +67,34 @@ const performLogin = () => {
       <div class="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1 mb-6">
         <button
           type="button"
-          @click="activeGuard = 'admin'"
           :class="activeGuard === 'admin' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
           class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          @click="activeGuard = 'admin'"
         >
           Admin
         </button>
         <button
           type="button"
-          @click="activeGuard = 'owner'"
           :class="activeGuard === 'owner' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
           class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          @click="activeGuard = 'owner'"
         >
           Car Owner
         </button>
         <button
           type="button"
-          @click="activeGuard = 'customer'"
           :class="activeGuard === 'customer' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
           class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
+          @click="activeGuard = 'customer'"
         >
           Customer
         </button>
       </div>
 
-      <form @submit.prevent="submit" class="space-y-4">
+      <form
+        class="space-y-4"
+        @submit.prevent="submit"
+      >
         <div>
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
           <input
@@ -100,8 +103,11 @@ const performLogin = () => {
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
             placeholder="you@example.com"
-          />
-          <span v-if="form.errors.email" class="text-xs text-red-500 mt-1 block">{{ form.errors.email }}</span>
+          >
+          <span
+            v-if="form.errors.email"
+            class="text-xs text-red-500 mt-1 block"
+          >{{ form.errors.email }}</span>
         </div>
 
         <div>
@@ -112,13 +118,20 @@ const performLogin = () => {
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
             placeholder="••••••••"
-          />
-          <span v-if="form.errors.password" class="text-xs text-red-500 mt-1 block">{{ form.errors.password }}</span>
+          >
+          <span
+            v-if="form.errors.password"
+            class="text-xs text-red-500 mt-1 block"
+          >{{ form.errors.password }}</span>
         </div>
 
         <div class="flex items-center justify-between text-sm">
           <label class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <input v-model="form.remember" type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+            <input
+              v-model="form.remember"
+              type="checkbox"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            >
             Remember me
           </label>
         </div>
@@ -132,10 +145,16 @@ const performLogin = () => {
           <span v-else>Sign In to {{ activeGuard.toUpperCase() }}</span>
         </button>
 
-        <div v-if="activeGuard !== 'admin'" class="text-center pt-2">
+        <div
+          v-if="activeGuard !== 'admin'"
+          class="text-center pt-2"
+        >
           <p class="text-xs text-gray-500">
             Don't have an account?
-            <Link :href="activeGuard === 'owner' ? '/owner/register' : '/customer/register'" class="text-blue-600 hover:underline font-semibold ml-1">
+            <Link
+              :href="activeGuard === 'owner' ? '/owner/register' : '/customer/register'"
+              class="text-blue-600 hover:underline font-semibold ms-1"
+            >
               Create one
             </Link>
           </p>
