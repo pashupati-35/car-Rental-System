@@ -96,7 +96,7 @@ const toggle = () => {
         :class="[
           size === 'sm' ? 'h-4 w-4 my-0.5' : size === 'lg' ? 'h-6 w-6 my-0.5' : 'h-5 w-5 my-0.5',
           isChecked
-            ? (size === 'sm' ? 'translate-x-4.5 ml-0.5' : size === 'lg' ? 'translate-x-6.5 ml-0.5' : 'translate-x-5.5 ml-0.5')
+            ? (size === 'sm' ? 'translate-x-4.5 ms-0.5' : size === 'lg' ? 'translate-x-6.5 ms-0.5' : 'translate-x-5.5 ms-0.5')
             : 'translate-x-0.5'
         ]"
       />

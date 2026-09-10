@@ -256,7 +256,7 @@ const openViewItem = (item: CmsItem): void => {
   }
 }
 
-const saveItem = async (): Promise<void> => {
+const saveItem = async (customPayload?: any): Promise<void> => {
   submitting.value = true
   message.value = ''
   errorMessage.value = ''
@@ -264,8 +264,8 @@ const saveItem = async (): Promise<void> => {
   try {
     const service = getActiveService()
     if (activeModule.value === 'site-settings') {
-      const payload = items.value[0] || currentItem.value
-      const id = payload.id || 1
+      const payload = customPayload || items.value[0] || currentItem.value
+      const id = items.value[0]?.id || 1
       const res = await service.updateSettings(id, payload)
       if (res?.status === 'OK' || res) {
         message.value = 'Site settings saved successfully.'

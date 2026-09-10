@@ -242,7 +242,7 @@ onUnmounted(() => {
               @click="showCmsMenu = !showCmsMenu; showProfileMenu = false; showThemeMenu = false"
             >
               <i class="ri-layout-masonry-line text-base text-indigo-600 dark:text-indigo-400" />
-              <span>CMS & Fleet</span>
+              <span>CMS</span>
               <i
                 class="ri-arrow-down-s-line text-xs transition-transform"
                 :class="showCmsMenu ? 'rotate-180' : ''"
@@ -255,7 +255,7 @@ onUnmounted(() => {
               class="absolute left-0 mt-2 w-72 max-h-[80vh] overflow-y-auto rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-2 z-50 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150"
             >
               <div class="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-                Master CMS Suite (16 Modules)
+                Master CMS Suite
               </div>
               <div class="grid grid-cols-1 gap-0.5">
                 <Link
@@ -274,20 +274,12 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
-
-          <Link
-            href="/admin/dashboard"
-            :class="isActive('/admin/dashboard') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
-            class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] transition-colors font-sans"
-          >
-            Dashboard
-          </Link>
           <Link
             href="/admin/cars"
             :class="isActive('/admin/cars') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
             class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] transition-colors flex items-center gap-1.5 font-sans"
           >
-            <span>Browse Fleet</span>
+            <span>Fleet Verification</span>
             <span
               v-if="adminCounts.totalCars"
               class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold"
