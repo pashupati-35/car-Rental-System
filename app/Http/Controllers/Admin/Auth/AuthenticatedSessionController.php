@@ -72,7 +72,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Admin Dashboard view with rich data.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         if (Auth::guard('admin')->check()) {
             $totalCars = Car::count();
@@ -90,7 +90,8 @@ class AuthenticatedSessionController extends Controller
 
             $pendingCars = Car::with('owner')->where('status', 'pending')->latest()->take(6)->get();
             $recentCars = Car::with('owner')->latest()->take(5)->get();
-            $recentBookings = BookingCar::with(['car', 'customer', 'payment'])->latest()->take(8)->get();
+            $perPage = (int) $request->input('per_page', 8);
+            $recentBookings = BookingCar::with(['car', 'customer', 'payment'])->latest()->paginate($perPage)->withQueryString();
             $recentOwners = Owner::withCount('cars')->latest()->take(5)->get();
             $recentCustomers = Customer::withCount('bookings')->latest()->take(5)->get();
 

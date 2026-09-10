@@ -47,6 +47,16 @@ const handleClickOutside = (e: MouseEvent) => {
   }
 }
 
+const isActive = (href: string) => {
+  const current = page.url.split('?')[0]
+  if (href === '/') return current === '/'
+  if (href === '/cars') return current === '/cars' || current.startsWith('/cars/')
+  if (href === '/car-calendar') return current.startsWith('/car-calendar')
+  if (href === '/ai-chat') return current.startsWith('/ai-chat')
+  
+  return current.startsWith(href)
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -74,25 +84,29 @@ onUnmounted(() => {
         <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
           <Link
             href="/"
-            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+            :class="isActive('/') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
+            class="transition-colors"
           >
             Home
           </Link>
           <Link
             href="/cars"
-            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+            :class="isActive('/cars') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
+            class="transition-colors"
           >
             Browse Fleet
           </Link>
           <Link
             href="/car-calendar"
-            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+            :class="isActive('/car-calendar') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
+            class="transition-colors"
           >
             Availability Calendar
           </Link>
           <Link
             href="/ai-chat"
-            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+            :class="isActive('/ai-chat') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
+            class="transition-colors flex items-center gap-1.5"
           >
             <span class="text-amber-500">✨</span> AI Assistant
           </Link>

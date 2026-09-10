@@ -76,7 +76,7 @@ onMounted(() => {
               Confirmed Rentals
             </p>
             <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
-              {{ bookingsList.filter(b => b.status === 'confirm').length }}
+              {{ bookingsList.filter((b: any) => b.status === 'confirm').length }}
             </h3>
           </div>
           <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
@@ -90,7 +90,7 @@ onMounted(() => {
               Pending Approval
             </p>
             <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
-              {{ bookingsList.filter(b => b.status === 'pending').length }}
+              {{ bookingsList.filter((b: any) => b.status === 'pending').length }}
             </h3>
           </div>
           <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
@@ -104,7 +104,7 @@ onMounted(() => {
               Total Rental Spend
             </p>
             <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-              ${{ bookingsList.filter(b => b.status === 'confirm').reduce((acc, b) => acc + (parseFloat(b.total_price) || 0), 0) }}
+              ${{ bookingsList.filter((b: any) => b.status === 'confirm').reduce((acc: number, b: any) => acc + (parseFloat(b.total_price) || 0), 0) }}
             </h3>
           </div>
           <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">

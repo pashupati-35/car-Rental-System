@@ -15,7 +15,7 @@ const cancelSuccess = ref('')
 const cancelError = ref('')
 
 const filteredBookings = computed(() => {
-  return (props.bookings || []).filter(b => {
+  return (props.bookings || []).filter((b: any) => {
     // Filter by status
     if (activeFilter.value === 'confirm' && b.status !== 'confirm' && b.status !== 'booked') return false
     if (activeFilter.value === 'pending' && b.status !== 'pending' && b.status !== 'reserved') return false
@@ -37,17 +37,17 @@ const filteredBookings = computed(() => {
 })
 
 const confirmedCount = computed(() => {
-  return (props.bookings || []).filter(b => b.status === 'confirm' || b.status === 'booked').length
+  return (props.bookings || []).filter((b: any) => b.status === 'confirm' || b.status === 'booked').length
 })
 
 const pendingCount = computed(() => {
-  return (props.bookings || []).filter(b => b.status === 'pending' || b.status === 'reserved').length
+  return (props.bookings || []).filter((b: any) => b.status === 'pending' || b.status === 'reserved').length
 })
 
 const totalSpent = computed(() => {
   return (props.bookings || [])
-    .filter(b => b.status === 'confirm' || b.status === 'booked')
-    .reduce((sum, b) => sum + (parseFloat(b.total_price) || 0), 0)
+    .filter((b: any) => b.status === 'confirm' || b.status === 'booked')
+    .reduce((sum: number, b: any) => sum + (parseFloat(b.total_price) || 0), 0)
 })
 
 const handleCancel = (bookingId: number) => {

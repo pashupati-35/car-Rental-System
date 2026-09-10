@@ -31,6 +31,25 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the admin's security & MFA page.
+     */
+    public function security(Request $request)
+    {
+        $admin = Auth::guard('admin')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $admin,
+            ]);
+        }
+
+        return Inertia::render('admin/Security', [
+            'user' => $admin,
+        ]);
+    }
+
+    /**
      * Update the admin's profile information.
      */
     public function update(Request $request)
@@ -60,12 +79,11 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the admin password.
+     * Update the admin password (without requiring old password).
      */
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|current_password:admin',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 

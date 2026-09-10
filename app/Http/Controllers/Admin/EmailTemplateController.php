@@ -19,15 +19,18 @@ class EmailTemplateController extends Controller
 
     public function index(Request $request)
     {
+        $perPage = (int) $request->input('per_page', $request->input('per_pages', 15));
+
         $templates = EmailTemplate::query()
             ->when($request->title, fn($q, $v) => $q->where('title', 'like', "%{$v}%"))
             ->when($request->role, fn($q, $v) => $q->where('role', $v))
             ->orderBy('id', 'desc')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
         return Inertia::render('admin/email-templates/Index', [
             'templates' => $templates,
-            'filters' => $request->only(['title', 'role']),
+            'filters' => $request->only(['title', 'role', 'per_page']),
         ]);
     }
 

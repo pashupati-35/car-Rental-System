@@ -26,18 +26,31 @@ class EmailVerificationJob implements ShouldQueue
 
     public function handle(): void
     {
-        setSMTP();
-        $emailTemplate = getEmailTemplate('admin', 'verification_email');
-        $acceptedData = [
-            'first_name' => $this->user?->first_name,
-            'verification_code' => $this->verification_code,
-        ];
+        try {
+            setSMTP();
+        } catch (\Throwable $e) {
+            // Ignore SMTP set failure if local
+        }
 
-        $acceptedTag = [];
-        $acceptedInputs = normalizeEmailTemplateInputs($emailTemplate->accepted_inputs);
+        $emailTemplate = getEmailTemplate('admin', 'verification_email') ?: getEmailTemplate('admin', 'welcome_email');
+        if ($emailTemplate) {
+            $acceptedData = [
+                'first_name' => $this->user?->first_name ?: $this->user?->name,
+                'name' => $this->user?->name,
+                'verification_code' => $this->verification_code,
+            ];
 
-        $content = renderEmailHTML($emailTemplate->description, $acceptedTag);
-        $content = renderEmailData($content, $acceptedInputs, $acceptedData);
-        Mail::to($this->user->email)->send(new WelcomeEmailMail($content, $emailTemplate));
+            $acceptedTag = [];
+            $acceptedInputs = normalizeEmailTemplateInputs($emailTemplate->accepted_inputs);
+
+            $content = renderEmailHTML($emailTemplate->description, $acceptedTag);
+            $content = renderEmailData($content, $acceptedInputs, $acceptedData);
+            Mail::to($this->user->email)->send(new WelcomeEmailMail($content, $emailTemplate));
+        } else {
+            Mail::raw("Your AutoRent administrative login verification code is: {$this->verification_code}. This code expires in 10 minutes.", function ($message) {
+                $message->to($this->user->email)
+                    ->subject('AutoRent Admin - Login Verification Code');
+            });
+        }
     }
 }

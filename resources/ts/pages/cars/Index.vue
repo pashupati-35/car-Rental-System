@@ -1,55 +1,64 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
+import { Head, Link, router } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
-import axios from 'axios'
+import Pagination from '@/components/Pagination.vue'
 
 const props = defineProps<{
-  cars?: Array<any>
+  cars?: any
+  filters?: {
+    search?: string
+    seats?: string
+    max_price?: number | string
+    sort_by?: string
+    per_page?: number
+  }
 }>()
 
-const carsList = ref<Array<any>>(props.cars || [])
-const loading = ref(false)
-const searchQuery = ref('')
-const selectedSeats = ref('')
-const maxPrice = ref<number | ''>('')
-const sortBy = ref('latest')
+const searchQuery = ref(props.filters?.search || '')
+const selectedSeats = ref(props.filters?.seats || '')
+const maxPrice = ref<number | ''>(props.filters?.max_price ? Number(props.filters.max_price) : '')
+const sortBy = ref(props.filters?.sort_by || 'latest')
+const perPage = ref(props.filters?.per_page || 9)
 
-const fetchCars = async () => {
-  loading.value = true
-  try {
-    const params: any = {}
-    if (searchQuery.value) params.search = searchQuery.value
-    if (selectedSeats.value) params.seats = selectedSeats.value
-    if (maxPrice.value) params.max_price = maxPrice.value
-
-    const res = await axios.get('/api/cars', { params })
-    if (res.data.status === 'success') {
-      carsList.value = res.data.data
-    }
-  } catch (err) {
-    console.error('Failed to load cars:', err)
-  } finally {
-    loading.value = false
-  }
-}
-
-onMounted(() => {
-  if (!carsList.value.length) {
-    fetchCars()
-  }
-})
-
-const filteredCars = computed(() => {
-  let list = [...carsList.value]
-  if (sortBy.value === 'price-low') {
-    list.sort((a, b) => (a.car_price_per_day || 0) - (b.car_price_per_day || 0))
-  } else if (sortBy.value === 'price-high') {
-    list.sort((a, b) => (b.car_price_per_day || 0) - (a.car_price_per_day || 0))
+const carsList = computed<Array<any>>(() => {
+  if (props.cars && Array.isArray(props.cars.data)) {
+    return props.cars.data
   }
   
-  return list
+  return Array.isArray(props.cars) ? props.cars : []
 })
+
+let searchTimeout: any = null
+
+const applyFilters = () => {
+  router.get('/cars', {
+    search: searchQuery.value || undefined,
+    seats: selectedSeats.value || undefined,
+    max_price: maxPrice.value || undefined,
+    sort_by: sortBy.value || undefined,
+    per_page: perPage.value || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
+
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 400)
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedSeats.value = ''
+  maxPrice.value = ''
+  sortBy.value = 'latest'
+  applyFilters()
+}
 </script>
 
 <template>
@@ -84,7 +93,7 @@ const filteredCars = computed(() => {
             placeholder="Search by car name or model..."
             class="w-full py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             style="padding-left: 2.5rem; padding-right: 1rem"
-            @input="fetchCars"
+            @input="onSearchInput"
           >
           <svg
             class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5"
@@ -103,7 +112,7 @@ const filteredCars = computed(() => {
           <select
             v-model="selectedSeats"
             class="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 focus:outline-none"
-            @change="fetchCars"
+            @change="applyFilters"
           >
             <option value="">
               All Seats
@@ -122,6 +131,7 @@ const filteredCars = computed(() => {
           <select
             v-model="sortBy"
             class="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 focus:outline-none"
+            @change="applyFilters"
           >
             <option value="latest">
               Sort: Newest
@@ -136,7 +146,7 @@ const filteredCars = computed(() => {
 
           <button
             class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/20"
-            @click="fetchCars"
+            @click="applyFilters"
           >
             Refresh Cars
           </button>
@@ -265,9 +275,24 @@ const filteredCars = computed(() => {
         </div>
       </div>
 
+      <!-- Pagination Section -->
+      <div
+        v-if="props.cars && props.cars.links && props.cars.total > 0"
+        class="pt-4"
+      >
+        <Pagination
+          :links="props.cars.links"
+          :from="props.cars.from"
+          :to="props.cars.to"
+          :total="props.cars.total"
+          :per-page="props.cars.per_page"
+          :per-page-options="[6, 9, 12, 24, 50]"
+        />
+      </div>
+
       <!-- Empty State -->
       <div
-        v-else
+        v-else-if="carsList.length === 0"
         class="p-16 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
       >
         <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-4">
@@ -280,8 +305,8 @@ const filteredCars = computed(() => {
           Try adjusting your search criteria, clearing seat filters, or resetting the price filter.
         </p>
         <button
-          class="mt-4 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold"
-          @click="searchQuery = ''; selectedSeats = ''; maxPrice = ''; fetchCars();"
+          class="mt-4 px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold cursor-pointer"
+          @click="resetFilters"
         >
           Reset Filters
         </button>

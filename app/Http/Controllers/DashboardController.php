@@ -32,10 +32,41 @@ class DashboardController extends Controller
 
     public function carsIndex(Request $request)
     {
-        $cars = Car::with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
-            ->where('status', 'verified')
-            ->latest()
-            ->get();
+        $perPage = (int) $request->input('per_page', 9);
+        $search = $request->input('search');
+        $seats = $request->input('seats');
+        $maxPrice = $request->input('max_price');
+        $sortBy = $request->input('sort_by', 'latest');
+
+        $query = Car::with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
+            ->where('status', 'verified');
+
+        if (filled($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('car_name', 'like', "%{$search}%")
+                  ->orWhere('brand', 'like', "%{$search}%")
+                  ->orWhere('car_model', 'like', "%{$search}%")
+                  ->orWhere('car_number', 'like', "%{$search}%");
+            });
+        }
+
+        if (filled($seats)) {
+            $query->where('number_of_seats', '>=', (int) $seats);
+        }
+
+        if (filled($maxPrice)) {
+            $query->where('car_price_per_day', '<=', (float) $maxPrice);
+        }
+
+        if ($sortBy === 'price-low') {
+            $query->orderBy('car_price_per_day', 'asc');
+        } elseif ($sortBy === 'price-high') {
+            $query->orderBy('car_price_per_day', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        $cars = $query->paginate($perPage)->withQueryString();
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -46,6 +77,13 @@ class DashboardController extends Controller
 
         return Inertia::render('cars/Index', [
             'cars' => $cars,
+            'filters' => [
+                'search' => $search ?? '',
+                'seats' => $seats ?? '',
+                'max_price' => $maxPrice ?? '',
+                'sort_by' => $sortBy,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 
@@ -89,15 +127,18 @@ class DashboardController extends Controller
 
     public function showCalendar(Request $request, $id = null)
     {
-        $bookings = BookingCar::select('pick_up_date', 'last_date', 'status', 'car_id')
+        $bookings = BookingCar::with(['car:id,car_name,brand,car_model,car_number', 'customer:id,name,email,contact_number'])
+            ->select('id', 'booking_id', 'car_id', 'customer_id', 'name', 'pick_up_date', 'last_date', 'status', 'total_price')
             ->when($id, fn($q) => $q->where('car_id', $id))
-            ->whereIn('status', ['confirm', 'booked', 'reserved'])
+            ->whereIn('status', ['confirm', 'confirmed', 'booked', 'reserved', 'pending'])
             ->get();
 
-        $cars = Car::select('id', 'car_name', 'car_model', 'car_number')->get();
+        $cars = Car::select('id', 'car_name', 'brand', 'car_model', 'car_number', 'car_price_per_day', 'image')
+            ->where('status', 'verified')
+            ->get();
 
         return Inertia::render('Calendar', [
-            'carId' => $id,
+            'carId' => $id ? (int) $id : null,
             'cars' => $cars,
             'bookings' => $bookings,
         ]);

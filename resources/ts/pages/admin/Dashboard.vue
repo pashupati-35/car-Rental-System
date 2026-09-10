@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import Pagination from '@/components/Pagination.vue'
 
 const props = defineProps<{
   stats?: {
@@ -19,7 +20,7 @@ const props = defineProps<{
   }
   pendingCars?: Array<any>
   recentCars?: Array<any>
-  recentBookings?: Array<any>
+  recentBookings?: any
   recentOwners?: Array<any>
   recentCustomers?: Array<any>
   cmsStats?: Record<string, number>
@@ -40,7 +41,15 @@ const statsData = ref({
 })
 
 const pendingCarsList = ref<any[]>(props.pendingCars || [])
-const recentBookingsList = ref<any[]>(props.recentBookings || [])
+
+const recentBookingsList = computed<any[]>(() => {
+  if (props.recentBookings && props.recentBookings.data) {
+    return props.recentBookings.data
+  }
+  
+  return Array.isArray(props.recentBookings) ? props.recentBookings : []
+})
+
 const recentOwnersList = ref<any[]>(props.recentOwners || [])
 const cmsStatsMap = ref<Record<string, number>>(props.cmsStats || {})
 const refreshing = ref(false)
@@ -526,6 +535,20 @@ const cancelBooking = (bookingId: number) => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <!-- Pagination for Recent Bookings -->
+        <div
+          v-if="props.recentBookings && props.recentBookings.links && props.recentBookings.total > 0"
+          class="pt-2 border-t border-slate-100 dark:border-slate-800"
+        >
+          <Pagination
+            :links="props.recentBookings.links"
+            :from="props.recentBookings.from"
+            :to="props.recentBookings.to"
+            :total="props.recentBookings.total"
+            :per-page="props.recentBookings.per_page"
+          />
         </div>
       </div>
 

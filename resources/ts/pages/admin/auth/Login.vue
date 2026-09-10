@@ -10,6 +10,7 @@ defineProps<{
 }>()
 
 const isMfaStep = ref(false)
+const authType = ref<'totp' | 'email'>('totp')
 const errorMessage = ref('')
 
 const form = useForm({
@@ -27,13 +28,14 @@ const handleLogin = async () => {
   }
 
   try {
-    // API check verification for MFA
+    // API check verification for MFA or Email Auth
     const res = await axios.post('/admin/mfa/check-verification', {
       email: form.email,
       password: form.password,
     })
 
-    if (res.data.status === 'OK' && res.data.data?.is_mfa_enabled) {
+    if (res.data.status === 'OK' && (res.data.data?.is_mfa_enabled || res.data.data?.is_email_authentication_enabled)) {
+      authType.value = res.data.data?.is_mfa_enabled ? 'totp' : 'email'
       isMfaStep.value = true
     } else {
       // Normal direct login
@@ -166,6 +168,7 @@ const handleLogin = async () => {
         :email="form.email"
         :password="form.password"
         :remember="form.remember"
+        :auth-type="authType"
         @back="isMfaStep = false"
       />
     </div>

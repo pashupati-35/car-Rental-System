@@ -31,7 +31,8 @@ const adminNav = [
   { title: 'Customers', icon: 'ri-user-smile-line', href: '/admin/customers', badge: '' },
   { title: 'Master CMS Suite', icon: 'ri-layout-masonry-line', href: '/admin/cms', badge: '16' },
   { title: 'Email Templates', icon: 'ri-mail-settings-line', href: '/admin/email-templates', badge: '' },
-  { title: 'Admin Profile & Security', icon: 'ri-shield-user-line', href: '/admin/profile', badge: '' },
+  { title: 'Admin Profile', icon: 'ri-user-settings-line', href: '/admin/profile', badge: '' },
+  { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/admin/security', badge: '' },
 ]
 
 const cmsQuickLinks = [
@@ -54,11 +55,24 @@ const cmsQuickLinks = [
 ]
 
 const isActive = (href: string) => {
+  const current = currentUrl.value.split('?')[0]
   if (href === '/admin/dashboard') {
-    return currentUrl.value === '/admin/dashboard' || currentUrl.value === '/admin'
+    return current === '/admin/dashboard' || current === '/admin'
+  }
+  if (href === '/admin/profile') {
+    return current === '/admin/profile'
+  }
+  if (href === '/admin/security') {
+    return current === '/admin/security'
+  }
+  if (href === '/cars') {
+    return current === '/cars' || current.startsWith('/cars/')
+  }
+  if (href === '/car-calendar') {
+    return current.startsWith('/car-calendar')
   }
   
-  return currentUrl.value.startsWith(href)
+  return current.startsWith(href)
 }
 
 const logout = () => {
@@ -127,7 +141,8 @@ onUnmounted(() => {
           >
             <button
               type="button"
-              class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
+              :class="(currentUrl.startsWith('/admin/cms') || currentUrl.startsWith('/admin/cars')) ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
+              class="px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
               @click="showCmsMenu = !showCmsMenu; showProfileMenu = false"
             >
               <i class="ri-layout-masonry-line text-sm text-indigo-600 dark:text-indigo-400" />
@@ -173,13 +188,15 @@ onUnmounted(() => {
           </Link>
           <Link
             href="/cars"
-            class="px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            :class="isActive('/cars') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors"
           >
             Browse Fleet
           </Link>
           <Link
             href="/car-calendar"
-            class="px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            :class="isActive('/car-calendar') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors"
           >
             Calendar
           </Link>
@@ -203,26 +220,25 @@ onUnmounted(() => {
           >
             <button
               type="button"
-              class="flex items-center gap-2 sm:gap-2.5 p-1 sm:p-1.5 sm:pr-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-all cursor-pointer"
+              class="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer"
               @click="showProfileMenu = !showProfileMenu; showCmsMenu = false"
             >
-              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
-                {{ displayName.charAt(0).toUpperCase() }}
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-800 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                {{ (displayName || 'A')[0].toUpperCase() }}
               </div>
-              <div class="hidden sm:block text-left">
-                <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1.5">
+              <div
+                class="text-left hidden lg:block"
+                style="padding-right: 0.25rem"
+              >
+                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block leading-tight truncate max-w-[120px]">
                   {{ displayName }}
-                  <span
-                    class="w-2 h-2 rounded-full bg-emerald-500 inline-block"
-                    title="Active"
-                  />
-                </p>
-                <p class="text-[10px] text-slate-500 font-medium">
+                </span>
+                <span class="text-[10px] font-medium text-slate-400 block leading-none">
                   Super Admin
-                </p>
+                </span>
               </div>
               <i
-                class="ri-arrow-down-s-line text-slate-400 text-xs transition-transform hidden sm:inline"
+                class="ri-arrow-down-s-line text-xs text-slate-400 transition-transform"
                 :class="showProfileMenu ? 'rotate-180' : ''"
               />
             </button>
@@ -230,21 +246,15 @@ onUnmounted(() => {
             <!-- Profile Popup Menu -->
             <div
               v-if="showProfileMenu"
-              class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-3 z-50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150"
+              class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-2 z-50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150"
             >
               <!-- User Info Header -->
-              <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-center">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-blue-600 text-white font-bold text-base flex items-center justify-center mx-auto mb-1.5 shadow-sm">
-                  {{ displayName.charAt(0).toUpperCase() }}
-                </div>
+              <div class="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-center space-y-0.5">
                 <div class="flex items-center justify-center gap-1.5">
                   <span class="w-2 h-2 rounded-full bg-emerald-500" />
                   <span class="text-xs font-bold text-slate-900 dark:text-white">{{ displayName }}</span>
                 </div>
                 <span class="text-[11px] text-slate-500 block truncate">{{ adminEmail }}</span>
-                <span class="mt-1 inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300">
-                  Super Administrator
-                </span>
               </div>
 
               <!-- Menu Items -->
@@ -259,7 +269,7 @@ onUnmounted(() => {
                 </Link>
 
                 <Link
-                  href="/admin/profile"
+                  href="/admin/security"
                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   @click="showProfileMenu = false"
                 >
@@ -523,7 +533,7 @@ onUnmounted(() => {
             CMS Control
           </Link>
           <Link
-            href="/admin/profile"
+            href="/admin/security"
             class="hover:text-indigo-600 transition-colors"
           >
             Security

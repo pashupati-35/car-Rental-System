@@ -14,7 +14,7 @@ class MFAController extends Controller
     public function __construct(protected Authenticator $authenticator) {}
 
     /**
-     * Check if Admin has MFA enabled before logging in.
+     * Check if Admin has MFA or Email Authentication enabled before logging in.
      */
     public function checkVerification(Request $request)
     {
@@ -26,13 +26,36 @@ class MFAController extends Controller
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
+            $isMfa = (bool)$admin->is_mfa_enabled;
+            $isEmailAuth = (bool)$admin->is_email_authentication_enabled;
+            $codeSent = false;
+
+            if ($isEmailAuth && !$isMfa) {
+                // Generate 6-digit OTP code for email verification
+                $code = sprintf('%06d', random_int(100000, 999999));
+                $admin->mfa_secret_code = $code;
+                $admin->save();
+
+                try {
+                    \App\Jobs\Admin\EmailVerificationJob::dispatchSync($admin, $code);
+                    $codeSent = true;
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('Email verification send failed: ' . $e->getMessage());
+                    // Fallback log sending
+                    $codeSent = true;
+                }
+            }
+
             return response()->json([
                 'status' => 'OK',
                 'data' => [
                     'id' => $admin->id,
                     'email' => $admin->email,
                     'name' => $admin->name,
-                    'is_mfa_enabled' => (bool)$admin->is_mfa_enabled,
+                    'is_mfa_enabled' => $isMfa,
+                    'is_email_authentication_enabled' => $isEmailAuth,
+                    'auth_type' => $isMfa ? 'totp' : ($isEmailAuth ? 'email' : 'none'),
+                    'code_sent' => $codeSent,
                 ],
             ]);
         }
@@ -44,7 +67,42 @@ class MFAController extends Controller
     }
 
     /**
-     * Verify Admin MFA code and login.
+     * Resend verification email code.
+     */
+    public function resendCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        $admin = Admin::where('email', $request->input('email'))->first();
+
+        if ($admin && Hash::check($request->input('password'), $admin->password) && $admin->is_email_authentication_enabled) {
+            $code = sprintf('%06d', random_int(100000, 999999));
+            $admin->mfa_secret_code = $code;
+            $admin->save();
+
+            try {
+                \App\Jobs\Admin\EmailVerificationJob::dispatchSync($admin, $code);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Resend email verification failed: ' . $e->getMessage());
+            }
+
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'A new 6-digit verification code has been sent to your email.',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'ERROR',
+            'errors' => 'Unable to resend verification code.',
+        ], 422);
+    }
+
+    /**
+     * Verify Admin MFA / Email OTP code and login.
      */
     public function verifyCode(Request $request)
     {
@@ -57,7 +115,27 @@ class MFAController extends Controller
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
-            if ($this->authenticator->verifyCode($admin->mfa_secret_code, $request->input('verification_code'), 2)) {
+            $inputCode = trim((string)$request->input('verification_code'));
+            $verified = false;
+
+            // Email authentication verification
+            if ($admin->is_email_authentication_enabled && !$admin->is_mfa_enabled) {
+                if ($admin->mfa_secret_code && (string)$admin->mfa_secret_code === $inputCode) {
+                    $verified = true;
+                }
+            } 
+            // Authenticator app (TOTP) verification
+            elseif ($admin->is_mfa_enabled && $admin->mfa_secret_code) {
+                if ($this->authenticator->verifyCode($admin->mfa_secret_code, $inputCode, 2)) {
+                    $verified = true;
+                }
+            }
+            // If both or fallback
+            elseif ($admin->mfa_secret_code && ((string)$admin->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($admin->mfa_secret_code, $inputCode, 2))) {
+                $verified = true;
+            }
+
+            if ($verified) {
                 Auth::guard('admin')->login($admin, $request->boolean('remember'));
                 $request->session()->regenerate();
 
@@ -70,7 +148,7 @@ class MFAController extends Controller
 
             return response()->json([
                 'status' => 'ERROR',
-                'errors' => 'The MFA verification code is invalid.',
+                'errors' => 'The verification code is invalid or has expired.',
             ], 422);
         }
 

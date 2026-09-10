@@ -30,6 +30,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('mfa/verify', [AuthenticatedSessionController::class, 'showMfa'])->name('mfa.verify');
         Route::post('mfa/check-verification', [MFAController::class, 'checkVerification'])->name('mfa.check');
         Route::post('mfa/verify-code', [MFAController::class, 'verifyCode'])->name('mfa.verify-code');
+        Route::post('mfa/resend-code', [MFAController::class, 'resendCode'])->name('mfa.resend-code');
     });
 
     // Authenticated Admin routes
@@ -37,6 +38,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('/security', [ProfileController::class, 'security'])->name('security');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
