@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityLogController;
-use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\Auth\LoginController;
@@ -9,6 +8,8 @@ use App\Http\Controllers\Admin\Auth\MFAController;
 use App\Http\Controllers\Admin\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\RegisteredAdminController;
+use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\Admin\CarController;
 use App\Http\Controllers\Admin\Cms\Album\AlbumController;
 use App\Http\Controllers\Admin\Cms\Album\Value\AlbumValueController;
 use App\Http\Controllers\Admin\Cms\AttachmentTypeController;
@@ -38,6 +39,8 @@ use App\Http\Controllers\Admin\Cms\Slider\SliderController;
 use App\Http\Controllers\Admin\Cms\Slider\Type\SliderTypeController;
 use App\Http\Controllers\Admin\Cms\Team\TeamController;
 use App\Http\Controllers\Admin\Cms\Testimonial\TestimonialController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DriverController;
 use App\Http\Controllers\Admin\EmailLogController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\Location\CityController;
@@ -73,36 +76,27 @@ Route::group(['prefix' => 'admin'], function ($route) {
     $route->post('mfa/resend-code', [MFAController::class, 'resendCode'])->name('admin.mfa.resend-code');
 });
 
-// Authenticated Admin Routes
+// Authenticated Admin Action & API Routes
 Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route) {
     $route->get('do-verify', [LoginController::class, 'verify']);
-    $route->get('dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('admin.dashboard');
-    $route->get('account/security', [ProfileController::class, 'security'])->name('admin.account-security');
     $route->post('theme-style', [ProfileController::class, 'updateThemeStyle'])->name('admin.theme-style');
     $route->post('dashboard/stats', [DashboardController::class, 'getStats']);
     $route->get('logout', [LoginController::class, 'logout'])->name('admin.logout');
-    // Activity Logs
-    $route->get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+
+    // Activity Logs API
     $route->get('activity-logs/list', [ActivityLogController::class, 'data'])->name('admin.activity-logs.list');
     $route->get('activity-logs/owner/{ownerId}', [ActivityLogController::class, 'getByOwner'])->name('admin.activity-logs.by-owner');
-    $route->get('owner/{ownerId}/activity-logs', [ActivityLogController::class, 'getByOwner'])->name('admin.owner.activity-logs');
     $route->get('activity-logs/customer/{customerId}', [ActivityLogController::class, 'getByCustomer'])->name('admin.activity-logs.by-customer');
-    $route->get('customer/{customerId}/activity-logs', [ActivityLogController::class, 'getByCustomer'])->name('admin.customer.activity-logs');
 
-    // Email Logs
-    $route->get('email-logs', [EmailLogController::class, 'index'])->name('admin.email-logs.index');
+    // Email Logs API
     $route->get('email-logs/list', [EmailLogController::class, 'data'])->name('admin.email-logs.list');
     $route->get('email-logs/owner/{ownerId}', [EmailLogController::class, 'getByOwner'])->name('admin.email-logs.by-owner');
-    $route->get('owner/{ownerId}/email-logs', [EmailLogController::class, 'getByOwner'])->name('admin.owner.email-logs');
     $route->get('email-logs/customer/{customerId}', [EmailLogController::class, 'getByCustomer'])->name('admin.email-logs.by-customer');
-    $route->get('customer/{customerId}/email-logs', [EmailLogController::class, 'getByCustomer'])->name('admin.customer.email-logs');
     $route->get('email-logs/{emailLog}', [EmailLogController::class, 'show'])->name('admin.email-logs.show');
     $route->get('email-logs/{emailLog}/preview', [EmailLogController::class, 'preview'])->name('admin.email-logs.preview');
     $route->delete('email-logs/{emailLog}', [EmailLogController::class, 'destroy'])->name('admin.email-logs.destroy');
 
-    // Admin User & Profile
-    $route->get('profile', [ProfileController::class, 'edit'])->name('admin.profile.edit');
-    $route->get('security', [ProfileController::class, 'security'])->name('admin.security');
+    // Admin User & Profile Actions
     $route->patch('profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     $route->patch('password', [ProfileController::class, 'updatePassword'])->name('admin.password.update');
     $route->delete('profile', [ProfileController::class, 'destroy'])->name('admin.profile.destroy');
@@ -111,6 +105,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->resource('admin-user', AdminUserController::class);
     $route->get('admin-user/get/all/{userType}', [AdminUserController::class, 'getByUserType'])->name('admin-user.user-type');
     $route->post('admin-user/{id}/change-password', [AdminUserController::class, 'changePassword']);
+
     // MFA Management (Authenticated)
     $route->get('mfa-authenticator', [MFAController::class, 'getMfaAuthenticatorCode']);
     $route->post('mfa/generate', [MFAController::class, 'generate'])->name('admin.mfa.generate');
@@ -118,131 +113,93 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->post('mfa/deactivate', [MFAController::class, 'deactivate'])->name('admin.mfa.deactivate');
     $route->post('mfa/email/activate', [MFAController::class, 'activateEmailAuthenticator'])->name('admin.mfa.email.activate');
     $route->post('mfa/email/deactivate', [MFAController::class, 'deactivateEmailAuthenticator'])->name('admin.mfa.email.deactivate');
-    $route->post('activate/email-authenticator', [MFAController::class, 'activateEmailAuthenticator']);
-    $route->post('activate/mfa-authenticator', [MFAController::class, 'activateMfaAuthenticator']);
-    $route->post('deactivate/mfa-authenticator', [MFAController::class, 'deactivateMfaAuthenticator']);
-    $route->post('deactivate/email-authenticator', [MFAController::class, 'deactivateEmailAuthenticator']);
 
     // Email template
     $route->get('email-template/{emailTemplate}/preview', [EmailTemplateController::class, 'preview'])->name('admin.email-template.preview');
     $route->get('email-template/preview', [EmailTemplateController::class, 'previewByType'])->name('admin.email-template.preview-by-type');
-    $route->resource('email-template', EmailTemplateController::class);
-    $route->resource('email-templates', EmailTemplateController::class);
+    $route->resource('email-templates', EmailTemplateController::class)->except(['index', 'edit']);
     $route->post('email-template/clone', [EmailTemplateController::class, 'cloneEmailTemplate']);
     $route->get('email-template-roles', [EmailTemplateController::class, 'emailTemplateRoles']);
 
-    // Master CMS Suite View Route
-    $route->get('cms', function (\Illuminate\Http\Request $request) {
-        return \Inertia\Inertia::render('admin/cms/Index', [
-            'initialModule' => $request->query('module', 'faqs'),
-        ]);
-    })->name('admin.cms');
-
-    // Album
+    // CMS - Album & Value
     $route->post('album/sort', [AlbumController::class, 'sort']);
     $route->post('album/{id}/update', [AlbumController::class, 'update']);
     $route->get('album/active/all', [AlbumController::class, 'activeAll']);
     $route->post('album/bulk-store', [AlbumController::class, 'bulkStore']);
     $route->apiResource('album', AlbumController::class);
-
-    // Album Tag / Value
     $route->post('album/{album_id}/value/{value_id}/update', [AlbumValueController::class, 'update']);
     $route->post('album/{album_id}/value/sort', [AlbumValueController::class, 'sort']);
     $route->apiResource('album.value', AlbumValueController::class);
 
-    // Partner
+    // CMS - Partner, Contact, Page
     $route->post('partner/{id}', [PartnerController::class, 'update']);
     $route->apiResource('partner', PartnerController::class);
-
-    // Contact-us
     $route->apiResource('contact', ContactUsController::class);
-
-    // Page
     $route->apiResource('page', PageController::class);
 
-    // Faq Category
+    // CMS - Faq & Category
     $route->get('faq-category/parent/all', [FaqCategoryController::class, 'getParent']);
     $route->post('faq-category/sort', [FaqCategoryController::class, 'sort']);
     $route->apiResource('faq-category', FaqCategoryController::class);
-
-    // Faq
     $route->post('faq/sort', [FaqController::class, 'sort']);
     $route->apiResource('faq', FaqController::class);
 
-    // Blog
+    // CMS - Blog & Category
     $route->post('blog/{id}/update', [BlogController::class, 'update']);
     $route->apiResource('blog', BlogController::class);
-
-    // News and updates
-    $route->post('news-and-update/{id}/update', [NewsAndUpdatesController::class, 'update']);
-    $route->apiResource('news-and-update', NewsAndUpdatesController::class);
-
-    // Blog Category
     $route->get('blog-category/get/parent', [BlogCategoryController::class, 'parent']);
     $route->post('blog-category/{id}/update', [BlogCategoryController::class, 'update']);
     $route->apiResource('blog-category', BlogCategoryController::class);
 
-    // Slider
+    // CMS - News and updates
+    $route->post('news-and-update/{id}/update', [NewsAndUpdatesController::class, 'update']);
+    $route->apiResource('news-and-update', NewsAndUpdatesController::class);
+
+    // CMS - Slider & Type
     $route->post('slider/{id}/update', [SliderController::class, 'update']);
     $route->post('slider/sort', [SliderController::class, 'sort']);
     $route->apiResource('slider', SliderController::class);
-
-    // Slider Type
     $route->apiResource('slider-type', SliderTypeController::class);
     $route->get('slider-type-active', [SliderTypeController::class, 'getActive']);
 
-    // Testimonial
+    // CMS - Testimonial & Enquiry
     $route->get('testimonial/list/view', [TestimonialController::class, 'indexView'])->name('admin.testimonial.indexView');
     $route->get('testimonial/{id}/edit', [TestimonialController::class, 'edit']);
     $route->post('testimonial/{id}/update', [TestimonialController::class, 'update']);
     $route->post('testimonial/sort', [TestimonialController::class, 'sort']);
     $route->apiResource('testimonial', TestimonialController::class);
-
-    // Enquiry
     $route->apiResource('enquiry', EnquiryController::class);
 
-    // Popup
+    // CMS - Popup, Notice, Team
     $route->post('popup/{id}', [PopupController::class, 'update']);
     $route->apiResource('popup', PopupController::class);
-
-    // Notice
     $route->post('notice/sort', [NoticeController::class, 'sort']);
     $route->apiResource('notice', NoticeController::class);
-
-    // Team
     $route->post('team/{id}', [TeamController::class, 'update']);
     $route->post('team/get/sort', [TeamController::class, 'sort']);
     $route->apiResource('team', TeamController::class);
 
-    // Download Type
+    // CMS - Download & Type
     $route->get('download-type/get/all', [DownloadTypeController::class, 'getAll']);
     $route->post('download-type/sort', [DownloadTypeController::class, 'sort']);
     $route->get('download-type-active', [DownloadTypeController::class, 'getActive']);
     $route->apiResource('download-type', DownloadTypeController::class);
-
-    // Download
     $route->post('download/sort', [DownloadController::class, 'sort']);
     $route->post('download/{id}', [DownloadController::class, 'update']);
     $route->apiResource('download', DownloadController::class);
 
-    // Media
+    // CMS - Media, Menu
     $route->apiResource('media', MediaController::class);
-
-    // Menu
     $route->post('menu/sort', [MenuController::class, 'sort']);
     $route->apiResource('menu', MenuController::class);
-
-    // Menu Item
     $route->post('menu/{id}/menu-item/sort', [MenuItemController::class, 'sort']);
     $route->apiResource('menu.menu-item', MenuItemController::class);
 
-    // Attachment Type
+    // CMS - Attachments & Documents
     $route->apiResource('attachment-type', AttachmentTypeController::class);
-
-    // Document Type
     $route->apiResource('document-type', DocumentTypeController::class);
 
-    // Site setting
+    // CMS - Site setting
     $route->get('site-setting/get/all', [SiteSettingController::class, 'all']);
     $route->resource('site-setting', SiteSettingController::class);
     $route->post('site-setting/{id}/update', [SiteSettingController::class, 'update']);
@@ -251,25 +208,23 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->post('site-setting/test-email', [SiteSettingController::class, 'sendTestEmail']);
     $route->get('site-setting/get/colors', [SiteSettingController::class, 'getSettingColors']);
 
-    // Career
+    // CMS - Career & Applications
     $route->get('career/{id}/edit', [CareerController::class, 'edit']);
     $route->post('career/sort', [CareerController::class, 'sort']);
     $route->apiResource('career', CareerController::class);
-
-    // Career Application
     $route->get('career/application/get/all', [CareerApplicationController::class, 'all']);
     $route->apiResource('career.application', CareerApplicationController::class);
 
-    // Payment Gateway Setting & Options
+    // CMS - Payment Gateway & Options
     $route->get('option/{key}', [OptionController::class, 'getOptionByKey']);
     $route->apiResource('setting/payment-gateway', PaymentGatewaySettingController::class);
 
-    // Service
+    // CMS - Service
     $route->post('service/{id}/update', [ServiceController::class, 'update']);
     $route->post('service/sort', [ServiceController::class, 'sort']);
     $route->apiResource('service', ServiceController::class);
 
-    // Country, State, City
+    // Location - Country, State, City
     $route->post('country/{id}/update', [CountryController::class, 'update']);
     $route->apiResource('country', CountryController::class);
     $route->post('state/{id}/update', [StateController::class, 'update']);
@@ -277,68 +232,65 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->post('city/{id}/update', [CityController::class, 'update']);
     $route->apiResource('city', CityController::class);
 
-    // Managing owners & Admin creating owner
-    $route->get('owners', [OwnerController::class, 'index'])->name('admin.owner.index');
-    $route->get('owners-list', [OwnerController::class, 'index'])->name('admin.owners');
-    $route->post('owners', [AdminController::class, 'createOwner'])->name('admin.owner.store');
-    $route->get('owners/{id}', [OwnerController::class, 'show'])->name('admin.owner.show');
-    $route->get('owner/edit/{id}', [OwnerController::class, 'edit'])->name('admin.owner.edit');
-    $route->get('owner/view/{id}', [OwnerController::class, 'view'])->name('admin.owner.view');
-    $route->delete('owner/delete/{id}', [OwnerController::class, 'destroy'])->name('admin.owner.delete');
+    // ==========================================
+    // Fleet Owners Management (OwnerController)
+    // ==========================================
+    $route->get('api/owners', [OwnerController::class, 'index'])->name('admin.api.owners');
+    $route->post('owners', [OwnerController::class, 'store'])->name('admin.owner.store');
+    $route->get('api/owners/{id}', [OwnerController::class, 'show'])->name('admin.api.owner.show');
+    $route->match(['put', 'patch', 'post'], 'owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.update');
     $route->delete('owners/{id}', [OwnerController::class, 'destroy'])->name('admin.owner.destroy');
-    $route->patch('owner/update/{id}', [OwnerController::class, 'update'])->name('admin.owner.update');
-    $route->patch('owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.patch');
-    $route->post('owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.update.post');
 
-    // Owner nested fleet cars & drivers
+    // Owner Nested Fleet Cars & Drivers
     $route->post('owners/{id}/cars', [OwnerController::class, 'storeCar'])->name('admin.owner.cars.store');
-    $route->post('owners/{id}/cars/{carId}', [OwnerController::class, 'updateCar'])->name('admin.owner.cars.update');
-    $route->patch('owners/{id}/cars/{carId}', [OwnerController::class, 'updateCar'])->name('admin.owner.cars.patch');
+    $route->match(['put', 'patch', 'post'], 'owners/{id}/cars/{carId}', [OwnerController::class, 'updateCar'])->name('admin.owner.cars.update');
     $route->delete('owners/{id}/cars/{carId}', [OwnerController::class, 'destroyCar'])->name('admin.owner.cars.destroy');
+
     $route->post('owners/{id}/drivers', [OwnerController::class, 'storeDriver'])->name('admin.owner.drivers.store');
-    $route->post('owners/{id}/drivers/{driverId}', [OwnerController::class, 'updateDriver'])->name('admin.owner.drivers.update');
-    $route->patch('owners/{id}/drivers/{driverId}', [OwnerController::class, 'updateDriver'])->name('admin.owner.drivers.patch');
+    $route->match(['put', 'patch', 'post'], 'owners/{id}/drivers/{driverId}', [OwnerController::class, 'updateDriver'])->name('admin.owner.drivers.update');
     $route->delete('owners/{id}/drivers/{driverId}', [OwnerController::class, 'destroyDriver'])->name('admin.owner.drivers.destroy');
 
-    // Managing cars
-    $route->get('cars', [AdminController::class, 'index'])->name('admin.cars.index');
-    $route->get('cars-list', [AdminController::class, 'index'])->name('admin.cars-list');
-    $route->get('cars/{id}', [AdminController::class, 'show'])->name('admin.cars.show');
-    $route->patch('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update');
-    $route->post('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update.post');
-    $route->delete('cars/{id}', [AdminController::class, 'destroyCar'])->name('admin.cars.destroy');
-    $route->patch('cars/{id}/verify', [AdminController::class, 'verifyCar'])->name('admin.cars.verify');
-    $route->patch('cars/{id}/reject', [AdminController::class, 'rejectCar'])->name('admin.cars.reject');
-    $route->get('booked-cars', [AdminController::class, 'viewBookedCars'])->name('admin.booked-cars');
-    $route->get('calendar-events', [AdminController::class, 'getCalendarEvents'])->name('admin.calendar-events');
+    // ==========================================
+    // Fleet Cars Management (CarController)
+    // ==========================================
+    $route->get('api/cars', [CarController::class, 'index'])->name('admin.api.cars');
+    $route->get('api/cars/{id}', [CarController::class, 'show'])->name('admin.api.car.show');
+    $route->match(['put', 'patch', 'post'], 'cars/{id}', [CarController::class, 'update'])->name('admin.cars.update');
+    $route->delete('cars/{id}', [CarController::class, 'destroy'])->name('admin.cars.destroy');
+    $route->patch('cars/{id}/verify', [CarController::class, 'verify'])->name('admin.cars.verify');
+    $route->patch('cars/{id}/reject', [CarController::class, 'reject'])->name('admin.cars.reject');
+    $route->get('calendar-events', [CarController::class, 'calendarEvents'])->name('admin.calendar-events');
 
-    // Managing drivers directory
-    $route->get('drivers', [AdminController::class, 'viewDrivers'])->name('admin.drivers');
-    $route->post('drivers', [AdminController::class, 'storeDriver'])->name('admin.drivers.store');
-    $route->patch('drivers/{id}', [AdminController::class, 'updateDriver'])->name('admin.drivers.update');
-    $route->post('drivers/{id}', [AdminController::class, 'updateDriver'])->name('admin.drivers.update.post');
-    $route->delete('drivers/{id}', [AdminController::class, 'destroyDriver'])->name('admin.drivers.destroy');
+    // ==========================================
+    // Drivers Directory (DriverController)
+    // ==========================================
+    $route->get('api/drivers', [DriverController::class, 'index'])->name('admin.api.drivers');
+    $route->post('drivers', [DriverController::class, 'store'])->name('admin.drivers.store');
+    $route->get('api/drivers/{id}', [DriverController::class, 'show'])->name('admin.api.driver.show');
+    $route->match(['put', 'patch', 'post'], 'drivers/{id}', [DriverController::class, 'update'])->name('admin.drivers.update');
+    $route->delete('drivers/{id}', [DriverController::class, 'destroy'])->name('admin.drivers.destroy');
 
-    // Managing customers
-    $route->get('customers', [AdminController::class, 'viewCustomers'])->name('admin.customers');
-    $route->post('customers', [AdminController::class, 'createCustomer'])->name('admin.customer.store');
-    $route->get('customers/{id}', [AdminController::class, 'showCustomer'])->name('admin.customer.show');
-    $route->patch('customers/{id}', [AdminController::class, 'updateCustomer'])->name('admin.customer.update');
-    $route->post('customers/{id}', [AdminController::class, 'updateCustomer'])->name('admin.customer.update.post');
-    $route->delete('customers/{id}', [AdminController::class, 'destroy'])->name('admin.customer.destroy');
+    // ==========================================
+    // Customers Management (CustomerController)
+    // ==========================================
+    $route->get('api/customers', [CustomerController::class, 'index'])->name('admin.api.customers');
+    $route->post('customers', [CustomerController::class, 'store'])->name('admin.customer.store');
+    $route->get('api/customers/{id}', [CustomerController::class, 'show'])->name('admin.api.customer.show');
+    $route->match(['put', 'patch', 'post'], 'customers/{id}', [CustomerController::class, 'update'])->name('admin.customer.update');
+    $route->delete('customers/{id}', [CustomerController::class, 'destroy'])->name('admin.customer.destroy');
 
-    // Customer nested bookings & payments
-    $route->post('customers/{id}/bookings', [AdminController::class, 'storeCustomerBooking'])->name('admin.customer.bookings.store');
-    $route->post('customers/{id}/bookings/{bookingId}', [AdminController::class, 'updateCustomerBooking'])->name('admin.customer.bookings.update');
-    $route->patch('customers/{id}/bookings/{bookingId}', [AdminController::class, 'updateCustomerBooking'])->name('admin.customer.bookings.patch');
-    $route->delete('customers/{id}/bookings/{bookingId}', [AdminController::class, 'destroyCustomerBooking'])->name('admin.customer.bookings.destroy');
-    $route->post('customers/{id}/payments', [AdminController::class, 'storeCustomerPayment'])->name('admin.customer.payments.store');
-    $route->delete('customers/{id}/payments/{paymentId}', [AdminController::class, 'destroyCustomerPayment'])->name('admin.customer.payments.destroy');
+    // Customer Nested Bookings & Payments
+    $route->post('customers/{id}/bookings', [CustomerController::class, 'storeBooking'])->name('admin.customer.bookings.store');
+    $route->match(['put', 'patch', 'post'], 'customers/{id}/bookings/{bookingId}', [CustomerController::class, 'updateBooking'])->name('admin.customer.bookings.update');
+    $route->delete('customers/{id}/bookings/{bookingId}', [CustomerController::class, 'destroyBooking'])->name('admin.customer.bookings.destroy');
+    $route->post('customers/{id}/payments', [CustomerController::class, 'storePayment'])->name('admin.customer.payments.store');
+    $route->delete('customers/{id}/payments/{paymentId}', [CustomerController::class, 'destroyPayment'])->name('admin.customer.payments.destroy');
 
-    // Managing bookings
-    $route->get('booked-cars', [AdminController::class, 'viewBookings'])->name('admin.booked-cars');
-    $route->get('bookings', [AdminController::class, 'viewBookings'])->name('admin.bookings');
-    $route->post('bookings/{id}/confirm', [AdminController::class, 'confirmBooking'])->name('admin.booking.confirm');
-    $route->post('bookings/{id}/cancel', [AdminController::class, 'cancelBooking'])->name('admin.booking.cancel');
-    $route->delete('bookings/{id}', [AdminController::class, 'destroyBooking'])->name('admin.booking.destroy');
+    // ==========================================
+    // Bookings Management (BookingController)
+    // ==========================================
+    $route->get('api/bookings', [BookingController::class, 'index'])->name('admin.api.bookings');
+    $route->post('bookings/{id}/confirm', [BookingController::class, 'confirm'])->name('admin.booking.confirm');
+    $route->post('bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('admin.booking.cancel');
+    $route->delete('bookings/{id}', [BookingController::class, 'destroy'])->name('admin.booking.destroy');
 });

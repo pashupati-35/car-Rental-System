@@ -30,6 +30,9 @@ Route::get('/cms', function (\Illuminate\Http\Request $request) {
     return redirect('/admin/cms' . ($request->getQueryString() ? '?' . $request->getQueryString() : ''));
 });
 
+// Admin Inertia Vue Page routes
+require __DIR__ . '/admin-vue.php';
+
 // Authentication routes
 require __DIR__ . '/admin-auth.php';
 require __DIR__ . '/owner-auth.php';

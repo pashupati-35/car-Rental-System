@@ -7,7 +7,9 @@ use App\Http\Requests\Admin\Car\StoreCarRequest;
 use App\Http\Requests\Admin\Car\UpdateCarRequest;
 use App\Http\Requests\Admin\Driver\StoreDriverRequest;
 use App\Http\Requests\Admin\Driver\UpdateDriverRequest;
+use App\Http\Requests\Admin\Owner\StoreOwnerRequest;
 use App\Http\Requests\Admin\Owner\UpdateOwnerRequest;
+use App\Services\Auth\PasswordResetService;
 use App\Services\BookingService;
 use App\Services\CarService;
 use App\Services\DriverService;
@@ -15,8 +17,7 @@ use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class OwnerController extends Controller
 {
@@ -27,6 +28,9 @@ class OwnerController extends Controller
         protected BookingService $bookingService,
     ) {}
 
+    /**
+     * Get paginated owners list (JSON response).
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -34,53 +38,60 @@ class OwnerController extends Controller
 
         $owners = $this->ownerService->getAdminOwners(['search' => $search], $perPage);
 
-        if ($request->wantsJson()) {
-            return response()->json([
-                'status' => 'OK',
-                'data' => $owners,
-            ]);
-        }
-        return Inertia::render('admin/OwnersList', [
+        return response()->json([
+            'status' => 'success',
             'owners' => $owners,
             'filters' => [
                 'search' => $search,
                 'per_page' => $perPage,
-            ]
+            ],
         ]);
     }
 
     /**
-     * Dedicated Owner Hub / Dashboard for Admin to inspect and manage everything.
+     * Register a new fleet owner by Admin.
+     */
+    public function store(StoreOwnerRequest $request)
+    {
+        $validated = $request->validated();
+        $validated['admin_id'] = Auth::guard('admin')->id();
+        if (empty($validated['password'])) {
+            $validated['password'] = Hash::make(Str::random(16));
+        } else {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $owner = $this->ownerService->createOwner($validated, $request->file('image'));
+        $mailResult = PasswordResetService::sendResetLink($owner->email, 'owner');
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Fleet Owner registered. A password setup email has been dispatched.',
+                'data' => $owner,
+                'reset_url' => $mailResult['reset_url'] ?? null,
+            ], 201);
+        }
+
+        return redirect()->back()->with('success', 'Fleet Owner registered! A password setup email has been sent.');
+    }
+
+    /**
+     * Get owner details / hub data (JSON response).
      */
     public function show(Request $request, $id)
     {
         $data = $this->ownerService->getOwnerHubDetails((int) $id);
 
-        return Inertia::render('admin/OwnerDetails', $data);
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
     }
 
-    public function edit($id)
-    {
-        $owner = $this->ownerService->getOwnerById((int) $id);
-        return view('admin.auth.owner_edit', compact('owner'));
-    }
-
-    public function view($id)
-    {
-        return $this->show(request(), $id);
-    }
-
-    public function destroy($id)
-    {
-        $this->ownerService->deleteOwner((int) $id);
-
-        if (request()->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Owner deleted successfully.']);
-        }
-
-        return redirect()->route('admin.owner.index')->with('status', 'Owner deleted successfully.');
-    }
-
+    /**
+     * Update owner profile.
+     */
     public function update(UpdateOwnerRequest $request, $id)
     {
         $validated = $request->validated();
@@ -94,10 +105,31 @@ class OwnerController extends Controller
         $owner = $this->ownerService->updateOwner((int) $id, $validated, $request->file('image'));
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Owner updated successfully.', 'data' => $owner]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Owner updated successfully.',
+                'data' => $owner,
+            ]);
         }
 
-        return redirect()->back()->with('status', 'Owner updated successfully.');
+        return redirect()->back()->with('success', 'Owner updated successfully.');
+    }
+
+    /**
+     * Delete owner.
+     */
+    public function destroy($id)
+    {
+        $this->ownerService->deleteOwner((int) $id);
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Owner deleted successfully.',
+            ]);
+        }
+
+        return redirect()->route('admin.owners')->with('success', 'Owner deleted successfully.');
     }
 
     /**
@@ -107,7 +139,7 @@ class OwnerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->carService->createCarForOwner(
+        $car = $this->carService->createCarForOwner(
             (int) $ownerId,
             $validated,
             $request->file('car_photo'),
@@ -115,10 +147,14 @@ class OwnerController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Car added to fleet.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Car added to fleet.',
+                'data' => $car,
+            ], 201);
         }
 
-        return redirect()->back()->with('status', 'Vehicle successfully added to owner fleet.');
+        return redirect()->back()->with('success', 'Vehicle successfully added to owner fleet.');
     }
 
     /**
@@ -128,7 +164,7 @@ class OwnerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->carService->updateCarForOwner(
+        $car = $this->carService->updateCarForOwner(
             (int) $ownerId,
             (int) $carId,
             $validated,
@@ -137,10 +173,14 @@ class OwnerController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Car updated.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Car updated.',
+                'data' => $car,
+            ]);
         }
 
-        return redirect()->back()->with('status', 'Vehicle updated successfully.');
+        return redirect()->back()->with('success', 'Vehicle updated successfully.');
     }
 
     /**
@@ -151,10 +191,13 @@ class OwnerController extends Controller
         $this->carService->deleteCarForOwner((int) $ownerId, (int) $carId);
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Car deleted.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Car deleted.',
+            ]);
         }
 
-        return redirect()->back()->with('status', 'Vehicle deleted from owner fleet.');
+        return redirect()->back()->with('success', 'Vehicle deleted from owner fleet.');
     }
 
     /**
@@ -164,7 +207,7 @@ class OwnerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->driverService->createDriverForOwner(
+        $driver = $this->driverService->createDriverForOwner(
             (int) $ownerId,
             $validated,
             $request->file('photo'),
@@ -172,10 +215,14 @@ class OwnerController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Driver added.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Driver added.',
+                'data' => $driver,
+            ], 201);
         }
 
-        return redirect()->back()->with('status', 'Driver registered for owner successfully.');
+        return redirect()->back()->with('success', 'Driver registered for owner successfully.');
     }
 
     /**
@@ -185,7 +232,7 @@ class OwnerController extends Controller
     {
         $validated = $request->validated();
 
-        $this->driverService->updateDriverForOwner(
+        $driver = $this->driverService->updateDriverForOwner(
             (int) $ownerId,
             (int) $driverId,
             $validated,
@@ -194,10 +241,14 @@ class OwnerController extends Controller
         );
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Driver updated.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Driver updated.',
+                'data' => $driver,
+            ]);
         }
 
-        return redirect()->back()->with('status', 'Driver record updated.');
+        return redirect()->back()->with('success', 'Driver record updated.');
     }
 
     /**
@@ -208,41 +259,12 @@ class OwnerController extends Controller
         $this->driverService->deleteDriverForOwner((int) $ownerId, (int) $driverId);
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => 'OK', 'message' => 'Driver deleted.']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Driver deleted.',
+            ]);
         }
 
-        return redirect()->back()->with('status', 'Driver deleted.');
-    }
-
-    public function dashboard()
-    {
-        $owner = Auth::guard('owner')->id();
-
-        if (!$owner) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        Log::info('Authenticated owner:', ['owner_id' => $owner]);
-
-        $cars = $this->carService->getCarsByOwner($owner);
-
-        if ($cars->isEmpty()) {
-            Log::info('No cars found for owner:', ['owner_id' => $owner]);
-        }
-
-        return view('owner.dashboard', compact('cars'));
-    }
-
-    public function search(Request $request)
-    {
-        $query = $request->input('query');
-        return redirect()->route('owner.dashboard')->with('success', 'search completed');
-    }
-
-    public function VerifiedCars()
-    {
-        $owner = Auth::guard('owner')->id();
-        $cars = $this->carService->getVerifiedCars((int) $owner);
-        return view('owner.dashboard', compact('cars'));
+        return redirect()->back()->with('success', 'Driver deleted.');
     }
 }
