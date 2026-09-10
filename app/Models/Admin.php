@@ -17,8 +17,12 @@ class Admin extends Authenticatable
         'email',
         'password',
         'is_mfa_enabled',
+        'is_email_authentication_enabled',
         'mfa_secret_code',
         'mfa_authentication_image',
+        'is_active',
+        'is_login_verified',
+        'last_logged_in',
     ];
 
     protected $hidden = [
@@ -33,6 +37,10 @@ class Admin extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_mfa_enabled' => 'boolean',
+            'is_email_authentication_enabled' => 'boolean',
+            'is_active' => 'boolean',
+            'is_login_verified' => 'boolean',
+            'last_logged_in' => 'datetime',
         ];
     }
 

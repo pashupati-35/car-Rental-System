@@ -90,15 +90,22 @@ class MFAController extends Controller
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
-        $secret = $owner->mfa_secret_code ?: $this->authenticator->createSecret();
-        $appName = config('app.name', 'CarRentalSystem') . ' Owner';
-        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($owner->email, $secret, $appName);
+        $secret = $this->authenticator->createSecret();
+        $appName = config('app.name', 'Car Rental System');
+        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($owner->email, $secret, $appName . ' Owner');
 
         return response()->json([
             'status' => 'OK',
+            'account' => $owner->email,
             'secret_key' => $secret,
             'qr_code_url' => $qrCodeUrl,
+            'image_url' => $qrCodeUrl,
         ]);
+    }
+
+    public function getMfaAuthenticatorCode(Request $request)
+    {
+        return $this->generate($request);
     }
 
     /**
@@ -118,10 +125,12 @@ class MFAController extends Controller
 
         $secret = $request->input('secret_key');
         $code = $request->input('verification_code');
+        $imageUrl = $request->input('image_url') ?: $request->input('qr_code_url');
 
         if ($this->authenticator->verifyCode($secret, $code, 2)) {
             $owner->is_mfa_enabled = true;
             $owner->mfa_secret_code = $secret;
+            $owner->mfa_authentication_image = $imageUrl;
             $owner->save();
 
             return response()->json([
@@ -132,8 +141,14 @@ class MFAController extends Controller
 
         return response()->json([
             'status' => 'ERROR',
-            'message' => 'Invalid verification code.',
+            'message' => 'Invalid verification code. Please make sure the code matches your Authenticator app.',
+            'errors' => 'Invalid verification code.',
         ], 422);
+    }
+
+    public function activateMfaAuthenticator(Request $request)
+    {
+        return $this->activate($request);
     }
 
     /**
@@ -147,12 +162,44 @@ class MFAController extends Controller
         }
 
         $owner->is_mfa_enabled = false;
-        $owner->mfa_secret_code = null;
+        if (!$owner->is_email_authentication_enabled) {
+            $owner->mfa_secret_code = null;
+        }
+        $owner->mfa_authentication_image = null;
         $owner->save();
 
         return response()->json([
             'status' => 'OK',
             'message' => 'Owner MFA successfully disabled.',
         ]);
+    }
+
+    public function deactivateMfaAuthenticator(Request $request)
+    {
+        return $this->deactivate($request);
+    }
+
+    public function activateEmailAuthenticator()
+    {
+        $owner = Auth::guard('owner')->user();
+        if (!$owner) {
+            return response()->json(['status' => 'UNAUTHORIZED'], 401);
+        }
+        $owner->is_email_authentication_enabled = true;
+        $owner->save();
+
+        return response()->json(['status' => 'OK', 'message' => 'Email authentication enabled.']);
+    }
+
+    public function deactivateEmailAuthenticator()
+    {
+        $owner = Auth::guard('owner')->user();
+        if (!$owner) {
+            return response()->json(['status' => 'UNAUTHORIZED'], 401);
+        }
+        $owner->is_email_authentication_enabled = false;
+        $owner->save();
+
+        return response()->json(['status' => 'OK', 'message' => 'Email authentication disabled.']);
     }
 }

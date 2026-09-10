@@ -28,6 +28,7 @@ const passwordMsg = ref('')
 const passwordError = ref('')
 
 const mfaEnabled = ref(Boolean(user.value?.is_mfa_enabled))
+const emailAuthEnabled = ref(Boolean(user.value?.is_email_authentication_enabled))
 const qrCodeUrl = ref('')
 const secretKey = ref('')
 const verificationCode = ref('')
@@ -69,6 +70,26 @@ const updatePassword = async () => {
   }
 }
 
+const toggleEmailAuth = async () => {
+  mfaError.value = ''
+  mfaSuccess.value = ''
+  mfaLoading.value = true
+  try {
+    const endpoint = emailAuthEnabled.value ? '/admin/mfa/email/deactivate' : '/admin/mfa/email/activate'
+    const res = await axios.post(endpoint)
+    if (res.data.status === 'OK') {
+      emailAuthEnabled.value = !emailAuthEnabled.value
+      mfaSuccess.value = emailAuthEnabled.value
+        ? 'Email verification enabled on login.'
+        : 'Email verification disabled.'
+    }
+  } catch (err: any) {
+    mfaError.value = err.response?.data?.message || 'Failed to update email authentication.'
+  } finally {
+    mfaLoading.value = false
+  }
+}
+
 const initMfaSetup = async () => {
   mfaError.value = ''
   mfaSuccess.value = ''
@@ -77,11 +98,11 @@ const initMfaSetup = async () => {
     const res = await axios.post('/admin/mfa/generate')
     if (res.data.status === 'OK') {
       secretKey.value = res.data.secret_key
-      qrCodeUrl.value = res.data.qr_code_url
+      qrCodeUrl.value = res.data.qr_code_url || res.data.image_url
       showMfaSetup.value = true
     }
   } catch (err: any) {
-    mfaError.value = err.response?.data?.message || 'Failed to generate MFA secret.'
+    mfaError.value = err.response?.data?.message || err.response?.data?.errors || 'Failed to generate MFA secret.'
   } finally {
     mfaLoading.value = false
   }
@@ -95,17 +116,19 @@ const activateMfa = async () => {
     const res = await axios.post('/admin/mfa/activate', {
       secret_key: secretKey.value,
       verification_code: verificationCode.value,
+      image_url: qrCodeUrl.value,
     })
 
     if (res.data.status === 'OK') {
       mfaEnabled.value = true
       showMfaSetup.value = false
+      verificationCode.value = ''
       mfaSuccess.value = 'Authenticator App (TOTP) successfully activated!'
     } else {
-      mfaError.value = res.data.message || 'Verification failed.'
+      mfaError.value = res.data.message || res.data.errors || 'Verification failed.'
     }
   } catch (err: any) {
-    mfaError.value = err.response?.data?.message || 'Invalid verification code.'
+    mfaError.value = err.response?.data?.message || err.response?.data?.errors || 'Invalid verification code.'
   } finally {
     mfaLoading.value = false
   }
@@ -114,10 +137,16 @@ const activateMfa = async () => {
 const deactivateMfa = async () => {
   if (!confirm('Are you sure you want to disable authenticator app MFA?')) return
   mfaLoading.value = true
+  mfaError.value = ''
+  mfaSuccess.value = ''
   try {
     const res = await axios.post('/admin/mfa/deactivate')
     if (res.data.status === 'OK') {
       mfaEnabled.value = false
+      showMfaSetup.value = false
+      secretKey.value = ''
+      qrCodeUrl.value = ''
+      verificationCode.value = ''
       mfaSuccess.value = 'Authenticator app has been disabled.'
     }
   } catch (err: any) {
@@ -151,14 +180,14 @@ const deactivateMfa = async () => {
         </button>
       </div>
 
-      <!-- Page Header -->
+      <!-- Page Header matching reference image -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
             Security settings
           </h2>
           <p class="text-xs text-gray-500 mt-0.5">
-            Manage your authentication credentials and account security
+            Manage your administrator authentication credentials and account security
           </p>
         </div>
 
@@ -185,7 +214,7 @@ const deactivateMfa = async () => {
 
       <!-- SECURITY TAB -->
       <div v-if="activeTab === 'security'" class="space-y-6">
-        <!-- 1. Two-Factor Authentication Box (Exact reference layout) -->
+        <!-- 1. Two-Factor Authentication Box -->
         <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
           <div class="p-6 border-b border-gray-100 dark:border-gray-800">
             <h3 class="text-base font-bold text-gray-900 dark:text-white">
@@ -203,9 +232,23 @@ const deactivateMfa = async () => {
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Email authentication</p>
                 <p class="text-xs text-gray-500">Receive verification codes via your registered email</p>
               </div>
-              <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                Inactive
-              </span>
+              <div class="flex items-center gap-2">
+                <span
+                  :class="emailAuthEnabled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
+                  class="px-2.5 py-1 rounded-md text-xs font-semibold border"
+                >
+                  {{ emailAuthEnabled ? 'Active' : 'Inactive' }}
+                </span>
+                <button
+                  type="button"
+                  :disabled="mfaLoading"
+                  class="px-3 py-1 rounded-lg text-xs font-medium border transition-colors"
+                  :class="emailAuthEnabled ? 'border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100' : 'border-blue-200 text-blue-600 bg-blue-50 hover:bg-blue-100'"
+                  @click="toggleEmailAuth"
+                >
+                  {{ emailAuthEnabled ? 'Disable' : 'Enable' }}
+                </button>
+              </div>
             </div>
 
             <!-- Authenticator App Row -->

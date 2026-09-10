@@ -46,8 +46,13 @@ Route::prefix('owner')->name('owner.')->group(function () {
 
         // MFA Configuration (Authenticated)
         Route::post('mfa/generate', [MFAController::class, 'generate'])->name('mfa.generate');
+        Route::post('mfa/get-mfa-code', [MFAController::class, 'getMfaAuthenticatorCode'])->name('mfa.get-code');
         Route::post('mfa/activate', [MFAController::class, 'activate'])->name('mfa.activate');
+        Route::post('mfa/activate-mfa', [MFAController::class, 'activateMfaAuthenticator'])->name('mfa.activate-mfa');
         Route::post('mfa/deactivate', [MFAController::class, 'deactivate'])->name('mfa.deactivate');
+        Route::post('mfa/deactivate-mfa', [MFAController::class, 'deactivateMfaAuthenticator'])->name('mfa.deactivate-mfa');
+        Route::post('mfa/email/activate', [MFAController::class, 'activateEmailAuthenticator'])->name('mfa.email.activate');
+        Route::post('mfa/email/deactivate', [MFAController::class, 'deactivateEmailAuthenticator'])->name('mfa.email.deactivate');
 
         // Resource route for cars management
         Route::resource('cars', CarController::class);
