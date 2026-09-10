@@ -14,6 +14,16 @@ const emit = defineEmits<{
   (e: 'reject', id: number): void
   (e: 'delete', id: number): void
 }>()
+
+const getCarImage = (c: CarItem | null) => {
+  if (!c) return null
+  if (c.image) return c.image
+  if (c.image_path?.original) return c.image_path.original
+  if (c.car_photo) {
+    return c.car_photo.startsWith('http') ? c.car_photo : `/${c.car_photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
 </script>
 
 <template>
@@ -40,11 +50,11 @@ const emit = defineEmits<{
 
       <!-- Car Banner Image -->
       <div
-        v-if="car.image"
+        v-if="getCarImage(car)"
         class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-800"
       >
         <img
-          :src="car.image"
+          :src="getCarImage(car)!"
           class="w-full h-full object-cover"
         >
       </div>

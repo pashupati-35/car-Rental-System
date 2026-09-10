@@ -22,7 +22,7 @@ class UpdateDriverRequest extends FormRequest
             'status' => 'nullable|string',
             'owner_id' => 'nullable|exists:owners,id',
             'address' => 'nullable|string|max:255',
-            'photo' => 'nullable|file|max:10240',
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,bmp,tiff,tif,heic,heif,avif,jfif,pjpeg,pjp|max:5120',
         ];
     }
 }

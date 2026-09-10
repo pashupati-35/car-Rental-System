@@ -35,6 +35,15 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('click', closeDropdown)
 })
+
+const getCarImage = (car: CarItem) => {
+  if (car.image) return car.image
+  if (car.image_path?.original) return car.image_path.original
+  if (car.car_photo) {
+    return car.car_photo.startsWith('http') ? car.car_photo : `/${car.car_photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
 </script>
 
 <template>
@@ -65,8 +74,8 @@ onUnmounted(() => {
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                 <img
-                  v-if="car.image"
-                  :src="car.image"
+                  v-if="getCarImage(car)"
+                  :src="getCarImage(car)!"
                   class="w-full h-full object-cover"
                 >
                 <div
@@ -236,8 +245,8 @@ onUnmounted(() => {
                 <div class="flex items-center gap-3">
                   <div class="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                     <img
-                      v-if="car.image"
-                      :src="car.image"
+                      v-if="getCarImage(car)"
+                      :src="getCarImage(car)!"
                       class="w-full h-full object-cover"
                     >
                     <div

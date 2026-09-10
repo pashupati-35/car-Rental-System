@@ -51,6 +51,14 @@ const carPhotoPreview = ref<string | null>(null)
 const blueBookPhotoFile = ref<File | null>(null)
 const blueBookPhotoPreview = ref<string | null>(null)
 
+const resolveImageUrl = (img?: string | null, imagePath?: any) => {
+  if (imagePath?.original) return imagePath.original
+  if (img) {
+    return img.startsWith('http') ? img : `/${img.replace(/^\/+/, '')}`
+  }
+  return null
+}
+
 watch(
   () => props.car,
   (newCar: CarItem | null | undefined) => {
@@ -70,8 +78,8 @@ watch(
         available: newCar.available || 'no',
         description: newCar.description || '',
       }
-      carPhotoPreview.value = newCar.image || newCar.car_photo || null
-      blueBookPhotoPreview.value = newCar.blue_book_photo || null
+      carPhotoPreview.value = resolveImageUrl(newCar.image || newCar.car_photo, newCar.image_path)
+      blueBookPhotoPreview.value = resolveImageUrl(newCar.blue_book_url || newCar.blue_book_photo)
       carPhotoFile.value = null
       blueBookPhotoFile.value = null
     }

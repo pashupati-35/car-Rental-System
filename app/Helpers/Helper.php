@@ -473,8 +473,19 @@ if (! function_exists('getImagePath')) {
             return null;
         }
 
-        $basePath = trim($uploadPath, '/').'/'.ltrim($imageName, '/');
-        $thumbPath = trim($uploadPath, '/').'/thumb/'.ltrim($imageName, '/');
+        $uploadClean = trim($uploadPath, '/');
+        $imageClean = ltrim($imageName, '/');
+
+        if (str_starts_with($imageClean, $uploadClean.'/')) {
+            $basePath = $imageClean;
+            $thumbPath = $uploadClean.'/thumb/'.substr($imageClean, strlen($uploadClean) + 1);
+        } elseif (str_starts_with($imageClean, 'uploads/')) {
+            $basePath = $imageClean;
+            $thumbPath = 'uploads/thumb/'.substr($imageClean, strlen('uploads/'));
+        } else {
+            $basePath = $uploadClean.'/'.$imageClean;
+            $thumbPath = $uploadClean.'/thumb/'.$imageClean;
+        }
 
         if (getStorageType() !== 'local' && app()->environment('production')) {
             $originalUrl = s3_image_url(buildUploadPathUrl($basePath), $signed);

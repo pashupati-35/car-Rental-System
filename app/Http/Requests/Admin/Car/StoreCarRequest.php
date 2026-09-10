@@ -27,8 +27,8 @@ class StoreCarRequest extends FormRequest
             'fuel_type' => 'nullable|string|max:100',
             'transmission' => 'nullable|string|max:100',
             'description' => 'nullable|string',
-            'car_photo' => 'nullable|file|max:10240',
-            'blue_book_photo' => 'nullable|file|max:10240',
+            'car_photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,bmp,tiff,tif,heic,heif,avif,jfif,pjpeg,pjp|max:5120',
+            'blue_book_photo' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,jpeg,png,jpg,gif,svg,webp,bmp,tiff,tif,heic,heif,avif,jfif,pjpeg,pjp|max:10240',
         ];
     }
 }
