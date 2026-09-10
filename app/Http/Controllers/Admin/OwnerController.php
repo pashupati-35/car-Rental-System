@@ -90,6 +90,34 @@ class OwnerController extends Controller
     }
 
     /**
+     * Admin login as fleet owner.
+     */
+    public function loginAs(Request $request, $id)
+    {
+        $owner = $this->ownerService->getOwnerById((int) $id);
+
+        if (!$owner) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Fleet owner not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'Fleet owner not found.');
+        }
+
+        Auth::guard('owner')->loginUsingId($owner->id);
+        $request->session()->regenerate();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logged in as fleet owner ' . ($owner->full_name ?? $owner->email),
+                'redirect_url' => route('owner.dashboard'),
+            ]);
+        }
+
+        return redirect()->route('owner.dashboard');
+    }
+
+    /**
      * Update owner profile.
      */
     public function update(UpdateOwnerRequest $request, $id)

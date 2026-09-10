@@ -240,6 +240,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('api/owners/{id}', [OwnerController::class, 'show'])->name('admin.api.owner.show');
     $route->match(['put', 'patch', 'post'], 'owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.update');
     $route->delete('owners/{id}', [OwnerController::class, 'destroy'])->name('admin.owner.destroy');
+    $route->match(['get', 'post'], 'owners/{id}/login-as', [OwnerController::class, 'loginAs'])->name('admin.owner.login-as');
 
     // Owner Nested Fleet Cars & Drivers
     $route->post('owners/{id}/cars', [OwnerController::class, 'storeCar'])->name('admin.owner.cars.store');
@@ -278,6 +279,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('api/customers/{id}', [CustomerController::class, 'show'])->name('admin.api.customer.show');
     $route->match(['put', 'patch', 'post'], 'customers/{id}', [CustomerController::class, 'update'])->name('admin.customer.update');
     $route->delete('customers/{id}', [CustomerController::class, 'destroy'])->name('admin.customer.destroy');
+    $route->match(['get', 'post'], 'customers/{id}/login-as', [CustomerController::class, 'loginAs'])->name('admin.customer.login-as');
 
     // Customer Nested Bookings & Payments
     $route->post('customers/{id}/bookings', [CustomerController::class, 'storeBooking'])->name('admin.customer.bookings.store');

@@ -99,6 +99,34 @@ class CustomerController extends Controller
     }
 
     /**
+     * Admin login as customer.
+     */
+    public function loginAs(Request $request, $id)
+    {
+        $customer = $this->customerService->getCustomerDetails((int) $id);
+
+        if (!$customer) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Customer not found.'], 404);
+            }
+            return redirect()->back()->with('error', 'Customer not found.');
+        }
+
+        Auth::guard('customer')->loginUsingId($customer->id);
+        $request->session()->regenerate();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Logged in as customer ' . ($customer->name ?? $customer->email),
+                'redirect_url' => route('customer.dashboard'),
+            ]);
+        }
+
+        return redirect()->route('customer.dashboard');
+    }
+
+    /**
      * Update customer profile.
      */
     public function update(UpdateCustomerRequest $request, $id)

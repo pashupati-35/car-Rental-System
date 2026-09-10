@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import axios from 'axios'
 import { resolveMediaUrl } from '@/utils/helpers'
 import type { OwnerItem } from '../types'
 
@@ -15,10 +16,30 @@ const emit = defineEmits<{
 }>()
 
 const imgError = ref(false)
+const loggingIn = ref(false)
 
 watch(() => props.owner, () => {
   imgError.value = false
 })
+
+const loginAsOwner = async () => {
+  if (!props.owner) return
+  if (!confirm(`Are you sure you want to log in as fleet owner "${props.owner.full_name || props.owner.first_name || props.owner.email}"? You will be redirected to the owner portal dashboard.`)) return
+
+  try {
+    loggingIn.value = true
+
+    const res = await axios.post(`/admin/owners/${props.owner.id}/login-as`)
+    if (res.data?.redirect_url) {
+      window.location.href = res.data.redirect_url
+    } else {
+      window.location.href = '/owner/dashboard'
+    }
+  } catch (err: any) {
+    alert(err?.response?.data?.message || 'Failed to authenticate as fleet owner.')
+    loggingIn.value = false
+  }
+}
 
 const avatarUrl = computed(() => {
   if (!props.owner) return ''
@@ -78,6 +99,23 @@ const formatDateTime = (dateStr?: string) => {
         </div>
 
         <div class="flex items-center gap-2">
+          <button
+            type="button"
+            :disabled="loggingIn"
+            class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold text-xs cursor-pointer flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            title="Log in to owner portal dashboard as this fleet owner"
+            @click="loginAsOwner"
+          >
+            <i
+              v-if="loggingIn"
+              class="ri-loader-4-line animate-spin text-sm"
+            />
+            <i
+              v-else
+              class="ri-login-box-line text-sm text-emerald-600"
+            />
+            <span>Login as Owner</span>
+          </button>
           <button
             type="button"
             class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-xs cursor-pointer flex items-center gap-1.5 transition-colors"
@@ -318,13 +356,33 @@ const formatDateTime = (dateStr?: string) => {
 
       <!-- Modal Footer -->
       <div class="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 flex items-center justify-between shrink-0">
-        <Link
-          :href="`/admin/owners/${owner.id}`"
-          class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
-        >
-          <span>Open Dedicated Owner Hub</span>
-          <i class="ri-external-link-line" />
-        </Link>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            :disabled="loggingIn"
+            class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="Log in to owner portal dashboard as this fleet owner"
+            @click="loginAsOwner"
+          >
+            <i
+              v-if="loggingIn"
+              class="ri-loader-4-line animate-spin"
+            />
+            <i
+              v-else
+              class="ri-login-box-line"
+            />
+            <span>Login as Owner</span>
+          </button>
+
+          <Link
+            :href="`/admin/owners/${owner.id}`"
+            class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center gap-1.5"
+          >
+            <span>Open Dedicated Owner Hub</span>
+            <i class="ri-external-link-line" />
+          </Link>
+        </div>
 
         <button
           type="button"

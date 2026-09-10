@@ -41,6 +41,26 @@ const showEditDriverModal = ref(false)
 
 const selectedCar = ref<any | null>(null)
 const selectedDriver = ref<any | null>(null)
+const loggingIn = ref(false)
+
+const loginAsOwner = async () => {
+  if (!props.owner) return
+  if (!confirm(`Are you sure you want to log in as fleet owner "${props.owner.full_name || props.owner.first_name || props.owner.email}"? You will be redirected to the owner portal dashboard.`)) return
+
+  try {
+    loggingIn.value = true
+
+    const res = await axios.post(`/admin/owners/${props.owner.id}/login-as`)
+    if (res.data?.redirect_url) {
+      window.location.href = res.data.redirect_url
+    } else {
+      window.location.href = '/owner/dashboard'
+    }
+  } catch (err: any) {
+    alert(err?.response?.data?.message || 'Failed to authenticate as fleet owner.')
+    loggingIn.value = false
+  }
+}
 
 // Image resolvers
 const resolveOwnerImage = (o: any) => {
@@ -416,6 +436,24 @@ const cancelBooking = (bookingId: number) => {
             <i class="ri-mail-check-line text-emerald-600" />
             <span>Email Logs</span>
           </Link>
+
+          <button
+            type="button"
+            :disabled="loggingIn"
+            class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            title="Log in to owner portal dashboard as this fleet owner"
+            @click="loginAsOwner"
+          >
+            <i
+              v-if="loggingIn"
+              class="ri-loader-4-line animate-spin text-emerald-600"
+            />
+            <i
+              v-else
+              class="ri-login-box-line text-emerald-600"
+            />
+            <span>Login as Owner</span>
+          </button>
 
           <button
             type="button"

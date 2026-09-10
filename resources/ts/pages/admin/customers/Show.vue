@@ -25,6 +25,26 @@ const activeTab = ref<'bookings' | 'payments' | 'profile'>('bookings')
 const message = ref('')
 const errorMessage = ref('')
 const submitting = ref(false)
+const loggingIn = ref(false)
+
+const loginAsCustomer = async () => {
+  if (!props.customer) return
+  if (!confirm(`Are you sure you want to log in as customer "${props.customer.name || props.customer.full_name || props.customer.email}"? You will be redirected to the customer portal dashboard.`)) return
+
+  try {
+    loggingIn.value = true
+
+    const res = await axios.post(`/admin/customers/${props.customer.id}/login-as`)
+    if (res.data?.redirect_url) {
+      window.location.href = res.data.redirect_url
+    } else {
+      window.location.href = '/customer/dashboard'
+    }
+  } catch (err: any) {
+    alert(err?.response?.data?.message || 'Failed to authenticate as customer.')
+    loggingIn.value = false
+  }
+}
 
 // Edit Profile Modal
 const showEditProfileModal = ref(false)
@@ -287,6 +307,24 @@ const deletePayment = async (paymentId: number) => {
             <i class="ri-mail-check-line" />
             <span>Email Logs</span>
           </Link>
+          <button
+            type="button"
+            :disabled="loggingIn"
+            class="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 font-bold text-xs cursor-pointer flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            title="Log in to customer portal dashboard as this customer"
+            @click="loginAsCustomer"
+          >
+            <i
+              v-if="loggingIn"
+              class="ri-loader-4-line animate-spin text-emerald-600"
+            />
+            <i
+              v-else
+              class="ri-login-box-line text-emerald-600"
+            />
+            <span>Login as Customer</span>
+          </button>
+
           <button
             type="button"
             class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold text-xs cursor-pointer flex items-center gap-1.5"
