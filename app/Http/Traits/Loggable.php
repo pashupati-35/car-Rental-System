@@ -2,76 +2,54 @@
 
 namespace App\Http\Traits;
 
-use Illuminate\Support\Facades\DB;
+use App\Models\ActivityLog\ActivityLog;
+use Illuminate\Support\Facades\Schema;
 
 trait Loggable
 {
-    protected static $logTable = 'logs';
-
     public static function logToDb($model, $logType)
     {
-        $updatedData = $title = $userId = $agentId = $adminUserId = $tableId = null;
-        $tableName = $model->getTable();
-        if (! auth()->check() || $model->excludeLogging || ! config('custom-log.activated', true)) {
-            return;
-        }
-        if ($logType == 'create') {
-            $originalData = json_encode($model);
-            $title = buildTableNameToLogInfoTitle($tableName).' created.';
-        } else {
-            if (version_compare(app()->version(), '7.0.0', '>=')) {
-                $originalData = json_encode($model->getRawOriginal()); // getRawOriginal available from Laravel 7.x
-                $tableId = $model->id;
-            } else {
-                $originalData = json_encode($model->getOriginal());
-                $tableId = $model->getRawOriginal()['id'];
+        try {
+            if (! auth()->check() || $model->excludeLogging || ! config('custom-log.activated', true)) {
+                return;
             }
 
-            $title = buildTableNameToLogInfoTitle($tableName).' updated.';
-            $updatedData = json_encode($model->getChanges());
-        }
+            $tableName = $model->getTable();
+            $originalData = null;
+            $updatedData = null;
+            $tableId = $model->id ?? null;
 
-        $dateTime = date('Y-m-d H:i:s');
-
-        if (auth()->guard('web')->check() && ! auth()->guard('web')->user()->is_agent) {
-            $userId = auth()->guard('web')->user()->id;
-        } else {
-            if ($model->applicant_id) {
-                $userId = $model->applicant_id;
-            } elseif ($model->getTable() == 'users' && $model->id) {
-                $userId = $model->id;
-            } elseif ($model->user_id) {
-                $userId = $model->user_id;
-            } elseif ($model->application) {
-                $userId = $model->application->applicant_id;
+            if ($logType == 'create') {
+                $originalData = $model->toArray();
+                $title = $tableName . ' created.';
             } else {
-                $userId = null;
+                $originalData = $model->getOriginal();
+                $updatedData = $model->getChanges();
+                $title = $tableName . ' updated.';
             }
 
-            $agentId = auth()->guard('web')->user()->id ?? null;
-        }
+            $user = auth()->user();
 
-        if (auth()->guard('admin')->check()) {
-            $agentId = null;
-            $adminUserId = auth()->guard('admin')->user()->id;
+            if (Schema::hasTable('activity_logs')) {
+                ActivityLog::create([
+                    'log_type' => $logType,
+                    'description' => $title,
+                    'causer_type' => $user ? get_class($user) : null,
+                    'causer_id' => $user ? $user->id : null,
+                    'subject_type' => get_class($model),
+                    'subject_id' => $tableId,
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'table_name' => $tableName,
+                    'properties' => [
+                        'before' => $originalData,
+                        'after' => $updatedData,
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
-
-        if (! empty($agentId)) {
-            $adminUserId = null;
-        }
-
-        DB::table(self::$logTable)->insert([
-            'title' => $title,
-            'user_id' => $userId,
-            'agent_id' => $agentId,
-            'admin_user_id' => $adminUserId,
-            'log_date' => $dateTime,
-            'table_name' => $tableName,
-            'table_id' => $tableId,
-            'log_type' => $logType,
-            'before_data' => $originalData,
-            'after_data' => $updatedData,
-        ]);
     }
 
     public static function bootLoggable()
@@ -95,3 +73,4 @@ trait Loggable
         }
     }
 }
+

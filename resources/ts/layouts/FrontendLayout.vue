@@ -1,11 +1,57 @@
 <script setup lang="ts">
-import { Link, usePage } from '@inertiajs/vue3'
-import { computed, ref } from 'vue'
+import { Link, usePage, router } from '@inertiajs/vue3'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 
 const page = usePage()
 const auth = computed(() => page.props.auth as any)
-const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer)
-const showAuthMenu = ref(false)
+const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
+const showProfileMenu = ref(false)
+
+const role = computed(() => {
+  if (auth.value?.admin) return 'Admin'
+  if (auth.value?.owner) return 'Owner'
+  if (auth.value?.customer) return 'Customer'
+  return 'User'
+})
+
+const rolePrefix = computed(() => {
+  if (role.value === 'Admin') return 'admin'
+  if (role.value === 'Owner') return 'owner'
+  return 'customer'
+})
+
+const displayName = computed(() => {
+  return user.value?.name || user.value?.full_name || 'Account'
+})
+
+const userEmail = computed(() => {
+  return user.value?.email || ''
+})
+
+const logout = () => {
+  const logoutRoute = role.value === 'Admin' 
+    ? '/admin/logout' 
+    : role.value === 'Owner' 
+      ? '/owner/logout' 
+      : '/customer/logout'
+
+  router.post(logoutRoute)
+}
+
+const handleClickOutside = (e: MouseEvent) => {
+  const target = e.target as HTMLElement
+  if (!target.closest('#front-profile-dropdown')) {
+    showProfileMenu.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -35,17 +81,95 @@ const showAuthMenu = ref(false)
           </Link>
         </nav>
 
-        <div class="flex items-center gap-2.5">
+        <div class="flex items-center gap-3">
+          <!-- When Logged In: Show Profile Dropdown & Dashboard link -->
           <template v-if="user">
             <Link
-              :href="auth?.admin ? '/admin/dashboard' : auth?.owner ? '/owner/dashboard' : '/customer/dashboard'"
-              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all"
+              :href="'/' + rolePrefix + '/dashboard'"
+              class="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 transition-colors"
             >
-              Go to Dashboard &rarr;
+              Dashboard &rarr;
             </Link>
+
+            <!-- Profile Dropdown Menu on Right Side -->
+            <div id="front-profile-dropdown" class="relative">
+              <button
+                type="button"
+                class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+                @click="showProfileMenu = !showProfileMenu"
+              >
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                  {{ displayName.charAt(0).toUpperCase() }}
+                </div>
+                <span class="text-xs font-bold text-gray-800 dark:text-white hidden sm:inline">{{ displayName }}</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <i class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform" :class="showProfileMenu ? 'rotate-180' : ''" />
+              </button>
+
+              <!-- Dropdown Card -->
+              <div
+                v-if="showProfileMenu"
+                class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl p-3 z-50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150"
+              >
+                <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 text-center">
+                  <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center mx-auto mb-1.5 shadow-sm">
+                    {{ displayName.charAt(0).toUpperCase() }}
+                  </div>
+                  <div class="flex items-center justify-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ displayName }}</span>
+                  </div>
+                  <span class="text-[11px] text-gray-500 block truncate">{{ userEmail }}</span>
+                  <span class="mt-1 inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    {{ role }}
+                  </span>
+                </div>
+
+                <div class="space-y-1">
+                  <Link
+                    :href="'/' + rolePrefix + '/profile'"
+                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    @click="showProfileMenu = false"
+                  >
+                    <i class="ri-user-3-line text-sm text-gray-500" />
+                    <span>Manage profile</span>
+                  </Link>
+
+                  <Link
+                    :href="'/' + rolePrefix + '/profile'"
+                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    @click="showProfileMenu = false"
+                  >
+                    <i class="ri-shield-keyhole-line text-sm text-blue-600" />
+                    <span>Account security</span>
+                  </Link>
+
+                  <Link
+                    :href="'/' + rolePrefix + '/dashboard'"
+                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    @click="showProfileMenu = false"
+                  >
+                    <i class="ri-dashboard-line text-sm text-indigo-600" />
+                    <span>Dashboard</span>
+                  </Link>
+                </div>
+
+                <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <button
+                    type="button"
+                    class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 font-semibold text-xs transition-colors"
+                    @click="logout"
+                  >
+                    <span>Logout</span>
+                    <i class="ri-logout-box-r-line" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </template>
+
+          <!-- When Guest: Show Sign In and Register -->
           <template v-else>
-            <!-- Sign In Portal Link -->
             <Link
               href="/customer/login"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -53,17 +177,13 @@ const showAuthMenu = ref(false)
               Sign In
             </Link>
 
-            <!-- Register Button with Customer & Owner Options -->
-            <div class="relative">
-              <Link
-                href="/customer/register"
-                class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all inline-block"
-              >
-                Register
-              </Link>
-            </div>
+            <Link
+              href="/customer/register"
+              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all inline-block"
+            >
+              Register
+            </Link>
 
-            <!-- Owner Portal Shortcut -->
             <Link
               href="/owner/login"
               class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors"

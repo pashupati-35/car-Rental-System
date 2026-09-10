@@ -75,5 +75,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/booked-cars', [AdminController::class, 'viewBookings'])->name('booked-cars');
         Route::get('/bookings', [AdminController::class, 'viewBookings'])->name('bookings');
         Route::delete('/bookings/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
+
+        // Master CMS Management Dashboard & API
+        Route::get('/cms', [\App\Http\Controllers\Admin\AdminCmsController::class, 'index'])->name('cms.index');
+        Route::get('/cms/data/{module}', [\App\Http\Controllers\Admin\AdminCmsController::class, 'getData'])->name('cms.data');
+        Route::post('/cms/data/{module}', [\App\Http\Controllers\Admin\AdminCmsController::class, 'storeItem'])->name('cms.store');
+        Route::post('/cms/data/{module}/{id}', [\App\Http\Controllers\Admin\AdminCmsController::class, 'updateItem'])->name('cms.update');
+        Route::delete('/cms/data/{module}/{id}', [\App\Http\Controllers\Admin\AdminCmsController::class, 'deleteItem'])->name('cms.delete');
+        Route::post('/cms/data/{module}/{id}/toggle-status', [\App\Http\Controllers\Admin\AdminCmsController::class, 'toggleStatus'])->name('cms.toggle');
     });
 });
