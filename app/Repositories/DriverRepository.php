@@ -75,4 +75,24 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         return $this->model->count();
     }
+
+    public function getDriversByOwner(int $ownerId): \Illuminate\Support\Collection
+    {
+        return $this->model->withCount('cars')
+            ->where('owner_id', $ownerId)
+            ->latest('id')
+            ->get();
+    }
+
+    public function getAvailableDriversForOwner(int $ownerId): \Illuminate\Support\Collection
+    {
+        return $this->model->where(function ($q) use ($ownerId) {
+            $q->where('owner_id', $ownerId)->orWhereNull('owner_id');
+        })->where('status', 'active')->get();
+    }
+
+    public function getOwnerDriver(int $ownerId, int $driverId): Driver
+    {
+        return $this->model->where('owner_id', $ownerId)->findOrFail($driverId);
+    }
 }

@@ -1,21 +1,30 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\BookingCar;
-use App\Models\Car;
-use App\Models\Driver;
-use App\Models\Owner;
+use App\Http\Requests\Admin\Car\StoreCarRequest;
+use App\Http\Requests\Admin\Car\UpdateCarRequest;
+use App\Http\Requests\Admin\Driver\StoreDriverRequest;
+use App\Http\Requests\Admin\Driver\UpdateDriverRequest;
+use App\Http\Requests\Admin\Owner\UpdateOwnerRequest;
+use App\Services\BookingService;
+use App\Services\CarService;
+use App\Services\DriverService;
 use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class OwnerController extends Controller
 {
     public function __construct(
         protected OwnerService $ownerService,
+        protected CarService $carService,
+        protected DriverService $driverService,
+        protected BookingService $bookingService,
     ) {}
 
     public function index(Request $request)
@@ -31,7 +40,7 @@ class OwnerController extends Controller
                 'data' => $owners,
             ]);
         }
-        return \Inertia\Inertia::render('admin/OwnersList', [
+        return Inertia::render('admin/OwnersList', [
             'owners' => $owners,
             'filters' => [
                 'search' => $search,
@@ -45,57 +54,14 @@ class OwnerController extends Controller
      */
     public function show(Request $request, $id)
     {
-        $owner = Owner::withCount(['cars', 'drivers'])->findOrFail($id);
+        $data = $this->ownerService->getOwnerHubDetails((int) $id);
 
-        // Cars belonging to this owner
-        $cars = Car::with(['driver', 'booking.customer'])
-            ->where('owner_id', $id)
-            ->latest('id')
-            ->get();
-
-        // Drivers assigned to this owner
-        $drivers = Driver::withCount('cars')
-            ->where('owner_id', $id)
-            ->latest('id')
-            ->get();
-
-        // All available drivers for assignment dropdown (either this owner or system)
-        $availableDrivers = Driver::where(function ($q) use ($id) {
-            $q->where('owner_id', $id)->orWhereNull('owner_id');
-        })->where('status', 'active')->get();
-
-        // Bookings across this owner's cars
-        $carIds = $cars->pluck('id')->toArray();
-        $bookings = BookingCar::with(['customer', 'car'])
-            ->whereIn('car_id', $carIds)
-            ->latest('id')
-            ->get();
-
-        // Summary KPI statistics
-        $stats = [
-            'total_cars' => $cars->count(),
-            'verified_cars' => $cars->whereIn('status', ['verified', 'available'])->count(),
-            'pending_cars' => $cars->where('status', 'pending')->count(),
-            'rejected_cars' => $cars->where('status', 'rejected')->count(),
-            'total_drivers' => $drivers->count(),
-            'total_bookings' => $bookings->count(),
-            'confirmed_bookings' => $bookings->whereIn('status', ['confirm', 'confirmed', 'completed'])->count(),
-            'total_revenue' => $bookings->whereIn('status', ['confirm', 'confirmed', 'completed'])->sum('total_price'),
-        ];
-
-        return \Inertia\Inertia::render('admin/OwnerDetails', [
-            'owner' => $owner,
-            'cars' => $cars,
-            'drivers' => $drivers,
-            'availableDrivers' => $availableDrivers,
-            'bookings' => $bookings,
-            'stats' => $stats,
-        ]);
+        return Inertia::render('admin/OwnerDetails', $data);
     }
 
     public function edit($id)
     {
-        $owner = Owner::findOrFail($id);
+        $owner = $this->ownerService->getOwnerById((int) $id);
         return view('admin.auth.owner_edit', compact('owner'));
     }
 
@@ -106,8 +72,7 @@ class OwnerController extends Controller
 
     public function destroy($id)
     {
-        $owner = Owner::findOrFail($id);
-        $owner->delete();
+        $this->ownerService->deleteOwner((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Owner deleted successfully.']);
@@ -116,17 +81,9 @@ class OwnerController extends Controller
         return redirect()->route('admin.owner.index')->with('status', 'Owner deleted successfully.');
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateOwnerRequest $request, $id)
     {
-        $owner = Owner::findOrFail($id);
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:owners,email,' . $id,
-            'contact_number' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:255',
-            'gender' => 'nullable|string|max:20',
-            'password' => 'nullable|string|min:6',
-        ]);
+        $validated = $request->validated();
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
@@ -134,7 +91,7 @@ class OwnerController extends Controller
             unset($validated['password']);
         }
 
-        $owner->update($validated);
+        $owner = $this->ownerService->updateOwner((int) $id, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Owner updated successfully.', 'data' => $owner]);
@@ -146,42 +103,16 @@ class OwnerController extends Controller
     /**
      * Store a car for this specific owner.
      */
-    public function storeCar(Request $request, $ownerId)
+    public function storeCar(StoreCarRequest $request, $ownerId)
     {
-        $owner = Owner::findOrFail($ownerId);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'car_name' => 'required|string|max:255',
-            'car_model' => 'required|string|max:255',
-            'car_number' => 'required|string|max:100',
-            'number_of_seats' => 'nullable|numeric|min:1',
-            'car_price_per_day' => 'required|numeric|min:0',
-            'car_price_per_km' => 'nullable|numeric|min:0',
-            'driver_id' => 'nullable|exists:drivers,id',
-            'status' => 'nullable|string',
-            'car_photo' => 'nullable|image|max:5120',
-            'blue_book_photo' => 'nullable|image|max:5120',
-        ]);
-
-        $validated['owner_id'] = $owner->id;
-        $validated['status'] = $validated['status'] ?? 'verified';
-        $validated['available'] = 1;
-
-        if ($request->hasFile('car_photo')) {
-            $file = $request->file('car_photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/cars'), $fileName);
-            $validated['car_photo'] = 'uploads/cars/' . $fileName;
-        }
-
-        if ($request->hasFile('blue_book_photo')) {
-            $file = $request->file('blue_book_photo');
-            $fileName = 'bluebook_' . time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/bluebooks'), $fileName);
-            $validated['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
-        }
-
-        Car::create($validated);
+        $this->carService->createCarForOwner(
+            (int) $ownerId,
+            $validated,
+            $request->file('car_photo'),
+            $request->file('blue_book_photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Car added to fleet.']);
@@ -193,38 +124,17 @@ class OwnerController extends Controller
     /**
      * Update car for this specific owner.
      */
-    public function updateCar(Request $request, $ownerId, $carId)
+    public function updateCar(UpdateCarRequest $request, $ownerId, $carId)
     {
-        $car = Car::where('owner_id', $ownerId)->findOrFail($carId);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'car_name' => 'required|string|max:255',
-            'car_model' => 'required|string|max:255',
-            'car_number' => 'required|string|max:100',
-            'number_of_seats' => 'nullable|numeric|min:1',
-            'car_price_per_day' => 'required|numeric|min:0',
-            'car_price_per_km' => 'nullable|numeric|min:0',
-            'driver_id' => 'nullable|exists:drivers,id',
-            'status' => 'nullable|string',
-            'car_photo' => 'nullable|image|max:5120',
-            'blue_book_photo' => 'nullable|image|max:5120',
-        ]);
-
-        if ($request->hasFile('car_photo')) {
-            $file = $request->file('car_photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/cars'), $fileName);
-            $validated['car_photo'] = 'uploads/cars/' . $fileName;
-        }
-
-        if ($request->hasFile('blue_book_photo')) {
-            $file = $request->file('blue_book_photo');
-            $fileName = 'bluebook_' . time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/bluebooks'), $fileName);
-            $validated['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
-        }
-
-        $car->update($validated);
+        $this->carService->updateCarForOwner(
+            (int) $ownerId,
+            (int) $carId,
+            $validated,
+            $request->file('car_photo'),
+            $request->file('blue_book_photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Car updated.']);
@@ -238,8 +148,7 @@ class OwnerController extends Controller
      */
     public function destroyCar(Request $request, $ownerId, $carId)
     {
-        $car = Car::where('owner_id', $ownerId)->findOrFail($carId);
-        $car->delete();
+        $this->carService->deleteCarForOwner((int) $ownerId, (int) $carId);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Car deleted.']);
@@ -251,32 +160,15 @@ class OwnerController extends Controller
     /**
      * Store driver for this specific owner.
      */
-    public function storeDriver(Request $request, $ownerId)
+    public function storeDriver(StoreDriverRequest $request, $ownerId)
     {
-        $owner = Owner::findOrFail($ownerId);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'license_number' => 'required|string|max:100',
-            'experience_years' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string',
-            'address' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|max:5120',
-        ]);
-
-        $validated['owner_id'] = $owner->id;
-        $validated['status'] = $validated['status'] ?? 'active';
-
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/drivers'), $fileName);
-            $validated['photo'] = 'uploads/drivers/' . $fileName;
-        }
-
-        Driver::create($validated);
+        $this->driverService->createDriverForOwner(
+            (int) $ownerId,
+            $validated,
+            $request->file('photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Driver added.']);
@@ -288,29 +180,16 @@ class OwnerController extends Controller
     /**
      * Update driver for this specific owner.
      */
-    public function updateDriver(Request $request, $ownerId, $driverId)
+    public function updateDriver(UpdateDriverRequest $request, $ownerId, $driverId)
     {
-        $driver = Driver::where('owner_id', $ownerId)->findOrFail($driverId);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'license_number' => 'required|string|max:100',
-            'experience_years' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string',
-            'address' => 'nullable|string|max:255',
-            'photo' => 'nullable|image|max:5120',
-        ]);
-
-        if ($request->hasFile('photo')) {
-            $file = $request->file('photo');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/drivers'), $fileName);
-            $validated['photo'] = 'uploads/drivers/' . $fileName;
-        }
-
-        $driver->update($validated);
+        $this->driverService->updateDriverForOwner(
+            (int) $ownerId,
+            (int) $driverId,
+            $validated,
+            $request->file('photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Driver updated.']);
@@ -324,8 +203,7 @@ class OwnerController extends Controller
      */
     public function destroyDriver(Request $request, $ownerId, $driverId)
     {
-        $driver = Driver::where('owner_id', $ownerId)->findOrFail($driverId);
-        $driver->delete();
+        $this->driverService->deleteDriverForOwner((int) $ownerId, (int) $driverId);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Driver deleted.']);
@@ -344,7 +222,7 @@ class OwnerController extends Controller
 
         Log::info('Authenticated owner:', ['owner_id' => $owner]);
 
-        $cars = Car::where('owner_id', $owner)->get();
+        $cars = $this->carService->getCarsByOwner($owner);
 
         if ($cars->isEmpty()) {
             Log::info('No cars found for owner:', ['owner_id' => $owner]);
@@ -356,15 +234,13 @@ class OwnerController extends Controller
     public function search(Request $request)
     {
         $query = $request->input('query');
-        return redirect()->route('owner.dashboard')->with('success','search completed');
+        return redirect()->route('owner.dashboard')->with('success', 'search completed');
     }
 
     public function VerifiedCars()
     {
         $owner = Auth::guard('owner')->id();
-        $cars = Car::where('status', 'verified')
-            ->where('owner_id', $owner)
-            ->get();
+        $cars = $this->carService->getVerifiedCars((int) $owner);
         return view('owner.dashboard', compact('cars'));
     }
 }

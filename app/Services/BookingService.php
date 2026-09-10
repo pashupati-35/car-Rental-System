@@ -349,4 +349,9 @@ class BookingService
     {
         return $this->bookingRepository->getPendingBookingsCount();
     }
+
+    public function getBookingsByCarIds(array $carIds): Collection
+    {
+        return $this->bookingRepository->getBookingsByCarIds($carIds);
+    }
 }

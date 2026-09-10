@@ -39,5 +39,8 @@ interface CarRepositoryInterface extends BaseRepositoryInterface
     public function getAvailableVerifiedCars(): Collection;
 
     public function carNumberExists(string $carNumber, ?int $excludeId = null): bool;
-}
 
+    public function getCarsByOwnerWithRelations(int $ownerId): Collection;
+
+    public function getOwnerCar(int $ownerId, int $carId): Car;
+}

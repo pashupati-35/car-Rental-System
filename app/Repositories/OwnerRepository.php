@@ -40,6 +40,16 @@ class OwnerRepository extends BaseRepository implements OwnerRepositoryInterface
         return $this->model->select('id', 'full_name', 'email')->get();
     }
 
+    public function getOwnerById(int $id): Owner
+    {
+        return $this->model->findOrFail($id);
+    }
+
+    public function getOwnerWithCounts(int $id): Owner
+    {
+        return $this->model->withCount(['cars', 'drivers'])->findOrFail($id);
+    }
+
     public function createOwner(array $data): Owner
     {
         return $this->model->create($data);

@@ -49,4 +49,6 @@ interface BookingRepositoryInterface extends BaseRepositoryInterface
     public function getConfirmedBookingsCount(): int;
 
     public function getPendingBookingsCount(): int;
+
+    public function getBookingsByCarIds(array $carIds): Collection;
 }

@@ -190,4 +190,12 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
     {
         return $this->model->where('status', 'pending')->count();
     }
+
+    public function getBookingsByCarIds(array $carIds): Collection
+    {
+        return $this->model->with(['customer', 'car'])
+            ->whereIn('car_id', $carIds)
+            ->latest('id')
+            ->get();
+    }
 }

@@ -50,4 +50,53 @@ class DriverService
     {
         return $this->driverRepository->getTotalDriversCount();
     }
+
+    public function getDriversByOwner(int $ownerId): \Illuminate\Support\Collection
+    {
+        return $this->driverRepository->getDriversByOwner($ownerId);
+    }
+
+    public function getAvailableDriversForOwner(int $ownerId): \Illuminate\Support\Collection
+    {
+        return $this->driverRepository->getAvailableDriversForOwner($ownerId);
+    }
+
+    public function createDriverForOwner(int $ownerId, array $data, $photo = null): Driver
+    {
+        $data['owner_id'] = $ownerId;
+        $data['status'] = $data['status'] ?? 'active';
+
+        if ($photo && $photo->isValid()) {
+            $fileName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/drivers'), $fileName);
+            $data['photo'] = 'uploads/drivers/' . $fileName;
+        }
+
+        $driver = $this->driverRepository->createDriver($data);
+        AdminCountCacheService::clear();
+        return $driver;
+    }
+
+    public function updateDriverForOwner(int $ownerId, int $driverId, array $data, $photo = null): Driver
+    {
+        $driver = $this->driverRepository->getOwnerDriver($ownerId, $driverId);
+
+        if ($photo && $photo->isValid()) {
+            $fileName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/drivers'), $fileName);
+            $data['photo'] = 'uploads/drivers/' . $fileName;
+        }
+
+        $driver->update($data);
+        AdminCountCacheService::clear();
+        return $driver;
+    }
+
+    public function deleteDriverForOwner(int $ownerId, int $driverId): bool
+    {
+        $driver = $this->driverRepository->getOwnerDriver($ownerId, $driverId);
+        $result = (bool) $driver->delete();
+        AdminCountCacheService::clear();
+        return $result;
+    }
 }

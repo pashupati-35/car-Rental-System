@@ -14,6 +14,10 @@ interface OwnerRepositoryInterface extends BaseRepositoryInterface
 
     public function getAllForDropdown(): Collection;
 
+    public function getOwnerById(int $id): Owner;
+
+    public function getOwnerWithCounts(int $id): Owner;
+
     public function createOwner(array $data): Owner;
 
     public function updateOwner(int $id, array $data): Owner;

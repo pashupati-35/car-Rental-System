@@ -37,6 +37,63 @@ class CarService
         return $this->carRepository->findByOwner($ownerId);
     }
 
+    public function getCarsByOwnerWithRelations(int $ownerId): Collection
+    {
+        return $this->carRepository->getCarsByOwnerWithRelations($ownerId);
+    }
+
+    public function createCarForOwner(int $ownerId, array $data, $carPhoto = null, $blueBookPhoto = null): Car
+    {
+        $data['owner_id'] = $ownerId;
+        $data['status'] = $data['status'] ?? 'verified';
+        $data['available'] = 1;
+
+        if ($carPhoto && $carPhoto->isValid()) {
+            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $carPhoto->move(public_path('uploads/cars'), $fileName);
+            $data['car_photo'] = 'uploads/cars/' . $fileName;
+        }
+
+        if ($blueBookPhoto && $blueBookPhoto->isValid()) {
+            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
+            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+        }
+
+        $car = $this->carRepository->create($data);
+        AdminCountCacheService::clear();
+        return $car;
+    }
+
+    public function updateCarForOwner(int $ownerId, int $carId, array $data, $carPhoto = null, $blueBookPhoto = null): Car
+    {
+        $car = $this->carRepository->getOwnerCar($ownerId, $carId);
+
+        if ($carPhoto && $carPhoto->isValid()) {
+            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $carPhoto->move(public_path('uploads/cars'), $fileName);
+            $data['car_photo'] = 'uploads/cars/' . $fileName;
+        }
+
+        if ($blueBookPhoto && $blueBookPhoto->isValid()) {
+            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
+            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+        }
+
+        $car->update($data);
+        AdminCountCacheService::clear();
+        return $car;
+    }
+
+    public function deleteCarForOwner(int $ownerId, int $carId): bool
+    {
+        $car = $this->carRepository->getOwnerCar($ownerId, $carId);
+        $result = (bool) $car->delete();
+        AdminCountCacheService::clear();
+        return $result;
+    }
+
     public function getVerifiedCars(int $ownerId): Collection
     {
         return $this->carRepository->getVerifiedCars($ownerId);

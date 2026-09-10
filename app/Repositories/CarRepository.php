@@ -208,5 +208,18 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         }
         return $query->exists();
     }
+
+    public function getCarsByOwnerWithRelations(int $ownerId): Collection
+    {
+        return $this->model->with(['driver', 'booking.customer'])
+            ->where('owner_id', $ownerId)
+            ->latest('id')
+            ->get();
+    }
+
+    public function getOwnerCar(int $ownerId, int $carId): Car
+    {
+        return $this->model->where('owner_id', $ownerId)->findOrFail($carId);
+    }
 }
 

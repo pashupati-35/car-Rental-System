@@ -3,6 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Booking\StoreCustomerBookingRequest;
+use App\Http\Requests\Admin\Booking\UpdateCustomerBookingRequest;
+use App\Http\Requests\Admin\Customer\StoreCustomerRequest;
+use App\Http\Requests\Admin\Customer\UpdateCustomerRequest;
+use App\Http\Requests\Admin\Driver\StoreDriverRequest;
+use App\Http\Requests\Admin\Driver\UpdateDriverRequest;
+use App\Http\Requests\Admin\Owner\StoreOwnerRequest;
+use App\Http\Requests\Admin\Payment\StoreCustomerPaymentRequest;
 use App\Services\BookingService;
 use App\Services\CarService;
 use App\Services\CustomerService;
@@ -120,20 +128,9 @@ class AdminController extends Controller
         ]);
     }
 
-    public function storeDriver(Request $request)
+    public function storeDriver(StoreDriverRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'license_number' => 'required|string|max:100',
-            'experience_years' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string',
-            'owner_id' => 'nullable|exists:owners,id',
-            'address' => 'nullable|string|max:255',
-        ]);
-
-        $driver = $this->driverService->createDriver($validated);
+        $driver = $this->driverService->createDriver($request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver added successfully.', 'data' => $driver]);
@@ -142,20 +139,9 @@ class AdminController extends Controller
         return redirect()->route('admin.drivers')->with('success', 'Driver added to global directory.');
     }
 
-    public function updateDriver(Request $request, $id)
+    public function updateDriver(UpdateDriverRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'license_number' => 'required|string|max:100',
-            'experience_years' => 'nullable|numeric|min:0',
-            'status' => 'nullable|string',
-            'owner_id' => 'nullable|exists:owners,id',
-            'address' => 'nullable|string|max:255',
-        ]);
-
-        $driver = $this->driverService->updateDriver((int) $id, $validated);
+        $driver = $this->driverService->updateDriver((int) $id, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver updated successfully.', 'data' => $driver]);
@@ -197,17 +183,9 @@ class AdminController extends Controller
     /**
      * Admin creates a customer and sends a password reset/setup email.
      */
-    public function createCustomer(Request $request)
+    public function createCustomer(StoreCustomerRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:customers,email',
-            'phone_number' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
-            'gender' => 'nullable|string',
-        ]);
-
-        $result = $this->customerService->createCustomerWithPasswordSetup($validated, Auth::guard('admin')->id());
+        $result = $this->customerService->createCustomerWithPasswordSetup($request->validated(), Auth::guard('admin')->id());
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -221,17 +199,9 @@ class AdminController extends Controller
         return redirect()->route('admin.customers')->with('success', 'Customer created successfully! A password setup email has been sent.');
     }
 
-    public function updateCustomer(Request $request, $id)
+    public function updateCustomer(UpdateCustomerRequest $request, $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:customers,email,' . $id,
-            'phone_number' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
-            'gender' => 'nullable|string',
-        ]);
-
-        $customer = $this->customerService->updateCustomer((int) $id, $validated);
+        $customer = $this->customerService->updateCustomer((int) $id, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Customer updated.', 'data' => $customer]);
@@ -243,21 +213,14 @@ class AdminController extends Controller
     /**
      * Admin creates an owner and sends a password reset/setup email.
      */
-    public function createOwner(Request $request)
+    public function createOwner(StoreOwnerRequest $request)
     {
-        $validated = $request->validate([
-            'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:owners,email',
-            'contact_number' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
-            'gender' => 'nullable|string',
-        ]);
-
+        $validated = $request->validated();
         $owner = $this->ownerService->createOwner([
-            'full_name' => $validated['full_name'],
-            'email' => $validated['email'],
-            'contact_number' => $validated['contact_number'],
-            'address' => $validated['address'],
+            'full_name' => $validated['full_name'] ?? '',
+            'email' => $validated['email'] ?? '',
+            'contact_number' => $validated['contact_number'] ?? '',
+            'address' => $validated['address'] ?? '',
             'gender' => $validated['gender'] ?? 'male',
             'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
             'admin_id' => Auth::guard('admin')->id(),
@@ -317,20 +280,9 @@ class AdminController extends Controller
         ]);
     }
 
-    public function storeCustomerBooking(Request $request, $id)
+    public function storeCustomerBooking(StoreCustomerBookingRequest $request, $id)
     {
-        $validated = $request->validate([
-            'car_id' => 'required|exists:cars,id',
-            'pick_up_date' => 'required|date',
-            'last_date' => 'required|date|after_or_equal:pick_up_date',
-            'pickup_location' => 'required|string|max:255',
-            'drop_location' => 'required|string|max:255',
-            'total_price' => 'required|numeric|min:0',
-            'status' => 'nullable|string',
-            'purpose' => 'nullable|string',
-        ]);
-
-        $booking = $this->bookingService->createCustomerBooking((int) $id, $validated);
+        $booking = $this->bookingService->createCustomerBooking((int) $id, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking created for customer.', 'data' => $booking]);
@@ -339,20 +291,9 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Booking created successfully.');
     }
 
-    public function updateCustomerBooking(Request $request, $id, $bookingId)
+    public function updateCustomerBooking(UpdateCustomerBookingRequest $request, $id, $bookingId)
     {
-        $validated = $request->validate([
-            'car_id' => 'required|exists:cars,id',
-            'pick_up_date' => 'required|date',
-            'last_date' => 'required|date|after_or_equal:pick_up_date',
-            'pickup_location' => 'required|string|max:255',
-            'drop_location' => 'required|string|max:255',
-            'total_price' => 'required|numeric|min:0',
-            'status' => 'nullable|string',
-            'purpose' => 'nullable|string',
-        ]);
-
-        $booking = $this->bookingService->updateCustomerBooking((int) $id, (int) $bookingId, $validated);
+        $booking = $this->bookingService->updateCustomerBooking((int) $id, (int) $bookingId, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking updated.', 'data' => $booking]);
@@ -372,17 +313,9 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Booking deleted successfully.');
     }
 
-    public function storeCustomerPayment(Request $request, $id)
+    public function storeCustomerPayment(StoreCustomerPaymentRequest $request, $id)
     {
-        $validated = $request->validate([
-            'booking_id' => 'required|exists:booking_car,id',
-            'car_id' => 'required|exists:cars,id',
-            'amount' => 'required|numeric|min:0',
-            'card_number' => 'nullable|string',
-            'expiry_date' => 'nullable|string',
-        ]);
-
-        $payment = $this->paymentService->recordCustomerPayment((int) $id, $validated);
+        $payment = $this->paymentService->recordCustomerPayment((int) $id, $request->validated());
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Payment recorded.', 'data' => $payment]);

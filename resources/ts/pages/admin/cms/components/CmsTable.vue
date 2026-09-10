@@ -26,15 +26,15 @@ const searchQuery = ref('')
 const currentPage = ref(props.meta?.current_page || 1)
 const perPage = ref(props.meta?.per_page || 20)
 
-let searchDebounceTimer: any = null
-watch(searchQuery, (newVal) => {
-  clearTimeout(searchDebounceTimer)
+let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null
+watch(searchQuery, (newVal: string) => {
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer)
   searchDebounceTimer = setTimeout(() => {
     emit('search-change', newVal)
   }, 300)
 })
 
-watch(() => props.meta, (newMeta) => {
+watch(() => props.meta, (newMeta?: PaginationMeta) => {
   if (newMeta) {
     currentPage.value = newMeta.current_page
     perPage.value = newMeta.per_page
@@ -132,6 +132,11 @@ const getItemSubtitle = (item: CmsItem): string => {
 const isEnquiryOrContact = computed(() => {
   return props.activeModule === 'enquiries' || props.activeModule === 'contacts'
 })
+
+const stripHtml = (html?: string): string => {
+  if (!html) return ''
+  return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim()
+}
 </script>
 
 <template>
@@ -261,7 +266,7 @@ const isEnquiryOrContact = computed(() => {
               v-if="item.short_description || item.description || item.message"
               class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2"
             >
-              {{ item.short_description || item.description || item.message }}
+              {{ stripHtml(item.short_description || item.description || item.message) }}
             </p>
 
             <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs">
@@ -369,7 +374,7 @@ const isEnquiryOrContact = computed(() => {
                     v-else-if="item.short_description || item.description"
                     class="truncate max-w-xs block text-slate-500"
                   >
-                    {{ item.short_description || item.description }}
+                    {{ stripHtml(item.short_description || item.description) }}
                   </span>
                   <span
                     v-else
