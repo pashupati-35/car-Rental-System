@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
 import type { CarItem } from '../types'
@@ -15,10 +16,29 @@ const emit = defineEmits<{
   (e: 'reject', id: number): void
   (e: 'delete', id: number): void
 }>()
+
+const activeDropdown = ref<number | null>(null)
+
+const toggleDropdown = (id: number, event: MouseEvent) => {
+  event.stopPropagation()
+  activeDropdown.value = activeDropdown.value === id ? null : id
+}
+
+const closeDropdown = () => {
+  activeDropdown.value = null
+}
+
+onMounted(() => {
+  window.addEventListener('click', closeDropdown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeDropdown)
+})
 </script>
 
 <template>
-  <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+  <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
     <!-- Empty State -->
     <div
       v-if="cars.length === 0"
@@ -70,13 +90,89 @@ const emit = defineEmits<{
               </div>
             </div>
 
-            <!-- Status Pill -->
-            <span
-              :class="car.status === 'verified' || car.status === 'available' ? 'bg-emerald-50 text-emerald-700' : car.status === 'pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'"
-              class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0"
-            >
-              {{ car.status || 'pending' }}
-            </span>
+            <!-- Status Pill & 3 dots -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <span
+                :class="car.status === 'verified' || car.status === 'available' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : car.status === 'pending' ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'"
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0"
+              >
+                {{ car.status || 'pending' }}
+              </span>
+
+              <!-- Mobile Actions Dropdown -->
+              <div class="relative">
+                <button
+                  type="button"
+                  class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  :class="{ 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white': activeDropdown === car.id }"
+                  @click="toggleDropdown(car.id, $event)"
+                >
+                  <i class="ri-more-2-fill text-base" />
+                </button>
+
+                <div
+                  v-if="activeDropdown === car.id"
+                  class="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 py-1.5 z-50 text-left"
+                  @click.stop
+                >
+                  <!-- Inspect -->
+                  <button
+                    type="button"
+                    class="w-full px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    @click="emit('view', car); closeDropdown()"
+                  >
+                    <i class="ri-eye-line text-slate-400 text-sm" />
+                    <span>Inspect</span>
+                  </button>
+
+                  <!-- Edit -->
+                  <button
+                    type="button"
+                    class="w-full px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    @click="emit('edit', car); closeDropdown()"
+                  >
+                    <i class="ri-edit-line text-slate-400 text-sm" />
+                    <span>Edit</span>
+                  </button>
+
+                  <div class="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                  <!-- Approve (when pending or rejected) -->
+                  <button
+                    v-if="car.status === 'pending' || car.status === 'rejected' || !car.status"
+                    type="button"
+                    class="w-full px-3.5 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    @click="emit('verify', car.id); closeDropdown()"
+                  >
+                    <i class="ri-checkbox-circle-line text-emerald-500 text-sm" />
+                    <span>Approve</span>
+                  </button>
+
+                  <!-- Disapprove (when verified or pending) -->
+                  <button
+                    v-if="car.status === 'verified' || car.status === 'available' || car.status === 'pending' || !car.status"
+                    type="button"
+                    class="w-full px-3.5 py-2 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    @click="emit('reject', car.id); closeDropdown()"
+                  >
+                    <i class="ri-close-circle-line text-amber-500 text-sm" />
+                    <span>Disapprove</span>
+                  </button>
+
+                  <div class="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                  <!-- Delete -->
+                  <button
+                    type="button"
+                    class="w-full px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                    @click="emit('delete', car.id); closeDropdown()"
+                  >
+                    <i class="ri-delete-bin-line text-rose-500 text-sm" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="grid grid-cols-2 gap-2 text-xs py-2 px-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
@@ -101,58 +197,11 @@ const emit = defineEmits<{
               </span>
             </div>
           </div>
-
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 cursor-pointer"
-                @click="emit('view', car)"
-              >
-                <span>Inspect</span>
-                <i class="ri-eye-line" />
-              </button>
-              <button
-                type="button"
-                class="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs cursor-pointer flex items-center gap-0.5"
-                @click="emit('edit', car)"
-              >
-                <i class="ri-edit-line" />
-                <span>Edit</span>
-              </button>
-            </div>
-
-            <div class="flex items-center gap-1.5">
-              <button
-                v-if="car.status === 'pending' || !car.status"
-                type="button"
-                class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer"
-                @click="emit('verify', car.id)"
-              >
-                Approve
-              </button>
-              <button
-                v-if="car.status === 'pending' || !car.status"
-                type="button"
-                class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs cursor-pointer"
-                @click="emit('reject', car.id)"
-              >
-                Reject
-              </button>
-              <button
-                type="button"
-                class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs cursor-pointer"
-                @click="emit('delete', car.id)"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
         </div>
       </div>
 
       <!-- Desktop Table (md and up) -->
-      <div class="hidden md:block overflow-x-auto">
+      <div class="hidden md:block overflow-x-auto min-h-[320px]">
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
@@ -258,45 +307,82 @@ const emit = defineEmits<{
                 </span>
               </td>
 
-              <!-- Actions -->
-              <td class="py-4 px-5 text-right space-x-1.5">
-                <button
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold text-[11px] cursor-pointer"
-                  @click="emit('view', car)"
-                >
-                  Inspect
-                </button>
-                <button
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold text-[11px] cursor-pointer"
-                  @click="emit('edit', car)"
-                >
-                  Edit
-                </button>
-                <button
-                  v-if="car.status === 'pending' || !car.status"
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-xs cursor-pointer"
-                  @click="emit('verify', car.id)"
-                >
-                  Approve
-                </button>
-                <button
-                  v-if="car.status === 'pending' || !car.status"
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-[11px] cursor-pointer"
-                  @click="emit('reject', car.id)"
-                >
-                  Reject
-                </button>
-                <button
-                  type="button"
-                  class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-[11px] cursor-pointer"
-                  @click="emit('delete', car.id)"
-                >
-                  Delete
-                </button>
+              <!-- 3 Dots Action Dropdown -->
+              <td class="py-4 px-5 text-right">
+                <div class="relative inline-block text-left">
+                  <button
+                    type="button"
+                    class="w-8 h-8 rounded-xl inline-flex items-center justify-center text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                    :class="{ 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white': activeDropdown === car.id }"
+                    title="Actions"
+                    @click="toggleDropdown(car.id, $event)"
+                  >
+                    <i class="ri-more-2-fill text-lg" />
+                  </button>
+
+                  <!-- Dropdown Menu -->
+                  <div
+                    v-if="activeDropdown === car.id"
+                    class="absolute right-0 top-full mt-1.5 w-48 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200/80 dark:border-slate-800 py-1.5 z-50 text-left"
+                    @click.stop
+                  >
+                    <!-- Inspect Details -->
+                    <button
+                      type="button"
+                      class="w-full px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      @click="emit('view', car); closeDropdown()"
+                    >
+                      <i class="ri-eye-line text-slate-400 text-sm" />
+                      <span>Inspect</span>
+                    </button>
+
+                    <!-- Edit Vehicle -->
+                    <button
+                      type="button"
+                      class="w-full px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-600 dark:hover:text-indigo-300 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      @click="emit('edit', car); closeDropdown()"
+                    >
+                      <i class="ri-edit-line text-slate-400 text-sm" />
+                      <span>Edit</span>
+                    </button>
+
+                    <div class="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                    <!-- Approve Vehicle (when pending or rejected) -->
+                    <button
+                      v-if="car.status === 'pending' || car.status === 'rejected' || !car.status"
+                      type="button"
+                      class="w-full px-3.5 py-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      @click="emit('verify', car.id); closeDropdown()"
+                    >
+                      <i class="ri-checkbox-circle-line text-emerald-500 text-sm" />
+                      <span>Approve</span>
+                    </button>
+
+                    <!-- Disapprove / Reject Vehicle (when verified or pending) -->
+                    <button
+                      v-if="car.status === 'verified' || car.status === 'available' || car.status === 'pending' || !car.status"
+                      type="button"
+                      class="w-full px-3.5 py-2 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      @click="emit('reject', car.id); closeDropdown()"
+                    >
+                      <i class="ri-close-circle-line text-amber-500 text-sm" />
+                      <span>Disapprove</span>
+                    </button>
+
+                    <div class="my-1 border-t border-slate-100 dark:border-slate-800" />
+
+                    <!-- Delete Car -->
+                    <button
+                      type="button"
+                      class="w-full px-3.5 py-2 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                      @click="emit('delete', car.id); closeDropdown()"
+                    >
+                      <i class="ri-delete-bin-line text-rose-500 text-sm" />
+                      <span>Delete</span>
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           </tbody>

@@ -128,21 +128,26 @@ const emit = defineEmits<{
             <i class="ri-edit-line" />
             <span>Edit Vehicle</span>
           </button>
+          <!-- Approve button (when pending or rejected) -->
           <button
-            v-if="car.status === 'pending' || !car.status"
+            v-if="car.status === 'pending' || car.status === 'rejected' || !car.status"
             type="button"
-            class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs cursor-pointer"
-            @click="emit('reject', car.id); emit('close');"
-          >
-            Reject
-          </button>
-          <button
-            v-if="car.status === 'pending' || !car.status"
-            type="button"
-            class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/20 cursor-pointer"
+            class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-500/20 cursor-pointer flex items-center gap-1"
             @click="emit('verify', car.id); emit('close');"
           >
-            Approve & Verify
+            <i class="ri-checkbox-circle-line" />
+            <span>Approve & Verify</span>
+          </button>
+
+          <!-- Disapprove / Reject button (when verified or pending) -->
+          <button
+            v-if="car.status === 'verified' || car.status === 'available' || car.status === 'pending' || !car.status"
+            type="button"
+            class="px-4 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 font-bold text-xs cursor-pointer flex items-center gap-1"
+            @click="emit('reject', car.id); emit('close');"
+          >
+            <i class="ri-close-circle-line" />
+            <span>Disapprove</span>
           </button>
           <button
             type="button"
