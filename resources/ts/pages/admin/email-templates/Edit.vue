@@ -36,6 +36,7 @@ const getPlaceholder = (tag: string) => {
 
 const insertPlaceholder = (tag: string) => {
   const ph = `{{$${tag.trim()}}}`
+
   form.description = (form.description || '') + ' ' + ph
 }
 </script>
@@ -136,8 +137,14 @@ const insertPlaceholder = (tag: string) => {
               :disabled="form.processing"
               class="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <i v-if="form.processing" class="ri-loader-4-line animate-spin" />
-              <i v-else class="ri-save-line" />
+              <i
+                v-if="form.processing"
+                class="ri-loader-4-line animate-spin"
+              />
+              <i
+                v-else
+                class="ri-save-line"
+              />
               <span>{{ form.processing ? 'Saving...' : 'Save Template Changes' }}</span>
             </button>
           </div>

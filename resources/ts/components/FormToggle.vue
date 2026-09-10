@@ -19,7 +19,7 @@ const props = withDefaults(
     inactiveText: 'Inactive',
     disabled: false,
     size: 'md',
-  }
+  },
 )
 
 const emit = defineEmits<{
@@ -33,12 +33,14 @@ const isChecked = computed(() => {
   if (typeof props.modelValue === 'string') {
     return props.modelValue === '1' || props.modelValue === 'true'
   }
+  
   return Boolean(props.modelValue)
 })
 
 const toggle = () => {
   if (props.disabled) return
   const nextVal = !isChecked.value
+
   // If original was number (e.g. 1/0 for MySQL boolean), emit number, else boolean
   if (typeof props.modelValue === 'number') {
     emit('update:modelValue', nextVal ? 1 : 0)
@@ -56,7 +58,10 @@ const toggle = () => {
   >
     <div class="flex-1 select-none">
       <div class="flex items-center gap-2">
-        <span v-if="label" class="font-bold text-xs text-slate-800 dark:text-slate-200">{{ label }}</span>
+        <span
+          v-if="label"
+          class="font-bold text-xs text-slate-800 dark:text-slate-200"
+        >{{ label }}</span>
         <span
           class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-colors"
           :class="isChecked ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800' : 'bg-slate-200/80 dark:bg-slate-700 text-slate-600 dark:text-slate-400'"
@@ -64,7 +69,12 @@ const toggle = () => {
           {{ isChecked ? activeText : inactiveText }}
         </span>
       </div>
-      <p v-if="description" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{{ description }}</p>
+      <p
+        v-if="description"
+        class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5"
+      >
+        {{ description }}
+      </p>
     </div>
 
     <!-- Toggle Pill -->

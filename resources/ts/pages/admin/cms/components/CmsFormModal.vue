@@ -17,10 +17,9 @@ import MenuForm from '../forms/MenuForm.vue'
 import PartnerForm from '../forms/PartnerForm.vue'
 import GenericForm from '../forms/GenericForm.vue'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
   isEditing: boolean
-  item: CmsItem
   activeModule: string
   currentModuleMeta: CmsModuleMeta
   submitting: boolean
@@ -32,6 +31,8 @@ const emit = defineEmits<{
   (e: 'save'): void
   (e: 'close'): void
 }>()
+
+const item = defineModel<CmsItem>('item', { required: true })
 </script>
 
 <template>
@@ -50,7 +51,9 @@ const emit = defineEmits<{
             <h3 class="font-bold text-base text-slate-900 dark:text-white leading-tight">
               {{ isEditing ? 'Edit' : 'Create New' }} {{ currentModuleMeta.label }}
             </h3>
-            <p class="text-[11px] text-slate-400">Manage CMS content, publishing status, and rich details</p>
+            <p class="text-[11px] text-slate-400">
+              Manage CMS content, publishing status, and rich details
+            </p>
           </div>
         </div>
 
@@ -64,32 +67,87 @@ const emit = defineEmits<{
       </div>
 
       <!-- Error Alert -->
-      <div v-if="errorMessage" class="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300 text-xs font-semibold">
+      <div
+        v-if="errorMessage"
+        class="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300 text-xs font-semibold"
+      >
         {{ errorMessage }}
       </div>
 
       <!-- Scrollable Modal Body -->
       <div class="flex-1 overflow-y-auto px-6 py-5">
-        <form id="cmsModalForm" class="space-y-5 text-xs" @submit.prevent="emit('save')">
+        <form
+          id="cmsModalForm"
+          class="space-y-5 text-xs"
+          @submit.prevent="emit('save')"
+        >
           <!-- CMS Module Specific Form -->
-          <FaqForm v-if="activeModule === 'faqs'" :item="item" />
-          <BlogForm v-else-if="activeModule === 'blogs'" :item="item" />
-          <CareerForm v-else-if="activeModule === 'careers'" :item="item" />
-          <TeamForm v-else-if="activeModule === 'teams'" :item="item" />
-          <ServiceForm v-else-if="activeModule === 'services'" :item="item" />
-          <PopupForm v-else-if="activeModule === 'popups'" :item="item" />
-          <NoticeForm v-else-if="activeModule === 'notices'" :item="item" />
-          <NewsForm v-else-if="activeModule === 'news'" :item="item" />
-          <SliderForm v-else-if="activeModule === 'sliders'" :item="item" />
-          <PageForm v-else-if="activeModule === 'pages'" :item="item" />
-          <TestimonialForm v-else-if="activeModule === 'testimonials'" :item="item" />
-          <AlbumForm v-else-if="activeModule === 'albums'" :item="item" />
-          <MenuForm v-else-if="activeModule === 'menus'" :item="item" />
-          <PartnerForm v-else-if="activeModule === 'partners'" :item="item" />
-          <GenericForm v-else :item="item" />
+          <FaqForm
+            v-if="activeModule === 'faqs'"
+            v-model:item="item"
+          />
+          <BlogForm
+            v-else-if="activeModule === 'blogs'"
+            v-model:item="item"
+          />
+          <CareerForm
+            v-else-if="activeModule === 'careers'"
+            v-model:item="item"
+          />
+          <TeamForm
+            v-else-if="activeModule === 'teams'"
+            v-model:item="item"
+          />
+          <ServiceForm
+            v-else-if="activeModule === 'services'"
+            v-model:item="item"
+          />
+          <PopupForm
+            v-else-if="activeModule === 'popups'"
+            v-model:item="item"
+          />
+          <NoticeForm
+            v-else-if="activeModule === 'notices'"
+            v-model:item="item"
+          />
+          <NewsForm
+            v-else-if="activeModule === 'news'"
+            v-model:item="item"
+          />
+          <SliderForm
+            v-else-if="activeModule === 'sliders'"
+            v-model:item="item"
+          />
+          <PageForm
+            v-else-if="activeModule === 'pages'"
+            v-model:item="item"
+          />
+          <TestimonialForm
+            v-else-if="activeModule === 'testimonials'"
+            v-model:item="item"
+          />
+          <AlbumForm
+            v-else-if="activeModule === 'albums'"
+            v-model:item="item"
+          />
+          <MenuForm
+            v-else-if="activeModule === 'menus'"
+            v-model:item="item"
+          />
+          <PartnerForm
+            v-else-if="activeModule === 'partners'"
+            v-model:item="item"
+          />
+          <GenericForm
+            v-else
+            v-model:item="item"
+          />
 
           <!-- Publication Status Toggle -->
-          <div v-if="item.is_active !== undefined || !isEditing" class="pt-2">
+          <div
+            v-if="item.is_active !== undefined || !isEditing"
+            class="pt-2"
+          >
             <FormToggle
               v-model="item.is_active"
               label="Active & Published on Public Site"
@@ -116,8 +174,14 @@ const emit = defineEmits<{
           :disabled="submitting"
           class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5 transition-all"
         >
-          <i v-if="submitting" class="ri-loader-4-line animate-spin" />
-          <i v-else class="ri-check-line" />
+          <i
+            v-if="submitting"
+            class="ri-loader-4-line animate-spin"
+          />
+          <i
+            v-else
+            class="ri-check-line"
+          />
           <span>{{ submitting ? 'Saving...' : 'Save Record' }}</span>
         </button>
       </div>

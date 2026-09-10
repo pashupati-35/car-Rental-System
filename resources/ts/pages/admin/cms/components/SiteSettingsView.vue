@@ -3,14 +3,15 @@ import type { CmsItem } from '../types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import FormToggle from '@/components/FormToggle.vue'
 
-const props = defineProps<{
-  settings: CmsItem
+defineProps<{
   submitting: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'save'): void
 }>()
+
+const settings = defineModel<CmsItem>('settings', { required: true })
 </script>
 
 <template>
@@ -32,13 +33,22 @@ const emit = defineEmits<{
         class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5 transition-all"
         @click="emit('save')"
       >
-        <i v-if="submitting" class="ri-loader-4-line animate-spin" />
-        <i v-else class="ri-save-line" />
+        <i
+          v-if="submitting"
+          class="ri-loader-4-line animate-spin"
+        />
+        <i
+          v-else
+          class="ri-save-line"
+        />
         <span>{{ submitting ? 'Saving...' : 'Save Settings' }}</span>
       </button>
     </div>
 
-    <form class="space-y-6" @submit.prevent="emit('save')">
+    <form
+      class="space-y-6"
+      @submit.prevent="emit('save')"
+    >
       <!-- Section 1: Brand & Contact -->
       <div class="space-y-4">
         <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1">
@@ -52,7 +62,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="e.g. AutoRent Nepal"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Official Support Email</label>
@@ -61,7 +71,7 @@ const emit = defineEmits<{
               type="email"
               placeholder="support@carrental.local"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Helpline / Phone</label>
@@ -70,7 +80,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="+977-9841234567"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
         </div>
 
@@ -82,7 +92,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="Kathmandu, Bagmati, Nepal"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Website URL</label>
@@ -91,7 +101,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="https://carrental.local"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
         </div>
       </div>
@@ -119,7 +129,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="© 2026 AutoRent Nepal. All rights reserved."
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Cookie Notice Text</label>
@@ -128,7 +138,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="We use cookies to improve your rental experience."
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
         </div>
       </div>
@@ -146,7 +156,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="AutoRent Nepal - Premium Car Rental & Fleet Portal"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Meta Keywords</label>
@@ -155,7 +165,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="car rental kathmandu, luxury cars nepal, hire car"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
         </div>
 
@@ -166,7 +176,7 @@ const emit = defineEmits<{
             rows="2"
             placeholder="Brief snippet shown in search engine results..."
             class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500"
-          ></textarea>
+          />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -177,7 +187,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="https://facebook.com/..."
               class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">Instagram</label>
@@ -186,7 +196,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="https://instagram.com/..."
               class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">LinkedIn</label>
@@ -195,7 +205,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="https://linkedin.com/..."
               class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
-            />
+            >
           </div>
           <div>
             <label class="block text-xs font-bold mb-1 text-slate-700 dark:text-slate-300">WhatsApp</label>
@@ -204,7 +214,7 @@ const emit = defineEmits<{
               type="text"
               placeholder="+977-9841234567"
               class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs"
-            />
+            >
           </div>
         </div>
       </div>
@@ -238,8 +248,14 @@ const emit = defineEmits<{
           :disabled="submitting"
           class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 cursor-pointer flex items-center gap-2"
         >
-          <i v-if="submitting" class="ri-loader-4-line animate-spin" />
-          <i v-else class="ri-save-line" />
+          <i
+            v-if="submitting"
+            class="ri-loader-4-line animate-spin"
+          />
+          <i
+            v-else
+            class="ri-save-line"
+          />
           <span>{{ submitting ? 'Saving Settings...' : 'Save Site Settings' }}</span>
         </button>
       </div>

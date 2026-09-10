@@ -86,17 +86,21 @@ const filteredCars = computed(() => {
       if (carStatusFilter.value === 'verified') return c.status === 'verified' || c.status === 'available'
       if (carStatusFilter.value === 'pending') return c.status === 'pending'
       if (carStatusFilter.value === 'rejected') return c.status === 'rejected'
+      
       return true
     })
   }
   if (carSearch.value.trim()) {
     const q = carSearch.value.toLowerCase()
+
     list = list.filter(c => {
       const name = (c.car_name || '') + ' ' + (c.car_model || '')
       const num = c.car_number || ''
+      
       return name.toLowerCase().includes(q) || num.toLowerCase().includes(q)
     })
   }
+  
   return list
 })
 
@@ -104,13 +108,16 @@ const filteredDrivers = computed(() => {
   let list = props.drivers || []
   if (driverSearch.value.trim()) {
     const q = driverSearch.value.toLowerCase()
+
     list = list.filter(d => {
       const name = d.name || ''
       const phone = d.phone || ''
       const lic = d.license_number || ''
+      
       return name.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || lic.toLowerCase().includes(q)
     })
   }
+  
   return list
 })
 
@@ -118,13 +125,16 @@ const filteredBookings = computed(() => {
   let list = props.bookings || []
   if (bookingSearch.value.trim()) {
     const q = bookingSearch.value.toLowerCase()
+
     list = list.filter(b => {
       const id = String(b.id)
       const cust = b.customer?.name || ''
       const car = (b.car?.car_name || '') + ' ' + (b.car?.car_model || '')
+      
       return id.includes(q) || cust.toLowerCase().includes(q) || car.toLowerCase().includes(q)
     })
   }
+  
   return list
 })
 
@@ -181,6 +191,7 @@ const openInspectCar = (car: any) => {
 
 const submitCreateCar = () => {
   const formData = new FormData()
+
   formData.append('car_name', carForm.value.car_name)
   formData.append('car_model', carForm.value.car_model)
   formData.append('car_number', carForm.value.car_number)
@@ -203,6 +214,7 @@ const submitCreateCar = () => {
 const submitUpdateCar = () => {
   if (!selectedCar.value) return
   const formData = new FormData()
+
   formData.append('car_name', carForm.value.car_name)
   formData.append('car_model', carForm.value.car_model)
   formData.append('car_number', carForm.value.car_number)
@@ -275,6 +287,7 @@ const openEditDriver = (driver: any) => {
 
 const submitCreateDriver = () => {
   const formData = new FormData()
+
   formData.append('name', driverForm.value.name)
   formData.append('phone', driverForm.value.phone)
   if (driverForm.value.email) formData.append('email', driverForm.value.email)
@@ -295,6 +308,7 @@ const submitCreateDriver = () => {
 const submitUpdateDriver = () => {
   if (!selectedDriver.value) return
   const formData = new FormData()
+
   formData.append('name', driverForm.value.name)
   formData.append('phone', driverForm.value.phone)
   if (driverForm.value.email) formData.append('email', driverForm.value.email)
@@ -408,11 +422,22 @@ const cancelBooking = (bookingId: number) => {
                   {{ owner.is_mfa_enabled ? 'MFA Security Active' : 'No MFA' }}
                 </span>
               </div>
-              <h3 class="text-xl sm:text-2xl font-black">{{ owner.full_name }}</h3>
+              <h3 class="text-xl sm:text-2xl font-black">
+                {{ owner.full_name }}
+              </h3>
               <p class="text-xs text-slate-300 font-mono flex flex-wrap items-center gap-4 mt-1">
-                <span><i class="ri-mail-line text-indigo-400 mr-1" />{{ owner.email }}</span>
-                <span><i class="ri-phone-line text-emerald-400 mr-1" />{{ owner.contact_number || 'N/A' }}</span>
-                <span><i class="ri-map-pin-line text-amber-400 mr-1" />{{ owner.address || 'Location Not Specified' }}</span>
+                <span><i
+                  class="ri-mail-line text-indigo-400"
+                  style="margin-right: 0.25rem"
+                />{{ owner.email }}</span>
+                <span><i
+                  class="ri-phone-line text-emerald-400"
+                  style="margin-right: 0.25rem"
+                />{{ owner.contact_number || 'N/A' }}</span>
+                <span><i
+                  class="ri-map-pin-line text-amber-400"
+                  style="margin-right: 0.25rem"
+                />{{ owner.address || 'Location Not Specified' }}</span>
               </p>
             </div>
           </div>
@@ -496,7 +521,10 @@ const cancelBooking = (bookingId: number) => {
         >
           <i class="ri-car-line" />
           <span>Fleet Vehicles</span>
-          <span class="px-2 py-0.2 rounded-full text-[10px] font-mono" :class="activeTab === 'cars' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'">
+          <span
+            class="px-2 py-0.2 rounded-full text-[10px] font-mono"
+            :class="activeTab === 'cars' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'"
+          >
             {{ cars.length }}
           </span>
         </button>
@@ -509,7 +537,10 @@ const cancelBooking = (bookingId: number) => {
         >
           <i class="ri-user-star-line" />
           <span>Assigned Drivers</span>
-          <span class="px-2 py-0.2 rounded-full text-[10px] font-mono" :class="activeTab === 'drivers' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'">
+          <span
+            class="px-2 py-0.2 rounded-full text-[10px] font-mono"
+            :class="activeTab === 'drivers' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'"
+          >
             {{ drivers.length }}
           </span>
         </button>
@@ -522,14 +553,20 @@ const cancelBooking = (bookingId: number) => {
         >
           <i class="ri-calendar-check-line" />
           <span>Rental Trips</span>
-          <span class="px-2 py-0.2 rounded-full text-[10px] font-mono" :class="activeTab === 'bookings' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'">
+          <span
+            class="px-2 py-0.2 rounded-full text-[10px] font-mono"
+            :class="activeTab === 'bookings' ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800'"
+          >
             {{ bookings.length }}
           </span>
         </button>
       </div>
 
       <!-- TAB 1: FLEET VEHICLES -->
-      <div v-if="activeTab === 'cars'" class="space-y-4">
+      <div
+        v-if="activeTab === 'cars'"
+        class="space-y-4"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
           <div class="flex items-center gap-2 overflow-x-auto">
             <button
@@ -550,8 +587,9 @@ const cancelBooking = (bookingId: number) => {
               v-model="carSearch"
               type="text"
               placeholder="Search vehicle or plate..."
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
-            />
+              class="w-full py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
+              style="padding-left: 2rem; padding-right: 0.75rem"
+            >
           </div>
         </div>
 
@@ -559,20 +597,41 @@ const cancelBooking = (bookingId: number) => {
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th class="py-3.5 px-5">Vehicle Specs</th>
-                <th class="py-3.5 px-5">Plate Number</th>
-                <th class="py-3.5 px-5">Assigned Driver</th>
-                <th class="py-3.5 px-5">Daily Rate</th>
-                <th class="py-3.5 px-5">Status</th>
-                <th class="py-3.5 px-5 text-right">Admin Actions</th>
+                <th class="py-3.5 px-5">
+                  Vehicle Specs
+                </th>
+                <th class="py-3.5 px-5">
+                  Plate Number
+                </th>
+                <th class="py-3.5 px-5">
+                  Assigned Driver
+                </th>
+                <th class="py-3.5 px-5">
+                  Daily Rate
+                </th>
+                <th class="py-3.5 px-5">
+                  Status
+                </th>
+                <th class="py-3.5 px-5 text-right">
+                  Admin Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               <tr v-if="filteredCars.length === 0">
-                <td colspan="6" class="py-12 text-center text-slate-400">
+                <td
+                  colspan="6"
+                  class="py-12 text-center text-slate-400"
+                >
                   <i class="ri-car-line text-3xl mb-2 inline-block text-slate-300" />
-                  <p class="font-semibold text-sm">No vehicles registered for this owner yet.</p>
-                  <button type="button" class="mt-2 text-indigo-600 font-bold hover:underline" @click="openCreateCar">
+                  <p class="font-semibold text-sm">
+                    No vehicles registered for this owner yet.
+                  </p>
+                  <button
+                    type="button"
+                    class="mt-2 text-indigo-600 font-bold hover:underline"
+                    @click="openCreateCar"
+                  >
                     + Add first car for {{ owner.full_name }}
                   </button>
                 </td>
@@ -588,7 +647,7 @@ const cancelBooking = (bookingId: number) => {
                     <img
                       :src="car.car_photo ? '/' + car.car_photo : (car.image ? '/' + car.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=120&auto=format&fit=crop&q=80')"
                       class="w-12 h-10 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shrink-0"
-                    />
+                    >
                     <div>
                       <span class="font-bold text-slate-900 dark:text-white block text-sm">
                         {{ car.car_name }} {{ car.car_model }}
@@ -608,7 +667,10 @@ const cancelBooking = (bookingId: number) => {
                   <span class="font-semibold text-slate-800 dark:text-slate-200 block">
                     {{ car.driver?.name || car.driver_name || 'No Driver' }}
                   </span>
-                  <span v-if="car.driver?.phone" class="text-[10px] text-slate-400 font-mono">{{ car.driver.phone }}</span>
+                  <span
+                    v-if="car.driver?.phone"
+                    class="text-[10px] text-slate-400 font-mono"
+                  >{{ car.driver.phone }}</span>
                 </td>
 
                 <!-- Rate -->
@@ -683,7 +745,10 @@ const cancelBooking = (bookingId: number) => {
       </div>
 
       <!-- TAB 2: ASSIGNED DRIVERS -->
-      <div v-if="activeTab === 'drivers'" class="space-y-4">
+      <div
+        v-if="activeTab === 'drivers'"
+        class="space-y-4"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
           <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
             Drivers assigned exclusively to {{ owner.full_name }}
@@ -695,8 +760,9 @@ const cancelBooking = (bookingId: number) => {
               v-model="driverSearch"
               type="text"
               placeholder="Search driver by name, phone..."
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
-            />
+              class="w-full py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
+              style="padding-left: 2rem; padding-right: 0.75rem"
+            >
           </div>
         </div>
 
@@ -704,20 +770,41 @@ const cancelBooking = (bookingId: number) => {
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th class="py-3.5 px-5">Driver Name</th>
-                <th class="py-3.5 px-5">Contact Details</th>
-                <th class="py-3.5 px-5">License Number</th>
-                <th class="py-3.5 px-5">Experience</th>
-                <th class="py-3.5 px-5">Status</th>
-                <th class="py-3.5 px-5 text-right">Admin Actions</th>
+                <th class="py-3.5 px-5">
+                  Driver Name
+                </th>
+                <th class="py-3.5 px-5">
+                  Contact Details
+                </th>
+                <th class="py-3.5 px-5">
+                  License Number
+                </th>
+                <th class="py-3.5 px-5">
+                  Experience
+                </th>
+                <th class="py-3.5 px-5">
+                  Status
+                </th>
+                <th class="py-3.5 px-5 text-right">
+                  Admin Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               <tr v-if="filteredDrivers.length === 0">
-                <td colspan="6" class="py-12 text-center text-slate-400">
+                <td
+                  colspan="6"
+                  class="py-12 text-center text-slate-400"
+                >
                   <i class="ri-user-star-line text-3xl mb-2 inline-block text-slate-300" />
-                  <p class="font-semibold text-sm">No drivers assigned to this owner yet.</p>
-                  <button type="button" class="mt-2 text-indigo-600 font-bold hover:underline" @click="openCreateDriver">
+                  <p class="font-semibold text-sm">
+                    No drivers assigned to this owner yet.
+                  </p>
+                  <button
+                    type="button"
+                    class="mt-2 text-indigo-600 font-bold hover:underline"
+                    @click="openCreateDriver"
+                  >
                     + Register driver for {{ owner.full_name }}
                   </button>
                 </td>
@@ -731,7 +818,11 @@ const cancelBooking = (bookingId: number) => {
                 <td class="py-4 px-5">
                   <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 font-bold flex items-center justify-center text-xs overflow-hidden">
-                      <img v-if="driver.photo" :src="'/' + driver.photo" class="w-full h-full object-cover" />
+                      <img
+                        v-if="driver.photo"
+                        :src="'/' + driver.photo"
+                        class="w-full h-full object-cover"
+                      >
                       <span v-else>{{ driver.name ? driver.name[0].toUpperCase() : 'D' }}</span>
                     </div>
                     <div>
@@ -793,7 +884,10 @@ const cancelBooking = (bookingId: number) => {
       </div>
 
       <!-- TAB 3: RENTAL BOOKINGS -->
-      <div v-if="activeTab === 'bookings'" class="space-y-4">
+      <div
+        v-if="activeTab === 'bookings'"
+        class="space-y-4"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
           <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
             Booking reservations associated with {{ owner.full_name }}'s vehicles
@@ -805,8 +899,9 @@ const cancelBooking = (bookingId: number) => {
               v-model="bookingSearch"
               type="text"
               placeholder="Search booking ID or customer..."
-              class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
-            />
+              class="w-full py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
+              style="padding-left: 2rem; padding-right: 0.75rem"
+            >
           </div>
         </div>
 
@@ -814,20 +909,39 @@ const cancelBooking = (bookingId: number) => {
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th class="py-3.5 px-5">Booking ID</th>
-                <th class="py-3.5 px-5">Customer</th>
-                <th class="py-3.5 px-5">Vehicle</th>
-                <th class="py-3.5 px-5">Duration</th>
-                <th class="py-3.5 px-5">Revenue</th>
-                <th class="py-3.5 px-5">Status</th>
-                <th class="py-3.5 px-5 text-right">Actions</th>
+                <th class="py-3.5 px-5">
+                  Booking ID
+                </th>
+                <th class="py-3.5 px-5">
+                  Customer
+                </th>
+                <th class="py-3.5 px-5">
+                  Vehicle
+                </th>
+                <th class="py-3.5 px-5">
+                  Duration
+                </th>
+                <th class="py-3.5 px-5">
+                  Revenue
+                </th>
+                <th class="py-3.5 px-5">
+                  Status
+                </th>
+                <th class="py-3.5 px-5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               <tr v-if="filteredBookings.length === 0">
-                <td colspan="7" class="py-12 text-center text-slate-400">
+                <td
+                  colspan="7"
+                  class="py-12 text-center text-slate-400"
+                >
                   <i class="ri-calendar-line text-3xl mb-2 inline-block text-slate-300" />
-                  <p class="font-semibold text-sm">No rental bookings recorded for this owner yet.</p>
+                  <p class="font-semibold text-sm">
+                    No rental bookings recorded for this owner yet.
+                  </p>
                 </td>
               </tr>
               <tr
@@ -914,48 +1028,99 @@ const cancelBooking = (bookingId: number) => {
             <h3 class="font-bold text-lg text-slate-900 dark:text-white">
               Edit Fleet Owner Profile
             </h3>
-            <button class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="showEditOwnerModal = false">&times;</button>
+            <button
+              class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+              @click="showEditOwnerModal = false"
+            >
+              &times;
+            </button>
           </div>
 
-          <form class="space-y-4 text-xs" @submit.prevent="submitUpdateOwner">
+          <form
+            class="space-y-4 text-xs"
+            @submit.prevent="submitUpdateOwner"
+          >
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Full Name *</label>
-              <input v-model="ownerForm.full_name" type="text" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+              <input
+                v-model="ownerForm.full_name"
+                type="text"
+                required
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              >
             </div>
 
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Email Address *</label>
-              <input v-model="ownerForm.email" type="email" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+              <input
+                v-model="ownerForm.email"
+                type="email"
+                required
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              >
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Contact Number</label>
-                <input v-model="ownerForm.contact_number" type="text" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="ownerForm.contact_number"
+                  type="text"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Gender</label>
-                <select v-model="ownerForm.gender" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
+                <select
+                  v-model="ownerForm.gender"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
+                  <option value="male">
+                    Male
+                  </option>
+                  <option value="female">
+                    Female
+                  </option>
+                  <option value="other">
+                    Other
+                  </option>
                 </select>
               </div>
             </div>
 
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Address / Location</label>
-              <input v-model="ownerForm.address" type="text" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+              <input
+                v-model="ownerForm.address"
+                type="text"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              >
             </div>
 
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">New Password (Leave blank to keep current)</label>
-              <input v-model="ownerForm.password" type="password" placeholder="••••••••" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+              <input
+                v-model="ownerForm.password"
+                type="password"
+                placeholder="••••••••"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              >
             </div>
 
             <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold" @click="showEditOwnerModal = false">Cancel</button>
-              <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Save Changes</button>
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                @click="showEditOwnerModal = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+              >
+                Save Changes
+              </button>
             </div>
           </form>
         </div>
@@ -972,61 +1137,124 @@ const cancelBooking = (bookingId: number) => {
               <h3 class="font-bold text-lg text-slate-900 dark:text-white">
                 {{ showEditCarModal ? 'Edit Vehicle Specs' : 'Add Vehicle for ' + owner.full_name }}
               </h3>
-              <p class="text-[11px] text-slate-400">Owner ID: #{{ owner.id }} ({{ owner.full_name }})</p>
+              <p class="text-[11px] text-slate-400">
+                Owner ID: #{{ owner.id }} ({{ owner.full_name }})
+              </p>
             </div>
-            <button class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="showAddCarModal = false; showEditCarModal = false">&times;</button>
+            <button
+              class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+              @click="showAddCarModal = false; showEditCarModal = false"
+            >
+              &times;
+            </button>
           </div>
 
-          <form class="space-y-3.5 text-xs" @submit.prevent="showEditCarModal ? submitUpdateCar() : submitCreateCar()">
+          <form
+            class="space-y-3.5 text-xs"
+            @submit.prevent="showEditCarModal ? submitUpdateCar() : submitCreateCar()"
+          >
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">Vehicle Make / Brand *</label>
-                <input v-model="carForm.car_name" type="text" required placeholder="e.g. Toyota, Tesla" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="carForm.car_name"
+                  type="text"
+                  required
+                  placeholder="e.g. Toyota, Tesla"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Model Name *</label>
-                <input v-model="carForm.car_model" type="text" required placeholder="e.g. Fortuner 4x4" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="carForm.car_model"
+                  type="text"
+                  required
+                  placeholder="e.g. Fortuner 4x4"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">License Plate Number *</label>
-                <input v-model="carForm.car_number" type="text" required placeholder="BA-1-PA-1024" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono" />
+                <input
+                  v-model="carForm.car_number"
+                  type="text"
+                  required
+                  placeholder="BA-1-PA-1024"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Seating Capacity</label>
-                <input v-model="carForm.number_of_seats" type="number" min="1" max="50" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="carForm.number_of_seats"
+                  type="number"
+                  min="1"
+                  max="50"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">Daily Price ($/day) *</label>
-                <input v-model="carForm.car_price_per_day" type="number" step="0.01" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-emerald-600" />
+                <input
+                  v-model="carForm.car_price_per_day"
+                  type="number"
+                  step="0.01"
+                  required
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-emerald-600"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Rate per KM ($/km)</label>
-                <input v-model="carForm.car_price_per_km" type="number" step="0.01" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="carForm.car_price_per_km"
+                  type="number"
+                  step="0.01"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">Assign Driver</label>
-                <select v-model="carForm.driver_id" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                  <option value="">No Driver Assigned</option>
-                  <option v-for="d in availableDrivers" :key="d.id" :value="d.id">
+                <select
+                  v-model="carForm.driver_id"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
+                  <option value="">
+                    No Driver Assigned
+                  </option>
+                  <option
+                    v-for="d in availableDrivers"
+                    :key="d.id"
+                    :value="d.id"
+                  >
                     {{ d.name }} ({{ d.phone }})
                   </option>
                 </select>
               </div>
               <div>
                 <label class="block font-bold mb-1">Verification Status</label>
-                <select v-model="carForm.status" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold">
-                  <option value="verified">Verified (Approved)</option>
-                  <option value="pending">Pending</option>
-                  <option value="rejected">Rejected</option>
+                <select
+                  v-model="carForm.status"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold"
+                >
+                  <option value="verified">
+                    Verified (Approved)
+                  </option>
+                  <option value="pending">
+                    Pending
+                  </option>
+                  <option value="rejected">
+                    Rejected
+                  </option>
                 </select>
               </div>
             </div>
@@ -1039,7 +1267,7 @@ const cancelBooking = (bookingId: number) => {
                   accept="image/*"
                   class="w-full text-[11px]"
                   @change="(e: any) => carForm.car_photo = e.target.files[0]"
-                />
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Bluebook / Registration Document</label>
@@ -1048,13 +1276,22 @@ const cancelBooking = (bookingId: number) => {
                   accept="image/*"
                   class="w-full text-[11px]"
                   @change="(e: any) => carForm.blue_book_photo = e.target.files[0]"
-                />
+                >
               </div>
             </div>
 
             <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold" @click="showAddCarModal = false; showEditCarModal = false">Cancel</button>
-              <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold"
+                @click="showAddCarModal = false; showEditCarModal = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+              >
                 {{ showEditCarModal ? 'Update Vehicle' : 'Add to Fleet' }}
               </button>
             </div>
@@ -1073,50 +1310,100 @@ const cancelBooking = (bookingId: number) => {
               <h3 class="font-bold text-lg text-slate-900 dark:text-white">
                 {{ showEditDriverModal ? 'Edit Driver Record' : 'Register Driver for ' + owner.full_name }}
               </h3>
-              <p class="text-[11px] text-slate-400">Assigned Fleet Owner: {{ owner.full_name }}</p>
+              <p class="text-[11px] text-slate-400">
+                Assigned Fleet Owner: {{ owner.full_name }}
+              </p>
             </div>
-            <button class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="showAddDriverModal = false; showEditDriverModal = false">&times;</button>
+            <button
+              class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+              @click="showAddDriverModal = false; showEditDriverModal = false"
+            >
+              &times;
+            </button>
           </div>
 
-          <form class="space-y-3.5 text-xs" @submit.prevent="showEditDriverModal ? submitUpdateDriver() : submitCreateDriver()">
+          <form
+            class="space-y-3.5 text-xs"
+            @submit.prevent="showEditDriverModal ? submitUpdateDriver() : submitCreateDriver()"
+          >
             <div>
               <label class="block font-bold mb-1">Driver Full Name *</label>
-              <input v-model="driverForm.name" type="text" required placeholder="Driver name" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+              <input
+                v-model="driverForm.name"
+                type="text"
+                required
+                placeholder="Driver name"
+                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              >
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">Phone Number *</label>
-                <input v-model="driverForm.phone" type="text" required placeholder="+1 234 567 890" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="driverForm.phone"
+                  type="text"
+                  required
+                  placeholder="+1 234 567 890"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Email Address</label>
-                <input v-model="driverForm.email" type="email" placeholder="driver@example.com" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="driverForm.email"
+                  type="email"
+                  placeholder="driver@example.com"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">License Number *</label>
-                <input v-model="driverForm.license_number" type="text" required placeholder="DL-98765432" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono" />
+                <input
+                  v-model="driverForm.license_number"
+                  type="text"
+                  required
+                  placeholder="DL-98765432"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono"
+                >
               </div>
               <div>
                 <label class="block font-bold mb-1">Driving Experience (Years)</label>
-                <input v-model="driverForm.experience_years" type="number" min="0" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="driverForm.experience_years"
+                  type="number"
+                  min="0"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block font-bold mb-1">Status</label>
-                <select v-model="driverForm.status" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                <select
+                  v-model="driverForm.status"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold"
+                >
+                  <option value="active">
+                    Active
+                  </option>
+                  <option value="inactive">
+                    Inactive
+                  </option>
                 </select>
               </div>
               <div>
                 <label class="block font-bold mb-1">Address / Region</label>
-                <input v-model="driverForm.address" type="text" placeholder="City, Region" class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+                <input
+                  v-model="driverForm.address"
+                  type="text"
+                  placeholder="City, Region"
+                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                >
               </div>
             </div>
 
@@ -1127,12 +1414,21 @@ const cancelBooking = (bookingId: number) => {
                 accept="image/*"
                 class="w-full text-[11px]"
                 @change="(e: any) => driverForm.photo = e.target.files[0]"
-              />
+              >
             </div>
 
             <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold" @click="showAddDriverModal = false; showEditDriverModal = false">Cancel</button>
-              <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold"
+                @click="showAddDriverModal = false; showEditDriverModal = false"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
+              >
                 {{ showEditDriverModal ? 'Update Driver' : 'Register Driver' }}
               </button>
             </div>
@@ -1150,20 +1446,29 @@ const cancelBooking = (bookingId: number) => {
             <h3 class="font-bold text-lg text-slate-900 dark:text-white">
               Inspection Details: {{ selectedCar.car_name }} {{ selectedCar.car_model }}
             </h3>
-            <button class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="showInspectCarModal = false">&times;</button>
+            <button
+              class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+              @click="showInspectCarModal = false"
+            >
+              &times;
+            </button>
           </div>
 
           <div class="flex items-center gap-4">
             <img
               :src="selectedCar.car_photo ? '/' + selectedCar.car_photo : (selectedCar.image ? '/' + selectedCar.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=200&auto=format&fit=crop&q=80')"
               class="w-28 h-20 object-cover rounded-2xl border border-slate-200"
-            />
+            >
             <div>
               <h4 class="font-bold text-base text-slate-900 dark:text-white">
                 {{ selectedCar.car_name }} {{ selectedCar.car_model }}
               </h4>
-              <p class="text-xs text-indigo-600 font-bold font-mono">Plate: {{ selectedCar.car_number }}</p>
-              <p class="text-xs text-slate-500">Fleet Owner: {{ owner.full_name }}</p>
+              <p class="text-xs text-indigo-600 font-bold font-mono">
+                Plate: {{ selectedCar.car_number }}
+              </p>
+              <p class="text-xs text-slate-500">
+                Fleet Owner: {{ owner.full_name }}
+              </p>
             </div>
           </div>
 
@@ -1182,13 +1487,25 @@ const cancelBooking = (bookingId: number) => {
             </div>
           </div>
 
-          <div v-if="selectedCar.blue_book_photo" class="space-y-1">
+          <div
+            v-if="selectedCar.blue_book_photo"
+            class="space-y-1"
+          >
             <span class="text-[11px] font-bold text-slate-500 block">Bluebook / Registration Document:</span>
-            <img :src="'/' + selectedCar.blue_book_photo" class="max-h-40 rounded-xl border border-slate-200 object-contain w-full bg-slate-50" />
+            <img
+              :src="'/' + selectedCar.blue_book_photo"
+              class="max-h-40 rounded-xl border border-slate-200 object-contain w-full bg-slate-50"
+            >
           </div>
 
           <div class="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-            <button type="button" class="px-4 py-2 rounded-xl bg-slate-100 font-bold text-xs" @click="showInspectCarModal = false">Close</button>
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl bg-slate-100 font-bold text-xs"
+              @click="showInspectCarModal = false"
+            >
+              Close
+            </button>
             <button
               v-if="selectedCar.status !== 'verified' && selectedCar.status !== 'available'"
               type="button"

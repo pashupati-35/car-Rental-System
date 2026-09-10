@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import axios from 'axios'
 
-const props = defineProps<{
+defineProps<{
   drivers?: Array<any>
 }>()
 
@@ -79,18 +79,18 @@ const handlePhotoUpload = (e: any) => {
   form.value.photo = e.target.files[0]
 }
 
-const handleLicenseUpload = (e: any) => {
-  form.value.license_photo = e.target.files[0]
-}
 
 const saveDriver = async () => {
   if (!form.value.name || !form.value.phone || !form.value.license_number) {
     alert('Please fill in required fields: Name, Phone, and License Number.')
+    
     return
   }
 
   submitting.value = true
+
   const formData = new FormData()
+
   formData.append('name', form.value.name)
   formData.append('phone', form.value.phone)
   if (form.value.email) formData.append('email', form.value.email)
@@ -156,12 +156,20 @@ const deleteDriver = async (id: number) => {
       </div>
 
       <!-- Driver Cards List -->
-      <div v-if="loading" class="py-16 text-center">
-        <div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-        <p class="text-xs text-gray-500">Loading drivers...</p>
+      <div
+        v-if="loading"
+        class="py-16 text-center"
+      >
+        <div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <p class="text-xs text-gray-500">
+          Loading drivers...
+        </p>
       </div>
 
-      <div v-else-if="driversList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        v-else-if="driversList.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         <div
           v-for="driver in driversList"
           :key="driver.id"
@@ -175,7 +183,7 @@ const deleteDriver = async (id: number) => {
                     v-if="driver.photo"
                     :src="'/' + driver.photo"
                     class="w-full h-full object-cover"
-                  />
+                  >
                   <span v-else>{{ driver.name[0] }}</span>
                 </div>
                 <div>
@@ -206,7 +214,10 @@ const deleteDriver = async (id: number) => {
               </div>
             </div>
 
-            <div v-if="driver.email" class="mt-2 text-xs text-gray-500">
+            <div
+              v-if="driver.email"
+              class="mt-2 text-xs text-gray-500"
+            >
               ✉️ {{ driver.email }}
             </div>
           </div>
@@ -228,11 +239,16 @@ const deleteDriver = async (id: number) => {
         </div>
       </div>
 
-      <div v-else class="p-12 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800">
+      <div
+        v-else
+        class="p-12 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
+      >
         <div class="w-14 h-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-3">
           👨‍✈️
         </div>
-        <h3 class="font-bold text-base text-gray-900 dark:text-white">No Drivers Registered Yet</h3>
+        <h3 class="font-bold text-base text-gray-900 dark:text-white">
+          No Drivers Registered Yet
+        </h3>
         <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
           Add your trusted chauffeurs and drivers so you can assign them to your fleet cars.
         </p>
@@ -262,7 +278,10 @@ const deleteDriver = async (id: number) => {
           {{ editingDriver ? 'Edit Driver Information' : 'Register New Driver' }}
         </h3>
 
-        <form class="space-y-4" @submit.prevent="saveDriver">
+        <form
+          class="space-y-4"
+          @submit.prevent="saveDriver"
+        >
           <div>
             <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name *</label>
             <input
@@ -271,7 +290,7 @@ const deleteDriver = async (id: number) => {
               required
               class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               placeholder="e.g. Ram Bahadur Thapa"
-            />
+            >
           </div>
 
           <div class="grid grid-cols-2 gap-3">
@@ -283,7 +302,7 @@ const deleteDriver = async (id: number) => {
                 required
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 placeholder="+977 9801234567"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Email (Optional)</label>
@@ -292,7 +311,7 @@ const deleteDriver = async (id: number) => {
                 type="email"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 placeholder="driver@gmail.com"
-              />
+              >
             </div>
           </div>
 
@@ -305,7 +324,7 @@ const deleteDriver = async (id: number) => {
                 required
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 placeholder="01-06-0098231"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Experience (Years)</label>
@@ -315,7 +334,7 @@ const deleteDriver = async (id: number) => {
                 min="0"
                 max="50"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -326,9 +345,15 @@ const deleteDriver = async (id: number) => {
                 v-model="form.status"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none"
               >
-                <option value="active">Active (Available)</option>
-                <option value="inactive">Inactive</option>
-                <option value="on_trip">On Trip</option>
+                <option value="active">
+                  Active (Available)
+                </option>
+                <option value="inactive">
+                  Inactive
+                </option>
+                <option value="on_trip">
+                  On Trip
+                </option>
               </select>
             </div>
             <div>
@@ -338,7 +363,7 @@ const deleteDriver = async (id: number) => {
                 accept="image/*"
                 class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 @change="handlePhotoUpload"
-              />
+              >
             </div>
           </div>
 

@@ -33,6 +33,7 @@ const availabilityError = ref('')
 const showPaymentModal = ref(false)
 const processingPayment = ref(false)
 const bookingSuccess = ref<any>(null)
+
 const paymentForm = ref({
   cardholderName: '',
   cardNumber: '',
@@ -93,11 +94,13 @@ const checkCalendarAvailability = async () => {
 const proceedToPayment = () => {
   if (!authUser.value) {
     router.visit('/customer/login')
+    
     return
   }
 
   if (!availabilityResult.value?.available) {
     availabilityError.value = 'Please select available dates before booking.'
+    
     return
   }
 
@@ -109,6 +112,7 @@ const proceedToPayment = () => {
 const submitBookingAndPayment = async () => {
   if (!paymentForm.value.cardNumber || !paymentForm.value.expiryDate || !paymentForm.value.cvv) {
     alert('Please enter all payment information.')
+    
     return
   }
 
@@ -149,10 +153,6 @@ const submitBookingAndPayment = async () => {
     processingPayment.value = false
   }
 }
-
-const isDateDisabled = (dateStr: string) => {
-  return disabledDatesList.value.includes(dateStr)
-}
 </script>
 
 <template>
@@ -162,9 +162,19 @@ const isDateDisabled = (dateStr: string) => {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       <!-- Breadcrumb -->
       <nav class="flex items-center gap-2 text-xs text-gray-500">
-        <Link href="/" class="hover:text-blue-600">Home</Link>
+        <Link
+          href="/"
+          class="hover:text-blue-600"
+        >
+          Home
+        </Link>
         <span>/</span>
-        <Link href="/cars" class="hover:text-blue-600">Vehicles</Link>
+        <Link
+          href="/cars"
+          class="hover:text-blue-600"
+        >
+          Vehicles
+        </Link>
         <span>/</span>
         <span class="text-gray-900 dark:text-white font-medium">{{ carData.car_name }} {{ carData.car_model }}</span>
       </nav>
@@ -179,7 +189,7 @@ const isDateDisabled = (dateStr: string) => {
                 :src="carData.car_photo ? '/' + carData.car_photo : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1000&auto=format&fit=crop&q=80'"
                 class="w-full h-full object-cover"
                 :alt="carData.car_name"
-              />
+              >
               <div class="absolute top-4 left-4 flex gap-2">
                 <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-500 text-white shadow-md">
                   {{ carData.available === 'yes' ? 'Available' : 'Verified' }}
@@ -209,7 +219,9 @@ const isDateDisabled = (dateStr: string) => {
 
               <!-- Key Specs Grid -->
               <div>
-                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Vehicle Specifications</h3>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+                  Vehicle Specifications
+                </h3>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800">
                     <span class="text-xs text-gray-500 block">Seating Capacity</span>
@@ -278,7 +290,7 @@ const isDateDisabled = (dateStr: string) => {
                     v-if="carData.driver?.photo || carData.driver_photo"
                     :src="'/' + (carData.driver?.photo || carData.driver_photo)"
                     class="w-full h-full object-cover"
-                  />
+                  >
                   <span v-else>{{ (carData.driver?.name || carData.driver_name || 'D')[0] }}</span>
                 </div>
                 <div>
@@ -329,11 +341,19 @@ const isDateDisabled = (dateStr: string) => {
               v-if="!authUser"
               class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-xs"
             >
-              Please <Link href="/customer/login" class="font-bold underline">Sign in as Customer</Link> to reserve this vehicle and complete payment.
+              Please <Link
+                href="/customer/login"
+                class="font-bold underline"
+              >
+                Sign in as Customer
+              </Link> to reserve this vehicle and complete payment.
             </div>
 
             <!-- Unavailable dates indicator -->
-            <div v-if="disabledDatesList.length > 0" class="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 text-xs">
+            <div
+              v-if="disabledDatesList.length > 0"
+              class="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 text-xs"
+            >
               <span class="font-semibold text-gray-700 dark:text-gray-300 block mb-1">
                 🔒 Already Reserved Dates:
               </span>
@@ -348,7 +368,10 @@ const isDateDisabled = (dateStr: string) => {
               </div>
             </div>
 
-            <form class="space-y-4" @submit.prevent="proceedToPayment">
+            <form
+              class="space-y-4"
+              @submit.prevent="proceedToPayment"
+            >
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pickup Location</label>
                 <input
@@ -356,7 +379,7 @@ const isDateDisabled = (dateStr: string) => {
                   type="text"
                   required
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
 
               <div>
@@ -366,7 +389,7 @@ const isDateDisabled = (dateStr: string) => {
                   type="text"
                   required
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -389,13 +412,29 @@ const isDateDisabled = (dateStr: string) => {
               </div>
 
               <!-- Overlap Conflict Warning -->
-              <div v-if="availabilityError" class="p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs font-medium border border-red-200 flex items-start gap-2">
-                <svg class="w-4 h-4 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <div
+                v-if="availabilityError"
+                class="p-3.5 rounded-2xl bg-red-50 text-red-700 text-xs font-medium border border-red-200 flex items-start gap-2"
+              >
+                <svg
+                  class="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                ><path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                /></svg>
                 <span>{{ availabilityError }}</span>
               </div>
 
               <!-- Calculation Result (if available) -->
-              <div v-if="availabilityResult?.available" class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2">
+              <div
+                v-if="availabilityResult?.available"
+                class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2"
+              >
                 <div class="flex justify-between items-center text-emerald-800 dark:text-emerald-300 font-bold">
                   <span>✓ Dates Available!</span>
                   <span>{{ availabilityResult.days }} Day(s)</span>
@@ -434,7 +473,10 @@ const isDateDisabled = (dateStr: string) => {
         </button>
 
         <!-- Payment Success State -->
-        <div v-if="bookingSuccess" class="text-center space-y-4 py-4">
+        <div
+          v-if="bookingSuccess"
+          class="text-center space-y-4 py-4"
+        >
           <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-3xl mx-auto">
             ✓
           </div>
@@ -478,7 +520,10 @@ const isDateDisabled = (dateStr: string) => {
         </div>
 
         <!-- Payment Form -->
-        <div v-else class="space-y-4">
+        <div
+          v-else
+          class="space-y-4"
+        >
           <div>
             <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider mb-1">
               <span>🔒 Secure Checkout</span>
@@ -511,7 +556,10 @@ const isDateDisabled = (dateStr: string) => {
             </button>
           </div>
 
-          <form class="space-y-3" @submit.prevent="submitBookingAndPayment">
+          <form
+            class="space-y-3"
+            @submit.prevent="submitBookingAndPayment"
+          >
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Cardholder Name</label>
               <input
@@ -520,7 +568,7 @@ const isDateDisabled = (dateStr: string) => {
                 required
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="John Doe"
-              />
+              >
             </div>
 
             <div>
@@ -532,7 +580,7 @@ const isDateDisabled = (dateStr: string) => {
                 maxlength="19"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 placeholder="4242 •••• •••• 4242"
-              />
+              >
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -545,7 +593,7 @@ const isDateDisabled = (dateStr: string) => {
                   placeholder="MM/YY"
                   maxlength="5"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">CVV</label>
@@ -556,7 +604,7 @@ const isDateDisabled = (dateStr: string) => {
                   placeholder="•••"
                   maxlength="4"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                />
+                >
               </div>
             </div>
 

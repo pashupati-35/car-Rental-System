@@ -79,10 +79,15 @@ const submit = () => {
       </div>
 
       <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-        <form class="space-y-6" @submit.prevent="submit">
+        <form
+          class="space-y-6"
+          @submit.prevent="submit"
+        >
           <!-- Car Specifications -->
           <div>
-            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3">Vehicle Details</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-600 mb-3">
+              Vehicle Details
+            </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Make / Brand *</label>
@@ -92,7 +97,7 @@ const submit = () => {
                   required
                   placeholder="e.g. Hyundai, Toyota"
                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                />
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Model *</label>
@@ -102,7 +107,7 @@ const submit = () => {
                   required
                   placeholder="e.g. Creta, Fortuner"
                   class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                />
+                >
               </div>
             </div>
           </div>
@@ -116,7 +121,7 @@ const submit = () => {
                 type="text"
                 required
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-mono"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Lot / Series</label>
@@ -125,7 +130,7 @@ const submit = () => {
                 type="text"
                 required
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-mono"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Symbol</label>
@@ -134,7 +139,7 @@ const submit = () => {
                 type="text"
                 required
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-mono"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Registration No *</label>
@@ -144,7 +149,7 @@ const submit = () => {
                 required
                 placeholder="1234"
                 class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs font-mono focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -158,7 +163,7 @@ const submit = () => {
                 step="0.01"
                 required
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Price Per KM ($) *</label>
@@ -168,7 +173,7 @@ const submit = () => {
                 step="0.01"
                 required
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Seats Capacity *</label>
@@ -177,7 +182,7 @@ const submit = () => {
                 type="number"
                 required
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-              />
+              >
             </div>
           </div>
 
@@ -192,7 +197,10 @@ const submit = () => {
                   Select an existing driver or define chauffeur details
                 </p>
               </div>
-              <Link href="/owner/drivers" class="text-xs font-bold text-emerald-600 hover:underline">
+              <Link
+                href="/owner/drivers"
+                class="text-xs font-bold text-emerald-600 hover:underline"
+              >
                 Manage Driver Roster &rarr;
               </Link>
             </div>
@@ -204,8 +212,14 @@ const submit = () => {
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 @change="onDriverSelected"
               >
-                <option value="">-- Assign a driver from your roster --</option>
-                <option v-for="d in availableDrivers" :key="d.id" :value="d.id">
+                <option value="">
+                  -- Assign a driver from your roster --
+                </option>
+                <option
+                  v-for="d in availableDrivers"
+                  :key="d.id"
+                  :value="d.id"
+                >
                   {{ d.name }} (Lic: {{ d.license_number }}, {{ d.experience_years }} yrs exp)
                 </option>
               </select>
@@ -219,7 +233,7 @@ const submit = () => {
                   type="text"
                   placeholder="Driver Full Name"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs"
-                />
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Driver Phone</label>
@@ -228,7 +242,7 @@ const submit = () => {
                   type="text"
                   placeholder="Driver Phone Number"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs"
-                />
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Experience (Years)</label>
@@ -236,7 +250,7 @@ const submit = () => {
                   v-model="form.driving_experience"
                   type="text"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs"
-                />
+                >
               </div>
             </div>
           </div>
@@ -250,7 +264,7 @@ const submit = () => {
                 accept="image/*"
                 class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 @input="form.car_photo = ($event.target as HTMLInputElement).files?.[0] || null"
-              />
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Blue Book Document</label>
@@ -259,7 +273,7 @@ const submit = () => {
                 accept="image/*,.pdf"
                 class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 @input="form.blue_book_photo = ($event.target as HTMLInputElement).files?.[0] || null"
-              />
+              >
             </div>
           </div>
 

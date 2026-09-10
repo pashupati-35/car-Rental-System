@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import axios from 'axios'
 
-const props = defineProps<{
+defineProps<{
   cars?: Array<any>
 }>()
 
@@ -47,6 +47,7 @@ const filteredCars = computed(() => {
   } else if (sortBy.value === 'price-high') {
     list.sort((a, b) => (b.car_price_per_day || 0) - (a.car_price_per_day || 0))
   }
+  
   return list
 })
 </script>
@@ -71,7 +72,7 @@ const filteredCars = computed(() => {
         </div>
 
         <!-- Decorative background glow -->
-        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       <!-- Search & Filters Toolbar (API Driven) -->
@@ -81,10 +82,21 @@ const filteredCars = computed(() => {
             v-model="searchQuery"
             type="text"
             placeholder="Search by car name or model..."
-            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="w-full py-2.5 rounded-xl"
+            style="padding-left: 2.5rem; padding-right: 1rem border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
             @input="fetchCars"
-          />
-          <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          >
+          <svg
+            class="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          /></svg>
         </div>
 
         <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
@@ -93,19 +105,33 @@ const filteredCars = computed(() => {
             class="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 focus:outline-none"
             @change="fetchCars"
           >
-            <option value="">All Seats</option>
-            <option value="4">4+ Seats</option>
-            <option value="5">5+ Seats</option>
-            <option value="7">7+ Seats</option>
+            <option value="">
+              All Seats
+            </option>
+            <option value="4">
+              4+ Seats
+            </option>
+            <option value="5">
+              5+ Seats
+            </option>
+            <option value="7">
+              7+ Seats
+            </option>
           </select>
 
           <select
             v-model="sortBy"
             class="px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-xs font-medium text-gray-700 dark:text-gray-300 focus:outline-none"
           >
-            <option value="latest">Sort: Newest</option>
-            <option value="price-low">Price: Low to High</option>
-            <option value="price-high">Price: High to Low</option>
+            <option value="latest">
+              Sort: Newest
+            </option>
+            <option value="price-low">
+              Price: Low to High
+            </option>
+            <option value="price-high">
+              Price: High to Low
+            </option>
           </select>
 
           <button
@@ -118,13 +144,21 @@ const filteredCars = computed(() => {
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="py-20 text-center">
-        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        <p class="text-sm text-gray-500">Loading verified vehicles...</p>
+      <div
+        v-if="loading"
+        class="py-20 text-center"
+      >
+        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p class="text-sm text-gray-500">
+          Loading verified vehicles...
+        </p>
       </div>
 
       <!-- Car Cards Grid -->
-      <div v-else-if="filteredCars.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div
+        v-else-if="filteredCars.length > 0"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
         <div
           v-for="car in filteredCars"
           :key="car.id"
@@ -137,7 +171,7 @@ const filteredCars = computed(() => {
                 :src="car.car_photo ? '/' + car.car_photo : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 :alt="car.car_name || car.car_model"
-              />
+              >
               <div class="absolute top-3 left-3 flex gap-2">
                 <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-emerald-500/90 text-white backdrop-blur-md shadow-sm">
                   {{ car.available === 'yes' ? 'Available' : 'Verified' }}
@@ -156,7 +190,11 @@ const filteredCars = computed(() => {
                     {{ car.car_name }} {{ car.car_model }}
                   </h3>
                   <div class="flex items-center gap-1.5 text-xs text-gray-500 mt-0.5">
-                    <svg class="w-3.5 h-3.5 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg>
+                    <svg
+                      class="w-3.5 h-3.5 text-blue-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    ><path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" /></svg>
                     <span>Owner: <strong>{{ car.owner?.full_name || 'Fleet Owner' }}</strong></span>
                   </div>
                 </div>
@@ -211,18 +249,33 @@ const filteredCars = computed(() => {
               class="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all"
             >
               <span>View Details, Owner & Book</span>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              ><path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              /></svg>
             </Link>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-else class="p-16 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800">
+      <div
+        v-else
+        class="p-16 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
+      >
         <div class="w-16 h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-4">
           🚗
         </div>
-        <h3 class="font-bold text-lg text-gray-900 dark:text-white">No cars match your filters</h3>
+        <h3 class="font-bold text-lg text-gray-900 dark:text-white">
+          No cars match your filters
+        </h3>
         <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
           Try adjusting your search criteria, clearing seat filters, or resetting the price filter.
         </p>

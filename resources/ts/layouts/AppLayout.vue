@@ -3,8 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 
 const page = usePage()
-const drawer = ref(true)
-const isDark = ref(false)
+
+
 const showProfileMenu = ref(false)
 const showCmsMenu = ref(false)
 
@@ -15,12 +15,14 @@ const role = computed(() => {
   if (auth.value?.admin) return 'Admin'
   if (auth.value?.owner) return 'Owner'
   if (auth.value?.customer) return 'Customer'
+  
   return 'User'
 })
 
 const rolePrefix = computed(() => {
   if (role.value === 'Admin') return 'admin'
   if (role.value === 'Owner') return 'owner'
+  
   return 'customer'
 })
 
@@ -64,6 +66,7 @@ const customerNav = [
 const navItems = computed(() => {
   if (role.value === 'Admin') return adminNav
   if (role.value === 'Owner') return ownerNav
+  
   return customerNav
 })
 
@@ -133,7 +136,10 @@ onUnmounted(() => {
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         <!-- Left: Logo & Portal Badge -->
         <div class="flex items-center gap-3">
-          <Link href="/" class="flex items-center gap-2.5">
+          <Link
+            href="/"
+            class="flex items-center gap-2.5"
+          >
             <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20">
               CR
             </div>
@@ -150,7 +156,11 @@ onUnmounted(() => {
         <!-- Center: Quick Nav & Owner/Customer Links (NO CMS for non-admin) -->
         <div class="hidden md:flex items-center gap-2">
           <!-- CMS Dropdown ONLY for Admin (if accessed via AppLayout fallback) -->
-          <div v-if="role === 'Admin'" id="cms-dropdown-container" class="relative">
+          <div
+            v-if="role === 'Admin'"
+            id="cms-dropdown-container"
+            class="relative"
+          >
             <button
               type="button"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1.5 transition-colors"
@@ -158,7 +168,10 @@ onUnmounted(() => {
             >
               <i class="ri-dashboard-3-line text-sm text-blue-600" />
               <span>CMS & Fleet</span>
-              <i class="ri-arrow-down-s-line text-xs transition-transform" :class="showCmsMenu ? 'rotate-180' : ''" />
+              <i
+                class="ri-arrow-down-s-line text-xs transition-transform"
+                :class="showCmsMenu ? 'rotate-180' : ''"
+              />
             </button>
 
             <!-- CMS Dropdown Menu -->
@@ -176,7 +189,10 @@ onUnmounted(() => {
                 class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-800 transition-colors"
                 @click="showCmsMenu = false"
               >
-                <i :class="item.icon" class="text-sm text-blue-600" />
+                <i
+                  :class="item.icon"
+                  class="text-sm text-blue-600"
+                />
                 <span>{{ item.label }}</span>
               </Link>
             </div>
@@ -214,10 +230,14 @@ onUnmounted(() => {
           </Link>
 
           <!-- Profile Dropdown Container -->
-          <div id="profile-dropdown-container" class="relative">
+          <div
+            id="profile-dropdown-container"
+            class="relative"
+          >
             <button
               type="button"
-              class="flex items-center gap-2.5 p-1.5 pr-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+              class="flex items-center gap-2.5 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+              style="padding-right: 0.75rem"
               @click="showProfileMenu = !showProfileMenu; showCmsMenu = false"
             >
               <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
@@ -226,11 +246,16 @@ onUnmounted(() => {
               <div class="hidden sm:block text-left">
                 <p class="text-xs font-bold text-gray-900 dark:text-white leading-tight flex items-center gap-1.5">
                   {{ displayName }}
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
                 </p>
-                <p class="text-[10px] text-gray-500">{{ role }}</p>
+                <p class="text-[10px] text-gray-500">
+                  {{ role }}
+                </p>
               </div>
-              <i class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform" :class="showProfileMenu ? 'rotate-180' : ''" />
+              <i
+                class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform"
+                :class="showProfileMenu ? 'rotate-180' : ''"
+              />
             </button>
 
             <!-- Profile Popup Menu (Matching Reference Image) -->
@@ -244,7 +269,7 @@ onUnmounted(() => {
                   {{ displayName.charAt(0).toUpperCase() }}
                 </div>
                 <div class="flex items-center justify-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500" />
                   <span class="text-xs font-bold text-gray-900 dark:text-white">{{ displayName }}</span>
                 </div>
                 <span class="text-[11px] text-gray-500 block truncate">{{ userEmail }}</span>
@@ -314,15 +339,25 @@ onUnmounted(() => {
               :href="item.href"
               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-800 transition-all"
             >
-              <i :class="item.icon" class="text-sm" />
+              <i
+                :class="item.icon"
+                class="text-sm"
+              />
               <span>{{ item.title }}</span>
             </Link>
           </div>
 
           <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-lg space-y-2 text-xs">
-            <h4 class="font-bold">Need Help?</h4>
-            <p class="text-[11px] text-blue-100">Ask our AI assistant for instant fleet and booking support.</p>
-            <Link href="/ai-chat" class="inline-block mt-1 px-3 py-1.5 rounded-lg bg-white text-blue-700 font-bold text-[11px]">
+            <h4 class="font-bold">
+              Need Help?
+            </h4>
+            <p class="text-[11px] text-blue-100">
+              Ask our AI assistant for instant fleet and booking support.
+            </p>
+            <Link
+              href="/ai-chat"
+              class="inline-block mt-1 px-3 py-1.5 rounded-lg bg-white text-blue-700 font-bold text-[11px]"
+            >
               Chat with AI &rarr;
             </Link>
           </div>
@@ -332,11 +367,17 @@ onUnmounted(() => {
       <!-- Main Content Area -->
       <main class="flex-1 min-w-0">
         <!-- Flash Alerts -->
-        <div v-if="flash?.success" class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 shadow-sm">
+        <div
+          v-if="flash?.success"
+          class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 shadow-sm"
+        >
           <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
           <span>{{ flash.success }}</span>
         </div>
-        <div v-if="flash?.error" class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2 shadow-sm">
+        <div
+          v-if="flash?.error"
+          class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2 shadow-sm"
+        >
           <i class="ri-error-warning-fill text-rose-600 text-base" />
           <span>{{ flash.error }}</span>
         </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CustomerPaymentItem } from '../../types'
 
-const props = defineProps<{
+defineProps<{
   payments: CustomerPaymentItem[]
 }>()
 
@@ -35,23 +35,39 @@ const emit = defineEmits<{
     </div>
 
     <!-- Empty State -->
-    <div v-if="payments.length === 0" class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800">
+    <div
+      v-if="payments.length === 0"
+      class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800"
+    >
       <i class="ri-file-list-3-line text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block" />
-      <h4 class="font-bold text-sm text-slate-700 dark:text-slate-300">No Recorded Payments</h4>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">No payment records currently exist for this customer account.</p>
+      <h4 class="font-bold text-sm text-slate-700 dark:text-slate-300">
+        No Recorded Payments
+      </h4>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        No payment records currently exist for this customer account.
+      </p>
     </div>
 
-    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div
+      v-else
+      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden"
+    >
       <!-- Mobile Cards -->
       <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
-        <div v-for="p in payments" :key="p.id" class="p-4 space-y-2">
+        <div
+          v-for="p in payments"
+          :key="p.id"
+          class="p-4 space-y-2"
+        >
           <div class="flex items-start justify-between">
             <div>
               <span class="text-xs font-mono font-bold text-slate-400">#PAY-{{ p.id }}</span>
               <h4 class="font-bold text-sm text-slate-900 dark:text-white">
                 Linked to Booking #ORD-{{ p.booking_id }}
               </h4>
-              <p class="text-[11px] text-slate-400">{{ p.car?.car_name || 'Vehicle' }}</p>
+              <p class="text-[11px] text-slate-400">
+                {{ p.car?.car_name || 'Vehicle' }}
+              </p>
             </div>
             <span class="text-base font-black font-mono text-emerald-600">${{ p.amount }}</span>
           </div>
@@ -76,16 +92,32 @@ const emit = defineEmits<{
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
-              <th class="py-3.5 px-5">Payment Transaction #</th>
-              <th class="py-3.5 px-5">Linked Order / Vehicle</th>
-              <th class="py-3.5 px-5">Payment Method</th>
-              <th class="py-3.5 px-5">Amount Paid</th>
-              <th class="py-3.5 px-5">Timestamp</th>
-              <th class="py-3.5 px-5 text-right">Admin Actions</th>
+              <th class="py-3.5 px-5">
+                Payment Transaction #
+              </th>
+              <th class="py-3.5 px-5">
+                Linked Order / Vehicle
+              </th>
+              <th class="py-3.5 px-5">
+                Payment Method
+              </th>
+              <th class="py-3.5 px-5">
+                Amount Paid
+              </th>
+              <th class="py-3.5 px-5">
+                Timestamp
+              </th>
+              <th class="py-3.5 px-5 text-right">
+                Admin Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-            <tr v-for="p in payments" :key="p.id" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+            <tr
+              v-for="p in payments"
+              :key="p.id"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+            >
               <td class="py-4 px-5">
                 <span class="font-mono font-bold text-slate-900 dark:text-white block">#PAY-{{ p.id }}</span>
                 <span class="text-[10px] text-emerald-600 font-bold">Settled</span>

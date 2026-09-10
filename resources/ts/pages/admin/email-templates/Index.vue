@@ -40,14 +40,14 @@ const handleSearch = () => {
 
 const getRoleBadgeClass = (role: string) => {
   switch (role) {
-    case 'owner':
-      return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800'
-    case 'customer':
-      return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800'
-    case 'admin':
-      return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border-purple-200/60 dark:border-purple-800'
-    default:
-      return 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+  case 'owner':
+    return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200/60 dark:border-emerald-800'
+  case 'customer':
+    return 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200/60 dark:border-indigo-800'
+  case 'admin':
+    return 'bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 border-purple-200/60 dark:border-purple-800'
+  default:
+    return 'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-200 dark:border-slate-700'
   }
 }
 </script>
@@ -122,9 +122,10 @@ const getRoleBadgeClass = (role: string) => {
             v-model="searchQuery"
             type="text"
             placeholder="Search by title or role..."
-            class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            class="w-full py-1.5 rounded-xl"
+            style="padding-left: 2rem; padding-right: 0.75rem border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             @keyup.enter="handleSearch"
-          />
+          >
         </div>
       </div>
 
@@ -134,19 +135,36 @@ const getRoleBadgeClass = (role: string) => {
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th class="py-3.5 px-5">Template Title</th>
-                <th class="py-3.5 px-5">Identifier Key</th>
-                <th class="py-3.5 px-5">Target Role</th>
-                <th class="py-3.5 px-5">Email Subject</th>
-                <th class="py-3.5 px-5">Status</th>
-                <th class="py-3.5 px-5 text-right">Actions</th>
+                <th class="py-3.5 px-5">
+                  Template Title
+                </th>
+                <th class="py-3.5 px-5">
+                  Identifier Key
+                </th>
+                <th class="py-3.5 px-5">
+                  Target Role
+                </th>
+                <th class="py-3.5 px-5">
+                  Email Subject
+                </th>
+                <th class="py-3.5 px-5">
+                  Status
+                </th>
+                <th class="py-3.5 px-5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               <tr v-if="templates.data.length === 0">
-                <td colspan="6" class="py-12 text-center text-slate-400">
+                <td
+                  colspan="6"
+                  class="py-12 text-center text-slate-400"
+                >
                   <i class="ri-mail-open-line text-3xl mb-2 inline-block text-slate-300" />
-                  <p class="font-semibold text-sm text-slate-600 dark:text-slate-400">No email templates found</p>
+                  <p class="font-semibold text-sm text-slate-600 dark:text-slate-400">
+                    No email templates found
+                  </p>
                 </td>
               </tr>
               <tr

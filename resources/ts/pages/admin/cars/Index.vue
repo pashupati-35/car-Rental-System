@@ -16,14 +16,16 @@ const props = defineProps<{
 }>()
 
 const activeTab = ref<'all' | 'pending' | 'verified' | 'rejected'>(
-  (props.filters?.status as any) || 'all'
+  (props.filters?.status as any) || 'all',
 )
+
 const searchQuery = ref(props.filters?.search || '')
 const selectedCar = ref<CarItem | null>(null)
 const showDetailModal = ref(false)
 
 const carsList = computed<CarItem[]>(() => {
   if (Array.isArray(props.cars)) return props.cars
+  
   return props.cars?.data || []
 })
 
@@ -35,16 +37,19 @@ const filteredCars = computed<CarItem[]>(() => {
       if (activeTab.value === 'verified') return c.status === 'verified' || c.status === 'available'
       if (activeTab.value === 'pending') return c.status === 'pending'
       if (activeTab.value === 'rejected') return c.status === 'rejected'
+      
       return true
     })
   }
 
   if (searchQuery.value.trim() && !props.filters?.search) {
     const q = searchQuery.value.toLowerCase()
+
     list = list.filter((c: CarItem) => {
       const name = (c.car_name || c.brand || '') + ' ' + (c.car_model || c.model || '')
       const num = c.car_number || c.plate_number || ''
       const owner = c.owner?.full_name || c.owner?.name || c.owner?.email || ''
+      
       return name.toLowerCase().includes(q) || num.toLowerCase().includes(q) || owner.toLowerCase().includes(q)
     })
   }
@@ -158,9 +163,10 @@ const openDetails = (car: CarItem) => {
             v-model="searchQuery"
             type="text"
             placeholder="Search cars by name, plate, owner..."
-            class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            class="w-full py-2 rounded-xl"
+            style="padding-left: 2rem; padding-right: 0.75rem border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             @keyup.enter="handleSearch"
-          />
+          >
         </div>
       </div>
 

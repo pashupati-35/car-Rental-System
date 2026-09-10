@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useForm, Head, Link, router } from '@inertiajs/vue3'
+import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import MFAVerification from './MFAVerification.vue'
 import axios from 'axios'
@@ -22,6 +22,7 @@ const handleLogin = async () => {
   errorMessage.value = ''
   if (!form.email || !form.password) {
     errorMessage.value = 'Please enter both email and password.'
+    
     return
   }
 
@@ -38,7 +39,7 @@ const handleLogin = async () => {
       // Normal direct login
       form.post('/admin/login', {
         onFinish: () => form.reset('password'),
-        onError: (errs) => {
+        onError: errs => {
           errorMessage.value = Object.values(errs)[0] as string || 'Login failed.'
         },
       })
@@ -55,7 +56,7 @@ const handleLogin = async () => {
 
     <template #title>
       <div class="flex items-center justify-center gap-2">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse" />
         Admin Portal
       </div>
     </template>
@@ -64,16 +65,35 @@ const handleLogin = async () => {
     </template>
 
     <div v-if="!isMfaStep">
-      <div v-if="status" class="mb-4 p-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
+      <div
+        v-if="status"
+        class="mb-4 p-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200"
+      >
         {{ status }}
       </div>
 
-      <div v-if="errorMessage" class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-medium border border-red-200 flex items-center gap-2">
-        <svg class="w-4 h-4 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      <div
+        v-if="errorMessage"
+        class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-xs font-medium border border-red-200 flex items-center gap-2"
+      >
+        <svg
+          class="w-4 h-4 shrink-0 text-red-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+        /></svg>
         <span>{{ errorMessage }}</span>
       </div>
 
-      <form class="space-y-4" @submit.prevent="handleLogin">
+      <form
+        class="space-y-4"
+        @submit.prevent="handleLogin"
+      >
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">Admin Email</label>
           <input
@@ -82,8 +102,11 @@ const handleLogin = async () => {
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm"
             placeholder="admin@carrental.com"
-          />
-          <span v-if="form.errors.email" class="text-xs text-red-500 mt-1 block">{{ form.errors.email }}</span>
+          >
+          <span
+            v-if="form.errors.email"
+            class="text-xs text-red-500 mt-1 block"
+          >{{ form.errors.email }}</span>
         </div>
 
         <div>
@@ -94,8 +117,11 @@ const handleLogin = async () => {
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm"
             placeholder="••••••••••••"
-          />
-          <span v-if="form.errors.password" class="text-xs text-red-500 mt-1 block">{{ form.errors.password }}</span>
+          >
+          <span
+            v-if="form.errors.password"
+            class="text-xs text-red-500 mt-1 block"
+          >{{ form.errors.password }}</span>
         </div>
 
         <div class="flex items-center justify-between text-sm pt-1">
@@ -104,7 +130,7 @@ const handleLogin = async () => {
               v-model="form.remember"
               type="checkbox"
               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
+            >
             Keep me signed in
           </label>
         </div>
@@ -120,8 +146,18 @@ const handleLogin = async () => {
       </form>
 
       <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between text-xs text-gray-500">
-        <Link href="/owner/login" class="hover:text-indigo-600 transition-colors">Owner Login &rarr;</Link>
-        <Link href="/customer/login" class="hover:text-indigo-600 transition-colors">Customer Login &rarr;</Link>
+        <Link
+          href="/owner/login"
+          class="hover:text-indigo-600 transition-colors"
+        >
+          Owner Login &rarr;
+        </Link>
+        <Link
+          href="/customer/login"
+          class="hover:text-indigo-600 transition-colors"
+        >
+          Customer Login &rarr;
+        </Link>
       </div>
     </div>
 

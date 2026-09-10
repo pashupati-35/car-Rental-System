@@ -3,9 +3,7 @@ import type { NewsItem } from '../types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 
-const props = defineProps<{
-  item: Partial<NewsItem>
-}>()
+const item = defineModel<Partial<NewsItem>>('item', { required: true })
 </script>
 
 <template>
@@ -18,7 +16,7 @@ const props = defineProps<{
         required
         placeholder="e.g. Electric Vehicle Fleet Expansion Announced"
         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-      />
+      >
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -29,7 +27,7 @@ const props = defineProps<{
           type="text"
           placeholder="electric-vehicle-fleet-expansion"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
       <div>
         <AppDatePicker
@@ -47,7 +45,7 @@ const props = defineProps<{
         type="text"
         placeholder="https://images.unsplash.com/... or /storage/cms/..."
         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-      />
+      >
     </div>
 
     <div>

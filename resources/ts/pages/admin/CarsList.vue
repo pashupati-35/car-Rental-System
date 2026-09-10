@@ -12,5 +12,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  <CarsIndex :cars="props.cars" :filters="props.filters" />
+  <CarsIndex
+    :cars="props.cars"
+    :filters="props.filters"
+  />
 </template>

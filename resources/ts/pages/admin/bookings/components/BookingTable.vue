@@ -2,7 +2,7 @@
 import Pagination from '@/components/Pagination.vue'
 import type { BookingItem } from '../types'
 
-const props = defineProps<{
+defineProps<{
   bookings: BookingItem[]
   pagination?: any
 }>()
@@ -18,16 +18,27 @@ const emit = defineEmits<{
 <template>
   <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
     <!-- Empty State -->
-    <div v-if="bookings.length === 0" class="py-16 text-center px-4">
+    <div
+      v-if="bookings.length === 0"
+      class="py-16 text-center px-4"
+    >
       <i class="ri-calendar-event-line text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block" />
-      <p class="text-sm font-bold text-slate-700 dark:text-slate-300">No rental bookings found</p>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">No booking orders match the current status filter.</p>
+      <p class="text-sm font-bold text-slate-700 dark:text-slate-300">
+        No rental bookings found
+      </p>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        No booking orders match the current status filter.
+      </p>
     </div>
 
     <template v-else>
       <!-- Mobile Cards (xs, sm) -->
       <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
-        <div v-for="booking in bookings" :key="booking.id" class="p-4 space-y-3">
+        <div
+          v-for="booking in bookings"
+          :key="booking.id"
+          class="p-4 space-y-3"
+        >
           <div class="flex items-start justify-between gap-2">
             <div>
               <div class="flex items-center gap-2">
@@ -110,21 +121,44 @@ const emit = defineEmits<{
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
-              <th class="py-3.5 px-5">Order # / Car</th>
-              <th class="py-3.5 px-5">Customer Client</th>
-              <th class="py-3.5 px-5">Booking Dates</th>
-              <th class="py-3.5 px-5">Gross Total</th>
-              <th class="py-3.5 px-5">Status</th>
-              <th class="py-3.5 px-5 text-right">Admin Actions</th>
+              <th class="py-3.5 px-5">
+                Order # / Car
+              </th>
+              <th class="py-3.5 px-5">
+                Customer Client
+              </th>
+              <th class="py-3.5 px-5">
+                Booking Dates
+              </th>
+              <th class="py-3.5 px-5">
+                Gross Total
+              </th>
+              <th class="py-3.5 px-5">
+                Status
+              </th>
+              <th class="py-3.5 px-5 text-right">
+                Admin Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-            <tr v-for="booking in bookings" :key="booking.id" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+            <tr
+              v-for="booking in bookings"
+              :key="booking.id"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+            >
               <td class="py-4 px-5">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
-                    <img v-if="booking.car?.image" :src="booking.car.image" class="w-full h-full object-cover" />
-                    <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
+                    <img
+                      v-if="booking.car?.image"
+                      :src="booking.car.image"
+                      class="w-full h-full object-cover"
+                    >
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center text-slate-400"
+                    >
                       <i class="ri-car-line" />
                     </div>
                   </div>
@@ -202,7 +236,10 @@ const emit = defineEmits<{
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination && (pagination.links || pagination.total)" class="border-t border-slate-100 dark:border-slate-800">
+      <div
+        v-if="pagination && (pagination.links || pagination.total)"
+        class="border-t border-slate-100 dark:border-slate-800"
+      >
         <Pagination
           :links="pagination.links"
           :from="pagination.from"

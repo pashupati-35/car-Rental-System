@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CmsItem } from '../types'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
   item: CmsItem | null
 }>()
@@ -20,7 +20,7 @@ const emit = defineEmits<{
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600" />
           <h3 class="font-bold text-base text-slate-900 dark:text-white">
             Inquiry & Contact Details
           </h3>

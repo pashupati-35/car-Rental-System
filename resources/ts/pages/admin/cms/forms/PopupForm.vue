@@ -4,9 +4,7 @@ import RichTextEditor from '@/components/RichTextEditor.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 import FormToggle from '@/components/FormToggle.vue'
 
-const props = defineProps<{
-  item: Partial<PopupItem>
-}>()
+const item = defineModel<Partial<PopupItem>>('item', { required: true })
 </script>
 
 <template>
@@ -19,7 +17,7 @@ const props = defineProps<{
         required
         placeholder="e.g. Special Holiday Weekend 25% Off"
         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-      />
+      >
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -29,9 +27,15 @@ const props = defineProps<{
           v-model="item.popup_type"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
         >
-          <option value="modal">Center Modal Dialog</option>
-          <option value="banner_top">Top Notification Banner</option>
-          <option value="corner_toast">Bottom-Right Corner Toast</option>
+          <option value="modal">
+            Center Modal Dialog
+          </option>
+          <option value="banner_top">
+            Top Notification Banner
+          </option>
+          <option value="corner_toast">
+            Bottom-Right Corner Toast
+          </option>
         </select>
       </div>
       <div>
@@ -41,7 +45,7 @@ const props = defineProps<{
           type="text"
           placeholder="/cars?discount=holiday"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
     </div>
 
@@ -69,7 +73,7 @@ const props = defineProps<{
         type="text"
         placeholder="https://... or /storage/popups/..."
         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-      />
+      >
     </div>
 
     <div>

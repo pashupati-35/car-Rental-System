@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { BookingItem } from '../types'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
   booking: BookingItem | null
 }>()
@@ -15,16 +15,25 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div v-if="show && booking" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+  <div
+    v-if="show && booking"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
+  >
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600" />
           <h3 class="font-bold text-base text-slate-900 dark:text-white">
             Booking Order #ORD-{{ booking.id }}
           </h3>
         </div>
-        <button type="button" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="emit('close')">&times;</button>
+        <button
+          type="button"
+          class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+          @click="emit('close')"
+        >
+          &times;
+        </button>
       </div>
 
       <div class="space-y-3 text-xs">

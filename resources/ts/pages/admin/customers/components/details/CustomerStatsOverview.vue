@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CustomerStats } from '../../types'
 
-const props = defineProps<{
+defineProps<{
   stats: CustomerStats
 }>()
 </script>
@@ -15,7 +15,9 @@ const props = defineProps<{
           <i class="ri-calendar-check-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.total_bookings }}</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.total_bookings }}
+      </div>
       <div class="text-[10px] text-emerald-600 font-bold mt-1">
         {{ stats.confirmed_bookings }} Active &bull; {{ stats.completed_bookings }} Completed
       </div>
@@ -28,8 +30,12 @@ const props = defineProps<{
           <i class="ri-car-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.confirmed_bookings }}</div>
-      <div class="text-[10px] text-emerald-600 font-bold mt-1">Current Active Trips</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.confirmed_bookings }}
+      </div>
+      <div class="text-[10px] text-emerald-600 font-bold mt-1">
+        Current Active Trips
+      </div>
     </div>
 
     <div class="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
@@ -39,8 +45,12 @@ const props = defineProps<{
           <i class="ri-time-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.pending_bookings }}</div>
-      <div class="text-[10px] text-amber-600 font-bold mt-1">Awaiting Approval</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.pending_bookings }}
+      </div>
+      <div class="text-[10px] text-amber-600 font-bold mt-1">
+        Awaiting Approval
+      </div>
     </div>
 
     <div class="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
@@ -53,7 +63,9 @@ const props = defineProps<{
       <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
         ${{ Number(stats.total_spent).toLocaleString() }}
       </div>
-      <div class="text-[10px] text-purple-600 font-bold mt-1">Lifetime Value</div>
+      <div class="text-[10px] text-purple-600 font-bold mt-1">
+        Lifetime Value
+      </div>
     </div>
   </div>
 </template>

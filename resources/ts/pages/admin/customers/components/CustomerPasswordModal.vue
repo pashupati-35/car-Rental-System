@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   show: boolean
   url: string
 }>()
@@ -15,18 +15,28 @@ const copyToClipboard = () => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+  <div
+    v-if="show"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+  >
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto mb-2">
         <i class="ri-user-follow-line" />
       </div>
 
       <div class="text-center">
-        <h3 class="font-bold text-base text-slate-900 dark:text-white">Customer Account Created!</h3>
-        <p class="text-xs text-slate-500 mt-1">An invitation has been dispatched with account setup instructions.</p>
+        <h3 class="font-bold text-base text-slate-900 dark:text-white">
+          Customer Account Created!
+        </h3>
+        <p class="text-xs text-slate-500 mt-1">
+          An invitation has been dispatched with account setup instructions.
+        </p>
       </div>
 
-      <div v-if="url" class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2">
+      <div
+        v-if="url"
+        class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-2xl border border-slate-200 dark:border-slate-700 space-y-2"
+      >
         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Customer Password Setup Link</span>
         <div class="p-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 font-mono text-[11px] break-all text-indigo-600 dark:text-indigo-400 select-all">
           {{ url }}

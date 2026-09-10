@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { watch } from 'vue'
 import type { CustomerBookingItem } from '../../types'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
   isEditing: boolean
-  bookingForm: Partial<CustomerBookingItem>
   availableCars: Array<any>
   submitting: boolean
   errorMessage?: string
@@ -16,6 +14,8 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'save'): void
 }>()
+
+const bookingForm = defineModel<Partial<CustomerBookingItem>>('bookingForm', { required: true })
 
 const onCarSelect = () => {
   if (!props.isEditing && props.bookingForm.car_id) {
@@ -28,21 +28,36 @@ const onCarSelect = () => {
 </script>
 
 <template>
-  <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+  <div
+    v-if="show"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
+  >
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
         <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
           <i class="ri-calendar-check-line text-indigo-600" />
           <span>{{ isEditing ? 'Edit Customer Rental Booking' : 'Book Vehicle for Customer' }}</span>
         </h3>
-        <button type="button" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="emit('close')">&times;</button>
+        <button
+          type="button"
+          class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+          @click="emit('close')"
+        >
+          &times;
+        </button>
       </div>
 
-      <div v-if="errorMessage" class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold">
+      <div
+        v-if="errorMessage"
+        class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold"
+      >
         {{ errorMessage }}
       </div>
 
-      <form class="space-y-4 text-xs" @submit.prevent="emit('save')">
+      <form
+        class="space-y-4 text-xs"
+        @submit.prevent="emit('save')"
+      >
         <!-- Car Selection -->
         <div>
           <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Select Vehicle *</label>
@@ -52,8 +67,17 @@ const onCarSelect = () => {
             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-medium text-xs focus:ring-2 focus:ring-indigo-500"
             @change="onCarSelect"
           >
-            <option value="" disabled>Choose an active vehicle...</option>
-            <option v-for="car in availableCars" :key="car.id" :value="car.id">
+            <option
+              value=""
+              disabled
+            >
+              Choose an active vehicle...
+            </option>
+            <option
+              v-for="car in availableCars"
+              :key="car.id"
+              :value="car.id"
+            >
               {{ car.car_name || car.brand }} {{ car.car_model || car.model }} &bull; ${{ car.price_per_day || car.rental_price }}/day (Plate: {{ car.car_number || car.plate_number || 'N/A' }})
             </option>
           </select>
@@ -87,7 +111,7 @@ const onCarSelect = () => {
               required
               placeholder="e.g. LAX Terminal 2 or Downtown Hub"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-            />
+            >
           </div>
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Drop-off Location *</label>
@@ -97,7 +121,7 @@ const onCarSelect = () => {
               required
               placeholder="e.g. Same Location or Airport Drop"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-            />
+            >
           </div>
         </div>
 
@@ -112,7 +136,7 @@ const onCarSelect = () => {
               required
               placeholder="150.00"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono font-bold text-xs focus:ring-2 focus:ring-indigo-500"
-            />
+            >
           </div>
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Booking Status</label>
@@ -120,10 +144,18 @@ const onCarSelect = () => {
               v-model="bookingForm.status"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-xs focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="confirm">Confirmed / Active</option>
-              <option value="pending">Pending Review</option>
-              <option value="completed">Completed Trip</option>
-              <option value="cancel">Cancelled</option>
+              <option value="confirm">
+                Confirmed / Active
+              </option>
+              <option value="pending">
+                Pending Review
+              </option>
+              <option value="completed">
+                Completed Trip
+              </option>
+              <option value="cancel">
+                Cancelled
+              </option>
             </select>
           </div>
         </div>
@@ -135,7 +167,7 @@ const onCarSelect = () => {
             type="text"
             placeholder="e.g. Business Travel, Vacation, Wedding..."
             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-          />
+          >
         </div>
 
         <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">

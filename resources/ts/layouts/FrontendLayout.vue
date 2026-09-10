@@ -11,12 +11,14 @@ const role = computed(() => {
   if (auth.value?.admin) return 'Admin'
   if (auth.value?.owner) return 'Owner'
   if (auth.value?.customer) return 'Customer'
+  
   return 'User'
 })
 
 const rolePrefix = computed(() => {
   if (role.value === 'Admin') return 'admin'
   if (role.value === 'Owner') return 'owner'
+  
   return 'customer'
 })
 
@@ -59,7 +61,10 @@ onUnmounted(() => {
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" class="flex items-center gap-2.5">
+        <Link
+          href="/"
+          class="flex items-center gap-2.5"
+        >
           <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
             CR
           </div>
@@ -67,16 +72,28 @@ onUnmounted(() => {
         </Link>
 
         <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
-          <Link href="/" class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors">
+          <Link
+            href="/"
+            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+          >
             Home
           </Link>
-          <Link href="/cars" class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors">
+          <Link
+            href="/cars"
+            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+          >
             Browse Fleet
           </Link>
-          <Link href="/car-calendar" class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors">
+          <Link
+            href="/car-calendar"
+            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
+          >
             Availability Calendar
           </Link>
-          <Link href="/ai-chat" class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5">
+          <Link
+            href="/ai-chat"
+            class="text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors flex items-center gap-1.5"
+          >
             <span class="text-amber-500">✨</span> AI Assistant
           </Link>
         </nav>
@@ -92,18 +109,25 @@ onUnmounted(() => {
             </Link>
 
             <!-- Profile Dropdown Menu on Right Side -->
-            <div id="front-profile-dropdown" class="relative">
+            <div
+              id="front-profile-dropdown"
+              class="relative"
+            >
               <button
                 type="button"
-                class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+                class="flex items-center gap-2 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+                style="padding-right: 0.75rem"
                 @click="showProfileMenu = !showProfileMenu"
               >
                 <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
                   {{ displayName.charAt(0).toUpperCase() }}
                 </div>
                 <span class="text-xs font-bold text-gray-800 dark:text-white hidden sm:inline">{{ displayName }}</span>
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <i class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform" :class="showProfileMenu ? 'rotate-180' : ''" />
+                <span class="w-2 h-2 rounded-full bg-emerald-500" />
+                <i
+                  class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform"
+                  :class="showProfileMenu ? 'rotate-180' : ''"
+                />
               </button>
 
               <!-- Dropdown Card -->
@@ -116,7 +140,7 @@ onUnmounted(() => {
                     {{ displayName.charAt(0).toUpperCase() }}
                   </div>
                   <div class="flex items-center justify-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500" />
                     <span class="text-xs font-bold text-gray-900 dark:text-white">{{ displayName }}</span>
                   </div>
                   <span class="text-[11px] text-gray-500 block truncate">{{ userEmail }}</span>
@@ -217,30 +241,106 @@ onUnmounted(() => {
           </div>
 
           <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">Customer Services</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">
+              Customer Services
+            </h4>
             <ul class="space-y-2 text-xs">
-              <li><Link href="/cars" class="hover:text-white transition-colors">Browse Available Cars</Link></li>
-              <li><Link href="/car-calendar" class="hover:text-white transition-colors">Calendar Schedule</Link></li>
-              <li><Link href="/customer/register" class="hover:text-white transition-colors">Customer Register</Link></li>
-              <li><Link href="/customer/login" class="hover:text-white transition-colors">Customer Sign In</Link></li>
+              <li>
+                <Link
+                  href="/cars"
+                  class="hover:text-white transition-colors"
+                >
+                  Browse Available Cars
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/car-calendar"
+                  class="hover:text-white transition-colors"
+                >
+                  Calendar Schedule
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/customer/register"
+                  class="hover:text-white transition-colors"
+                >
+                  Customer Register
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/customer/login"
+                  class="hover:text-white transition-colors"
+                >
+                  Customer Sign In
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">Fleet Owner Portal</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">
+              Fleet Owner Portal
+            </h4>
             <ul class="space-y-2 text-xs">
-              <li><Link href="/owner/register" class="hover:text-emerald-400 transition-colors">Register as Fleet Owner</Link></li>
-              <li><Link href="/owner/login" class="hover:text-emerald-400 transition-colors">Owner Login Portal</Link></li>
-              <li><Link href="/owner/dashboard" class="hover:text-emerald-400 transition-colors">Fleet Roster & Earnings</Link></li>
+              <li>
+                <Link
+                  href="/owner/register"
+                  class="hover:text-emerald-400 transition-colors"
+                >
+                  Register as Fleet Owner
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/owner/login"
+                  class="hover:text-emerald-400 transition-colors"
+                >
+                  Owner Login Portal
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/owner/dashboard"
+                  class="hover:text-emerald-400 transition-colors"
+                >
+                  Fleet Roster & Earnings
+                </Link>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">Support & Help</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">
+              Support & Help
+            </h4>
             <ul class="space-y-2 text-xs">
-              <li><Link href="/ai-chat" class="hover:text-amber-400 transition-colors flex items-center gap-1"><span>✨</span> AI Fleet Assistant</Link></li>
-              <li><Link href="/car-calendar" class="hover:text-white transition-colors">Availability Schedule</Link></li>
-              <li><Link href="/cars" class="hover:text-white transition-colors">Vehicle Directory</Link></li>
+              <li>
+                <Link
+                  href="/ai-chat"
+                  class="hover:text-amber-400 transition-colors flex items-center gap-1"
+                >
+                  <span>✨</span> AI Fleet Assistant
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/car-calendar"
+                  class="hover:text-white transition-colors"
+                >
+                  Availability Schedule
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/cars"
+                  class="hover:text-white transition-colors"
+                >
+                  Vehicle Directory
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

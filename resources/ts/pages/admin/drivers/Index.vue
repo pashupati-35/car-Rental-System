@@ -18,6 +18,7 @@ const props = defineProps<{
 
 const driversList = computed<DriverItem[]>(() => {
   if (Array.isArray(props.drivers)) return props.drivers
+  
   return props.drivers?.data || []
 })
 
@@ -52,11 +53,13 @@ const filteredDrivers = computed<DriverItem[]>(() => {
 
   if (searchQuery.value.trim() && !props.filters?.search) {
     const q = searchQuery.value.toLowerCase()
+
     list = list.filter((d: DriverItem) => {
       const name = d.name || ''
       const phone = d.phone || ''
       const license = d.license_number || ''
       const owner = d.owner?.full_name || d.owner?.name || ''
+      
       return name.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || license.toLowerCase().includes(q) || owner.toLowerCase().includes(q)
     })
   }
@@ -183,7 +186,10 @@ const deleteDriver = async (driverId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div v-if="message" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs">
+      <div
+        v-if="message"
+        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
+      >
         <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
         <span>{{ message }}</span>
       </div>
@@ -197,18 +203,28 @@ const deleteDriver = async (driverId: number) => {
               v-model="searchQuery"
               type="text"
               placeholder="Search drivers by name, phone, license..."
-              class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              class="w-full py-2 rounded-xl"
+              style="padding-left: 2rem; padding-right: 0.75rem border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               @keyup.enter="handleSearch"
-            />
+            >
           </div>
 
-          <div v-if="ownersList.length > 0" class="w-full sm:w-60">
+          <div
+            v-if="ownersList.length > 0"
+            class="w-full sm:w-60"
+          >
             <select
               v-model="selectedOwnerFilter"
               class="w-full py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
             >
-              <option value="">All Fleet Owners</option>
-              <option v-for="owner in ownersList" :key="owner.id" :value="owner.id">
+              <option value="">
+                All Fleet Owners
+              </option>
+              <option
+                v-for="owner in ownersList"
+                :key="owner.id"
+                :value="owner.id"
+              >
                 {{ owner.full_name || owner.name }}
               </option>
             </select>
@@ -230,9 +246,9 @@ const deleteDriver = async (driverId: number) => {
 
       <!-- Create Driver Modal -->
       <DriverFormModal
+        v-model:form="driverForm"
         :show="showAddModal"
         :is-editing="false"
-        :form="driverForm"
         :owners="ownersList"
         :submitting="submitting"
         :error-message="errorMessage"
@@ -242,9 +258,9 @@ const deleteDriver = async (driverId: number) => {
 
       <!-- Edit Driver Modal -->
       <DriverFormModal
+        v-model:form="driverForm"
         :show="showEditModal"
-        :is-editing="true"
-        :form="driverForm"
+        is-editing
         :owners="ownersList"
         :submitting="submitting"
         :error-message="errorMessage"

@@ -24,6 +24,7 @@ const perPage = ref(10)
 const filteredItems = computed<CmsItem[]>(() => {
   if (!searchQuery.value.trim()) return props.items
   const q = searchQuery.value.toLowerCase()
+  
   return props.items.filter((item: CmsItem) => {
     return (
       (item.title && String(item.title).toLowerCase().includes(q)) ||
@@ -49,6 +50,7 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
+    
     return range
   }
 
@@ -80,6 +82,7 @@ const visiblePages = computed(() => {
 
 const paginatedItems = computed<CmsItem[]>(() => {
   const start = (currentPage.value - 1) * perPage.value
+  
   return filteredItems.value.slice(start, start + perPage.value)
 })
 
@@ -120,8 +123,9 @@ const isEnquiryOrContact = computed(() => {
           v-model="searchQuery"
           type="text"
           :placeholder="`Search ${currentModuleMeta.label.toLowerCase()}...`"
-          class="w-full pl-8 pr-3 py-2 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-        />
+          class="w-full py-2 sm:py-1.5 rounded-xl"
+          style="padding-left: 2rem; padding-right: 0.75rem border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        >
       </div>
 
       <div class="flex items-center justify-between sm:justify-end gap-3">
@@ -134,7 +138,10 @@ const isEnquiryOrContact = computed(() => {
           title="Refresh Data"
           @click="emit('refresh')"
         >
-          <i class="ri-refresh-line" :class="loading ? 'animate-spin' : ''" />
+          <i
+            class="ri-refresh-line"
+            :class="loading ? 'animate-spin' : ''"
+          />
         </button>
       </div>
     </div>
@@ -142,15 +149,28 @@ const isEnquiryOrContact = computed(() => {
     <!-- Content Table / View -->
     <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
       <!-- Loading State -->
-      <div v-if="loading" class="py-16 text-center">
-        <div class="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-        <p class="text-xs text-slate-500 font-semibold">Loading {{ currentModuleMeta.label }}...</p>
+      <div
+        v-if="loading"
+        class="py-16 text-center"
+      >
+        <div class="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+        <p class="text-xs text-slate-500 font-semibold">
+          Loading {{ currentModuleMeta.label }}...
+        </p>
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="filteredItems.length === 0" class="py-16 text-center px-4">
-        <i :class="currentModuleMeta.icon" class="text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block" />
-        <p class="text-sm font-bold text-slate-700 dark:text-slate-300">No records found</p>
+      <div
+        v-else-if="filteredItems.length === 0"
+        class="py-16 text-center px-4"
+      >
+        <i
+          :class="currentModuleMeta.icon"
+          class="text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block"
+        />
+        <p class="text-sm font-bold text-slate-700 dark:text-slate-300">
+          No records found
+        </p>
         <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
           No records are currently listed under this CMS module.
         </p>
@@ -166,18 +186,37 @@ const isEnquiryOrContact = computed(() => {
           >
             <div class="flex items-start justify-between gap-3">
               <div class="flex items-start gap-3 min-w-0">
-                <div v-if="getItemImage(item)" class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                  <img :src="getItemImage(item)" class="w-full h-full object-cover" />
+                <div
+                  v-if="getItemImage(item)"
+                  class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200"
+                >
+                  <img
+                    :src="getItemImage(item)"
+                    class="w-full h-full object-cover"
+                  >
                 </div>
                 <div class="min-w-0">
                   <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">
                     {{ getItemTitle(item) }}
                   </h4>
-                  <p v-if="getItemSubtitle(item)" class="text-slate-500 text-xs">
+                  <p
+                    v-if="getItemSubtitle(item)"
+                    class="text-slate-500 text-xs"
+                  >
                     {{ getItemSubtitle(item) }}
                   </p>
-                  <p v-if="item.slug" class="font-mono text-[10px] text-slate-400 mt-0.5">/{{ item.slug }}</p>
-                  <p v-else-if="item.email" class="font-mono text-[10px] text-slate-400 mt-0.5">{{ item.email }}</p>
+                  <p
+                    v-if="item.slug"
+                    class="font-mono text-[10px] text-slate-400 mt-0.5"
+                  >
+                    /{{ item.slug }}
+                  </p>
+                  <p
+                    v-else-if="item.email"
+                    class="font-mono text-[10px] text-slate-400 mt-0.5"
+                  >
+                    {{ item.email }}
+                  </p>
                 </div>
               </div>
 
@@ -189,12 +228,18 @@ const isEnquiryOrContact = computed(() => {
                 class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 flex items-center gap-1 cursor-pointer"
                 @click="emit('toggle-status', item)"
               >
-                <span class="w-1.5 h-1.5 rounded-full" :class="item.is_active ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                <span
+                  class="w-1.5 h-1.5 rounded-full"
+                  :class="item.is_active ? 'bg-emerald-500' : 'bg-slate-400'"
+                />
                 <span>{{ item.is_active ? 'Active' : 'Draft' }}</span>
               </button>
             </div>
 
-            <p v-if="item.short_description || item.description || item.message" class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">
+            <p
+              v-if="item.short_description || item.description || item.message"
+              class="text-xs text-slate-600 dark:text-slate-400 line-clamp-2"
+            >
               {{ item.short_description || item.description || item.message }}
             </p>
 
@@ -236,11 +281,21 @@ const isEnquiryOrContact = computed(() => {
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
               <tr>
-                <th class="py-3.5 px-5">Record / Title</th>
-                <th class="py-3.5 px-5">Details / Slug</th>
-                <th class="py-3.5 px-5">Status</th>
-                <th class="py-3.5 px-5">Created Date</th>
-                <th class="py-3.5 px-5 text-right">Admin Actions</th>
+                <th class="py-3.5 px-5">
+                  Record / Title
+                </th>
+                <th class="py-3.5 px-5">
+                  Details / Slug
+                </th>
+                <th class="py-3.5 px-5">
+                  Status
+                </th>
+                <th class="py-3.5 px-5">
+                  Created Date
+                </th>
+                <th class="py-3.5 px-5 text-right">
+                  Admin Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -252,14 +307,23 @@ const isEnquiryOrContact = computed(() => {
                 <!-- Title & Image -->
                 <td class="py-4 px-5">
                   <div class="flex items-center gap-3">
-                    <div v-if="getItemImage(item)" class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                      <img :src="getItemImage(item)" class="w-full h-full object-cover" />
+                    <div
+                      v-if="getItemImage(item)"
+                      class="w-10 h-10 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200"
+                    >
+                      <img
+                        :src="getItemImage(item)"
+                        class="w-full h-full object-cover"
+                      >
                     </div>
                     <div>
                       <span class="font-bold text-slate-900 dark:text-white block text-sm">
                         {{ getItemTitle(item) }}
                       </span>
-                      <span v-if="getItemSubtitle(item)" class="text-slate-400 text-[11px]">
+                      <span
+                        v-if="getItemSubtitle(item)"
+                        class="text-slate-400 text-[11px]"
+                      >
                         {{ getItemSubtitle(item) }}
                       </span>
                     </div>
@@ -268,16 +332,28 @@ const isEnquiryOrContact = computed(() => {
 
                 <!-- Slug / Info -->
                 <td class="py-4 px-5 text-slate-600 dark:text-slate-400">
-                  <span v-if="item.slug" class="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                  <span
+                    v-if="item.slug"
+                    class="font-mono text-[11px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded"
+                  >
                     /{{ item.slug }}
                   </span>
-                  <span v-else-if="item.email" class="font-mono text-[11px]">
+                  <span
+                    v-else-if="item.email"
+                    class="font-mono text-[11px]"
+                  >
                     {{ item.email }}
                   </span>
-                  <span v-else-if="item.short_description || item.description" class="truncate max-w-xs block text-slate-500">
+                  <span
+                    v-else-if="item.short_description || item.description"
+                    class="truncate max-w-xs block text-slate-500"
+                  >
                     {{ item.short_description || item.description }}
                   </span>
-                  <span v-else class="text-slate-400">
+                  <span
+                    v-else
+                    class="text-slate-400"
+                  >
                     {{ item.location || item.type || 'N/A' }}
                   </span>
                 </td>
@@ -291,10 +367,16 @@ const isEnquiryOrContact = computed(() => {
                     class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
                     @click="emit('toggle-status', item)"
                   >
-                    <span class="w-1.5 h-1.5 rounded-full" :class="item.is_active ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                    <span
+                      class="w-1.5 h-1.5 rounded-full"
+                      :class="item.is_active ? 'bg-emerald-500' : 'bg-slate-400'"
+                    />
                     <span>{{ item.is_active ? 'Active' : 'Inactive' }}</span>
                   </button>
-                  <span v-else-if="item.mark_as_read !== undefined || item.is_read !== undefined" class="text-slate-500 text-[11px]">
+                  <span
+                    v-else-if="item.mark_as_read !== undefined || item.is_read !== undefined"
+                    class="text-slate-500 text-[11px]"
+                  >
                     {{ (item.mark_as_read || item.is_read) ? 'Read' : 'New' }}
                   </span>
                 </td>
@@ -336,9 +418,7 @@ const isEnquiryOrContact = computed(() => {
         </div>
 
         <!-- CMS Client Pagination Bar Matching 3rd Screenshot -->
-        <div
-          class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 select-none"
-        >
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 select-none">
           <!-- Left: Showing 1 – 25 of 518 [25 v] -->
           <div class="flex items-center gap-3">
             <div>
@@ -351,12 +431,21 @@ const isEnquiryOrContact = computed(() => {
             <div class="relative">
               <select
                 v-model="perPage"
-                class="appearance-none px-2.5 py-1 pr-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+                class="appearance-none px-2.5 py-1 rounded-lg"
+                style="padding-right: 1.5rem border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
               >
-                <option :value="10">10</option>
-                <option :value="25">25</option>
-                <option :value="50">50</option>
-                <option :value="100">100</option>
+                <option :value="10">
+                  10
+                </option>
+                <option :value="25">
+                  25
+                </option>
+                <option :value="50">
+                  50
+                </option>
+                <option :value="100">
+                  100
+                </option>
               </select>
               <span class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-slate-400 text-[10px]">
                 ▼
@@ -389,7 +478,10 @@ const isEnquiryOrContact = computed(() => {
             </button>
 
             <!-- Numbers -->
-            <template v-for="(p, idx) in visiblePages" :key="idx">
+            <template
+              v-for="(p, idx) in visiblePages"
+              :key="idx"
+            >
               <span
                 v-if="p === '...'"
                 class="w-7 h-7 flex items-center justify-center text-slate-400 text-xs font-bold"

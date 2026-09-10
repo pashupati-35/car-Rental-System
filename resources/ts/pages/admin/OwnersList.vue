@@ -11,5 +11,8 @@ const props = defineProps<{
 </script>
 
 <template>
-  <OwnersIndex :owners="props.owners" :filters="props.filters" />
+  <OwnersIndex
+    :owners="props.owners"
+    :filters="props.filters"
+  />
 </template>

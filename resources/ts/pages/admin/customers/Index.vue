@@ -18,6 +18,7 @@ const props = defineProps<{
 
 const customersList = computed<CustomerItem[]>(() => {
   if (Array.isArray(props.customers)) return props.customers
+  
   return props.customers?.data || []
 })
 
@@ -42,11 +43,13 @@ const form = ref<Partial<CustomerItem>>({
 const filteredCustomers = computed<CustomerItem[]>(() => {
   if (!searchQuery.value.trim() || props.filters?.search) return customersList.value
   const q = searchQuery.value.toLowerCase()
+  
   return customersList.value.filter((c: CustomerItem) => {
     const name = c.name || c.full_name || ''
     const email = c.email || ''
     const phone = c.phone_number || c.phone || ''
     const addr = c.address || ''
+    
     return name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || addr.toLowerCase().includes(q)
   })
 })
@@ -177,7 +180,10 @@ const deleteCustomer = async (customerId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div v-if="message" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs">
+      <div
+        v-if="message"
+        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
+      >
         <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
         <span>{{ message }}</span>
       </div>
@@ -190,9 +196,10 @@ const deleteCustomer = async (customerId: number) => {
             v-model="searchQuery"
             type="text"
             placeholder="Search customers by name, email, phone..."
-            class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            style="padding-left: 2rem; padding-right: 0.75rem"
             @keyup.enter="handleSearch"
-          />
+          >
         </div>
 
         <span class="text-xs font-bold text-slate-400">
@@ -210,9 +217,9 @@ const deleteCustomer = async (customerId: number) => {
 
       <!-- Create Customer Modal -->
       <CustomerFormModal
+        v-model:form="form"
         :show="showAddModal"
         :is-editing="false"
-        :form="form"
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showAddModal = false"
@@ -221,9 +228,9 @@ const deleteCustomer = async (customerId: number) => {
 
       <!-- Edit Customer Modal -->
       <CustomerFormModal
+        v-model:form="form"
         :show="showEditModal"
-        :is-editing="true"
-        :form="form"
+        is-editing
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showEditModal = false"

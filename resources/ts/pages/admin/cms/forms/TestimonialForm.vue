@@ -2,9 +2,7 @@
 import type { TestimonialItem } from '../types'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
-const props = defineProps<{
-  item: Partial<TestimonialItem>
-}>()
+const item = defineModel<Partial<TestimonialItem>>('item', { required: true })
 </script>
 
 <template>
@@ -18,7 +16,7 @@ const props = defineProps<{
           required
           placeholder="e.g. David Richardson"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
       <div>
         <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Rating (1 to 5 Stars)</label>
@@ -30,7 +28,7 @@ const props = defineProps<{
           step="0.5"
           placeholder="5"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
     </div>
 
@@ -42,7 +40,7 @@ const props = defineProps<{
           type="text"
           placeholder="e.g. Executive Director"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
       <div>
         <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Company Name</label>
@@ -51,7 +49,7 @@ const props = defineProps<{
           type="text"
           placeholder="e.g. Apex Global"
           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-        />
+        >
       </div>
     </div>
 
@@ -62,7 +60,7 @@ const props = defineProps<{
         type="text"
         placeholder="https://images.unsplash.com/... or /storage/testimonials/..."
         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-      />
+      >
     </div>
 
     <div>

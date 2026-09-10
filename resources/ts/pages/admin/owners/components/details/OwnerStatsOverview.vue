@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { OwnerStats } from '../../types'
 
-const props = defineProps<{
+defineProps<{
   stats: OwnerStats
 }>()
 </script>
@@ -15,7 +15,9 @@ const props = defineProps<{
           <i class="ri-car-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.total_cars }}</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.total_cars }}
+      </div>
       <div class="text-[10px] text-emerald-600 font-bold mt-1">
         {{ stats.verified_cars }} Active &bull; {{ stats.pending_cars }} Pending
       </div>
@@ -28,8 +30,12 @@ const props = defineProps<{
           <i class="ri-steering-2-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.total_drivers }}</div>
-      <div class="text-[10px] text-purple-600 font-bold mt-1">Assigned Crew</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.total_drivers }}
+      </div>
+      <div class="text-[10px] text-purple-600 font-bold mt-1">
+        Assigned Crew
+      </div>
     </div>
 
     <div class="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
@@ -39,8 +45,12 @@ const props = defineProps<{
           <i class="ri-calendar-check-line" />
         </div>
       </div>
-      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">{{ stats.total_bookings }}</div>
-      <div class="text-[10px] text-blue-600 font-bold mt-1">{{ stats.confirmed_bookings }} Completed</div>
+      <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
+        {{ stats.total_bookings }}
+      </div>
+      <div class="text-[10px] text-blue-600 font-bold mt-1">
+        {{ stats.confirmed_bookings }} Completed
+      </div>
     </div>
 
     <div class="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
@@ -53,7 +63,9 @@ const props = defineProps<{
       <div class="text-2xl font-black text-slate-900 dark:text-white font-mono">
         ${{ Number(stats.total_revenue).toLocaleString() }}
       </div>
-      <div class="text-[10px] text-emerald-600 font-bold mt-1">Total Generated</div>
+      <div class="text-[10px] text-emerald-600 font-bold mt-1">
+        Total Generated
+      </div>
     </div>
   </div>
 </template>

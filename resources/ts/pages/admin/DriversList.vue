@@ -12,5 +12,9 @@ const props = defineProps<{
 </script>
 
 <template>
-  <DriversIndex :drivers="props.drivers" :owners="props.owners" :filters="props.filters" />
+  <DriversIndex
+    :drivers="props.drivers"
+    :owners="props.owners"
+    :filters="props.filters"
+  />
 </template>

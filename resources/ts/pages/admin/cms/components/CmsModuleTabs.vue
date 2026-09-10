@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CmsModuleMeta } from '../types'
 
-const props = defineProps<{
+defineProps<{
   modules: CmsModuleMeta[]
   activeModule: string
   stats?: Record<string, number>
@@ -22,10 +22,15 @@ const emit = defineEmits<{
       <div class="relative">
         <select
           :value="activeModule"
-          class="w-full py-2.5 pl-3 pr-8 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          class="w-full py-2.5 rounded-xl"
+          style="padding-left: 0.75rem; padding-right: 2rem bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           @change="emit('update:activeModule', ($event.target as HTMLSelectElement).value)"
         >
-          <option v-for="mod in modules" :key="mod.id" :value="mod.id">
+          <option
+            v-for="mod in modules"
+            :key="mod.id"
+            :value="mod.id"
+          >
             {{ mod.label }} {{ stats && stats[mod.id] !== undefined ? `(${stats[mod.id]})` : '' }}
           </option>
         </select>

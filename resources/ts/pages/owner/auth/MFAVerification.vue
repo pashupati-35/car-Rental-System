@@ -18,6 +18,7 @@ const errorMessage = ref('')
 const verifyCode = async () => {
   if (!verificationCode.value || verificationCode.value.length < 6) {
     errorMessage.value = 'Please enter the full 6-digit code.'
+    
     return
   }
 
@@ -49,7 +50,17 @@ const verifyCode = async () => {
   <div class="space-y-5">
     <div class="text-center mb-4">
       <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl border border-emerald-100 dark:border-emerald-900/50 shadow-inner">
-        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <svg
+          class="w-7 h-7"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        ><path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+        /></svg>
       </div>
       <h3 class="font-bold text-lg text-gray-900 dark:text-white">
         Owner 2FA Verification
@@ -63,7 +74,17 @@ const verifyCode = async () => {
       v-if="errorMessage"
       class="p-3 rounded-xl bg-red-50 text-red-700 text-xs flex items-center gap-2 border border-red-200"
     >
-      <svg class="w-4 h-4 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <svg
+        class="w-4 h-4 shrink-0 text-red-500"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      ><path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      /></svg>
       <span>{{ errorMessage }}</span>
     </div>
 
@@ -76,7 +97,7 @@ const verifyCode = async () => {
         autofocus
         class="w-full text-center tracking-[0.4em] text-2xl font-mono py-3.5 px-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none shadow-sm"
         @keyup.enter="verifyCode"
-      />
+      >
     </div>
 
     <button

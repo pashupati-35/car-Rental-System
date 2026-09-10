@@ -2,7 +2,7 @@
 import { Link } from '@inertiajs/vue3'
 import type { CarItem } from '../types'
 
-const props = defineProps<{
+defineProps<{
   show: boolean
   car: CarItem | null
 }>()
@@ -16,21 +16,36 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div v-if="show && car" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto">
+  <div
+    v-if="show && car"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
+  >
     <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+          <span class="w-2.5 h-2.5 rounded-full bg-indigo-600" />
           <h3 class="font-bold text-base text-slate-900 dark:text-white">
             Vehicle Specification & Verification
           </h3>
         </div>
-        <button type="button" class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer" @click="emit('close')">&times;</button>
+        <button
+          type="button"
+          class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+          @click="emit('close')"
+        >
+          &times;
+        </button>
       </div>
 
       <!-- Car Banner Image -->
-      <div v-if="car.image" class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-800">
-        <img :src="car.image" class="w-full h-full object-cover" />
+      <div
+        v-if="car.image"
+        class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-800"
+      >
+        <img
+          :src="car.image"
+          class="w-full h-full object-cover"
+        >
       </div>
 
       <div class="space-y-3 text-xs">
@@ -75,7 +90,10 @@ const emit = defineEmits<{
             >
               {{ car.owner.full_name || car.owner.name }}
             </Link>
-            <span v-else class="font-bold text-slate-700 dark:text-slate-300">Platform Fleet</span>
+            <span
+              v-else
+              class="font-bold text-slate-700 dark:text-slate-300"
+            >Platform Fleet</span>
           </div>
           <div>
             <span class="text-[10px] text-slate-400 uppercase font-bold block">Assigned Driver</span>

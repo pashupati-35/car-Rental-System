@@ -31,7 +31,7 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
 
     <template #header>
       <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500" />
         Owner Fleet Management Dashboard
       </div>
     </template>
@@ -71,9 +71,16 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">My Listed Cars</p>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">{{ carsCount }}</h3>
-            <Link href="/owner/cars" class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline mt-2 inline-block">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              My Listed Cars
+            </p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
+              {{ carsCount }}
+            </h3>
+            <Link
+              href="/owner/cars"
+              class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline mt-2 inline-block"
+            >
               View Fleet &rarr;
             </Link>
           </div>
@@ -84,9 +91,16 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Driver Roster</p>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">{{ driversCount }}</h3>
-            <Link href="/owner/drivers" class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline mt-2 inline-block">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Driver Roster
+            </p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
+              {{ driversCount }}
+            </h3>
+            <Link
+              href="/owner/drivers"
+              class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold hover:underline mt-2 inline-block"
+            >
               Manage Staff &rarr;
             </Link>
           </div>
@@ -97,8 +111,12 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Rentals</p>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">{{ rentalsCount }}</h3>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Active Rentals
+            </p>
+            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
+              {{ rentalsCount }}
+            </h3>
             <span class="text-xs text-gray-500 mt-2 block">{{ pendingCount }} Pending approval</span>
           </div>
           <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
@@ -108,8 +126,12 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Earnings</p>
-            <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">${{ totalEarnings }}</h3>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Total Earnings
+            </p>
+            <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
+              ${{ totalEarnings }}
+            </h3>
             <span class="text-xs text-gray-400 mt-2 block">Confirmed rentals</span>
           </div>
           <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
@@ -137,7 +159,10 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
           </Link>
         </div>
 
-        <div v-if="recentCars && recentCars.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-if="recentCars && recentCars.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           <div
             v-for="car in recentCars"
             :key="car.id"
@@ -183,9 +208,17 @@ const totalEarnings = props.stats?.earnings ?? props.earnings ?? 0
           </div>
         </div>
 
-        <div v-else class="p-10 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800">
-          <p class="text-xs text-gray-500">No cars registered yet.</p>
-          <Link href="/owner/cars/create" class="mt-2 inline-block text-xs font-bold text-emerald-600 hover:underline">
+        <div
+          v-else
+          class="p-10 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
+        >
+          <p class="text-xs text-gray-500">
+            No cars registered yet.
+          </p>
+          <Link
+            href="/owner/cars/create"
+            class="mt-2 inline-block text-xs font-bold text-emerald-600 hover:underline"
+          >
             + Add your first vehicle
           </Link>
         </div>

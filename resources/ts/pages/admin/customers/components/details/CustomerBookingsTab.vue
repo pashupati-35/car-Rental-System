@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CustomerBookingItem } from '../../types'
 
-const props = defineProps<{
+defineProps<{
   bookings: CustomerBookingItem[]
 }>()
 
@@ -37,23 +37,39 @@ const emit = defineEmits<{
     </div>
 
     <!-- Empty State -->
-    <div v-if="bookings.length === 0" class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800">
+    <div
+      v-if="bookings.length === 0"
+      class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800"
+    >
       <i class="ri-calendar-event-line text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block" />
-      <h4 class="font-bold text-sm text-slate-700 dark:text-slate-300">No Rental Bookings Yet</h4>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">This customer has no recorded bookings. Click "Book Vehicle for Customer" to create an order.</p>
+      <h4 class="font-bold text-sm text-slate-700 dark:text-slate-300">
+        No Rental Bookings Yet
+      </h4>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        This customer has no recorded bookings. Click "Book Vehicle for Customer" to create an order.
+      </p>
     </div>
 
-    <div v-else class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
+    <div
+      v-else
+      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden"
+    >
       <!-- Mobile Cards -->
       <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
-        <div v-for="b in bookings" :key="b.id" class="p-4 space-y-3">
+        <div
+          v-for="b in bookings"
+          :key="b.id"
+          class="p-4 space-y-3"
+        >
           <div class="flex items-start justify-between gap-2">
             <div>
               <span class="font-mono text-xs font-bold text-slate-400">#ORD-{{ b.id }}</span>
               <h4 class="font-bold text-sm text-slate-900 dark:text-white">
                 {{ b.car?.car_name || b.car?.brand || 'Car' }} {{ b.car?.car_model || b.car?.model || '' }}
               </h4>
-              <p class="text-[11px] font-mono text-slate-400">{{ b.car?.car_number || b.car?.plate_number || 'N/A' }}</p>
+              <p class="text-[11px] font-mono text-slate-400">
+                {{ b.car?.car_number || b.car?.plate_number || 'N/A' }}
+              </p>
             </div>
 
             <span
@@ -106,21 +122,44 @@ const emit = defineEmits<{
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
-              <th class="py-3.5 px-5">Order # / Vehicle</th>
-              <th class="py-3.5 px-5">Pickup & Return Dates</th>
-              <th class="py-3.5 px-5">Route Locations</th>
-              <th class="py-3.5 px-5">Total Price</th>
-              <th class="py-3.5 px-5">Status</th>
-              <th class="py-3.5 px-5 text-right">Admin Actions</th>
+              <th class="py-3.5 px-5">
+                Order # / Vehicle
+              </th>
+              <th class="py-3.5 px-5">
+                Pickup & Return Dates
+              </th>
+              <th class="py-3.5 px-5">
+                Route Locations
+              </th>
+              <th class="py-3.5 px-5">
+                Total Price
+              </th>
+              <th class="py-3.5 px-5">
+                Status
+              </th>
+              <th class="py-3.5 px-5 text-right">
+                Admin Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-            <tr v-for="b in bookings" :key="b.id" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+            <tr
+              v-for="b in bookings"
+              :key="b.id"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+            >
               <td class="py-4 px-5">
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
-                    <img v-if="b.car?.image" :src="b.car.image" class="w-full h-full object-cover" />
-                    <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
+                    <img
+                      v-if="b.car?.image"
+                      :src="b.car.image"
+                      class="w-full h-full object-cover"
+                    >
+                    <div
+                      v-else
+                      class="w-full h-full flex items-center justify-center text-slate-400"
+                    >
                       <i class="ri-car-line" />
                     </div>
                   </div>

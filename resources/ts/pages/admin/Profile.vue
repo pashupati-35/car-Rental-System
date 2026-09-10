@@ -18,6 +18,7 @@ const profileForm = ref({
   designation: user.value?.designation || 'Super Administrator',
   avatar: user.value?.avatar || '',
 })
+
 const profileLoading = ref(false)
 const profileMsg = ref('')
 const profileError = ref('')
@@ -27,6 +28,7 @@ const passwordForm = ref({
   password: '',
   password_confirmation: '',
 })
+
 const passwordLoading = ref(false)
 const passwordMsg = ref('')
 const passwordError = ref('')
@@ -221,11 +223,18 @@ const deactivateMfa = async () => {
       </div>
 
       <!-- PROFILE INFO TAB (Fully Editable) -->
-      <div v-if="activeTab === 'profile'" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-6">
+      <div
+        v-if="activeTab === 'profile'"
+        class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 sm:p-8 space-y-6"
+      >
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
           <div class="flex items-center gap-4">
             <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-800 text-white font-black text-2xl flex items-center justify-center shadow-md overflow-hidden shrink-0">
-              <img v-if="profileForm.avatar" :src="profileForm.avatar" class="w-full h-full object-cover" />
+              <img
+                v-if="profileForm.avatar"
+                :src="profileForm.avatar"
+                class="w-full h-full object-cover"
+              >
               <span v-else>{{ profileForm.name ? profileForm.name.charAt(0).toUpperCase() : 'A' }}</span>
             </div>
             <div>
@@ -244,16 +253,25 @@ const deactivateMfa = async () => {
           </span>
         </div>
 
-        <div v-if="profileMsg" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+        <div
+          v-if="profileMsg"
+          class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2"
+        >
           <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
           <span>{{ profileMsg }}</span>
         </div>
-        <div v-if="profileError" class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
+        <div
+          v-if="profileError"
+          class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2"
+        >
           <i class="ri-error-warning-fill text-rose-600 text-base shrink-0" />
           <span>{{ profileError }}</span>
         </div>
 
-        <form class="space-y-5 text-xs" @submit.prevent="updateProfile">
+        <form
+          class="space-y-5 text-xs"
+          @submit.prevent="updateProfile"
+        >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Full Name *</label>
@@ -263,7 +281,7 @@ const deactivateMfa = async () => {
                 required
                 placeholder="e.g. Pashupati Sah"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Email Address *</label>
@@ -273,7 +291,7 @@ const deactivateMfa = async () => {
                 required
                 placeholder="admin@autorent.com"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
           </div>
 
@@ -285,7 +303,7 @@ const deactivateMfa = async () => {
                 type="text"
                 placeholder="+1 555 987 6543"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Role / Administrative Title</label>
@@ -294,7 +312,7 @@ const deactivateMfa = async () => {
                 type="text"
                 placeholder="Super Administrator"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
           </div>
 
@@ -306,7 +324,7 @@ const deactivateMfa = async () => {
                 type="text"
                 placeholder="HQ Office, New York, NY"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">Avatar Image URL</label>
@@ -315,7 +333,7 @@ const deactivateMfa = async () => {
                 type="text"
                 placeholder="https://..."
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
-              />
+              >
             </div>
           </div>
 
@@ -332,7 +350,10 @@ const deactivateMfa = async () => {
       </div>
 
       <!-- SECURITY TAB -->
-      <div v-else class="space-y-6">
+      <div
+        v-else
+        class="space-y-6"
+      >
         <!-- 1. Two-Factor Authentication Box -->
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
           <div class="p-6 border-b border-slate-100 dark:border-slate-800">
@@ -348,8 +369,12 @@ const deactivateMfa = async () => {
             <!-- Email Authentication Row -->
             <div class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800">
               <div>
-                <p class="text-sm font-semibold text-slate-900 dark:text-white">Email authentication</p>
-                <p class="text-xs text-slate-500">Receive verification codes via your registered email</p>
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                  Email authentication
+                </p>
+                <p class="text-xs text-slate-500">
+                  Receive verification codes via your registered email
+                </p>
               </div>
               <div class="flex items-center gap-2">
                 <span
@@ -373,8 +398,12 @@ const deactivateMfa = async () => {
             <!-- Authenticator App Row -->
             <div class="flex items-center justify-between py-2">
               <div>
-                <p class="text-sm font-semibold text-slate-900 dark:text-white">Authenticator app (TOTP)</p>
-                <p class="text-xs text-slate-500">Google Authenticator, Microsoft Authenticator or similar</p>
+                <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                  Authenticator app (TOTP)
+                </p>
+                <p class="text-xs text-slate-500">
+                  Google Authenticator, Microsoft Authenticator or similar
+                </p>
               </div>
               <span
                 :class="mfaEnabled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
@@ -385,11 +414,17 @@ const deactivateMfa = async () => {
             </div>
 
             <!-- Alerts -->
-            <div v-if="mfaSuccess" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+            <div
+              v-if="mfaSuccess"
+              class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2"
+            >
               <i class="ri-checkbox-circle-fill text-emerald-600" />
               <span>{{ mfaSuccess }}</span>
             </div>
-            <div v-if="mfaError" class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+            <div
+              v-if="mfaError"
+              class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2"
+            >
               <i class="ri-error-warning-fill text-rose-600" />
               <span>{{ mfaError }}</span>
             </div>
@@ -404,7 +439,11 @@ const deactivateMfa = async () => {
               </h4>
               <div class="flex flex-col sm:flex-row items-center gap-6">
                 <div class="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200">
-                  <img :src="qrCodeUrl" class="w-36 h-36 object-contain" alt="QR Code" />
+                  <img
+                    :src="qrCodeUrl"
+                    class="w-36 h-36 object-contain"
+                    alt="QR Code"
+                  >
                 </div>
                 <div class="space-y-3 flex-1 text-xs">
                   <p class="text-slate-600 dark:text-slate-300">
@@ -422,7 +461,7 @@ const deactivateMfa = async () => {
                         maxlength="6"
                         placeholder="123456"
                         class="w-36 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-mono text-center tracking-widest text-sm focus:ring-2 focus:ring-indigo-500"
-                      />
+                      >
                       <button
                         type="button"
                         :disabled="mfaLoading"
@@ -473,16 +512,27 @@ const deactivateMfa = async () => {
               <h3 class="text-base font-bold text-slate-900 dark:text-white">
                 Change password
               </h3>
-              <p class="text-xs text-slate-500">Update your account password</p>
+              <p class="text-xs text-slate-500">
+                Update your account password
+              </p>
             </div>
           </div>
 
-          <form class="p-6 space-y-4" @submit.prevent="updatePassword">
-            <div v-if="passwordMsg" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+          <form
+            class="p-6 space-y-4"
+            @submit.prevent="updatePassword"
+          >
+            <div
+              v-if="passwordMsg"
+              class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2"
+            >
               <i class="ri-checkbox-circle-fill text-emerald-600" />
               <span>{{ passwordMsg }}</span>
             </div>
-            <div v-if="passwordError" class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+            <div
+              v-if="passwordError"
+              class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2"
+            >
               <i class="ri-error-warning-fill text-rose-600" />
               <span>{{ passwordError }}</span>
             </div>
@@ -495,7 +545,7 @@ const deactivateMfa = async () => {
                 required
                 placeholder="••••••••"
                 class="w-full max-w-md px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-indigo-500"
-              />
+              >
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
@@ -507,7 +557,7 @@ const deactivateMfa = async () => {
                   required
                   placeholder="••••••••"
                   class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-indigo-500"
-                />
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm New Password</label>
@@ -517,7 +567,7 @@ const deactivateMfa = async () => {
                   required
                   placeholder="••••••••"
                   class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:ring-2 focus:ring-indigo-500"
-                />
+                >
               </div>
             </div>
 

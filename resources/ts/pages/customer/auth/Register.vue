@@ -25,7 +25,7 @@ const submit = () => {
 
     <template #title>
       <div class="flex items-center justify-center gap-2">
-        <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-blue-600" />
         Customer Registration
       </div>
     </template>
@@ -34,7 +34,10 @@ const submit = () => {
     </template>
 
     <div class="space-y-4">
-      <form class="space-y-3.5" @submit.prevent="submit">
+      <form
+        class="space-y-3.5"
+        @submit.prevent="submit"
+      >
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Full Name *</label>
           <input
@@ -43,8 +46,11 @@ const submit = () => {
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             placeholder="John Doe"
-          />
-          <span v-if="form.errors.name" class="text-xs text-red-500 mt-1 block">{{ form.errors.name }}</span>
+          >
+          <span
+            v-if="form.errors.name"
+            class="text-xs text-red-500 mt-1 block"
+          >{{ form.errors.name }}</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -56,8 +62,11 @@ const submit = () => {
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="you@example.com"
-            />
-            <span v-if="form.errors.email" class="text-xs text-red-500 mt-1 block">{{ form.errors.email }}</span>
+            >
+            <span
+              v-if="form.errors.email"
+              class="text-xs text-red-500 mt-1 block"
+            >{{ form.errors.email }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Phone Number *</label>
@@ -67,8 +76,11 @@ const submit = () => {
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono"
               placeholder="+977 9800000000"
-            />
-            <span v-if="form.errors.phone_number" class="text-xs text-red-500 mt-1 block">{{ form.errors.phone_number }}</span>
+            >
+            <span
+              v-if="form.errors.phone_number"
+              class="text-xs text-red-500 mt-1 block"
+            >{{ form.errors.phone_number }}</span>
           </div>
         </div>
 
@@ -81,8 +93,11 @@ const submit = () => {
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="Kathmandu, Nepal"
-            />
-            <span v-if="form.errors.address" class="text-xs text-red-500 mt-1 block">{{ form.errors.address }}</span>
+            >
+            <span
+              v-if="form.errors.address"
+              class="text-xs text-red-500 mt-1 block"
+            >{{ form.errors.address }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Gender</label>
@@ -90,9 +105,15 @@ const submit = () => {
               v-model="form.gender"
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="male">
+                Male
+              </option>
+              <option value="female">
+                Female
+              </option>
+              <option value="other">
+                Other
+              </option>
             </select>
           </div>
         </div>
@@ -106,8 +127,11 @@ const submit = () => {
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="••••••••••••"
-            />
-            <span v-if="form.errors.password" class="text-xs text-red-500 mt-1 block">{{ form.errors.password }}</span>
+            >
+            <span
+              v-if="form.errors.password"
+              class="text-xs text-red-500 mt-1 block"
+            >{{ form.errors.password }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
@@ -117,7 +141,7 @@ const submit = () => {
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="••••••••••••"
-            />
+            >
           </div>
         </div>
 
@@ -133,7 +157,10 @@ const submit = () => {
         <div class="text-center pt-2">
           <p class="text-xs text-gray-500">
             Already have a customer account?
-            <Link href="/customer/login" class="text-blue-600 dark:text-blue-400 font-bold hover:underline ms-1">
+            <Link
+              href="/customer/login"
+              class="text-blue-600 dark:text-blue-400 font-bold hover:underline ms-1"
+            >
               Sign In
             </Link>
           </p>
@@ -141,8 +168,18 @@ const submit = () => {
       </form>
 
       <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex justify-between text-xs text-gray-500">
-        <Link href="/owner/register" class="hover:text-emerald-600 transition-colors">Register as Fleet Owner &rarr;</Link>
-        <Link href="/" class="hover:text-blue-600 transition-colors">&larr; Back to Fleet</Link>
+        <Link
+          href="/owner/register"
+          class="hover:text-emerald-600 transition-colors"
+        >
+          Register as Fleet Owner &rarr;
+        </Link>
+        <Link
+          href="/"
+          class="hover:text-blue-600 transition-colors"
+        >
+          &larr; Back to Fleet
+        </Link>
       </div>
     </div>
   </AuthLayout>

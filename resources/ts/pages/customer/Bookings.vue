@@ -28,6 +28,7 @@ const filteredBookings = computed(() => {
       const carModel = (b.car?.car_model || b.car?.model || '').toLowerCase()
       const refId = String(b.id)
       const loc = (b.pickup_location || '').toLowerCase()
+      
       return carName.includes(q) || carModel.includes(q) || refId.includes(q) || loc.includes(q)
     }
 
@@ -72,6 +73,7 @@ const getCarImage = (car: any) => {
   if (car?.car_photo) {
     return car.car_photo.startsWith('http') ? car.car_photo : `/storage/${car.car_photo}`
   }
+  
   return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=600&q=80'
 }
 </script>
@@ -123,7 +125,9 @@ const getCarImage = (car: any) => {
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Confirmed Rentals</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Confirmed Rentals
+            </p>
             <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
               {{ confirmedCount }}
             </h3>
@@ -135,7 +139,9 @@ const getCarImage = (car: any) => {
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pending Confirmation</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Pending Confirmation
+            </p>
             <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
               {{ pendingCount }}
             </h3>
@@ -147,7 +153,9 @@ const getCarImage = (car: any) => {
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Rental Spend</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Total Rental Spend
+            </p>
             <h3 class="text-3xl font-black text-blue-600 dark:text-blue-400 mt-1">
               ${{ totalSpent }}
             </h3>
@@ -159,11 +167,17 @@ const getCarImage = (car: any) => {
       </div>
 
       <!-- Alerts -->
-      <div v-if="cancelSuccess" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+      <div
+        v-if="cancelSuccess"
+        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2"
+      >
         <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
         <span>{{ cancelSuccess }}</span>
       </div>
-      <div v-if="cancelError" class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+      <div
+        v-if="cancelError"
+        class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2"
+      >
         <i class="ri-error-warning-fill text-rose-600 text-base" />
         <span>{{ cancelError }}</span>
       </div>
@@ -213,13 +227,17 @@ const getCarImage = (car: any) => {
             v-model="search"
             type="text"
             placeholder="Search bookings..."
-            class="w-full pl-9 pr-3.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500"
-          />
+            class="w-full py-1.5 rounded-xl"
+            style="padding-left: 2.25rem; padding-right: 0.875rem border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500"
+          >
         </div>
       </div>
 
       <!-- Bookings Grid -->
-      <div v-if="filteredBookings.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div
+        v-if="filteredBookings.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
         <div
           v-for="booking in filteredBookings"
           :key="booking.id"
@@ -231,7 +249,7 @@ const getCarImage = (car: any) => {
               :src="getCarImage(booking.car)"
               :alt="booking.car?.car_name"
               class="w-20 h-16 object-cover rounded-2xl border border-gray-100 dark:border-gray-800 shrink-0"
-            />
+            >
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-2">
                 <span class="text-[10px] font-mono font-bold text-gray-400">#BK-{{ booking.id }}</span>
@@ -325,7 +343,10 @@ const getCarImage = (car: any) => {
       </div>
 
       <!-- Empty State -->
-      <div v-else class="p-16 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
+      <div
+        v-else
+        class="p-16 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm space-y-4"
+      >
         <div class="w-16 h-16 rounded-3xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center text-3xl">
           <i class="ri-calendar-event-line" />
         </div>

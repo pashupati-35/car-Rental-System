@@ -27,7 +27,7 @@ const props = withDefaults(
     lastPage: 1,
     perPage: 25,
     perPageOptions: () => [10, 25, 50, 100],
-  }
+  },
 )
 
 const emit = defineEmits<{
@@ -39,12 +39,13 @@ const emit = defineEmits<{
 const computedCurrentPage = computed(() => {
   if (props.currentPage) return props.currentPage
   if (props.links && props.links.length > 0) {
-    const activeLink = props.links.find((l) => l.active)
+    const activeLink = props.links.find(l => l.active)
     if (activeLink) {
       const page = parseInt(activeLink.label, 10)
       if (!isNaN(page)) return page
     }
   }
+  
   return 1
 })
 
@@ -55,12 +56,14 @@ const computedLastPage = computed(() => {
   }
   if (props.links && props.links.length > 0) {
     const numericLinks = props.links
-      .map((l) => parseInt(l.label, 10))
-      .filter((n) => !isNaN(n))
+      .map(l => parseInt(l.label, 10))
+      .filter(n => !isNaN(n))
+
     if (numericLinks.length > 0) {
       return Math.max(...numericLinks)
     }
   }
+  
   return 1
 })
 
@@ -73,6 +76,7 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
+    
     return range
   }
 
@@ -110,15 +114,18 @@ const goToPage = (page: number) => {
   // If using Inertia pagination via URL
   if (props.links && props.links.length > 0) {
     const targetLink = props.links.find(
-      (l) => l.label === String(page) || (page === 1 && l.label.includes('Previous'))
+      l => l.label === String(page) || (page === 1 && l.label.includes('Previous')),
     )
+
     if (targetLink && targetLink.url) {
       router.visit(targetLink.url, { preserveScroll: true, preserveState: true })
+      
       return
     }
 
     // Try finding by page query parameter
     const currentUrl = new URL(window.location.href)
+
     currentUrl.searchParams.set('page', String(page))
     router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })
   }
@@ -127,9 +134,11 @@ const goToPage = (page: number) => {
 const onPerPageChange = (event: Event) => {
   const select = event.target as HTMLSelectElement
   const val = parseInt(select.value, 10)
+
   emit('update:perPage', val)
 
   const currentUrl = new URL(window.location.href)
+
   currentUrl.searchParams.set('per_page', String(val))
   currentUrl.searchParams.set('page', '1')
   router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })
@@ -151,10 +160,15 @@ const onPerPageChange = (event: Event) => {
       <div class="relative">
         <select
           :value="perPage"
-          class="appearance-none px-2.5 py-1 pr-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+          class="appearance-none px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+          style="padding-right: 1.5rem"
           @change="onPerPageChange"
         >
-          <option v-for="opt in perPageOptions" :key="opt" :value="opt">
+          <option
+            v-for="opt in perPageOptions"
+            :key="opt"
+            :value="opt"
+          >
             {{ opt }}
           </option>
         </select>
@@ -189,7 +203,10 @@ const onPerPageChange = (event: Event) => {
       </button>
 
       <!-- Page Numbers -->
-      <template v-for="(page, idx) in visiblePages" :key="idx">
+      <template
+        v-for="(page, idx) in visiblePages"
+        :key="idx"
+      >
         <span
           v-if="page === '...'"
           class="w-7 h-7 flex items-center justify-center text-slate-400 text-xs font-bold"

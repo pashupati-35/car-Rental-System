@@ -3,7 +3,7 @@ import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
 import type { CustomerItem } from '../types'
 
-const props = defineProps<{
+defineProps<{
   customers: CustomerItem[]
   pagination?: any
 }>()
@@ -17,18 +17,32 @@ const emit = defineEmits<{
 <template>
   <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs overflow-hidden">
     <!-- Empty State -->
-    <div v-if="customers.length === 0" class="py-16 text-center px-4">
+    <div
+      v-if="customers.length === 0"
+      class="py-16 text-center px-4"
+    >
       <i class="ri-user-heart-line text-4xl text-slate-300 dark:text-slate-700 mb-2 inline-block" />
-      <p class="text-sm font-bold text-slate-700 dark:text-slate-300">No Customers found</p>
-      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Click "Add New Customer" to register a customer profile.</p>
+      <p class="text-sm font-bold text-slate-700 dark:text-slate-300">
+        No Customers found
+      </p>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+        Click "Add New Customer" to register a customer profile.
+      </p>
     </div>
 
     <template v-else>
       <!-- Mobile Cards (xs, sm) -->
       <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
-        <div v-for="customer in customers" :key="customer.id" class="p-4 space-y-3">
+        <div
+          v-for="customer in customers"
+          :key="customer.id"
+          class="p-4 space-y-3"
+        >
           <div class="flex items-start justify-between gap-2">
-            <Link :href="`/admin/customers/${customer.id}`" class="flex items-center gap-3 group">
+            <Link
+              :href="`/admin/customers/${customer.id}`"
+              class="flex items-center gap-3 group"
+            >
               <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
                 {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
               </div>
@@ -36,7 +50,9 @@ const emit = defineEmits<{
                 <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
                   {{ customer.name || customer.full_name }}
                 </h4>
-                <p class="text-[11px] text-slate-400 font-mono">{{ customer.email }}</p>
+                <p class="text-[11px] text-slate-400 font-mono">
+                  {{ customer.email }}
+                </p>
               </div>
             </Link>
 
@@ -91,18 +107,37 @@ const emit = defineEmits<{
         <table class="w-full text-left text-xs">
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
-              <th class="py-3.5 px-5">Customer Name & ID</th>
-              <th class="py-3.5 px-5">Email & Phone</th>
-              <th class="py-3.5 px-5">Gender</th>
-              <th class="py-3.5 px-5">Registered Address</th>
-              <th class="py-3.5 px-5 text-center">Rental Bookings</th>
-              <th class="py-3.5 px-5 text-right">Admin Actions</th>
+              <th class="py-3.5 px-5">
+                Customer Name & ID
+              </th>
+              <th class="py-3.5 px-5">
+                Email & Phone
+              </th>
+              <th class="py-3.5 px-5">
+                Gender
+              </th>
+              <th class="py-3.5 px-5">
+                Registered Address
+              </th>
+              <th class="py-3.5 px-5 text-center">
+                Rental Bookings
+              </th>
+              <th class="py-3.5 px-5 text-right">
+                Admin Actions
+              </th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-            <tr v-for="customer in customers" :key="customer.id" class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors">
+            <tr
+              v-for="customer in customers"
+              :key="customer.id"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+            >
               <td class="py-4 px-5">
-                <Link :href="`/admin/customers/${customer.id}`" class="flex items-center gap-3 group">
+                <Link
+                  :href="`/admin/customers/${customer.id}`"
+                  class="flex items-center gap-3 group"
+                >
                   <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
                     {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
                   </div>
@@ -165,7 +200,10 @@ const emit = defineEmits<{
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination && (pagination.links || pagination.total)" class="border-t border-slate-100 dark:border-slate-800">
+      <div
+        v-if="pagination && (pagination.links || pagination.total)"
+        class="border-t border-slate-100 dark:border-slate-800"
+      >
         <Pagination
           :links="pagination.links"
           :from="pagination.from"

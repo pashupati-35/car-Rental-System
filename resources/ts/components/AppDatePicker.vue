@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, computed } from 'vue'
 import FlatPickr from 'vue-flatpickr-component'
 
 const props = withDefaults(
@@ -26,7 +26,7 @@ const props = withDefaults(
     clearable: true,
     error: '',
     config: () => ({}),
-  }
+  },
 )
 
 const emit = defineEmits<{
@@ -67,9 +67,15 @@ const clearValue = () => {
 </script>
 
 <template>
-  <div ref="inputContainerRef" class="app-date-picker-container w-full">
+  <div
+    ref="inputContainerRef"
+    class="app-date-picker-container w-full"
+  >
     <!-- Label -->
-    <label v-if="label" class="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-between">
+    <label
+      v-if="label"
+      class="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-between"
+    >
       <span>{{ label }}</span>
       <button
         v-if="clearable && modelValue && !disabled && !readonly"
@@ -92,7 +98,10 @@ const clearValue = () => {
       ]"
     >
       <!-- Calendar Icon Prefix -->
-      <div class="pl-3.5 pr-1.5 text-slate-400 dark:text-slate-500 pointer-events-none flex items-center">
+      <div
+        class="text-slate-400 dark:text-slate-500 pointer-events-none flex items-center"
+        style="padding-left: 0.875rem; padding-right: 0.375rem"
+      >
         <i class="ri-calendar-line text-sm" />
       </div>
 
@@ -103,7 +112,8 @@ const clearValue = () => {
         :config="flatpickrConfig"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none py-2.5 pr-3 font-medium cursor-pointer"
+        class="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none py-2.5 font-medium cursor-pointer"
+        style="padding-right: 0.75rem"
         @update:model-value="handleInput"
         @on-open="isOpen = true"
         @on-close="isOpen = false"
@@ -111,7 +121,12 @@ const clearValue = () => {
     </div>
 
     <!-- Error message if any -->
-    <p v-if="error" class="text-[11px] text-rose-500 mt-1 font-medium">{{ error }}</p>
+    <p
+      v-if="error"
+      class="text-[11px] text-rose-500 mt-1 font-medium"
+    >
+      {{ error }}
+    </p>
   </div>
 </template>
 

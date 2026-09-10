@@ -26,6 +26,7 @@ const submitting = ref(false)
 
 // Edit Profile Modal
 const showEditProfileModal = ref(false)
+
 const profileForm = ref<Partial<CustomerItem>>({
   name: props.customer.name || props.customer.full_name || '',
   email: props.customer.email,
@@ -66,6 +67,7 @@ const saveCustomerProfile = async () => {
 // Booking Modal State
 const showBookingModal = ref(false)
 const isEditingBooking = ref(false)
+
 const bookingForm = ref<Partial<CustomerBookingItem>>({
   id: 0,
   car_id: props.availableCars[0]?.id || 0,
@@ -153,6 +155,7 @@ const deleteBooking = async (bookingId: number) => {
 
 // Payment Modal State
 const showPaymentModal = ref(false)
+
 const paymentForm = ref({
   booking_id: props.bookings[0]?.id || '',
   car_id: props.bookings[0]?.car_id || '',
@@ -164,6 +167,7 @@ const paymentForm = ref({
 const openRecordPaymentModal = () => {
   if (props.bookings.length === 0) {
     alert('Please create a rental booking order for this customer before recording a payment.')
+    
     return
   }
   paymentForm.value = {
@@ -238,7 +242,9 @@ const deletePayment = async (paymentId: number) => {
               <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
                 {{ customer.name || customer.full_name }}
               </h2>
-              <p class="text-xs text-slate-500 font-mono">{{ customer.email }} &bull; Customer ID #CUST-{{ customer.id }}</p>
+              <p class="text-xs text-slate-500 font-mono">
+                {{ customer.email }} &bull; Customer ID #CUST-{{ customer.id }}
+              </p>
             </div>
           </div>
         </div>
@@ -265,7 +271,10 @@ const deletePayment = async (paymentId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div v-if="message" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs">
+      <div
+        v-if="message"
+        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
+      >
         <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
         <span>{{ message }}</span>
       </div>
@@ -283,7 +292,10 @@ const deletePayment = async (paymentId: number) => {
         >
           <i class="ri-calendar-check-line" />
           <span>Rental Bookings</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold" :class="activeTab === 'bookings' ? 'bg-white/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'">
+          <span
+            class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            :class="activeTab === 'bookings' ? 'bg-white/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
+          >
             {{ bookings.length }}
           </span>
         </button>
@@ -296,7 +308,10 @@ const deletePayment = async (paymentId: number) => {
         >
           <i class="ri-money-dollar-circle-line" />
           <span>Payment History</span>
-          <span class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold" :class="activeTab === 'payments' ? 'bg-white/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'">
+          <span
+            class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            :class="activeTab === 'payments' ? 'bg-white/20' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
+          >
             {{ payments.length }}
           </span>
         </button>
@@ -332,11 +347,18 @@ const deletePayment = async (paymentId: number) => {
         />
 
         <!-- Profile Details Tab -->
-        <div v-else-if="activeTab === 'profile'" class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-6">
+        <div
+          v-else-if="activeTab === 'profile'"
+          class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-6"
+        >
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
             <div>
-              <h3 class="font-bold text-base text-slate-900 dark:text-white">Account Information & Address</h3>
-              <p class="text-xs text-slate-500">Contact information, location, and account verification.</p>
+              <h3 class="font-bold text-base text-slate-900 dark:text-white">
+                Account Information & Address
+              </h3>
+              <p class="text-xs text-slate-500">
+                Contact information, location, and account verification.
+              </p>
             </div>
             <button
               type="button"
@@ -350,23 +372,33 @@ const deletePayment = async (paymentId: number) => {
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs">
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
               <span class="text-[10px] uppercase font-bold text-slate-400">Full Name</span>
-              <p class="font-bold text-sm text-slate-900 dark:text-white">{{ customer.name || customer.full_name }}</p>
+              <p class="font-bold text-sm text-slate-900 dark:text-white">
+                {{ customer.name || customer.full_name }}
+              </p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
               <span class="text-[10px] uppercase font-bold text-slate-400">Email Address</span>
-              <p class="font-semibold text-slate-800 dark:text-slate-200 font-mono">{{ customer.email }}</p>
+              <p class="font-semibold text-slate-800 dark:text-slate-200 font-mono">
+                {{ customer.email }}
+              </p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
               <span class="text-[10px] uppercase font-bold text-slate-400">Phone Contact</span>
-              <p class="font-semibold text-slate-800 dark:text-slate-200">{{ customer.phone_number || customer.phone || 'N/A' }}</p>
+              <p class="font-semibold text-slate-800 dark:text-slate-200">
+                {{ customer.phone_number || customer.phone || 'N/A' }}
+              </p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
               <span class="text-[10px] uppercase font-bold text-slate-400">Gender</span>
-              <p class="capitalize font-semibold text-slate-800 dark:text-slate-200">{{ customer.gender || 'Not specified' }}</p>
+              <p class="capitalize font-semibold text-slate-800 dark:text-slate-200">
+                {{ customer.gender || 'Not specified' }}
+              </p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1 sm:col-span-2">
               <span class="text-[10px] uppercase font-bold text-slate-400">Registered Address</span>
-              <p class="font-semibold text-slate-800 dark:text-slate-200">{{ customer.address || 'No address provided' }}</p>
+              <p class="font-semibold text-slate-800 dark:text-slate-200">
+                {{ customer.address || 'No address provided' }}
+              </p>
             </div>
           </div>
         </div>
@@ -375,9 +407,9 @@ const deletePayment = async (paymentId: number) => {
       <!-- Modals -->
       <!-- Create / Edit Booking Modal -->
       <BookingFormModal
+        v-model:booking-form="bookingForm"
         :show="showBookingModal"
         :is-editing="isEditingBooking"
-        :booking-form="bookingForm"
         :available-cars="availableCars"
         :submitting="submitting"
         :error-message="errorMessage"
@@ -387,9 +419,9 @@ const deletePayment = async (paymentId: number) => {
 
       <!-- Record Payment Modal -->
       <PaymentFormModal
+        v-model:payment-form="paymentForm"
         :show="showPaymentModal"
         :bookings="bookings"
-        :payment-form="paymentForm"
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showPaymentModal = false"
@@ -398,9 +430,9 @@ const deletePayment = async (paymentId: number) => {
 
       <!-- Edit Customer Profile Modal -->
       <CustomerFormModal
+        v-model:form="profileForm"
         :show="showEditProfileModal"
-        :is-editing="true"
-        :form="profileForm"
+        is-editing
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showEditProfileModal = false"

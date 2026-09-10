@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import axios from 'axios'
 
-const props = defineProps<{
+defineProps<{
   featuredCars?: Array<any>
 }>()
 
@@ -74,12 +74,18 @@ onMounted(() => {
               Top Rated Fleet Cars
             </h2>
           </div>
-          <Link href="/cars" class="text-xs font-bold text-blue-600 hover:underline">
+          <Link
+            href="/cars"
+            class="text-xs font-bold text-blue-600 hover:underline"
+          >
             View All {{ cars.length }}+ Cars &rarr;
           </Link>
         </div>
 
-        <div v-if="cars.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          v-if="cars.length > 0"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           <div
             v-for="car in cars"
             :key="car.id"
@@ -91,7 +97,7 @@ onMounted(() => {
                   :src="car.car_photo ? '/' + car.car_photo : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   :alt="car.car_name"
-                />
+                >
                 <div class="absolute top-3 left-3">
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-white shadow-sm">
                     Verified

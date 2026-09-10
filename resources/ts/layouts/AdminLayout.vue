@@ -57,6 +57,7 @@ const isActive = (href: string) => {
   if (href === '/admin/dashboard') {
     return currentUrl.value === '/admin/dashboard' || currentUrl.value === '/admin'
   }
+  
   return currentUrl.value.startsWith(href)
 }
 
@@ -94,13 +95,16 @@ onUnmounted(() => {
           <button
             type="button"
             class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none"
-            @click="isMobileDrawerOpen = true"
             aria-label="Open Mobile Menu"
+            @click="isMobileDrawerOpen = true"
           >
             <i class="ri-menu-2-line text-2xl" />
           </button>
 
-          <Link href="/admin/dashboard" class="flex items-center gap-2.5 group">
+          <Link
+            href="/admin/dashboard"
+            class="flex items-center gap-2.5 group"
+          >
             <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
               CR
             </div>
@@ -117,7 +121,10 @@ onUnmounted(() => {
         <!-- Center: Quick Nav & CMS Dropdown Menu -->
         <div class="hidden md:flex items-center gap-1 lg:gap-2">
           <!-- CMS Dropdown -->
-          <div id="admin-cms-dropdown-container" class="relative">
+          <div
+            id="admin-cms-dropdown-container"
+            class="relative"
+          >
             <button
               type="button"
               class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -125,7 +132,10 @@ onUnmounted(() => {
             >
               <i class="ri-layout-masonry-line text-sm text-indigo-600 dark:text-indigo-400" />
               <span>CMS & Fleet</span>
-              <i class="ri-arrow-down-s-line text-xs transition-transform" :class="showCmsMenu ? 'rotate-180' : ''" />
+              <i
+                class="ri-arrow-down-s-line text-xs transition-transform"
+                :class="showCmsMenu ? 'rotate-180' : ''"
+              />
             </button>
 
             <!-- CMS Dropdown Menu -->
@@ -144,7 +154,10 @@ onUnmounted(() => {
                   class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-800 transition-colors"
                   @click="showCmsMenu = false"
                 >
-                  <i :class="item.icon" class="text-sm text-indigo-600 dark:text-indigo-400" />
+                  <i
+                    :class="item.icon"
+                    class="text-sm text-indigo-600 dark:text-indigo-400"
+                  />
                   <span>{{ item.label }}</span>
                 </Link>
               </div>
@@ -184,7 +197,10 @@ onUnmounted(() => {
           </Link>
 
           <!-- Profile Dropdown Container -->
-          <div id="admin-profile-dropdown-container" class="relative">
+          <div
+            id="admin-profile-dropdown-container"
+            class="relative"
+          >
             <button
               type="button"
               class="flex items-center gap-2 sm:gap-2.5 p-1 sm:p-1.5 sm:pr-3 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:shadow-md transition-all cursor-pointer"
@@ -196,11 +212,19 @@ onUnmounted(() => {
               <div class="hidden sm:block text-left">
                 <p class="text-xs font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1.5">
                   {{ displayName }}
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block" title="Active"></span>
+                  <span
+                    class="w-2 h-2 rounded-full bg-emerald-500 inline-block"
+                    title="Active"
+                  />
                 </p>
-                <p class="text-[10px] text-slate-500 font-medium">Super Admin</p>
+                <p class="text-[10px] text-slate-500 font-medium">
+                  Super Admin
+                </p>
               </div>
-              <i class="ri-arrow-down-s-line text-slate-400 text-xs transition-transform hidden sm:inline" :class="showProfileMenu ? 'rotate-180' : ''" />
+              <i
+                class="ri-arrow-down-s-line text-slate-400 text-xs transition-transform hidden sm:inline"
+                :class="showProfileMenu ? 'rotate-180' : ''"
+              />
             </button>
 
             <!-- Profile Popup Menu -->
@@ -214,7 +238,7 @@ onUnmounted(() => {
                   {{ displayName.charAt(0).toUpperCase() }}
                 </div>
                 <div class="flex items-center justify-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span class="w-2 h-2 rounded-full bg-emerald-500" />
                   <span class="text-xs font-bold text-slate-900 dark:text-white">{{ displayName }}</span>
                 </div>
                 <span class="text-[11px] text-slate-500 block truncate">{{ adminEmail }}</span>
@@ -306,14 +330,20 @@ onUnmounted(() => {
               class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"
               @click="isMobileDrawerOpen = false"
             >
-              <i class="ri-external-link-line mr-1" /> Live Site
+              <i
+                class="ri-external-link-line"
+                style="margin-right: 0.25rem"
+              /> Live Site
             </Link>
             <Link
               href="/car-calendar"
               class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"
               @click="isMobileDrawerOpen = false"
             >
-              <i class="ri-calendar-line mr-1" /> Calendar
+              <i
+                class="ri-calendar-line"
+                style="margin-right: 0.25rem"
+              /> Calendar
             </Link>
           </div>
 
@@ -331,10 +361,16 @@ onUnmounted(() => {
               @click="isMobileDrawerOpen = false"
             >
               <div class="flex items-center gap-3">
-                <i :class="item.icon" class="text-sm text-indigo-600 dark:text-indigo-400" />
+                <i
+                  :class="item.icon"
+                  class="text-sm text-indigo-600 dark:text-indigo-400"
+                />
                 <span>{{ item.title }}</span>
               </div>
-              <span v-if="item.badge" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold">
+              <span
+                v-if="item.badge"
+                class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold"
+              >
                 {{ item.badge }}
               </span>
             </Link>
@@ -350,10 +386,17 @@ onUnmounted(() => {
                   <i class="ri-folder-settings-line text-indigo-600" />
                   <span>CMS Modules (16)</span>
                 </div>
-                <i class="ri-arrow-down-s-line text-xs transition-transform" :class="isMobileCmsExpanded ? 'rotate-180' : ''" />
+                <i
+                  class="ri-arrow-down-s-line text-xs transition-transform"
+                  :class="isMobileCmsExpanded ? 'rotate-180' : ''"
+                />
               </button>
 
-              <div v-if="isMobileCmsExpanded" class="pl-4 pr-1 py-1 space-y-0.5 max-h-48 overflow-y-auto">
+              <div
+                v-if="isMobileCmsExpanded"
+                class="py-1 space-y-0.5 max-h-48 overflow-y-auto"
+                style="padding-left: 1rem; padding-right: 0.25rem"
+              >
                 <Link
                   v-for="c in cmsQuickLinks"
                   :key="c.label"
@@ -361,7 +404,10 @@ onUnmounted(() => {
                   class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11px] text-slate-600 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-slate-800"
                   @click="isMobileDrawerOpen = false"
                 >
-                  <i :class="c.icon" class="text-xs text-indigo-500" />
+                  <i
+                    :class="c.icon"
+                    class="text-xs text-indigo-500"
+                  />
                   <span>{{ c.label }}</span>
                 </Link>
               </div>
@@ -399,10 +445,16 @@ onUnmounted(() => {
               class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-all group"
             >
               <div class="flex items-center gap-3">
-                <i :class="item.icon" class="text-sm group-hover:text-indigo-600 transition-colors" />
+                <i
+                  :class="item.icon"
+                  class="text-sm group-hover:text-indigo-600 transition-colors"
+                />
                 <span>{{ item.title }}</span>
               </div>
-              <span v-if="item.badge" class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold">
+              <span
+                v-if="item.badge"
+                class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold"
+              >
                 {{ item.badge }}
               </span>
             </Link>
@@ -410,8 +462,10 @@ onUnmounted(() => {
 
           <!-- AI Support Card (Matching Image 2 Reference) -->
           <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 text-white shadow-lg space-y-2 text-xs relative overflow-hidden">
-            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-            <h4 class="font-bold text-sm">Need Help?</h4>
+            <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-white/10 rounded-full blur-xl pointer-events-none" />
+            <h4 class="font-bold text-sm">
+              Need Help?
+            </h4>
             <p class="text-[11px] text-indigo-100/90 leading-relaxed">
               Ask our AI assistant for instant fleet, CMS, and booking dispute guidance.
             </p>
@@ -428,11 +482,17 @@ onUnmounted(() => {
       <!-- Main Content Area - Expands to use full screen -->
       <main class="flex-1 min-w-0 w-full">
         <!-- Flash Alerts -->
-        <div v-if="flash?.success" class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs">
+        <div
+          v-if="flash?.success"
+          class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs"
+        >
           <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
           <span>{{ flash.success }}</span>
         </div>
-        <div v-if="flash?.error" class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs">
+        <div
+          v-if="flash?.error"
+          class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs"
+        >
           <i class="ri-error-warning-fill text-rose-600 text-base shrink-0" />
           <span>{{ flash.error }}</span>
         </div>
@@ -448,7 +508,7 @@ onUnmounted(() => {
           <span class="font-bold text-slate-700 dark:text-slate-300">AutoRent Super Admin Hub</span>
           <span class="text-slate-300 dark:text-slate-700">|</span>
           <span class="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             All Systems Operational
           </span>
         </div>
@@ -456,8 +516,18 @@ onUnmounted(() => {
         <div class="flex items-center gap-4 text-[11px] text-slate-400">
           <span>Enterprise v2.5</span>
           <span>&copy; 2026 AutoRent Global Systems</span>
-          <Link href="/admin/cms" class="hover:text-indigo-600 transition-colors">CMS Control</Link>
-          <Link href="/admin/profile" class="hover:text-indigo-600 transition-colors">Security</Link>
+          <Link
+            href="/admin/cms"
+            class="hover:text-indigo-600 transition-colors"
+          >
+            CMS Control
+          </Link>
+          <Link
+            href="/admin/profile"
+            class="hover:text-indigo-600 transition-colors"
+          >
+            Security
+          </Link>
         </div>
       </div>
     </footer>

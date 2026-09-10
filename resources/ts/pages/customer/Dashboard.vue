@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import axios from 'axios'
 
-const props = defineProps<{
+defineProps<{
   customer?: any
   activeBookings?: Array<any>
   totalRentedCars?: number
@@ -41,7 +41,7 @@ onMounted(() => {
 
     <template #header>
       <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+        <span class="w-2.5 h-2.5 rounded-full bg-blue-600" />
         Customer Rental Dashboard
       </div>
     </template>
@@ -72,7 +72,9 @@ onMounted(() => {
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Confirmed Rentals</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Confirmed Rentals
+            </p>
             <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
               {{ bookingsList.filter(b => b.status === 'confirm').length }}
             </h3>
@@ -84,7 +86,9 @@ onMounted(() => {
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Pending Approval</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Pending Approval
+            </p>
             <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
               {{ bookingsList.filter(b => b.status === 'pending').length }}
             </h3>
@@ -96,7 +100,9 @@ onMounted(() => {
 
         <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Rental Spend</p>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Total Rental Spend
+            </p>
             <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
               ${{ bookingsList.filter(b => b.status === 'confirm').reduce((acc, b) => acc + (parseFloat(b.total_price) || 0), 0) }}
             </h3>
@@ -126,12 +132,20 @@ onMounted(() => {
           </Link>
         </div>
 
-        <div v-if="loading" class="py-12 text-center">
-          <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p class="text-xs text-gray-500">Loading bookings...</p>
+        <div
+          v-if="loading"
+          class="py-12 text-center"
+        >
+          <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+          <p class="text-xs text-gray-500">
+            Loading bookings...
+          </p>
         </div>
 
-        <div v-else-if="bookingsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div
+          v-else-if="bookingsList.length > 0"
+          class="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div
             v-for="booking in bookingsList"
             :key="booking.id"
@@ -176,7 +190,10 @@ onMounted(() => {
             <div class="p-3 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 text-xs flex justify-between items-center text-gray-600 dark:text-gray-300">
               <div>
                 <span>Chauffeur: <strong>{{ booking.car?.driver?.name || booking.car?.driver_name || 'Assigned Chauffeur' }}</strong></span>
-                <span v-if="booking.car?.driver?.phone" class="block text-[11px] text-gray-400">Tel: {{ booking.car?.driver?.phone }}</span>
+                <span
+                  v-if="booking.car?.driver?.phone"
+                  class="block text-[11px] text-gray-400"
+                >Tel: {{ booking.car?.driver?.phone }}</span>
               </div>
               <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Owner: {{ booking.car?.owner?.full_name || 'Fleet Partner' }}</span>
             </div>
@@ -193,9 +210,17 @@ onMounted(() => {
           </div>
         </div>
 
-        <div v-else class="p-12 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800">
-          <p class="text-xs text-gray-500">You haven't reserved any vehicles yet.</p>
-          <Link href="/cars" class="mt-3 inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md">
+        <div
+          v-else
+          class="p-12 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
+        >
+          <p class="text-xs text-gray-500">
+            You haven't reserved any vehicles yet.
+          </p>
+          <Link
+            href="/cars"
+            class="mt-3 inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md"
+          >
             Browse Available Cars
           </Link>
         </div>

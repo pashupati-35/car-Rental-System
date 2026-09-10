@@ -13,7 +13,7 @@ const props = withDefaults(
     placeholder: 'Write content here...',
     minHeight: '160px',
     disabled: false,
-  }
+  },
 )
 
 const emit = defineEmits<{
@@ -29,7 +29,7 @@ onMounted(async () => {
 
   try {
     // Import CKEditor Classic Build dynamically on client
-    // @ts-ignore
+    // @ts-expect-error dynamic import lacks types
     const ClassicEditorModule = await import('@ckeditor/ckeditor5-build-classic')
     const ClassicEditor = ClassicEditorModule.default || ClassicEditorModule
 
@@ -69,25 +69,26 @@ onMounted(async () => {
 
     isReady.value = true
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error('Failed to initialize CKEditor:', err)
   }
 })
 
 watch(
   () => props.modelValue,
-  (newVal) => {
+  newVal => {
     if (editorInstance && isReady.value) {
       const currentData = editorInstance.getData()
       if (newVal !== currentData) {
         editorInstance.setData(newVal || '')
       }
     }
-  }
+  },
 )
 
 watch(
   () => props.disabled,
-  (newVal) => {
+  newVal => {
     if (editorInstance && isReady.value) {
       if (newVal) {
         editorInstance.enableReadOnlyMode('cms-readonly')
@@ -95,11 +96,12 @@ watch(
         editorInstance.disableReadOnlyMode('cms-readonly')
       }
     }
-  }
+  },
 )
 
 onBeforeUnmount(() => {
   if (editorInstance) {
+    // eslint-disable-next-line no-console
     editorInstance.destroy().catch((err: any) => console.error(err))
     editorInstance = null
   }
@@ -107,8 +109,14 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="rich-text-editor-wrapper" :style="{ '--ck-min-height': minHeight }">
-    <div ref="editorRef" class="ckeditor-container"></div>
+  <div
+    class="rich-text-editor-wrapper"
+    :style="{ '--ck-min-height': minHeight }"
+  >
+    <div
+      ref="editorRef"
+      class="ckeditor-container"
+    />
   </div>
 </template>
 

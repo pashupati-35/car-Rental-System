@@ -21,6 +21,7 @@ const getInitialModule = (): string => {
     const m = params.get('module')
     if (m) return m
   }
+  
   return props.initialModule || 'faqs'
 }
 
@@ -58,6 +59,17 @@ const modules: CmsModuleMeta[] = [
 
 const currentModuleMeta = computed<CmsModuleMeta>(() => {
   return modules.find(m => m.id === activeModule.value) || modules[0]
+})
+
+const siteSettings = computed({
+  get: () => items.value[0] || ({} as CmsItem),
+  set: (val: CmsItem) => {
+    if (items.value.length > 0) {
+      items.value[0] = val
+    } else {
+      items.value = [val]
+    }
+  },
 })
 
 const fetchModuleData = async (): Promise<void> => {
@@ -168,7 +180,7 @@ const deleteItem = async (id: number): Promise<void> => {
       message.value = 'Record deleted.'
       fetchModuleData()
     }
-  } catch (err) {
+  } catch {
     alert('Failed to delete item.')
   }
 }
@@ -223,7 +235,10 @@ onMounted(() => {
       </div>
 
       <!-- Flash Notification -->
-      <div v-if="message" class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs">
+      <div
+        v-if="message"
+        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
+      >
         <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
         <span>{{ message }}</span>
       </div>
@@ -239,7 +254,7 @@ onMounted(() => {
       <!-- Main Content Area: Site Settings vs CMS Table -->
       <SiteSettingsView
         v-if="activeModule === 'site-settings'"
-        :settings="items[0] || {}"
+        v-model:settings="siteSettings"
         :submitting="submitting"
         @save="saveItem"
       />
@@ -259,9 +274,9 @@ onMounted(() => {
 
       <!-- Create / Edit CMS Item Modal -->
       <CmsFormModal
+        v-model:item="currentItem"
         :show="showModal"
         :is-editing="isEditing"
-        :item="currentItem"
         :active-module="activeModule"
         :current-module-meta="currentModuleMeta"
         :submitting="submitting"
