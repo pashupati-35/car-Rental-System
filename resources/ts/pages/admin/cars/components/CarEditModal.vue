@@ -405,7 +405,6 @@ const handleSubmit = () => {
               </div>
               <input
                 type="file"
-                accept="image/*"
                 class="text-xs text-slate-500 file:me-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
                 @change="handleCarPhotoChange"
               >
@@ -426,7 +425,6 @@ const handleSubmit = () => {
               </div>
               <input
                 type="file"
-                accept="image/*"
                 class="text-xs text-slate-500 file:me-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"
                 @change="handleBlueBookPhotoChange"
               >

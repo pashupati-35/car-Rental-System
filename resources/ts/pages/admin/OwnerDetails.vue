@@ -1264,16 +1264,14 @@ const cancelBooking = (bookingId: number) => {
                 <label class="block font-bold mb-1">Car Photo</label>
                 <input
                   type="file"
-                  accept="image/*"
                   class="w-full text-[11px]"
                   @change="(e: any) => carForm.car_photo = e.target.files[0]"
                 >
               </div>
               <div>
-                <label class="block font-bold mb-1">Bluebook / Registration Document</label>
+                <label class="block font-bold mb-1">Blue Book Photo</label>
                 <input
                   type="file"
-                  accept="image/*"
                   class="w-full text-[11px]"
                   @change="(e: any) => carForm.blue_book_photo = e.target.files[0]"
                 >
@@ -1411,7 +1409,6 @@ const cancelBooking = (bookingId: number) => {
               <label class="block font-bold mb-1">Driver Photo</label>
               <input
                 type="file"
-                accept="image/*"
                 class="w-full text-[11px]"
                 @change="(e: any) => driverForm.photo = e.target.files[0]"
               >

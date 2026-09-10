@@ -360,7 +360,6 @@ const deleteDriver = async (id: number) => {
               <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Driver Photo</label>
               <input
                 type="file"
-                accept="image/*"
                 class="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
                 @change="handlePhotoUpload"
               >
