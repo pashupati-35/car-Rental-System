@@ -2,11 +2,15 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 import MessageBox from '@/components/MessageBox.vue'
+import { useAdminTheme, type AdminThemeStyle } from '@/composable/useAdminTheme'
 
 const page = usePage()
+const { theme, setTheme, initTheme } = useAdminTheme()
+
 const isMobileDrawerOpen = ref(false)
 const showProfileMenu = ref(false)
 const showCmsMenu = ref(false)
+const showThemeMenu = ref(false)
 const isMobileCmsExpanded = ref(false)
 
 const auth = computed(() => page.props.auth as any)
@@ -149,6 +153,20 @@ const logout = () => {
   router.post('/admin/logout')
 }
 
+const themeOptions: { value: AdminThemeStyle; label: string; icon: string }[] = [
+  { value: 'dark', label: 'Dark Mode', icon: 'ri-moon-clear-line' },
+  { value: 'midnight', label: 'Midnight Obsidian', icon: 'ri-sparkling-2-line' },
+  { value: 'light', label: 'Light Mode', icon: 'ri-sun-line' },
+  { value: 'system', label: 'System Default', icon: 'ri-computer-line' },
+]
+
+const currentThemeIcon = computed(() => {
+  if (theme.value === 'light') return 'ri-sun-line text-amber-500'
+  if (theme.value === 'midnight') return 'ri-sparkling-2-line text-purple-400'
+  if (theme.value === 'system') return 'ri-computer-line text-blue-400'
+  return 'ri-moon-clear-line text-indigo-400'
+})
+
 const handleClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
   if (!target.closest('#admin-profile-dropdown-container')) {
@@ -157,9 +175,13 @@ const handleClickOutside = (e: MouseEvent) => {
   if (!target.closest('#admin-cms-dropdown-container')) {
     showCmsMenu.value = false
   }
+  if (!target.closest('#admin-theme-dropdown-container')) {
+    showThemeMenu.value = false
+  }
 }
 
 onMounted(() => {
+  initTheme()
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -169,11 +191,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased">
-    <!-- Top Modern Admin Navigation Bar -->
+  <div class="min-h-screen bg-slate-100/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white antialiased transition-colors duration-200">
+    <!-- Top Modern Full-Width Admin Header Bar -->
     <header class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 shadow-xs">
       <div class="w-full px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 h-16 flex items-center justify-between gap-3">
-        <!-- Left: Hamburger on Mobile + Logo & Admin Portal Badge -->
+        <!-- Left: Mobile Drawer Hamburger Button + Logo & Admin Portal Badge -->
         <div class="flex items-center gap-2.5 sm:gap-3.5">
           <!-- Mobile Drawer Hamburger Button -->
           <button
@@ -213,7 +235,7 @@ onUnmounted(() => {
               type="button"
               :class="(currentUrl.startsWith('/admin/cms') || currentUrl.startsWith('/admin/cars')) ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
               class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] flex items-center gap-1.5 transition-colors cursor-pointer font-sans"
-              @click="showCmsMenu = !showCmsMenu; showProfileMenu = false"
+              @click="showCmsMenu = !showCmsMenu; showProfileMenu = false; showThemeMenu = false"
             >
               <i class="ri-layout-masonry-line text-base text-indigo-600 dark:text-indigo-400" />
               <span>CMS & Fleet</span>
@@ -278,8 +300,54 @@ onUnmounted(() => {
           </Link>
         </div>
 
-        <!-- Right Side: Live Site & Admin Profile Dropdown -->
+        <!-- Right Side: Theme Switcher, Live Site & Profile Dropdown (Right side of header) -->
         <div class="flex items-center gap-2 sm:gap-3">
+          <!-- Theme Switcher Dropdown in Header -->
+          <div
+            id="admin-theme-dropdown-container"
+            class="relative"
+          >
+            <button
+              type="button"
+              class="p-2 sm:px-3 sm:py-2 rounded-xl text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold transition-colors inline-flex items-center gap-1.5 cursor-pointer focus:outline-none"
+              title="Change Theme Style"
+              @click="showThemeMenu = !showThemeMenu; showProfileMenu = false; showCmsMenu = false"
+            >
+              <i :class="currentThemeIcon" class="text-base" />
+              <span class="hidden sm:inline capitalize">{{ theme }}</span>
+              <i
+                class="ri-arrow-down-s-line text-xs transition-transform"
+                :class="showThemeMenu ? 'rotate-180' : ''"
+              />
+            </button>
+
+            <div
+              v-if="showThemeMenu"
+              class="absolute right-0 mt-2 w-44 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-1.5 z-50 space-y-1 animate-in fade-in slide-in-from-top-2 duration-150"
+            >
+              <div class="px-2.5 py-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Theme Appearance
+              </div>
+              <button
+                v-for="opt in themeOptions"
+                :key="opt.value"
+                type="button"
+                :class="theme === opt.value ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/80 dark:text-indigo-300 font-bold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-medium'"
+                class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-colors cursor-pointer text-left"
+                @click="setTheme(opt.value); showThemeMenu = false"
+              >
+                <div class="flex items-center gap-2">
+                  <i :class="opt.icon" class="text-sm" />
+                  <span>{{ opt.label }}</span>
+                </div>
+                <i
+                  v-if="theme === opt.value"
+                  class="ri-check-line text-indigo-600 dark:text-indigo-400 text-xs font-bold"
+                />
+              </button>
+            </div>
+          </div>
+
           <a
             :href="liveSiteUrl"
             target="_blank"
@@ -291,7 +359,7 @@ onUnmounted(() => {
             <span class="text-xs sm:text-[13px] font-semibold">Live Site</span>
           </a>
 
-          <!-- Profile Dropdown Container -->
+          <!-- Profile Dropdown Container on Right Side of Header -->
           <div
             id="admin-profile-dropdown-container"
             class="relative"
@@ -299,7 +367,7 @@ onUnmounted(() => {
             <button
               type="button"
               class="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer"
-              @click="showProfileMenu = !showProfileMenu; showCmsMenu = false"
+              @click="showProfileMenu = !showProfileMenu; showCmsMenu = false; showThemeMenu = false"
             >
               <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-800 text-white font-bold text-xs flex items-center justify-center shadow-xs">
                 {{ (displayName || 'A')[0].toUpperCase() }}
@@ -352,7 +420,7 @@ onUnmounted(() => {
                   @click="showProfileMenu = false"
                 >
                   <i class="ri-shield-keyhole-line text-base text-indigo-600" />
-                  <span>Account Security (MFA)</span>
+                  <span>Account Security & MFA</span>
                 </Link>
 
                 <Link
@@ -381,7 +449,7 @@ onUnmounted(() => {
       </div>
     </header>
 
-    <!-- Mobile Navigation Drawer Slide-Over (Enhanced Touch Experience) -->
+    <!-- Mobile Navigation Drawer Slide-Over (Gray-White in light theme) -->
     <div
       v-if="isMobileDrawerOpen"
       class="fixed inset-0 z-50 lg:hidden flex font-sans"
@@ -401,11 +469,11 @@ onUnmounted(() => {
               </div>
               <div>
                 <span class="font-black text-base text-slate-900 dark:text-white block">AutoRent</span>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600">Admin Control Hub</span>
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Admin Control Hub</span>
               </div>
             </div>
             <button
-              class="text-slate-400 hover:text-slate-600 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               aria-label="Close Navigation"
               @click="isMobileDrawerOpen = false"
             >
@@ -433,7 +501,7 @@ onUnmounted(() => {
             </Link>
           </div>
 
-          <!-- Main Nav Links List (Enlarged and Styled Sans Font) -->
+          <!-- Main Nav Links List -->
           <div class="space-y-1 pt-1">
             <div class="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
               System Operations
@@ -442,7 +510,7 @@ onUnmounted(() => {
               v-for="item in adminNav"
               :key="item.title"
               :href="item.href"
-              :class="isActive(item.href) ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 font-black shadow-xs border border-indigo-200/80 dark:border-indigo-800/80' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold'"
+              :class="isActive(item.href) ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 font-bold border border-indigo-200/80 dark:border-indigo-800/80 shadow-xs' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
               class="flex items-center justify-between px-4 py-3 rounded-2xl text-sm transition-all"
               @click="isMobileDrawerOpen = false"
             >
@@ -470,7 +538,7 @@ onUnmounted(() => {
                 @click="isMobileCmsExpanded = !isMobileCmsExpanded"
               >
                 <div class="flex items-center gap-3">
-                  <i class="ri-layout-masonry-line text-lg text-indigo-600" />
+                  <i class="ri-layout-masonry-line text-lg text-indigo-600 dark:text-indigo-400" />
                   <span>CMS Modules (16)</span>
                 </div>
                 <i
@@ -501,7 +569,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Drawer Footer: User & Sign Out -->
+        <!-- Drawer Footer -->
         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
           <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60">
             <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">
@@ -525,13 +593,14 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Main Body Layout with Desktop Sidebar - Full Fluid Width & Auto Fit -->
+    <!-- Main Body Container with Gray-White Desktop Sidebar in Light Theme -->
     <div class="flex-1 flex w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-5 sm:py-6 gap-6 font-sans">
-      <!-- Desktop Sidebar Navigation (Modernized Sans UI & Larger Font) -->
-      <aside class="w-64 xl:w-72 shrink-0 hidden lg:block">
+      <!-- Desktop Sidebar Navigation (Clean Gray-White in Light Mode, Dark in Dark Mode) -->
+      <aside class="w-64 xl:w-72 shrink-0 hidden lg:block select-none">
         <div class="sticky top-24 space-y-4">
-          <div class="p-3.5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
-            <div class="px-3.5 py-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 font-sans">
+          <!-- Sidebar Card with Gray-White (bg-white/95 or bg-slate-50/90) background in Light Theme -->
+          <div class="p-3.5 rounded-3xl bg-white/95 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
+            <div class="px-3.5 py-2 text-[11px] font-black uppercase tracking-wider text-slate-400 font-sans">
               Navigation
             </div>
 
@@ -541,21 +610,15 @@ onUnmounted(() => {
                 :key="item.title"
                 :href="item.href"
                 :class="isActive(item.href) 
-                  ? 'bg-indigo-50/90 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 font-bold' 
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white font-medium'"
-                class="relative flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[13.5px] transition-all group font-sans"
+                  ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/25' 
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white font-medium'"
+                class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[13.5px] transition-all group font-sans cursor-pointer"
               >
-                <!-- Active Indicator Pill on Left Edge -->
-                <span
-                  v-if="isActive(item.href)"
-                  class="absolute -left-3.5 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-indigo-600 dark:bg-indigo-400 rounded-r-full shadow-sm"
-                />
-
                 <div class="flex items-center gap-3 min-w-0">
                   <i
                     :class="[
                       item.icon,
-                      isActive(item.href) ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
+                      isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
                     ]"
                     class="text-lg transition-transform shrink-0"
                   />
@@ -564,7 +627,7 @@ onUnmounted(() => {
                 <span
                   v-if="item.badge"
                   class="px-2 py-0.5 rounded-full text-xs font-mono font-bold shrink-0"
-                  :class="isActive(item.href) ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
+                  :class="isActive(item.href) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
                 >
                   {{ item.badge }}
                 </span>
@@ -572,7 +635,7 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- AI Support Card (Matching Aesthetic Reference) -->
+          <!-- AI Support Assistance Card -->
           <div class="p-4 rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 text-white shadow-lg space-y-2 text-xs relative overflow-hidden font-sans">
             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
             <div class="flex items-center gap-2">
@@ -595,7 +658,7 @@ onUnmounted(() => {
         </div>
       </aside>
 
-      <!-- Main Content Area - Expands to use full screen without overflowing -->
+      <!-- Main Content Area -->
       <main class="flex-1 min-w-0 w-full overflow-hidden">
         <!-- Flash Alerts -->
         <MessageBox

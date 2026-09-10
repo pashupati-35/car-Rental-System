@@ -191,6 +191,7 @@ declare global {
   const urlValidator: typeof import('./resources/ts/utils/validators').urlValidator
   const useAbs: typeof import('@vueuse/math')['useAbs']
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
+  const useAdminTheme: typeof import('./resources/ts/composable/useAdminTheme').useAdminTheme
   const useAnimate: typeof import('@vueuse/core').useAnimate
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
   const useArrayEvery: typeof import('@vueuse/core').useArrayEvery
@@ -405,6 +406,9 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { AdminThemeStyle } from './resources/ts/composable/useAdminTheme'
+  import('./resources/ts/composable/useAdminTheme')
+  // @ts-ignore
   export type { CookieOptions, CookieRef } from './resources/ts/composable/useCookie'
   import('./resources/ts/composable/useCookie')
   // @ts-ignore
@@ -604,6 +608,7 @@ declare module 'vue' {
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly urlValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['urlValidator']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
+    readonly useAdminTheme: UnwrapRef<typeof import('./resources/ts/composable/useAdminTheme')['useAdminTheme']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
     readonly useArrayEvery: UnwrapRef<typeof import('@vueuse/core')['useArrayEvery']>

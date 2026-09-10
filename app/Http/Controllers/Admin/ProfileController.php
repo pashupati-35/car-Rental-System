@@ -63,6 +63,7 @@ class ProfileController extends Controller
             'address' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
             'avatar' => 'nullable|string',
+            'theme_style' => 'nullable|string|in:light,dark,midnight,system',
         ]);
 
         $admin->update($validated);
@@ -76,6 +77,28 @@ class ProfileController extends Controller
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Update the admin's theme style preference in the database.
+     */
+    public function updateThemeStyle(Request $request)
+    {
+        $request->validate([
+            'theme_style' => 'required|string|in:light,dark,midnight,system',
+        ]);
+
+        $admin = Auth::guard('admin')->user();
+        if ($admin) {
+            $admin->theme_style = $request->input('theme_style');
+            $admin->save();
+        }
+
+        return response()->json([
+            'status' => 'OK',
+            'message' => 'Theme style preference saved to database successfully.',
+            'theme_style' => $admin ? $admin->theme_style : $request->input('theme_style'),
+        ]);
     }
 
     /**

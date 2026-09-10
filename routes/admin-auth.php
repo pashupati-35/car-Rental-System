@@ -78,6 +78,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('do-verify', [LoginController::class, 'verify']);
     $route->get('dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('admin.dashboard');
     $route->get('account/security', [ProfileController::class, 'security'])->name('admin.account-security');
+    $route->post('theme-style', [ProfileController::class, 'updateThemeStyle'])->name('admin.theme-style');
     $route->post('dashboard/stats', [DashboardController::class, 'getStats']);
     $route->get('logout', [LoginController::class, 'logout'])->name('admin.logout');
     // Activity Logs
