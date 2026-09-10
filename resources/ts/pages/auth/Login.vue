@@ -1,174 +1,78 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useForm, Head, Link } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
-import MultiAuthenticateVerification from './MultiAuthenticateVerification.vue'
-import axios from 'axios'
 
-const props = defineProps<{
-  guard?: string
-  status?: string
-}>()
-
-const activeGuard = ref(props.guard || 'admin')
-const isMfaStep = ref(false)
-const mfaUser = ref<any>(null)
-
-const form = useForm({
-  email: '',
-  password: '',
-  remember: false,
-})
-
-const submit = () => {
-  // Check if MFA is enabled
-  axios.post('/api/auth/check-verification', {
-    email: form.email,
-    password: form.password,
-    guard: activeGuard.value,
-  }).then(res => {
-    if (res.data.status === 'OK' && res.data.data?.is_mfa_enabled) {
-      mfaUser.value = res.data.data
-      isMfaStep.value = true
-    } else {
-      performLogin()
-    }
-  }).catch(() => {
-    performLogin()
-  })
-}
-
-const performLogin = () => {
-  const loginUrl = activeGuard.value === 'admin' 
-    ? '/admin/login' 
-    : activeGuard.value === 'owner' 
-      ? '/owner/login' 
-      : '/customer/login'
-
-  form.post(loginUrl, {
-    onFinish: () => form.reset('password'),
-  })
-}
+const portals = [
+  {
+    title: 'Customer Portal',
+    description: 'Book verified cars, view rental dates, manage bookings and download PDF invoices.',
+    href: '/customer/login',
+    badge: 'Renters',
+    color: 'from-blue-600 to-indigo-600',
+    iconBg: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
+    border: 'hover:border-blue-500/50',
+  },
+  {
+    title: 'Car Owner Portal',
+    description: 'List cars, manage fleet availability, register drivers, and track booking revenue.',
+    href: '/owner/login',
+    badge: 'Fleet Owners',
+    color: 'from-emerald-600 to-teal-600',
+    iconBg: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
+    border: 'hover:border-emerald-500/50',
+  },
+  {
+    title: 'Admin Portal',
+    description: 'System administration, car approval/rejections, driver oversight, and analytics.',
+    href: '/admin/login',
+    badge: 'System Admin',
+    color: 'from-indigo-600 to-purple-600',
+    iconBg: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400',
+    border: 'hover:border-indigo-500/50',
+  },
+]
 </script>
 
 <template>
   <AuthLayout>
-    <Head title="Sign In" />
+    <Head title="Select Sign In Portal" />
 
     <template #title>
-      Sign In
+      Choose Your Portal
     </template>
     <template #subtitle>
-      Select your portal and enter your credentials
+      Select your dedicated login gateway below to continue
     </template>
 
-    <div v-if="!isMfaStep">
-      <!-- Role Tabs -->
-      <div class="flex rounded-xl bg-gray-100 dark:bg-gray-800 p-1 mb-6">
-        <button
-          type="button"
-          :class="activeGuard === 'admin' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
-          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
-          @click="activeGuard = 'admin'"
-        >
-          Admin
-        </button>
-        <button
-          type="button"
-          :class="activeGuard === 'owner' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
-          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
-          @click="activeGuard = 'owner'"
-        >
-          Car Owner
-        </button>
-        <button
-          type="button"
-          :class="activeGuard === 'customer' ? 'bg-white dark:bg-gray-700 text-blue-600 shadow-sm' : 'text-gray-600 dark:text-gray-400'"
-          class="flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all"
-          @click="activeGuard = 'customer'"
-        >
-          Customer
-        </button>
-      </div>
-
-      <form
-        class="space-y-4"
-        @submit.prevent="submit"
+    <div class="space-y-4">
+      <Link
+        v-for="portal in portals"
+        :key="portal.title"
+        :href="portal.href"
+        class="block p-4 rounded-2xl border border-gray-200 dark:border-gray-800 hover:shadow-lg transition-all duration-200 bg-white dark:bg-gray-800/80 group"
+        :class="portal.border"
       >
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-          <input
-            v-model="form.email"
-            type="email"
-            required
-            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
-            placeholder="you@example.com"
-          >
-          <span
-            v-if="form.errors.email"
-            class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.email }}</span>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
+            {{ portal.badge }}
+          </span>
+          <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+            Access &rarr;
+          </span>
         </div>
+        <h4 class="font-bold text-gray-900 dark:text-white text-base group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          {{ portal.title }}
+        </h4>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+          {{ portal.description }}
+        </p>
+      </Link>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-          <input
-            v-model="form.password"
-            type="password"
-            required
-            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
-            placeholder="••••••••"
-          >
-          <span
-            v-if="form.errors.password"
-            class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.password }}</span>
-        </div>
-
-        <div class="flex items-center justify-between text-sm">
-          <label class="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-            <input
-              v-model="form.remember"
-              type="checkbox"
-              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            >
-            Remember me
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          :disabled="form.processing"
-          class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm shadow-md shadow-blue-500/20 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-        >
-          <span v-if="form.processing">Signing in...</span>
-          <span v-else>Sign In to {{ activeGuard.toUpperCase() }}</span>
-        </button>
-
-        <div
-          v-if="activeGuard !== 'admin'"
-          class="text-center pt-2"
-        >
-          <p class="text-xs text-gray-500">
-            Don't have an account?
-            <Link
-              :href="activeGuard === 'owner' ? '/owner/register' : '/customer/register'"
-              class="text-blue-600 hover:underline font-semibold ms-1"
-            >
-              Create one
-            </Link>
-          </p>
-        </div>
-      </form>
-    </div>
-
-    <div v-else>
-      <MultiAuthenticateVerification
-        :guard="activeGuard"
-        :email="form.email"
-        :password="form.password"
-        @back="isMfaStep = false"
-      />
+      <div class="pt-2 text-center">
+        <Link href="/" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+          &larr; Return to Public Car Showroom
+        </Link>
+      </div>
     </div>
   </AuthLayout>
 </template>

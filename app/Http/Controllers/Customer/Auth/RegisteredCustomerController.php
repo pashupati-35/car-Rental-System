@@ -10,16 +10,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class RegisteredCustomerController extends Controller
 {
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('customer.auth.register');
+        return Inertia::render('customer/auth/Register');
     }
 
     /**
@@ -31,7 +32,7 @@ class RegisteredCustomerController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'phone_number' => ['required', 'string', 'max:15'],
+            'phone_number' => ['required', 'string', 'max:20'],
             'address' => ['required', 'string', 'max:255'],
             'gender' => ['required', 'string', 'in:male,female,other'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Customer::class],

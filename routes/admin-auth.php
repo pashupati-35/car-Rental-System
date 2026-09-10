@@ -1,51 +1,79 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Admin\Auth\MFAController;
+use App\Http\Controllers\Admin\Auth\NewPasswordController;
+use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\RegisteredAdminController;
 use App\Http\Controllers\Admin\EmailTemplateController;
 use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\Admin\ProfileController;
-use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware('guest:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('register', [RegisteredAdminController::class, 'create'])->name('register');
-    Route::post('register', [RegisteredAdminController::class, 'store']);
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Guest Admin routes
+    Route::middleware('guest:admin')->group(function () {
+        Route::get('register', [RegisteredAdminController::class, 'create'])->name('register');
+        Route::post('register', [RegisteredAdminController::class, 'store']);
+        
+        Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+        Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+        // Password Reset
+        Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
+        Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
+        Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('password.reset');
+        Route::post('reset-password', [NewPasswordController::class, 'store'])->name('password.update.reset');
+
+        // MFA Verification
+        Route::get('mfa/verify', [AuthenticatedSessionController::class, 'showMfa'])->name('mfa.verify');
+        Route::post('mfa/check-verification', [MFAController::class, 'checkVerification'])->name('mfa.check');
+        Route::post('mfa/verify-code', [MFAController::class, 'verifyCode'])->name('mfa.verify-code');
+    });
+
+    // Authenticated Admin routes
+    Route::middleware('auth:admin')->group(function () {
+        Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+        // MFA Configuration (Authenticated)
+        Route::post('mfa/generate', [MFAController::class, 'generate'])->name('mfa.generate');
+        Route::post('mfa/activate', [MFAController::class, 'activate'])->name('mfa.activate');
+        Route::post('mfa/deactivate', [MFAController::class, 'deactivate'])->name('mfa.deactivate');
+
+        // Email templates management
+        Route::resource('email-templates', EmailTemplateController::class);
+
+        // Managing owners & Admin creating owner with reset password email
+        Route::get('/owners', [OwnerController::class, 'index'])->name('owner.index');
+        Route::post('/owners', [AdminController::class, 'createOwner'])->name('owner.store');
+        Route::get('/owner/edit/{id}', [OwnerController::class, 'edit'])->name('owner.edit');
+        Route::get('/owner/view/{id}', [OwnerController::class, 'view'])->name('owner.view');
+        Route::delete('/owner/delete/{id}', [OwnerController::class, 'destroy'])->name('owner.delete');
+        Route::patch('/owner/update/{id}', [OwnerController::class, 'update'])->name('owner.update');
+
+        // Managing cars
+        Route::get('cars', [AdminController::class, 'index'])->name('cars.index');
+        Route::get('cars-list', [AdminController::class, 'index'])->name('cars-list');
+        Route::get('cars/{id}', [AdminController::class, 'show'])->name('cars.show');
+        Route::patch('/cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('cars.verify');
+        Route::patch('/cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('cars.reject');
+
+        // Managing customers & Admin creating customer with reset password email
+        Route::get('/customers', [AdminController::class, 'viewCustomers'])->name('customers');
+        Route::post('/customers', [AdminController::class, 'createCustomer'])->name('customer.store');
+        Route::delete('/customers/{id}', [AdminController::class, 'destroy'])->name('customer.destroy');
+        
+        // Managing bookings
+        Route::get('/booked-cars', [AdminController::class, 'viewBookings'])->name('booked-cars');
+        Route::get('/bookings', [AdminController::class, 'viewBookings'])->name('bookings');
+        Route::delete('/bookings/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
+    });
 });
-
-Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])
-        ->name('dashboard');
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-
-    // Email templates management
-    Route::resource('email-templates', EmailTemplateController::class);
-
-    // Routes for managing owners
-    Route::get('/owners', [OwnerController::class, 'index'])->name('owner.index');
-    Route::get('/owner/edit/{id}', [OwnerController::class, 'edit'])->name('owner.edit');
-    Route::get('/owner/view/{id}', [OwnerController::class, 'view'])->name('owner.view');
-    Route::delete('/owner/delete/{id}', [OwnerController::class, 'destroy'])->name('owner.delete');
-    Route::patch('/owner/update/{id}', [OwnerController::class, 'update'])->name('owner.update');
-
-    // Routes for managing cars
-    Route::get('cars', [AdminController::class, 'index'])->name('cars.index');
-    Route::get('cars-list', [AdminController::class, 'index'])->name('cars-list');
-    Route::get('cars/{id}', [AdminController::class, 'show'])->name('cars.show');
-
-    Route::get('/customers', [AdminController::class, 'viewCustomers'])->name('customers');
-    Route::delete('/customers/{id}', [AdminController::class, 'destroy'])->name('customer.destroy');
-    Route::get('/booked-cars', [AdminController::class, 'viewBookings'])->name('booked-cars');
-    Route::get('/bookings', [AdminController::class, 'viewBookings'])->name('bookings');
-    Route::delete('/bookings/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
-});
-
-Route::patch('/cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('cars.verify');
-Route::patch('/cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('cars.reject');

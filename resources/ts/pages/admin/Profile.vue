@@ -6,7 +6,24 @@ import axios from 'axios'
 
 const page = usePage()
 const auth = ref(page.props.auth as any)
-const user = ref(auth.value?.user || auth.value?.admin || auth.value?.owner || auth.value?.customer)
+const user = ref(auth.value?.admin || auth.value?.user || auth.value?.owner || auth.value?.customer)
+
+const profileForm = ref({
+  name: user.value?.name || '',
+  email: user.value?.email || '',
+})
+const profileLoading = ref(false)
+const profileMsg = ref('')
+const profileError = ref('')
+
+const passwordForm = ref({
+  current_password: '',
+  password: '',
+  password_confirmation: '',
+})
+const passwordLoading = ref(false)
+const passwordMsg = ref('')
+const passwordError = ref('')
 
 const mfaEnabled = ref(Boolean(user.value?.is_mfa_enabled))
 const qrCodeUrl = ref('')
@@ -15,27 +32,65 @@ const verificationCode = ref('')
 const showMfaSetup = ref(false)
 const mfaError = ref('')
 const mfaSuccess = ref('')
+const mfaLoading = ref(false)
+
+const updateProfile = async () => {
+  profileLoading.value = true
+  profileMsg.value = ''
+  profileError.value = ''
+  try {
+    const res = await axios.patch('/admin/profile', profileForm.value)
+    if (res.data?.status === 'OK' || res.status === 200) {
+      profileMsg.value = 'Profile updated successfully.'
+    }
+  } catch (err: any) {
+    profileError.value = err.response?.data?.message || 'Failed to update profile.'
+  } finally {
+    profileLoading.value = false
+  }
+}
+
+const updatePassword = async () => {
+  passwordLoading.value = true
+  passwordMsg.value = ''
+  passwordError.value = ''
+  try {
+    const res = await axios.patch('/admin/password', passwordForm.value)
+    if (res.data?.status === 'OK' || res.status === 200) {
+      passwordMsg.value = 'Password changed successfully.'
+      passwordForm.value = { current_password: '', password: '', password_confirmation: '' }
+    }
+  } catch (err: any) {
+    passwordError.value = err.response?.data?.message || 'Failed to update password.'
+  } finally {
+    passwordLoading.value = false
+  }
+}
 
 const initMfaSetup = async () => {
   mfaError.value = ''
   mfaSuccess.value = ''
+  mfaLoading.value = true
   try {
-    const res = await axios.post('/api/auth/mfa/generate')
+    const res = await axios.post('/admin/mfa/generate')
     if (res.data.status === 'OK') {
       secretKey.value = res.data.secret_key
       qrCodeUrl.value = res.data.qr_code_url
       showMfaSetup.value = true
     }
-  } catch {
-    mfaError.value = 'Failed to generate MFA secret.'
+  } catch (err: any) {
+    mfaError.value = err.response?.data?.message || 'Failed to generate MFA secret.'
+  } finally {
+    mfaLoading.value = false
   }
 }
 
 const activateMfa = async () => {
   mfaError.value = ''
   mfaSuccess.value = ''
+  mfaLoading.value = true
   try {
-    const res = await axios.post('/api/auth/mfa/activate', {
+    const res = await axios.post('/admin/mfa/activate', {
       secret_key: secretKey.value,
       verification_code: verificationCode.value,
     })
@@ -43,61 +98,151 @@ const activateMfa = async () => {
     if (res.data.status === 'OK') {
       mfaEnabled.value = true
       showMfaSetup.value = false
-      mfaSuccess.value = 'MFA Two-Factor Authentication is now active on your account!'
+      mfaSuccess.value = 'MFA Two-Factor Authentication is now active on your Admin account!'
     } else {
       mfaError.value = res.data.message || 'Verification failed.'
     }
   } catch (err: any) {
     mfaError.value = err.response?.data?.message || 'Invalid verification code.'
+  } finally {
+    mfaLoading.value = false
   }
 }
 
 const deactivateMfa = async () => {
   if (!confirm('Are you sure you want to disable Multi-Factor Authentication?')) return
+  mfaLoading.value = true
   try {
-    const res = await axios.post('/api/auth/mfa/deactivate')
+    const res = await axios.post('/admin/mfa/deactivate')
     if (res.data.status === 'OK') {
       mfaEnabled.value = false
       mfaSuccess.value = 'MFA has been disabled.'
     }
-  } catch {
-    mfaError.value = 'Failed to disable MFA.'
+  } catch (err: any) {
+    mfaError.value = err.response?.data?.message || 'Failed to disable MFA.'
+  } finally {
+    mfaLoading.value = false
   }
 }
 </script>
 
 <template>
   <AppLayout>
-    <Head title="My Profile & Security" />
+    <Head title="Admin Profile & Security" />
 
     <template #header>
-      Account Profile & MFA Security
+      Admin Profile & Security Management
     </template>
 
     <div class="max-w-4xl mx-auto space-y-6">
       <!-- Profile Information -->
       <div class="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
         <h3 class="font-bold text-lg text-gray-900 dark:text-white">
-          Profile Details
+          Admin Profile Details
         </h3>
         <p class="text-xs text-gray-500 mt-0.5">
-          Manage your personal and contact details
+          Update your administrative name and account email
         </p>
 
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-          <div>
-            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Full Name</label>
-            <p class="font-medium text-gray-900 dark:text-white">
-              {{ user?.name }}
-            </p>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Email Address</label>
-            <p class="font-medium text-gray-900 dark:text-white">
-              {{ user?.email }}
-            </p>
-          </div>
+        <div v-if="profileMsg" class="mt-4 p-3 rounded-xl bg-emerald-50 text-emerald-800 text-xs flex items-center gap-2">
+          <i class="ri-checkbox-circle-fill" /> {{ profileMsg }}
         </div>
+        <div v-if="profileError" class="mt-4 p-3 rounded-xl bg-rose-50 text-rose-800 text-xs flex items-center gap-2">
+          <i class="ri-error-warning-fill" /> {{ profileError }}
+        </div>
+
+        <form class="mt-5 space-y-4" @submit.prevent="updateProfile">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+              <input
+                v-model="profileForm.name"
+                type="text"
+                required
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
+              <input
+                v-model="profileForm.email"
+                type="email"
+                required
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              :disabled="profileLoading"
+              class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/20 disabled:opacity-50"
+            >
+              {{ profileLoading ? 'Saving...' : 'Save Profile Changes' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Change Password -->
+      <div class="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <h3 class="font-bold text-lg text-gray-900 dark:text-white">
+          Change Password
+        </h3>
+        <p class="text-xs text-gray-500 mt-0.5">
+          Ensure your account uses a long, random password for security
+        </p>
+
+        <div v-if="passwordMsg" class="mt-4 p-3 rounded-xl bg-emerald-50 text-emerald-800 text-xs flex items-center gap-2">
+          <i class="ri-checkbox-circle-fill" /> {{ passwordMsg }}
+        </div>
+        <div v-if="passwordError" class="mt-4 p-3 rounded-xl bg-rose-50 text-rose-800 text-xs flex items-center gap-2">
+          <i class="ri-error-warning-fill" /> {{ passwordError }}
+        </div>
+
+        <form class="mt-5 space-y-4" @submit.prevent="updatePassword">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
+            <input
+              v-model="passwordForm.current_password"
+              type="password"
+              required
+              class="w-full max-w-md px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">New Password</label>
+              <input
+                v-model="passwordForm.password"
+                type="password"
+                required
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
+              <input
+                v-model="passwordForm.password_confirmation"
+                type="password"
+                required
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+            </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="submit"
+              :disabled="passwordLoading"
+              class="px-5 py-2.5 rounded-xl bg-gray-900 hover:bg-black dark:bg-gray-700 dark:hover:bg-gray-600 text-white font-semibold text-xs shadow-md disabled:opacity-50"
+            >
+              {{ passwordLoading ? 'Updating Password...' : 'Update Password' }}
+            </button>
+          </div>
+        </form>
       </div>
 
       <!-- Multi-Factor Authentication (MFA) Section -->
@@ -109,7 +254,7 @@ const deactivateMfa = async () => {
               Two-Factor Authentication (MFA)
             </h3>
             <p class="text-xs text-gray-500 mt-1 max-w-xl">
-              Add an extra layer of security to your account. When enabled, you will be prompted for a 6-digit TOTP code during sign-in using apps like Google Authenticator or Microsoft Authenticator.
+              Protect the Admin panel with 6-digit TOTP verification codes generated by Google Authenticator, Microsoft Authenticator, or Authy.
             </p>
           </div>
 
@@ -118,7 +263,7 @@ const deactivateMfa = async () => {
               :class="mfaEnabled ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600'"
               class="px-3 py-1 rounded-full text-xs font-semibold"
             >
-              {{ mfaEnabled ? 'Enabled' : 'Disabled' }}
+              {{ mfaEnabled ? 'MFA Enabled' : 'MFA Disabled' }}
             </span>
           </div>
         </div>
@@ -138,31 +283,31 @@ const deactivateMfa = async () => {
           <span>{{ mfaError }}</span>
         </div>
 
-        <!-- MFA Setup Modal / Inline Box -->
+        <!-- MFA Setup Box -->
         <div
           v-if="showMfaSetup"
           class="mt-6 p-6 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 space-y-4"
         >
           <h4 class="font-bold text-sm text-gray-900 dark:text-white">
-            Scan QR Code with your Authenticator App
+            1. Scan QR Code in Authenticator App
           </h4>
           <div class="flex flex-col sm:flex-row items-center gap-6">
             <div class="p-3 bg-white rounded-xl shadow-sm border border-gray-200">
               <img
                 :src="qrCodeUrl"
-                class="w-40 h-40 object-contain"
+                class="w-44 h-44 object-contain"
                 alt="MFA QR Code"
               >
             </div>
-            <div class="space-y-3 text-xs">
+            <div class="space-y-3 text-xs flex-1">
               <p class="text-gray-600 dark:text-gray-400">
-                If you cannot scan the QR code, manually enter this secret key:
+                Or enter this setup key manually into your authenticator app:
               </p>
               <div class="p-2.5 rounded-lg bg-white dark:bg-gray-800 font-mono font-bold text-blue-600 text-sm border border-gray-200 dark:border-gray-700 select-all">
                 {{ secretKey }}
               </div>
-              <div class="space-y-1 pt-1">
-                <label class="block font-semibold text-gray-700 dark:text-gray-300">Enter Verification Code</label>
+              <div class="space-y-1.5 pt-2">
+                <label class="block font-semibold text-gray-700 dark:text-gray-300">2. Enter 6-digit TOTP Code</label>
                 <div class="flex gap-2">
                   <input
                     v-model="verificationCode"
@@ -172,10 +317,11 @@ const deactivateMfa = async () => {
                     class="px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 font-mono text-center tracking-widest text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                   <button
-                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors"
+                    :disabled="mfaLoading"
+                    class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors disabled:opacity-50"
                     @click="activateMfa"
                   >
-                    Confirm & Enable
+                    {{ mfaLoading ? 'Verifying...' : 'Verify & Enable MFA' }}
                   </button>
                 </div>
               </div>
@@ -186,14 +332,16 @@ const deactivateMfa = async () => {
         <div class="mt-6 pt-4 border-t border-gray-100 dark:border-gray-800 flex gap-3">
           <button
             v-if="!mfaEnabled && !showMfaSetup"
-            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition-all"
+            :disabled="mfaLoading"
+            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition-all disabled:opacity-50"
             @click="initMfaSetup"
           >
-            Setup Two-Factor Authentication
+            {{ mfaLoading ? 'Generating QR...' : 'Enable Multi-Factor Authentication (MFA)' }}
           </button>
           <button
             v-if="mfaEnabled"
-            class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all"
+            :disabled="mfaLoading"
+            class="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition-all disabled:opacity-50"
             @click="deactivateMfa"
           >
             Disable Two-Factor Authentication

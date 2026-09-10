@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Customer;
+use App\Models\Driver;
+use App\Models\Owner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -14,17 +16,17 @@ use Inertia\Inertia;
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Display the admin login view.
      */
     public function create()
     {
-        return Inertia::render('auth/Login', [
-            'guard' => 'admin',
+        return Inertia::render('admin/auth/Login', [
+            'status' => session('status'),
         ]);
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming admin authentication request.
      */
     public function store(Request $request)
     {
@@ -46,7 +48,17 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Destroy an authenticated session.
+     * Show MFA verification page for Admin.
+     */
+    public function showMfa(Request $request)
+    {
+        return Inertia::render('admin/auth/MFAVerification', [
+            'email' => $request->query('email', ''),
+        ]);
+    }
+
+    /**
+     * Destroy an authenticated admin session.
      */
     public function destroy(Request $request)
     {
@@ -54,17 +66,24 @@ class AuthenticatedSessionController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect(route('home'));
+        return redirect(route('admin.login'));
     }
 
+    /**
+     * Admin Dashboard view.
+     */
     public function dashboard()
     {
         if (Auth::guard('admin')->check()) {
             return Inertia::render('admin/Dashboard', [
-                'totalCars' => Car::count(),
-                'totalCustomers' => Customer::count(),
-                'totalBookings' => BookingCar::count(),
-                'totalRevenue' => BookingCar::sum('total_price') ?: 0,
+                'stats' => [
+                    'totalCars' => Car::count(),
+                    'totalOwners' => Owner::count(),
+                    'totalCustomers' => Customer::count(),
+                    'totalDrivers' => Driver::count(),
+                    'totalBookings' => BookingCar::count(),
+                    'totalRevenue' => BookingCar::sum('total_price') ?: 0,
+                ],
             ]);
         }
 

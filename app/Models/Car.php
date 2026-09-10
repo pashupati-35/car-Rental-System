@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Car extends Model
 {
     use HasFactory;
-    protected $table = 'cars';
 
+    protected $table = 'cars';
 
     protected $fillable = [
         'car_name',
@@ -27,6 +27,7 @@ class Car extends Model
         'driving_experience',
         'licence_photo',
         'owner_id',
+        'driver_id',
         'status',
     ];
 
@@ -34,10 +35,17 @@ class Car extends Model
     {
         return $this->belongsTo(Owner::class);
     }
+
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
+    }
+
     public function booking()
     {
         return $this->hasMany(BookingCar::class);
     }
+
     public function calendar()
     {
         return $this->hasMany(CarCalendar::class);

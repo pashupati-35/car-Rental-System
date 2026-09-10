@@ -4,43 +4,101 @@ namespace App\Http\Controllers;
 
 use App\Models\BookingCar;
 use App\Models\Car;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cars = Car::where('available', 'yes')->orWhereNull('available')->get();
+        $cars = Car::with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
+            ->where('status', 'verified')
+            ->where('available', 'yes')
+            ->latest()
+            ->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $cars,
+            ]);
+        }
+
         return Inertia::render('Home', [
             'featuredCars' => $cars,
         ]);
     }
 
-    public function carsIndex()
+    public function carsIndex(Request $request)
     {
-        $cars = Car::all();
+        $cars = Car::with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
+            ->where('status', 'verified')
+            ->latest()
+            ->get();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $cars,
+            ]);
+        }
+
         return Inertia::render('cars/Index', [
             'cars' => $cars,
         ]);
     }
 
-    public function view($id)
+    public function view(Request $request, $id)
     {
-        $car = Car::findOrFail($id);
+        $car = Car::with([
+            'owner:id,full_name,contact_number,email,address',
+            'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status'
+        ])->findOrFail($id);
+
+        $bookings = BookingCar::where('car_id', $id)
+            ->whereIn('status', ['confirm', 'booked', 'reserved'])
+            ->where('last_date', '>=', Carbon::today()->format('Y-m-d'))
+            ->get(['pick_up_date', 'last_date', 'status']);
+
+        $disabledDates = [];
+        foreach ($bookings as $b) {
+            $curr = Carbon::parse($b->pick_up_date);
+            $end = Carbon::parse($b->last_date);
+            while ($curr <= $end) {
+                $disabledDates[] = $curr->format('Y-m-d');
+                $curr->addDay();
+            }
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'car' => $car,
+                    'disabled_dates' => array_values(array_unique($disabledDates)),
+                ],
+            ]);
+        }
+
         return Inertia::render('cars/Show', [
             'car' => $car,
+            'disabledDates' => array_values(array_unique($disabledDates)),
         ]);
     }
 
-    public function showCalendar($id = null)
+    public function showCalendar(Request $request, $id = null)
     {
-        $bookings = BookingCar::select('pick_up_date', 'last_date', 'status')
+        $bookings = BookingCar::select('pick_up_date', 'last_date', 'status', 'car_id')
             ->when($id, fn($q) => $q->where('car_id', $id))
+            ->whereIn('status', ['confirm', 'booked', 'reserved'])
             ->get();
+
+        $cars = Car::select('id', 'car_name', 'car_model', 'car_number')->get();
 
         return Inertia::render('Calendar', [
             'carId' => $id,
+            'cars' => $cars,
             'bookings' => $bookings,
         ]);
     }
@@ -49,6 +107,7 @@ class DashboardController extends Controller
     {
         $bookings = BookingCar::where('car_id', $id)
             ->select('pick_up_date', 'last_date', 'status')
+            ->whereIn('status', ['confirm', 'booked', 'reserved', 'pending'])
             ->get();
 
         $dates = [
@@ -59,15 +118,18 @@ class DashboardController extends Controller
         foreach ($bookings as $booking) {
             $currentDate = $booking->pick_up_date;
             while (strtotime($currentDate) <= strtotime($booking->last_date)) {
-                if ($booking->status === 'booked') {
+                if (in_array($booking->status, ['booked', 'confirm'])) {
                     $dates['booked'][] = $currentDate;
-                } elseif ($booking->status === 'reserved') {
+                } else {
                     $dates['reserved'][] = $currentDate;
                 }
                 $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
             }
         }
 
-        return response()->json($dates);
+        return response()->json([
+            'status' => 'success',
+            'data' => $dates,
+        ]);
     }
 }

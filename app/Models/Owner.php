@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,13 +9,9 @@ use Illuminate\Notifications\Notifiable;
 class Owner extends Authenticatable
 {
     use HasFactory, Notifiable;
-    protected $guard='owner';
+    
+    protected $guard = 'owner';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'full_name',
         'contact_number',
@@ -25,40 +20,43 @@ class Owner extends Authenticatable
         'email',
         'password',
         'admin_id',
+        'is_mfa_enabled',
+        'mfa_secret_code',
+        'mfa_authentication_image',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
+        'mfa_secret_code',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_mfa_enabled' => 'boolean',
         ];
     }
+
     public function admin()
     {
         return $this->belongsTo(Admin::class);
     }
+
     public function customers()
     {
         return $this->hasMany(Customer::class);
     }
+
     public function cars()
     {
         return $this->hasMany(Car::class);
+    }
+
+    public function drivers()
+    {
+        return $this->hasMany(Driver::class);
     }
 }

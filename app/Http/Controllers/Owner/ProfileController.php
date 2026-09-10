@@ -3,61 +3,76 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\OwnerLoginRequest;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
     /**
      * Display the owner's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('owner.profile.edit', [
-            'user' => $request->user('owner'),
+        $owner = Auth::guard('owner')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $owner,
+            ]);
+        }
+
+        return Inertia::render('owner/Profile', [
+            'user' => $owner,
         ]);
     }
 
     /**
      * Update the owner's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user('owner')->fill($request->validated());
+        $owner = Auth::guard('owner')->user();
 
-        if ($request->user('owner')->isDirty('email')) {
-            $request->user('owner')->email_verified_at = null;
+        $validated = $request->validate([
+            'full_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:owners,email,' . $owner->id,
+            'contact_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $owner->update($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Profile updated successfully.',
+                'user' => $owner,
+            ]);
         }
 
-        $request->user('owner')->save();
-
-        return Redirect::route('owner.profile.edit')->with('status', 'profile-updated');
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
     /**
      * Delete the owner's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => ['required', 'current_password:owner'],
         ]);
 
-        $owner = $request->user('owner');
+        $owner = Auth::guard('owner')->user();
 
         Auth::guard('owner')->logout();
-
         $owner->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect()->to('/owner/login');
     }
-
 }
+

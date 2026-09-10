@@ -11,11 +11,19 @@ use Illuminate\Support\Facades\Log;
 
 class OwnerController extends Controller
 {
-public function index()
-{
-$owners = Owner::all();
-return view('admin.auth.manage_owner', compact('owners'));
-}
+    public function index(Request $request)
+    {
+        $owners = Owner::withCount('cars')->latest()->get();
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'data' => $owners,
+            ]);
+        }
+        return \Inertia\Inertia::render('admin/OwnersList', [
+            'owners' => $owners,
+        ]);
+    }
 
 public function edit($id)
 {

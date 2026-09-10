@@ -3,61 +3,76 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\CustomerLoginRequest;
-use App\Http\Requests\CustomerProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
     /**
      * Display the customer's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('customer.profile.edit', [
-            'user' => $request->user('customer'),
+        $customer = Auth::guard('customer')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $customer,
+            ]);
+        }
+
+        return Inertia::render('customer/Profile', [
+            'user' => $customer,
         ]);
     }
 
     /**
      * Update the customer's profile information.
      */
-    public function update(CustomerProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request)
     {
-        $request->user('customer')->fill($request->validated());
+        $customer = Auth::guard('customer')->user();
 
-        if ($request->user('customer')->isDirty('email')) {
-            $request->user('customer')->email_verified_at = null;
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:customers,email,' . $customer->id,
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $customer->update($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Profile updated successfully.',
+                'user' => $customer,
+            ]);
         }
 
-        $request->user('customer')->save();
-
-        return Redirect::route('customer.profile.edit')->with('status', 'profile-updated');
+        return redirect()->back()->with('success', 'Profile updated successfully.');
     }
 
     /**
      * Delete the customer's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => ['required', 'current_password:customer'],
         ]);
 
-        $customer = $request->user('customer');
+        $customer = Auth::guard('customer')->user();
 
         Auth::guard('customer')->logout();
-
         $customer->delete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect()->to('/customer/login');
     }
-
 }
+
