@@ -53,7 +53,7 @@ const blueBookPhotoPreview = ref<string | null>(null)
 
 watch(
   () => props.car,
-  newCar => {
+  (newCar: CarItem | null | undefined) => {
     if (newCar) {
       form.value = {
         car_name: newCar.car_name || newCar.brand || '',
