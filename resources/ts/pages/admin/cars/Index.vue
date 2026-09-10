@@ -234,7 +234,7 @@ const handleSaveCar = async (formData: FormData) => {
             v-model="searchQuery"
             type="text"
             placeholder="Search cars by name, model, plate, owner..."
-            class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
             @input="onSearchInput"
             @keyup.enter="applyFilters"

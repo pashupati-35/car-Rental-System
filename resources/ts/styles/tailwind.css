@@ -1,3 +1,74 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *, .v-theme--dark, .v-theme--dark *));
+
+/* Universal Global Dark & Midnight Mode Color System */
+html.dark,
+body.dark,
+.dark {
+  color-scheme: dark;
+  color: #f1f5f9;
+}
+
+/* Enforce Light Text for All Inputs, Textareas, and Selects in Dark Mode (Idle, Active, and Editing) */
+.dark input,
+.dark textarea,
+.dark select,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="url"],
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+/* Search and All Input Placeholders in Dark Theme (Dark-White / Muted Silver) */
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark input[type="search"]::placeholder,
+.dark input::-webkit-input-placeholder,
+.dark textarea::-webkit-input-placeholder,
+.dark input::-moz-placeholder,
+.dark textarea::-moz-placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Dropdown option background & text in dark mode */
+.dark select option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* Chrome/Safari Autofill text color in dark mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus, 
+.dark textarea:-webkit-autofill,
+.dark textarea:-webkit-autofill:hover,
+.dark textarea:-webkit-autofill:focus,
+.dark select:-webkit-autofill,
+.dark select:-webkit-autofill:hover,
+.dark select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f8fafc !important;
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Midnight Obsidian specific background styles */
+html.theme-midnight body,
+body.theme-midnight {
+  background-color: #030712 !important;
+}
+
+.car-number-input {
+  max-width: 120px;
+}
+

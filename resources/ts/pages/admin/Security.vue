@@ -330,7 +330,7 @@ const disableMfa = async () => {
                   type="text"
                   maxlength="6"
                   placeholder="000000"
-                  class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-center font-mono text-xl tracking-widest focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                  class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 text-center font-mono text-xl tracking-widest focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   @keyup.enter="confirmMfaSetup"
                 >
               </div>
@@ -383,7 +383,7 @@ const disableMfa = async () => {
                 v-model="passwordForm.password"
                 type="password"
                 placeholder="Enter new password (min. 6 characters)"
-                class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 required
               >
             </div>
@@ -396,7 +396,7 @@ const disableMfa = async () => {
                 v-model="passwordForm.password_confirmation"
                 type="password"
                 placeholder="Re-enter new password"
-                class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                class="w-full py-2.5 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 required
               >
             </div>
