@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('owner_id');
-            $table->string('name');
-            $table->string('phone');
+            $table->unsignedBigInteger('owner_id')->nullable();
+            $table->string('name')->nullable();
+            $table->string('phone')->nullable();
             $table->string('email')->nullable();
-            $table->string('license_number');
-            $table->string('experience_years')->default('1');
+            $table->string('license_number')->nullable();
+            $table->string('experience_years')->nullable()->default('1');
             $table->string('photo')->nullable();
             $table->string('license_photo')->nullable();
-            $table->enum('status', ['active', 'inactive', 'on_trip'])->default('active');
+            $table->string('status')->nullable()->default('active');
             $table->timestamps();
+            $table->softDeletes()->nullable();
 
             $table->foreign('owner_id')->references('id')->on('owners')->onDelete('cascade');
         });

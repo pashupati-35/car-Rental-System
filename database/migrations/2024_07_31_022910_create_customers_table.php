@@ -13,18 +13,19 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('phone_number');
-            $table->string('address');
-            $table->string('gender');
-            $table->string('email')->unique();
-            $table->string('password');
+            $table->string('name')->nullable();
+            $table->string('phone_number')->nullable();
+            $table->string('address')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('email')->nullable()->unique();
+            $table->string('password')->nullable();
             $table->unsignedBigInteger('admin_id')->nullable();
             $table->foreign('admin_id')->references('id')->on('admins')->onDelete('cascade');
             $table->unsignedBigInteger('owner_id')->nullable();
             $table->foreign('owner_id')->references('id')->on('owners')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes()->nullable();
         });
     }
 

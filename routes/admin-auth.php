@@ -58,11 +58,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Managing owners & Admin creating owner with reset password email
         Route::get('/owners', [OwnerController::class, 'index'])->name('owner.index');
+        Route::get('/owners-list', [OwnerController::class, 'index'])->name('owners');
         Route::post('/owners', [AdminController::class, 'createOwner'])->name('owner.store');
+        Route::get('/owners/{id}', [OwnerController::class, 'show'])->name('owner.show');
         Route::get('/owner/edit/{id}', [OwnerController::class, 'edit'])->name('owner.edit');
         Route::get('/owner/view/{id}', [OwnerController::class, 'view'])->name('owner.view');
         Route::delete('/owner/delete/{id}', [OwnerController::class, 'destroy'])->name('owner.delete');
+        Route::delete('/owners/{id}', [OwnerController::class, 'destroy'])->name('owner.destroy');
         Route::patch('/owner/update/{id}', [OwnerController::class, 'update'])->name('owner.update');
+        Route::patch('/owners/{id}', [OwnerController::class, 'update'])->name('owner.patch');
+
+        // Owner nested fleet cars & drivers management
+        Route::post('/owners/{id}/cars', [OwnerController::class, 'storeCar'])->name('owner.cars.store');
+        Route::post('/owners/{id}/cars/{carId}', [OwnerController::class, 'updateCar'])->name('owner.cars.update');
+        Route::patch('/owners/{id}/cars/{carId}', [OwnerController::class, 'updateCar'])->name('owner.cars.patch');
+        Route::delete('/owners/{id}/cars/{carId}', [OwnerController::class, 'destroyCar'])->name('owner.cars.destroy');
+        Route::post('/owners/{id}/drivers', [OwnerController::class, 'storeDriver'])->name('owner.drivers.store');
+        Route::post('/owners/{id}/drivers/{driverId}', [OwnerController::class, 'updateDriver'])->name('owner.drivers.update');
+        Route::patch('/owners/{id}/drivers/{driverId}', [OwnerController::class, 'updateDriver'])->name('owner.drivers.patch');
+        Route::delete('/owners/{id}/drivers/{driverId}', [OwnerController::class, 'destroyDriver'])->name('owner.drivers.destroy');
 
         // Managing cars
         Route::get('cars', [AdminController::class, 'index'])->name('cars.index');
@@ -70,15 +84,34 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('cars/{id}', [AdminController::class, 'show'])->name('cars.show');
         Route::patch('/cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('cars.verify');
         Route::patch('/cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('cars.reject');
+        Route::delete('/cars/{id}', [AdminController::class, 'destroyCar'])->name('cars.destroy');
+
+        // Managing drivers directory
+        Route::get('/drivers', [AdminController::class, 'viewDrivers'])->name('drivers');
+        Route::post('/drivers', [AdminController::class, 'storeDriver'])->name('drivers.store');
+        Route::patch('/drivers/{id}', [AdminController::class, 'updateDriver'])->name('drivers.update');
+        Route::delete('/drivers/{id}', [AdminController::class, 'destroyDriver'])->name('drivers.destroy');
 
         // Managing customers & Admin creating customer with reset password email
         Route::get('/customers', [AdminController::class, 'viewCustomers'])->name('customers');
         Route::post('/customers', [AdminController::class, 'createCustomer'])->name('customer.store');
+        Route::get('/customers/{id}', [AdminController::class, 'showCustomer'])->name('customer.show');
+        Route::patch('/customers/{id}', [AdminController::class, 'updateCustomer'])->name('customer.update');
         Route::delete('/customers/{id}', [AdminController::class, 'destroy'])->name('customer.destroy');
+
+        // Customer nested bookings & payment CRUD
+        Route::post('/customers/{id}/bookings', [AdminController::class, 'storeCustomerBooking'])->name('customer.bookings.store');
+        Route::post('/customers/{id}/bookings/{bookingId}', [AdminController::class, 'updateCustomerBooking'])->name('customer.bookings.update');
+        Route::patch('/customers/{id}/bookings/{bookingId}', [AdminController::class, 'updateCustomerBooking'])->name('customer.bookings.patch');
+        Route::delete('/customers/{id}/bookings/{bookingId}', [AdminController::class, 'destroyCustomerBooking'])->name('customer.bookings.destroy');
+        Route::post('/customers/{id}/payments', [AdminController::class, 'storeCustomerPayment'])->name('customer.payments.store');
+        Route::delete('/customers/{id}/payments/{paymentId}', [AdminController::class, 'destroyCustomerPayment'])->name('customer.payments.destroy');
         
         // Managing bookings
         Route::get('/booked-cars', [AdminController::class, 'viewBookings'])->name('booked-cars');
         Route::get('/bookings', [AdminController::class, 'viewBookings'])->name('bookings');
+        Route::post('/bookings/{id}/confirm', [AdminController::class, 'confirmBooking'])->name('booking.confirm');
+        Route::post('/bookings/{id}/cancel', [AdminController::class, 'cancelBooking'])->name('booking.cancel');
         Route::delete('/bookings/{id}', [AdminController::class, 'destroyBooking'])->name('booking.destroy');
 
         // Master CMS Management Dashboard & API

@@ -26,6 +26,7 @@ return new class extends Migration
                 $table->longText('before_data')->nullable();
                 $table->longText('after_data')->nullable();
                 $table->timestamps();
+                $table->softDeletes()->nullable();
 
                 $table->index('user_id');
                 $table->index('admin_user_id');

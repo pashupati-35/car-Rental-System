@@ -2,14 +2,18 @@
 
 namespace App\Models;
 
+use App\Services\Traits\UploadPathTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Driver extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes, UploadPathTrait;
 
     protected $table = 'drivers';
+
+    protected $uploadPath = 'driver';
 
     protected $fillable = [
         'owner_id',
@@ -22,6 +26,18 @@ class Driver extends Model
         'license_photo',
         'status',
     ];
+
+    protected $appends = ['image_path'];
+
+    public function getImagePathAttribute()
+    {
+        $img = $this->photo ?? null;
+        if (!empty($img)) {
+            $uploadPath = $this->getUploadPath($this->uploadPath);
+            return getImagePath($uploadPath, $img);
+        }
+        return null;
+    }
 
     public function owner()
     {

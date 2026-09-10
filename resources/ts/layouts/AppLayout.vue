@@ -147,10 +147,10 @@ onUnmounted(() => {
           </span>
         </div>
 
-        <!-- Center: Quick Nav & CMS Dropdown Menu -->
+        <!-- Center: Quick Nav & Owner/Customer Links (NO CMS for non-admin) -->
         <div class="hidden md:flex items-center gap-2">
-          <!-- CMS Dropdown -->
-          <div id="cms-dropdown-container" class="relative">
+          <!-- CMS Dropdown ONLY for Admin (if accessed via AppLayout fallback) -->
+          <div v-if="role === 'Admin'" id="cms-dropdown-container" class="relative">
             <button
               type="button"
               class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-1.5 transition-colors"
@@ -167,7 +167,7 @@ onUnmounted(() => {
               class="absolute left-0 mt-2 w-64 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl p-2 z-50 space-y-1"
             >
               <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                Quick CMS & Modules
+                Master CMS Suite
               </div>
               <Link
                 v-for="item in cmsItems"

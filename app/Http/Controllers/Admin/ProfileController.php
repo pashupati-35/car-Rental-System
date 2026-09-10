@@ -40,6 +40,10 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
+            'contact_number' => 'nullable|string|max:25',
+            'address' => 'nullable|string|max:255',
+            'designation' => 'nullable|string|max:100',
+            'avatar' => 'nullable|string',
         ]);
 
         $admin->update($validated);
@@ -47,7 +51,7 @@ class ProfileController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'message' => 'Profile updated successfully.',
+                'message' => 'Profile details updated successfully.',
                 'user' => $admin,
             ]);
         }

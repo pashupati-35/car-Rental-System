@@ -22,6 +22,7 @@ return new class extends Migration
             $table->json('properties')->nullable();               // JSON data — old/new values, request data
             $table->string('table_name', 100)->nullable();        // Affected database table name
             $table->timestamps();
+            $table->softDeletes()->nullable();
 
             $table->index('log_type');
             $table->index('created_at');

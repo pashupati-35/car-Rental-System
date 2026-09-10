@@ -17,7 +17,7 @@ use App\Models\Cms\Notice\Notice;
 use App\Models\Cms\Page\Page;
 use App\Models\Cms\Partner\Partner;
 use App\Models\Cms\Popup\Popup;
-use App\Models\Cms\Service\Service;
+use App\Models\Cms\Service\Services as Service;
 use App\Models\Cms\SiteSetting\SiteSetting;
 use App\Models\Cms\Slider\Slider;
 use App\Models\Cms\Team\Team;
@@ -53,6 +53,7 @@ class AdminCmsController extends Controller
 
         return Inertia::render('admin/cms/Index', [
             'stats' => $stats,
+            'initialModule' => $request->query('module', 'faqs'),
         ]);
     }
 

@@ -15,15 +15,15 @@ return new class extends Migration
         if (!Schema::hasTable('faq_categories')) {
             Schema::create('faq_categories', function (Blueprint $table) {
                 $table->id();
-                $table->string('name');
+                $table->string('name')->nullable();
                 $table->string('slug', 191)->index()->nullable();
                 $table->text('description')->nullable();
-                $table->boolean('is_parent')->default(0);
+                $table->boolean('is_parent')->nullable()->default(0);
                 $table->unsignedBigInteger('parent_id')->index()->nullable();
                 $table->integer('position')->nullable()->default(0);
                 $table->boolean('is_active')->nullable()->default(1);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -53,12 +53,12 @@ return new class extends Migration
                 $table->string('slug')->nullable();
                 $table->text('description')->nullable();
                 $table->string('featured_image')->index()->nullable();
-                $table->boolean('is_parent')->default(0);
+                $table->boolean('is_parent')->nullable()->default(0);
                 $table->unsignedBigInteger('parent_id')->index()->nullable();
                 $table->integer('position')->nullable()->default(0);
                 $table->boolean('is_active')->nullable()->default(1);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -212,9 +212,9 @@ return new class extends Migration
                 $table->id();
                 $table->string('title')->nullable();
                 $table->string('slug')->nullable();
-                $table->boolean('is_active')->default(1);
+                $table->boolean('is_active')->nullable()->default(1);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -270,9 +270,9 @@ return new class extends Migration
                 $table->string('image')->nullable();
                 $table->dateTime('start_date')->nullable();
                 $table->dateTime('end_date')->nullable();
-                $table->boolean('is_active')->default(1);
+                $table->boolean('is_active')->nullable()->default(1);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -318,9 +318,9 @@ return new class extends Migration
                 $table->string('title')->nullable();
                 $table->string('slug')->nullable();
                 $table->string('location')->nullable();
-                $table->boolean('is_active')->default(1);
+                $table->boolean('is_active')->nullable()->default(1);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -369,10 +369,10 @@ return new class extends Migration
                 $table->string('title')->nullable();
                 $table->string('slug')->nullable();
                 $table->string('path')->nullable();
-                $table->boolean('is_featured')->default(0);
+                $table->boolean('is_featured')->nullable()->default(0);
                 $table->integer('position')->nullable()->default(0);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 
@@ -401,9 +401,9 @@ return new class extends Migration
                 $table->string('phone')->nullable();
                 $table->string('subject')->nullable();
                 $table->text('message')->nullable();
-                $table->boolean('is_read')->default(0);
+                $table->boolean('is_read')->nullable()->default(0);
                 $table->timestamps();
-                $table->softDeletes();
+                $table->softDeletes()->nullable();
             });
         }
 

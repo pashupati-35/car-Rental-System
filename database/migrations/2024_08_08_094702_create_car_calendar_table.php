@@ -9,10 +9,11 @@ class CreateCarCalendarTable extends Migration
     {
         Schema::create('car_calendar', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('car_id');
-            $table->date('date');
-            $table->enum('status', ['available', 'reserved', 'booked'])->default('available');
+            $table->unsignedBigInteger('car_id')->nullable();
+            $table->date('date')->nullable();
+            $table->string('status')->nullable()->default('available');
             $table->timestamps();
+            $table->softDeletes()->nullable();
 
             $table->foreign('car_id')->references('id')->on('cars')->onDelete('cascade');
         });
