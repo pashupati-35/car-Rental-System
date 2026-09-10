@@ -9,7 +9,7 @@ interface PaymentFormData {
   expiry_date: string
 }
 
-defineProps<{
+const props = defineProps<{
   show: boolean
   bookings: CustomerBookingItem[]
   submitting: boolean
@@ -24,10 +24,10 @@ const emit = defineEmits<{
 const paymentForm = defineModel<PaymentFormData>('paymentForm', { required: true })
 
 const onBookingSelect = () => {
-  const b = props.bookings.find(item => item.id === Number(props.paymentForm.booking_id))
+  const b = props.bookings.find(item => item.id === Number(paymentForm.value.booking_id))
   if (b) {
-    props.paymentForm.car_id = b.car_id
-    props.paymentForm.amount = b.total_price
+    paymentForm.value.car_id = b.car_id
+    paymentForm.value.amount = b.total_price
   }
 }
 </script>

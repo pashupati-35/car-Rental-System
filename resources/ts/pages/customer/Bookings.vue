@@ -227,8 +227,8 @@ const getCarImage = (car: any) => {
             v-model="search"
             type="text"
             placeholder="Search bookings..."
-            class="w-full py-1.5 rounded-xl"
-            style="padding-left: 2.25rem; padding-right: 0.875rem border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500"
+            class="w-full py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500"
+            style="padding-left: 2.25rem; padding-right: 0.875rem"
           >
         </div>
       </div>

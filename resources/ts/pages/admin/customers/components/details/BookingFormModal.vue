@@ -2,7 +2,7 @@
 import type { CustomerBookingItem } from '../../types'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 
-defineProps<{
+const props = defineProps<{
   show: boolean
   isEditing: boolean
   availableCars: Array<any>
@@ -18,10 +18,10 @@ const emit = defineEmits<{
 const bookingForm = defineModel<Partial<CustomerBookingItem>>('bookingForm', { required: true })
 
 const onCarSelect = () => {
-  if (!props.isEditing && props.bookingForm.car_id) {
-    const car = props.availableCars.find(c => c.id === props.bookingForm.car_id)
+  if (!props.isEditing && bookingForm.value.car_id) {
+    const car = props.availableCars.find(c => c.id === bookingForm.value.car_id)
     if (car && car.price_per_day) {
-      props.bookingForm.total_price = Number(car.price_per_day)
+      bookingForm.value.total_price = Number(car.price_per_day)
     }
   }
 }

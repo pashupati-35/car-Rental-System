@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import axios from 'axios'
 
-defineProps<{
+const props = defineProps<{
   cars?: Array<any>
 }>()
 
@@ -82,8 +82,8 @@ const filteredCars = computed(() => {
             v-model="searchQuery"
             type="text"
             placeholder="Search by car name or model..."
-            class="w-full py-2.5 rounded-xl"
-            style="padding-left: 2.5rem; padding-right: 1rem border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="w-full py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            style="padding-left: 2.5rem; padding-right: 1rem"
             @input="fetchCars"
           >
           <svg

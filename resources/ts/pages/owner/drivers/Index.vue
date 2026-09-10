@@ -4,7 +4,7 @@ import { Head } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import axios from 'axios'
 
-defineProps<{
+const props = defineProps<{
   drivers?: Array<any>
 }>()
 

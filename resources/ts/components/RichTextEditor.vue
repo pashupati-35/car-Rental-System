@@ -69,7 +69,6 @@ onMounted(async () => {
 
     isReady.value = true
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error('Failed to initialize CKEditor:', err)
   }
 })
@@ -101,7 +100,6 @@ watch(
 
 onBeforeUnmount(() => {
   if (editorInstance) {
-    // eslint-disable-next-line no-console
     editorInstance.destroy().catch((err: any) => console.error(err))
     editorInstance = null
   }

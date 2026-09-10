@@ -22,8 +22,8 @@ const emit = defineEmits<{
       <div class="relative">
         <select
           :value="activeModule"
-          class="w-full py-2.5 rounded-xl"
-          style="padding-left: 0.75rem; padding-right: 2rem bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          class="w-full py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-white appearance-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+          style="padding-left: 0.75rem; padding-right: 2rem"
           @change="emit('update:activeModule', ($event.target as HTMLSelectElement).value)"
         >
           <option

@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import axios from 'axios'
 
-defineProps<{
+const props = defineProps<{
   customer?: any
   activeBookings?: Array<any>
   totalRentedCars?: number

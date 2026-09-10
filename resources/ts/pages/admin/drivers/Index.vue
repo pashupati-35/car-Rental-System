@@ -203,8 +203,8 @@ const deleteDriver = async (driverId: number) => {
               v-model="searchQuery"
               type="text"
               placeholder="Search drivers by name, phone, license..."
-              class="w-full py-2 rounded-xl"
-              style="padding-left: 2rem; padding-right: 0.75rem border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              style="padding-left: 2rem; padding-right: 0.75rem"
               @keyup.enter="handleSearch"
             >
           </div>

@@ -4,7 +4,7 @@ import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import axios from 'axios'
 
-defineProps<{
+const props = defineProps<{
   featuredCars?: Array<any>
 }>()
 
