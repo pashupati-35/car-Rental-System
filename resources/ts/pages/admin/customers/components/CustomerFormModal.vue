@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CustomerItem } from '../types'
 import MessageBox from '@/components/MessageBox.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps<{
   show: boolean
@@ -38,6 +40,7 @@ const form = ref<{
   emergency_contact: string
   contact_person_name: string
   contact_relationship: string
+  notes: string
   is_active: boolean
   is_mfa_enabled: boolean
   password: string
@@ -73,11 +76,7 @@ const photoPreview = ref<string | null>(null)
 const activeTab = ref<'personal' | 'contact' | 'emergency'>('personal')
 
 const resolveImageUrl = (img?: string | null, imagePath?: any) => {
-  if (imagePath?.original) return imagePath.original
-  if (img) {
-    return img.startsWith('http') ? img : `/${img.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(img, imagePath, 'customer') || null
 }
 
 watch(
@@ -106,6 +105,7 @@ watch(
         emergency_contact: newCustomer.emergency_contact || '',
         contact_person_name: newCustomer.contact_person_name || '',
         contact_relationship: newCustomer.contact_relationship || '',
+        notes: (newCustomer as any).notes || (newCustomer as any).description || '',
         is_active: newCustomer.is_active !== false,
         is_mfa_enabled: !!newCustomer.is_mfa_enabled,
         password: '',
@@ -134,6 +134,7 @@ watch(
         emergency_contact: '',
         contact_person_name: '',
         contact_relationship: '',
+        notes: '',
         is_active: true,
         is_mfa_enabled: false,
         password: '',
@@ -565,6 +566,15 @@ const handleSubmit = () => {
                 rows="2"
                 placeholder="Street address, City, Province, Postal Code"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+              />
+            </div>
+
+            <div>
+              <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Customer Preferences, Notes & Requirements (Rich Text)</label>
+              <RichTextEditor
+                v-model="form.notes"
+                placeholder="Customer VIP notes, vehicle preferences, special handling requirements, past history..."
+                min-height="130px"
               />
             </div>
           </div>

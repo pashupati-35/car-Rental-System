@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CarItem } from '../types'
 
 defineProps<{
@@ -10,11 +11,11 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'view', car: CarItem): void
   (e: 'edit', car: CarItem): void
+  (e: 'delete', id: number): void
   (e: 'verify', id: number): void
   (e: 'reject', id: number): void
-  (e: 'delete', id: number): void
+  (e: 'view-details', car: CarItem): void
 }>()
 
 const activeDropdown = ref<number | null>(null)
@@ -37,13 +38,7 @@ onUnmounted(() => {
 })
 
 const getCarImage = (car: CarItem) => {
-  if (car.image_path?.original) return car.image_path.original
-  if (car.car_photo_path?.original) return car.car_photo_path.original
-  if (car.image) return car.image.startsWith('http') ? car.image : `/${car.image.replace(/^\/+/, '')}`
-  if (car.car_photo) {
-    return car.car_photo.startsWith('http') ? car.car_photo : `/${car.car_photo.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
 }
 </script>
 
@@ -76,11 +71,11 @@ const getCarImage = (car: CarItem) => {
               <div class="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                 <img
                   v-if="getCarImage(car)"
-                  :src="getCarImage(car)!"
+                  :src="getCarImage(car)"
                   class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 >
                 <div
-                  v-else
                   class="w-full h-full flex items-center justify-center text-slate-400"
                 >
                   <i class="ri-car-line text-xl" />
@@ -247,11 +242,11 @@ const getCarImage = (car: CarItem) => {
                   <div class="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                     <img
                       v-if="getCarImage(car)"
-                      :src="getCarImage(car)!"
+                      :src="getCarImage(car)"
                       class="w-full h-full object-cover"
+                      @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     >
                     <div
-                      v-else
                       class="w-full h-full flex items-center justify-center text-slate-400"
                     >
                       <i class="ri-car-line text-lg" />

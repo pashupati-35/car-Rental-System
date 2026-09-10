@@ -42,21 +42,21 @@ const showEditDriverModal = ref(false)
 const selectedCar = ref<any | null>(null)
 const selectedDriver = ref<any | null>(null)
 
-// Owner Form
+// Image resolvers
 const resolveOwnerImage = (o: any) => {
-  if (!o) return null
-  if (o.image_path?.original) return o.image_path.original
-  if (o.image) return o.image.startsWith('http') ? o.image : `/${o.image.replace(/^\/+/, '')}`
-  return null
+  if (!o) return ''
+  return resolveMediaUrl(o.image, o.image_path, 'owner')
 }
 
 const resolveDriverImage = (d: any) => {
-  if (!d) return null
-  if (d.image_path?.original) return d.image_path.original
-  if (d.photo_path?.original) return d.photo_path.original
-  if (d.photo) return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
-  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
-  return null
+  if (!d) return ''
+  return resolveMediaUrl(d.image || d.photo, d.image_path || d.photo_path, 'driver')
+}
+
+const resolveCarImage = (c: any) => {
+  if (!c) return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'
+  const url = resolveMediaUrl(c.car_photo || c.image, c.car_photo_path || c.image_path, 'car')
+  return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'
 }
 
 const ownerForm = ref({
@@ -462,11 +462,12 @@ const cancelBooking = (bookingId: number) => {
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shrink-0 overflow-hidden">
               <img
                 v-if="resolveOwnerImage(owner)"
-                :src="resolveOwnerImage(owner)!"
+                :src="resolveOwnerImage(owner)"
                 :alt="owner.full_name"
                 class="w-full h-full object-cover"
+                @error="(e) => (e.target as HTMLElement).style.display = 'none'"
               >
-              <span v-else>{{ owner.full_name ? owner.full_name.charAt(0).toUpperCase() : 'O' }}</span>
+              <span>{{ owner.full_name ? owner.full_name.charAt(0).toUpperCase() : 'O' }}</span>
             </div>
             <div>
               <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -703,8 +704,10 @@ const cancelBooking = (bookingId: number) => {
                 <td class="py-4 px-5">
                   <div class="flex items-center gap-3">
                     <img
-                      :src="car.car_photo ? '/' + car.car_photo : (car.image ? '/' + car.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=120&auto=format&fit=crop&q=80')"
+                      :src="resolveCarImage(car)"
+                      :alt="car.car_name"
                       class="w-12 h-10 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shrink-0"
+                      @error="(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=120&auto=format&fit=crop&q=80'"
                     >
                     <div>
                       <span class="font-bold text-slate-900 dark:text-white block text-sm">
@@ -878,10 +881,11 @@ const cancelBooking = (bookingId: number) => {
                     <div class="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 font-bold flex items-center justify-center text-xs overflow-hidden">
                       <img
                         v-if="resolveDriverImage(driver)"
-                        :src="resolveDriverImage(driver)!"
+                        :src="resolveDriverImage(driver)"
                         class="w-full h-full object-cover"
+                        @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                       >
-                      <span v-else>{{ driver.name ? driver.name[0].toUpperCase() : 'D' }}</span>
+                      <span>{{ driver.name ? driver.name[0].toUpperCase() : 'D' }}</span>
                     </div>
                     <div>
                       <span class="font-bold text-slate-900 dark:text-white block text-sm">
@@ -1426,8 +1430,10 @@ const cancelBooking = (bookingId: number) => {
 
           <div class="flex items-center gap-4">
             <img
-              :src="selectedCar.car_photo ? '/' + selectedCar.car_photo : (selectedCar.image ? '/' + selectedCar.image : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=200&auto=format&fit=crop&q=80')"
+              :src="resolveCarImage(selectedCar)"
+              :alt="selectedCar.car_name"
               class="w-28 h-20 object-cover rounded-2xl border border-slate-200"
+              @error="(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=200&auto=format&fit=crop&q=80'"
             >
             <div>
               <h4 class="font-bold text-base text-slate-900 dark:text-white">
@@ -1458,13 +1464,14 @@ const cancelBooking = (bookingId: number) => {
           </div>
 
           <div
-            v-if="selectedCar.blue_book_photo"
+            v-if="selectedCar.blue_book_photo || selectedCar.blue_book_url || selectedCar.blue_book_path"
             class="space-y-1"
           >
             <span class="text-[11px] font-bold text-slate-500 block">Bluebook / Registration Document:</span>
             <img
-              :src="'/' + selectedCar.blue_book_photo"
+              :src="resolveMediaUrl(selectedCar.blue_book_photo || selectedCar.blue_book_url, selectedCar.blue_book_path, 'car')"
               class="max-h-40 rounded-xl border border-slate-200 object-contain w-full bg-slate-50"
+              @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             >
           </div>
 

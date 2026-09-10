@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CustomerItem } from '../types'
 
 defineProps<{
@@ -13,6 +14,10 @@ const emit = defineEmits<{
   (e: 'edit', customer: CustomerItem): void
   (e: 'delete', id: number): void
 }>()
+
+const getCustomerImage = (c: CustomerItem) => {
+  return resolveMediaUrl(c.image, c.image_path, 'customer')
+}
 </script>
 
 <template>
@@ -44,12 +49,13 @@ const emit = defineEmits<{
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
                 <img
-                  v-if="customer.image_path || customer.image"
-                  :src="customer.image_path || (customer.image ? `/storage/${customer.image}` : '')"
+                  v-if="getCustomerImage(customer)"
+                  :src="getCustomerImage(customer)"
                   :alt="customer.name || customer.full_name"
                   class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 >
-                <span v-else>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
+                <span>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
               </div>
               <div>
                 <h4 class="font-bold text-sm text-slate-900 dark:text-white">
@@ -153,12 +159,13 @@ const emit = defineEmits<{
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
                     <img
-                      v-if="customer.image_path || customer.image"
-                      :src="customer.image_path || (customer.image ? `/storage/${customer.image}` : '')"
+                      v-if="getCustomerImage(customer)"
+                      :src="getCustomerImage(customer)"
                       :alt="customer.name || customer.full_name"
                       class="w-full h-full object-cover"
+                      @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     >
-                    <span v-else>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
+                    <span>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
                   </div>
                   <div>
                     <span class="font-bold text-slate-900 dark:text-white block text-sm group-hover:text-indigo-600 transition-colors">

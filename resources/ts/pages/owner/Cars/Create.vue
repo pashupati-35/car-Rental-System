@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 import axios from 'axios'
 
 const availableDrivers = ref<Array<any>>([])
@@ -17,6 +18,7 @@ const form = useForm({
   car_price_per_km: 15,
   car_price_per_day: 65,
   available: 'yes',
+  description: '',
   driver_id: '' as any,
   driver_name: '',
   driver_number: '',
@@ -184,6 +186,16 @@ const submit = () => {
                 class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"
               >
             </div>
+          </div>
+
+          <!-- Vehicle Description (Rich Text) -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Vehicle Description & Features (Rich Text)</label>
+            <RichTextEditor
+              v-model="form.description"
+              placeholder="Vehicle condition, safety features, GPS, Bluetooth, detailed terms..."
+              min-height="160px"
+            />
           </div>
 
           <!-- Driver Assignment (from dedicated Drivers Table) -->

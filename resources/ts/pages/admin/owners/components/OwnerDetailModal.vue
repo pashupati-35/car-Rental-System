@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Link } from '@inertiajs/vue3'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { OwnerItem } from '../types'
 
 const props = defineProps<{
@@ -13,9 +14,14 @@ const emit = defineEmits<{
   (e: 'edit', owner: OwnerItem): void
 }>()
 
+const imgError = ref(false)
+watch(() => props.owner, () => {
+  imgError.value = false
+})
+
 const avatarUrl = computed(() => {
   if (!props.owner) return ''
-  return props.owner.image_path || (props.owner.image ? `/storage/${props.owner.image}` : '')
+  return resolveMediaUrl(props.owner.image, props.owner.image_path, 'owner')
 })
 
 const formatDate = (dateStr?: string) => {
@@ -96,10 +102,11 @@ const formatDateTime = (dateStr?: string) => {
         <div class="flex flex-col sm:flex-row items-center sm:items-start gap-5 p-5 rounded-2xl bg-gradient-to-br from-indigo-50/60 via-slate-50/40 to-purple-50/40 dark:from-indigo-950/30 dark:via-slate-900/40 dark:to-purple-950/20 border border-indigo-100/80 dark:border-indigo-900/40">
           <div class="relative w-20 h-20 rounded-2xl overflow-hidden bg-white dark:bg-slate-800 border-2 border-indigo-200 dark:border-indigo-800 shadow-sm shrink-0 flex items-center justify-center">
             <img
-              v-if="avatarUrl"
+              v-if="avatarUrl && !imgError"
               :src="avatarUrl"
               :alt="owner.full_name || owner.name"
               class="w-full h-full object-cover"
+              @error="imgError = true"
             >
             <span
               v-else

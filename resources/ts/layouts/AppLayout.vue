@@ -39,7 +39,7 @@ const flashError = ref('')
 
 watch(
   () => page.props.flash as any,
-  (newFlash) => {
+  (newFlash: any) => {
     if (newFlash?.success) {
       flashSuccess.value = newFlash.success
     }

@@ -151,6 +151,8 @@ declare global {
   const requiredSubmittedCount: typeof import('./resources/ts/utils/documents').requiredSubmittedCount
   const requiredValidator: typeof import('./resources/ts/utils/validators').requiredValidator
   const resolveComponent: typeof import('vue').resolveComponent
+  const resolveImageUrl: typeof import('./resources/ts/utils/utils').resolveImageUrl
+  const resolveMediaUrl: typeof import('./resources/ts/utils/utils').resolveMediaUrl
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const resolveVuetifyTheme: typeof import('./resources/ts/utils/vuetify').resolveVuetifyTheme
@@ -565,6 +567,8 @@ declare module 'vue' {
     readonly requiredSubmittedCount: UnwrapRef<typeof import('./resources/ts/utils/documents')['requiredSubmittedCount']>
     readonly requiredValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['requiredValidator']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly resolveImageUrl: UnwrapRef<typeof import('./resources/ts/utils/utils')['resolveImageUrl']>
+    readonly resolveMediaUrl: UnwrapRef<typeof import('./resources/ts/utils/utils')['resolveMediaUrl']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./resources/ts/utils/vuetify')['resolveVuetifyTheme']>
     readonly route: UnwrapRef<typeof import('ziggy-js')['route']>
     readonly router: UnwrapRef<typeof import('@inertiajs/vue3')['router']>

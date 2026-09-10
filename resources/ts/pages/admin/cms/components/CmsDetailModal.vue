@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CmsItem, CmsModuleMeta } from '../types'
 
 const props = defineProps<{
@@ -14,28 +15,17 @@ const emit = defineEmits<{
   (e: 'delete', id: number): void
 }>()
 
-const resolveImageUrl = (img?: any) => {
-  if (!img) return null
-  if (typeof img === 'string') {
-    if (img.startsWith('http://') || img.startsWith('https://')) return img
-    return `/${img.replace(/^\/+/, '')}`
-  }
-  if (img.original) return img.original
-  if (img.url) return img.url
-  return null
-}
-
 const itemImage = computed(() => {
-  if (!props.item) return null
+  if (!props.item) return ''
   const it = props.item
-  return resolveImageUrl(
-    it.image_path ||
-    it.image ||
-    it.banner_image ||
-    it.photo ||
-    it.cover_image ||
-    it.avatar ||
-    it.logo
+  return (
+    resolveMediaUrl(it.image, it.image_path, 'cms') ||
+    resolveMediaUrl(it.cover_image, it.cover_image_path, 'cms') ||
+    resolveMediaUrl(it.preview_image, it.preview_image_path, 'cms') ||
+    resolveMediaUrl(it.banner_image, null, 'cms') ||
+    resolveMediaUrl(it.photo, null, 'cms') ||
+    resolveMediaUrl(it.avatar, null, 'cms') ||
+    resolveMediaUrl(it.logo, null, 'cms')
   )
 })
 
@@ -48,7 +38,10 @@ const itemTitle = computed(() => {
 const itemSubtitle = computed(() => {
   if (!props.item) return ''
   const it = props.item
-  return it.subtitle || it.category || it.position_title || it.designation || it.email || it.slug || ''
+  const cat = typeof it.category === 'object' && it.category !== null 
+    ? (it.category.name || it.category.title || it.category.label || '') 
+    : it.category
+  return it.subtitle || cat || it.position_title || it.designation || it.email || it.slug || ''
 })
 
 const isHtmlContent = (val: string) => {
@@ -81,14 +74,30 @@ const formatKeyLabel = (key: string) => {
 const ignoredKeys = new Set([
   'id', 'image', 'banner_image', 'image_path', 'photo', 'cover_image',
   'avatar', 'logo', 'created_at', 'updated_at', 'deleted_at',
-  'password', 'remember_token'
+  'password', 'remember_token', 'author_image', 'author_image_path',
+  'description', 'content', 'answer', 'body', 'message', 'requirements'
 ])
+
+const formatValue = (val: any): string => {
+  if (typeof val === 'boolean') return val ? 'True / Yes' : 'False / No'
+  if (Array.isArray(val)) {
+    return val.map((item: any) => {
+      if (typeof item === 'object' && item !== null) {
+        return item.title || item.name || item.label || item.full_name || JSON.stringify(item)
+      }
+      return String(item)
+    }).join(', ')
+  }
+  if (typeof val === 'object' && val !== null) {
+    return val.title || val.name || val.label || val.full_name || JSON.stringify(val)
+  }
+  return String(val)
+}
 
 const displayableProperties = computed(() => {
   if (!props.item) return []
   return Object.entries(props.item).filter(([k, v]) => {
     if (ignoredKeys.has(k)) return false
-    if (typeof v === 'object' && v !== null && !Array.isArray(v)) return false
     return v !== null && v !== undefined && v !== ''
   })
 })
@@ -154,6 +163,7 @@ const displayableProperties = computed(() => {
               :src="itemImage"
               :alt="itemTitle"
               class="w-full h-full object-cover"
+              @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             >
           </div>
           <div
@@ -308,15 +318,7 @@ const displayableProperties = computed(() => {
                 {{ formatKeyLabel(key) }}
               </span>
               <span class="font-semibold text-slate-800 dark:text-slate-200 break-words block mt-0.5">
-                <template v-if="typeof value === 'boolean'">
-                  {{ value ? 'True / Yes' : 'False / No' }}
-                </template>
-                <template v-else-if="Array.isArray(value)">
-                  {{ value.join(', ') }}
-                </template>
-                <template v-else>
-                  {{ String(value) }}
-                </template>
+                {{ formatValue(value) }}
               </span>
             </div>
           </div>

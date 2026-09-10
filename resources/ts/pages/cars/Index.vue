@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 
 const props = defineProps<{
   cars?: any
@@ -28,6 +29,11 @@ const carsList = computed<Array<any>>(() => {
   
   return Array.isArray(props.cars) ? props.cars : []
 })
+
+const getCarImage = (car: any) => {
+  const url = resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
+  return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'
+}
 
 let searchTimeout: any = null
 
@@ -167,9 +173,10 @@ const resetFilters = () => {
             <!-- Image & Badges -->
             <div class="relative h-52 overflow-hidden bg-slate-100 dark:bg-gray-800">
               <img
-                :src="car.car_photo ? '/' + car.car_photo : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
+                :src="getCarImage(car)"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 :alt="car.car_name || car.car_model"
+                @error="(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
               >
               <div class="absolute top-3 left-3 flex gap-2">
                 <span class="px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide uppercase bg-emerald-500/90 text-white backdrop-blur-md shadow-sm">
@@ -266,7 +273,7 @@ const resetFilters = () => {
 
       <!-- Pagination Section -->
       <div
-        v-if="props.cars && props.cars.links && props.cars.total > 0"
+        v-if="props.cars && props.cars.total > 0"
         class="pt-4"
       >
         <Pagination
@@ -274,6 +281,8 @@ const resetFilters = () => {
           :from="props.cars.from"
           :to="props.cars.to"
           :total="props.cars.total"
+          :current-page="props.cars.current_page"
+          :last-page="props.cars.last_page"
           :per-page="props.cars.per_page"
           :per-page-options="[6, 9, 12, 24, 50]"
         />

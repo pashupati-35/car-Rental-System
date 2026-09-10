@@ -27,6 +27,11 @@ const form = useForm({
 })
 
 const submit = () => {
+  if (form.description && !form.message_content) {
+    form.message_content = form.description
+  } else if (form.message_content && !form.description) {
+    form.description = form.message_content
+  }
   form.put(`/admin/email-templates/${props.template.id}`)
 }
 

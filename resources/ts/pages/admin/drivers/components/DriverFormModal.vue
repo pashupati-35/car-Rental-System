@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { DriverItem } from '../types'
 import MessageBox from '@/components/MessageBox.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps<{
   show: boolean
@@ -26,6 +28,7 @@ const form = ref<{
   status: string
   owner_id: number | string
   address: string
+  description: string
 }>({
   name: '',
   phone: '',
@@ -35,6 +38,7 @@ const form = ref<{
   status: 'active',
   owner_id: '',
   address: '',
+  description: '',
 })
 
 const photoFile = ref<File | null>(null)
@@ -43,11 +47,7 @@ const licensePhotoFile = ref<File | null>(null)
 const licensePhotoPreview = ref<string | null>(null)
 
 const resolveImageUrl = (img?: string | null, imagePath?: any) => {
-  if (imagePath?.original) return imagePath.original
-  if (img) {
-    return img.startsWith('http') ? img : `/${img.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(img, imagePath, 'driver') || null
 }
 
 watch(
@@ -63,6 +63,7 @@ watch(
         status: newDriver.status || 'active',
         owner_id: newDriver.owner_id || newDriver.owner?.id || '',
         address: newDriver.address || '',
+        description: newDriver.description || (newDriver as any).bio || '',
       }
       photoPreview.value = resolveImageUrl(newDriver.image || newDriver.photo, newDriver.image_path)
       licensePhotoPreview.value = resolveImageUrl(newDriver.license_photo_url || newDriver.license_photo)
@@ -76,6 +77,7 @@ watch(
         status: 'active',
         owner_id: '',
         address: '',
+        description: '',
       }
       photoPreview.value = null
       licensePhotoPreview.value = null
@@ -116,6 +118,7 @@ const handleSubmit = () => {
     data.append('owner_id', String(form.value.owner_id))
   }
   data.append('address', form.value.address || '')
+  data.append('description', form.value.description || '')
 
   if (photoFile.value) {
     data.append('photo', photoFile.value)
@@ -257,6 +260,15 @@ const handleSubmit = () => {
             placeholder="San Diego, CA"
             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
           >
+        </div>
+
+        <div>
+          <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Driver Bio, Experience & Background (Rich Text)</label>
+          <RichTextEditor
+            v-model="form.description"
+            placeholder="Professional chauffeur experience, certifications, route familiarity, customer service record..."
+            min-height="140px"
+          />
         </div>
 
         <!-- Driver Photo & License Document -->

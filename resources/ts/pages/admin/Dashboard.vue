@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import Pagination from '@/components/Pagination.vue'
+import DashboardAnalyticsCharts from './components/DashboardAnalyticsCharts.vue'
 
 const props = defineProps<{
   stats?: {
@@ -424,6 +425,9 @@ const cancelBooking = (bookingId: number) => {
           </div>
         </div>
       </div>
+
+      <!-- Interactive Analytics, Bar & Pie Charts Suite -->
+      <DashboardAnalyticsCharts :stats="statsData" />
 
       <!-- Recent Rental Bookings Section -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-4">

@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 
 const props = defineProps<{
   featuredCars?: any
@@ -16,11 +17,16 @@ const carsList = computed<Array<any>>(() => {
 })
 
 const paginationData = computed(() => {
-  if (props.featuredCars && props.featuredCars.links) {
+  if (props.featuredCars && (props.featuredCars.links || props.featuredCars.total)) {
     return props.featuredCars
   }
   return null
 })
+
+const getCarImage = (car: any) => {
+  const url = resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
+  return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'
+}
 </script>
 
 <template>
@@ -86,9 +92,10 @@ const paginationData = computed(() => {
             <div>
               <div class="relative h-52 bg-slate-100 dark:bg-gray-800 overflow-hidden">
                 <img
-                  :src="car.car_photo ? '/' + car.car_photo : 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
+                  :src="getCarImage(car)"
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   :alt="car.car_name"
+                  @error="(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
                 >
                 <div class="absolute top-3 left-3">
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-white shadow-sm">
@@ -136,7 +143,7 @@ const paginationData = computed(() => {
 
         <!-- Pagination Section -->
         <div
-          v-if="paginationData && paginationData.links && paginationData.total > 0"
+          v-if="paginationData && paginationData.total > 0"
           class="pt-4"
         >
           <Pagination
@@ -144,6 +151,8 @@ const paginationData = computed(() => {
             :from="paginationData.from"
             :to="paginationData.to"
             :total="paginationData.total"
+            :current-page="paginationData.current_page"
+            :last-page="paginationData.last_page"
             :per-page="paginationData.per_page"
             :per-page-options="[6, 12, 24, 48]"
           />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CarItem } from '../types'
 
 defineProps<{
@@ -16,25 +17,13 @@ const emit = defineEmits<{
 }>()
 
 const getCarImage = (c: CarItem | null) => {
-  if (!c) return null
-  if (c.image_path?.original) return c.image_path.original
-  if (c.car_photo_path?.original) return c.car_photo_path.original
-  if (c.image) return c.image.startsWith('http') ? c.image : `/${c.image.replace(/^\/+/, '')}`
-  if (c.car_photo) {
-    return c.car_photo.startsWith('http') ? c.car_photo : `/${c.car_photo.replace(/^\/+/, '')}`
-  }
-  return null
+  if (!c) return ''
+  return resolveMediaUrl(c.car_photo || c.image, c.car_photo_path || c.image_path, 'car')
 }
 
 const getBlueBookImage = (c: CarItem | null) => {
-  if (!c) return null
-  if (c.blue_book_path?.original) return c.blue_book_path.original
-  if (c.blue_book_url) return c.blue_book_url
-  if (c.file_path?.original) return c.file_path.original
-  if (c.blue_book_photo) {
-    return c.blue_book_photo.startsWith('http') ? c.blue_book_photo : `/${c.blue_book_photo.replace(/^\/+/, '')}`
-  }
-  return null
+  if (!c) return ''
+  return resolveMediaUrl(c.blue_book_photo || c.blue_book_url, c.blue_book_path || c.file_path, 'car')
 }
 </script>
 
@@ -66,8 +55,9 @@ const getBlueBookImage = (c: CarItem | null) => {
         class="w-full h-44 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-800"
       >
         <img
-          :src="getCarImage(car)!"
+          :src="getCarImage(car)"
           class="w-full h-full object-cover"
+          @error="(e) => (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'"
         >
       </div>
 
@@ -146,12 +136,13 @@ const getBlueBookImage = (c: CarItem | null) => {
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Bluebook / Registration Document</span>
           <div class="relative group max-h-36 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center">
             <img
-              :src="getBlueBookImage(car)!"
+              :src="getBlueBookImage(car)"
               class="w-full h-36 object-contain"
               alt="Blue Book Document"
+              @error="(e) => (e.target as HTMLElement).style.display = 'none'"
             >
             <a
-              :href="getBlueBookImage(car)!"
+              :href="getBlueBookImage(car)"
               target="_blank"
               class="absolute bottom-2 right-2 px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-[10px] flex items-center gap-1 shadow"
             >

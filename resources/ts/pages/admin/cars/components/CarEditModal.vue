@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CarItem } from '../types'
 import MessageBox from '@/components/MessageBox.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps<{
   show: boolean
@@ -53,11 +55,7 @@ const blueBookPhotoFile = ref<File | null>(null)
 const blueBookPhotoPreview = ref<string | null>(null)
 
 const resolveImageUrl = (img?: string | null, imagePath?: any) => {
-  if (imagePath?.original) return imagePath.original
-  if (img) {
-    return img.startsWith('http') ? img : `/${img.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(img, imagePath, 'car') || null
 }
 
 watch(
@@ -386,12 +384,11 @@ const handleSubmit = () => {
 
         <!-- Description -->
         <div>
-          <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Vehicle Description / Highlights</label>
-          <textarea
+          <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Vehicle Description / Highlights (Rich Text)</label>
+          <RichTextEditor
             v-model="form.description"
-            rows="2"
-            placeholder="Vehicle condition, safety features, GPS, Bluetooth, etc..."
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
+            placeholder="Vehicle condition, safety features, GPS, Bluetooth, rental policies..."
+            min-height="160px"
           />
         </div>
 

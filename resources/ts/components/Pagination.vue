@@ -20,13 +20,11 @@ const props = withDefaults(
     perPageOptions?: number[]
   }>(),
   {
-    from: 1,
-    to: 10,
+    from: 0,
+    to: 0,
     total: 0,
-    currentPage: 1,
-    lastPage: 1,
-    perPage: 25,
-    perPageOptions: () => [10, 25, 50, 100],
+    perPage: 10,
+    perPageOptions: () => [6, 10, 12, 20, 25, 50, 100],
   },
 )
 
@@ -35,35 +33,44 @@ const emit = defineEmits<{
   (e: 'update:perPage', perPage: number): void
 }>()
 
-// Calculate current page & last page if not directly provided
+// Calculate current page & last page properly
 const computedCurrentPage = computed(() => {
-  if (props.currentPage) return props.currentPage
   if (props.links && props.links.length > 0) {
-    const activeLink = props.links.find(l => l.active)
+    const activeLink = props.links.find((item: LinkItem) => item.active)
     if (activeLink) {
       const page = parseInt(activeLink.label, 10)
-      if (!isNaN(page)) return page
+      if (!isNaN(page) && page > 0) return page
     }
   }
-  
+
+  if (props.currentPage && props.currentPage > 0) return props.currentPage
+
+  if (typeof window !== 'undefined') {
+    const urlParam = new URLSearchParams(window.location.search).get('page')
+    const parsed = parseInt(urlParam || '', 10)
+    if (!isNaN(parsed) && parsed >= 1) return parsed
+  }
+
   return 1
 })
 
 const computedLastPage = computed(() => {
-  if (props.lastPage) return props.lastPage
-  if (props.total && props.perPage) {
-    return Math.ceil(props.total / props.perPage)
+  if (props.total && props.perPage && props.total > 0 && props.perPage > 0) {
+    return Math.max(1, Math.ceil(props.total / props.perPage))
   }
+
+  if (props.lastPage && props.lastPage > 0) return props.lastPage
+
   if (props.links && props.links.length > 0) {
     const numericLinks = props.links
-      .map(l => parseInt(l.label, 10))
-      .filter(n => !isNaN(n))
+      .map((item: LinkItem) => parseInt(item.label, 10))
+      .filter((n: number) => !isNaN(n) && n > 0)
 
     if (numericLinks.length > 0) {
-      return Math.max(...numericLinks)
+      return Math.max(1, ...numericLinks)
     }
   }
-  
+
   return 1
 })
 
@@ -76,14 +83,13 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
-    
     return range
   }
 
   const left = current - delta
   const right = current + delta + 1
   const rangeWithDots: (number | string)[] = []
-  let l: number | undefined
+  let prevNumber: number | undefined
 
   for (let i = 1; i <= total; i++) {
     if (i === 1 || i === total || (i >= left && i < right)) {
@@ -92,15 +98,15 @@ const visiblePages = computed(() => {
   }
 
   for (const i of range) {
-    if (l !== undefined) {
-      if (typeof i === 'number' && i - l === 2) {
-        rangeWithDots.push(l + 1)
-      } else if (typeof i === 'number' && i - l !== 1) {
+    if (prevNumber !== undefined) {
+      if (typeof i === 'number' && i - prevNumber === 2) {
+        rangeWithDots.push(prevNumber + 1)
+      } else if (typeof i === 'number' && i - prevNumber !== 1) {
         rangeWithDots.push('...')
       }
     }
     rangeWithDots.push(i)
-    if (typeof i === 'number') l = i
+    if (typeof i === 'number') prevNumber = i
   }
 
   return rangeWithDots
@@ -111,24 +117,25 @@ const goToPage = (page: number) => {
 
   emit('page-change', page)
 
-  // If using Inertia pagination via URL
+  // If using Inertia pagination with direct link url
   if (props.links && props.links.length > 0) {
     const targetLink = props.links.find(
-      l => l.label === String(page) || (page === 1 && l.label.includes('Previous')),
+      (item: LinkItem) => item.label === String(page)
     )
 
     if (targetLink && targetLink.url) {
       router.visit(targetLink.url, { preserveScroll: true, preserveState: true })
-      
       return
     }
-
-    // Try finding by page query parameter
-    const currentUrl = new URL(window.location.href)
-
-    currentUrl.searchParams.set('page', String(page))
-    router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })
   }
+
+  // Fallback to URL search parameter navigation
+  const currentUrl = new URL(window.location.href)
+  currentUrl.searchParams.set('page', String(page))
+  if (props.perPage) {
+    currentUrl.searchParams.set('per_page', String(props.perPage))
+  }
+  router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })
 }
 
 const onPerPageChange = (event: Event) => {
@@ -138,7 +145,6 @@ const onPerPageChange = (event: Event) => {
   emit('update:perPage', val)
 
   const currentUrl = new URL(window.location.href)
-
   currentUrl.searchParams.set('per_page', String(val))
   currentUrl.searchParams.set('page', '1')
   router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })

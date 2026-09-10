@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { DriverItem } from '../types'
 
 defineProps<{
@@ -25,25 +26,13 @@ const formatDate = (date?: string) => {
 }
 
 const getDriverImage = (d: DriverItem | null) => {
-  if (!d) return null
-  if (d.image_path?.original) return d.image_path.original
-  if (d.photo_path?.original) return d.photo_path.original
-  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
-  if (d.photo) {
-    return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
-  }
-  return null
+  if (!d) return ''
+  return resolveMediaUrl(d.image || d.photo, d.image_path || d.photo_path, 'driver')
 }
 
 const getLicensePhoto = (d: DriverItem | null) => {
-  if (!d) return null
-  if (d.license_photo_path?.original) return d.license_photo_path.original
-  if (d.license_photo_url) return d.license_photo_url
-  if (d.file_path?.original) return d.file_path.original
-  if (d.license_photo) {
-    return d.license_photo.startsWith('http') ? d.license_photo : `/${d.license_photo.replace(/^\/+/, '')}`
-  }
-  return null
+  if (!d) return ''
+  return resolveMediaUrl(d.license_photo || d.license_photo_url, d.license_photo_path || d.file_path, 'driver')
 }
 </script>
 
@@ -99,14 +88,12 @@ const getLicensePhoto = (d: DriverItem | null) => {
                 <div class="w-20 h-20 rounded-2xl bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-900 shadow-lg flex items-center justify-center shrink-0 overflow-hidden">
                   <img
                     v-if="getDriverImage(driver)"
-                    :src="getDriverImage(driver)!"
+                    :src="getDriverImage(driver)"
                     class="w-full h-full object-cover"
+                    @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   >
-                  <span
-                    v-else
-                    class="text-3xl font-black text-purple-600 dark:text-purple-400"
-                  >
-                    {{ (driver.name || 'D').charAt(0).toUpperCase() }}
+                  <span>
+                    {{ (driver?.name || 'D').charAt(0).toUpperCase() }}
                   </span>
                 </div>
                 <div class="pb-1">
@@ -206,15 +193,18 @@ const getLicensePhoto = (d: DriverItem | null) => {
                 <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
                   <i class="ri-file-shield-line me-1" />Commercial Driver License Document
                 </span>
-                <div class="h-40 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100">
+                <div class="h-40 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center">
                   <img
-                    :src="getLicensePhoto(driver)!"
+                    v-if="getLicensePhoto(driver)"
+                    :src="getLicensePhoto(driver)"
                     class="w-full h-full object-cover"
+                    @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   >
+                  <span v-else class="text-xs text-slate-400 font-bold">No License File Uploaded</span>
                 </div>
-                <div class="text-right">
+                <div v-if="getLicensePhoto(driver)" class="text-right">
                   <a
-                    :href="getLicensePhoto(driver)!"
+                    :href="getLicensePhoto(driver)"
                     target="_blank"
                     rel="noopener noreferrer"
                     class="text-xs font-bold text-indigo-600 hover:underline inline-flex items-center gap-1"

@@ -11,6 +11,7 @@ import BookingFormModal from './components/details/BookingFormModal.vue'
 import PaymentFormModal from './components/details/PaymentFormModal.vue'
 import CustomerFormModal from './components/CustomerFormModal.vue'
 import MessageBox from '@/components/MessageBox.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 
 const props = defineProps<{
   customer: CustomerItem
@@ -37,11 +38,8 @@ const profileForm = ref<Partial<CustomerItem>>({
 })
 
 const resolveCustomerImage = (c: CustomerItem) => {
-  if (!c) return null
-  if (c.image_path?.original) return c.image_path.original
-  if (c.image) return c.image.startsWith('http') ? c.image : `/${c.image.replace(/^\/+/, '')}`
-  if (c.photo) return c.photo.startsWith('http') ? c.photo : `/${c.photo.replace(/^\/+/, '')}`
-  return null
+  if (!c) return ''
+  return resolveMediaUrl(c.image || c.photo, c.image_path, 'customer')
 }
 
 const openEditProfile = () => {
@@ -249,11 +247,12 @@ const deletePayment = async (paymentId: number) => {
             <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-md shadow-indigo-500/20 overflow-hidden shrink-0">
               <img
                 v-if="resolveCustomerImage(customer)"
-                :src="resolveCustomerImage(customer)!"
+                :src="resolveCustomerImage(customer)"
                 :alt="customer.name || customer.full_name"
                 class="w-full h-full object-cover"
+                @error="(e) => (e.target as HTMLElement).style.display = 'none'"
               >
-              <span v-else>
+              <span>
                 {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
               </span>
             </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { DriverItem } from '../types'
 
 defineProps<{
@@ -15,13 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const getDriverImage = (d: DriverItem) => {
-  if (d.image_path?.original) return d.image_path.original
-  if (d.photo_path?.original) return d.photo_path.original
-  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
-  if (d.photo) {
-    return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(d.image || d.photo, d.image_path || d.photo_path, 'driver')
 }
 </script>
 
@@ -54,10 +49,11 @@ const getDriverImage = (d: DriverItem) => {
               <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
                 <img
                   v-if="getDriverImage(driver)"
-                  :src="getDriverImage(driver)!"
+                  :src="getDriverImage(driver)"
                   class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 >
-                <span v-else>
+                <span>
                   {{ (driver.name || 'D').charAt(0).toUpperCase() }}
                 </span>
               </div>
@@ -164,10 +160,11 @@ const getDriverImage = (d: DriverItem) => {
                   <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
                     <img
                       v-if="getDriverImage(driver)"
-                      :src="getDriverImage(driver)!"
+                      :src="getDriverImage(driver)"
                       class="w-full h-full object-cover"
+                      @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     >
-                    <span v-else>
+                    <span>
                       {{ (driver.name || 'D').charAt(0).toUpperCase() }}
                     </span>
                   </div>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Pagination from '@/components/Pagination.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { OwnerItem } from '../types'
 
 defineProps<{
@@ -13,6 +14,10 @@ const emit = defineEmits<{
   (e: 'edit', owner: OwnerItem): void
   (e: 'delete', id: number): void
 }>()
+
+const getOwnerImage = (owner: OwnerItem) => {
+  return resolveMediaUrl(owner.image, owner.image_path, 'owner')
+}
 </script>
 
 <template>
@@ -44,8 +49,15 @@ const emit = defineEmits<{
               :href="`/admin/owners/${owner.id}`"
               class="flex items-center gap-3 group"
             >
-              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
-                {{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                <img
+                  v-if="getOwnerImage(owner)"
+                  :src="getOwnerImage(owner)"
+                  :alt="owner.full_name || owner.name"
+                  class="w-full h-full object-cover"
+                  @error="(e) => (e.target as HTMLElement).style.display = 'none'"
+                >
+                <span>{{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}</span>
               </div>
               <div>
                 <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
@@ -139,12 +151,13 @@ const emit = defineEmits<{
                 <div class="flex items-center gap-3">
                   <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
                     <img
-                      v-if="owner.image_path || owner.image"
-                      :src="owner.image_path || (owner.image ? `/storage/${owner.image}` : '')"
+                      v-if="getOwnerImage(owner)"
+                      :src="getOwnerImage(owner)"
                       :alt="owner.full_name || owner.name"
                       class="w-full h-full object-cover"
+                      @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     >
-                    <span v-else>{{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}</span>
+                    <span>{{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}</span>
                   </div>
                   <div>
                     <span class="font-bold text-slate-900 dark:text-white block text-sm group-hover:text-indigo-600 transition-colors">

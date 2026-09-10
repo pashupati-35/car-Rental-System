@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { OwnerItem } from '../types'
 import MessageBox from '@/components/MessageBox.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps<{
   show: boolean
@@ -38,6 +40,7 @@ const form = ref<{
   emergency_contact: string
   contact_person_name: string
   contact_relationship: string
+  notes: string
   is_active: boolean
   is_mfa_enabled: boolean
   password: string
@@ -73,11 +76,7 @@ const photoPreview = ref<string | null>(null)
 const activeTab = ref<'personal' | 'contact' | 'emergency'>('personal')
 
 const resolveImageUrl = (img?: string | null, imagePath?: any) => {
-  if (imagePath?.original) return imagePath.original
-  if (img) {
-    return img.startsWith('http') ? img : `/${img.replace(/^\/+/, '')}`
-  }
-  return null
+  return resolveMediaUrl(img, imagePath, 'owner') || null
 }
 
 watch(
@@ -106,6 +105,7 @@ watch(
         emergency_contact: newOwner.emergency_contact || '',
         contact_person_name: newOwner.contact_person_name || '',
         contact_relationship: newOwner.contact_relationship || '',
+        notes: (newOwner as any).notes || (newOwner as any).description || '',
         is_active: newOwner.is_active !== false,
         is_mfa_enabled: !!newOwner.is_mfa_enabled,
         password: '',
@@ -134,6 +134,7 @@ watch(
         emergency_contact: '',
         contact_person_name: '',
         contact_relationship: '',
+        notes: '',
         is_active: true,
         is_mfa_enabled: false,
         password: '',
@@ -470,6 +471,15 @@ const handleSubmit = () => {
               placeholder="e.g. 450 North Canon Dr, Beverly Hills, CA"
               class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
             >
+          </div>
+
+          <div>
+            <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Fleet Owner Notes & Business Overview (Rich Text)</label>
+            <RichTextEditor
+              v-model="form.notes"
+              placeholder="Fleet owner background, business contract notes, fleet capacity, terms..."
+              min-height="130px"
+            />
           </div>
         </div>
 

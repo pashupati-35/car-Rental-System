@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import type { CmsItem, CmsModuleMeta } from '../types'
 import type { PaginationMeta } from '@/types/cms/CommonPagination'
 
@@ -117,8 +118,16 @@ const onPerPageSelect = () => {
   emit('per-page-change', perPage.value)
 }
 
-const getItemImage = (item: CmsItem): string | undefined => {
-  return item.image || item.cover_image || item.featured_photo || item.featured_image || item.logo
+const getItemImage = (item: CmsItem): string => {
+  return (
+    resolveMediaUrl(item.image, item.image_path, 'cms') ||
+    resolveMediaUrl(item.cover_image, item.cover_image_path, 'cms') ||
+    resolveMediaUrl(item.preview_image, item.preview_image_path, 'cms') ||
+    resolveMediaUrl(item.banner_image, null, 'cms') ||
+    resolveMediaUrl(item.photo, null, 'cms') ||
+    resolveMediaUrl(item.avatar, null, 'cms') ||
+    resolveMediaUrl(item.logo, null, 'cms')
+  )
 }
 
 const getItemTitle = (item: CmsItem): string => {
@@ -219,7 +228,9 @@ const stripHtml = (html?: string): string => {
                 >
                   <img
                     :src="getItemImage(item)"
+                    :alt="getItemTitle(item)"
                     class="w-full h-full object-cover"
+                    @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   >
                 </div>
                 <div>
@@ -328,7 +339,9 @@ const stripHtml = (html?: string): string => {
                     >
                       <img
                         :src="getItemImage(item)"
+                        :alt="getItemTitle(item)"
                         class="w-full h-full object-cover"
+                        @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                       >
                     </div>
                     <div>
