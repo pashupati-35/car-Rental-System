@@ -24,7 +24,7 @@ const emit = defineEmits<{
 const paymentForm = defineModel<PaymentFormData>('paymentForm', { required: true })
 
 const onBookingSelect = () => {
-  const b = props.bookings.find(item => item.id === Number(paymentForm.value.booking_id))
+  const b = props.bookings.find((item: CustomerBookingItem) => item.id === Number(paymentForm.value.booking_id))
   if (b) {
     paymentForm.value.car_id = b.car_id
     paymentForm.value.amount = b.total_price

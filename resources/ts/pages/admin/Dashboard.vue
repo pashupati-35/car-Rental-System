@@ -83,7 +83,7 @@ const verifyCar = (carId: number) => {
   router.patch(`/admin/cars/${carId}/verify`, {}, {
     preserveScroll: true,
     onSuccess: () => {
-      pendingCarsList.value = pendingCarsList.value.filter(c => c.id !== carId)
+      pendingCarsList.value = pendingCarsList.value.filter((c: any) => c.id !== carId)
       statsData.value.pendingCarsCount = Math.max(0, statsData.value.pendingCarsCount - 1)
       statsData.value.verifiedCarsCount += 1
     },
@@ -94,7 +94,7 @@ const rejectCar = (carId: number) => {
   router.patch(`/admin/cars/${carId}/reject`, {}, {
     preserveScroll: true,
     onSuccess: () => {
-      pendingCarsList.value = pendingCarsList.value.filter(c => c.id !== carId)
+      pendingCarsList.value = pendingCarsList.value.filter((c: any) => c.id !== carId)
       statsData.value.pendingCarsCount = Math.max(0, statsData.value.pendingCarsCount - 1)
       statsData.value.rejectedCarsCount += 1
     },
@@ -105,7 +105,7 @@ const confirmBooking = (bookingId: number) => {
   router.post(`/admin/bookings/${bookingId}/confirm`, {}, {
     preserveScroll: true,
     onSuccess: () => {
-      const b = recentBookingsList.value.find(item => item.id === bookingId)
+      const b = recentBookingsList.value.find((item: any) => item.id === bookingId)
       if (b) b.status = 'confirm'
     },
   })
@@ -115,7 +115,7 @@ const cancelBooking = (bookingId: number) => {
   router.post(`/admin/bookings/${bookingId}/cancel`, {}, {
     preserveScroll: true,
     onSuccess: () => {
-      const b = recentBookingsList.value.find(item => item.id === bookingId)
+      const b = recentBookingsList.value.find((item: any) => item.id === bookingId)
       if (b) b.status = 'cancel'
     },
   })

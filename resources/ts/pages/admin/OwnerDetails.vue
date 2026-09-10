@@ -82,7 +82,7 @@ const driverForm = ref({
 const filteredCars = computed(() => {
   let list = props.cars || []
   if (carStatusFilter.value !== 'all') {
-    list = list.filter(c => {
+    list = list.filter((c: any) => {
       if (carStatusFilter.value === 'verified') return c.status === 'verified' || c.status === 'available'
       if (carStatusFilter.value === 'pending') return c.status === 'pending'
       if (carStatusFilter.value === 'rejected') return c.status === 'rejected'
@@ -93,7 +93,7 @@ const filteredCars = computed(() => {
   if (carSearch.value.trim()) {
     const q = carSearch.value.toLowerCase()
 
-    list = list.filter(c => {
+    list = list.filter((c: any) => {
       const name = (c.car_name || '') + ' ' + (c.car_model || '')
       const num = c.car_number || ''
       
@@ -109,7 +109,7 @@ const filteredDrivers = computed(() => {
   if (driverSearch.value.trim()) {
     const q = driverSearch.value.toLowerCase()
 
-    list = list.filter(d => {
+    list = list.filter((d: any) => {
       const name = d.name || ''
       const phone = d.phone || ''
       const lic = d.license_number || ''
@@ -126,7 +126,7 @@ const filteredBookings = computed(() => {
   if (bookingSearch.value.trim()) {
     const q = bookingSearch.value.toLowerCase()
 
-    list = list.filter(b => {
+    list = list.filter((b: any) => {
       const id = String(b.id)
       const cust = b.customer?.name || ''
       const car = (b.car?.car_name || '') + ' ' + (b.car?.car_model || '')

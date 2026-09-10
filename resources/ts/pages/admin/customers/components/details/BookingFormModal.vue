@@ -19,7 +19,7 @@ const bookingForm = defineModel<Partial<CustomerBookingItem>>('bookingForm', { r
 
 const onCarSelect = () => {
   if (!props.isEditing && bookingForm.value.car_id) {
-    const car = props.availableCars.find(c => c.id === bookingForm.value.car_id)
+    const car = props.availableCars.find((c: any) => c.id === bookingForm.value.car_id)
     if (car && car.price_per_day) {
       bookingForm.value.total_price = Number(car.price_per_day)
     }

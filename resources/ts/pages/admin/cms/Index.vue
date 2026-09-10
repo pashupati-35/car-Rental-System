@@ -58,7 +58,7 @@ const modules: CmsModuleMeta[] = [
 ]
 
 const currentModuleMeta = computed<CmsModuleMeta>(() => {
-  return modules.find(m => m.id === activeModule.value) || modules[0]
+  return modules.find((m: CmsModuleMeta) => m.id === activeModule.value) || modules[0]
 })
 
 const siteSettings = computed({
