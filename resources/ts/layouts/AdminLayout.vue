@@ -21,7 +21,7 @@ const displayName = computed(() => {
 })
 
 const adminEmail = computed(() => {
-  return admin.value?.email || 'admin@autorent.com'
+  return admin.value?.email || 'admin@carrental.com'
 })
 
 const flashSuccess = ref('')
@@ -219,7 +219,7 @@ onUnmounted(() => {
               CR
             </div>
             <span class="font-black text-lg tracking-tight text-slate-900 dark:text-white hidden sm:inline font-sans">
-              AutoRent
+              Car Rental
             </span>
           </Link>
 
@@ -470,7 +470,7 @@ onUnmounted(() => {
                 CR
               </div>
               <div>
-                <span class="font-black text-base text-slate-900 dark:text-white block">AutoRent</span>
+                <span class="font-black text-base text-slate-900 dark:text-white block">Car Rental</span>
                 <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Admin Control Hub</span>
               </div>
             </div>
@@ -608,7 +608,7 @@ onUnmounted(() => {
             </div>
             <div class="flex flex-col min-w-0">
               <span class="font-black text-base tracking-wider text-slate-900 dark:text-white uppercase truncate font-sans">
-                AutoRent
+                Car Rental
               </span>
               <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
                 Admin Panel
@@ -734,7 +734,7 @@ onUnmounted(() => {
     <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-xs text-slate-500 font-sans">
       <div class="w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <span class="font-bold text-slate-700 dark:text-slate-300">AutoRent Super Admin Hub</span>
+          <span class="font-bold text-slate-700 dark:text-slate-300">Car Rental Super Admin Hub</span>
           <span class="text-slate-300 dark:text-slate-700">|</span>
           <span class="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -744,7 +744,7 @@ onUnmounted(() => {
 
         <div class="flex items-center gap-4 text-xs text-slate-400">
           <span>Enterprise v2.5</span>
-          <span>&copy; 2026 AutoRent Global Systems</span>
+          <span>&copy; 2026 Car Rental Global Systems</span>
           <Link
             href="/admin/cms"
             class="hover:text-indigo-600 transition-colors font-semibold"
