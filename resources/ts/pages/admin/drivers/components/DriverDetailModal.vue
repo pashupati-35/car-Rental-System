@@ -27,11 +27,13 @@ const formatDate = (date?: string) => {
 
 const getDriverImage = (d: DriverItem | null) => {
   if (!d) return ''
+  
   return resolveMediaUrl(d.image || d.photo, d.image_path || d.photo_path, 'driver')
 }
 
 const getLicensePhoto = (d: DriverItem | null) => {
   if (!d) return ''
+  
   return resolveMediaUrl(d.license_photo || d.license_photo_url, d.license_photo_path || d.file_path, 'driver')
 }
 </script>
@@ -200,9 +202,15 @@ const getLicensePhoto = (d: DriverItem | null) => {
                     class="w-full h-full object-cover"
                     @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                   >
-                  <span v-else class="text-xs text-slate-400 font-bold">No License File Uploaded</span>
+                  <span
+                    v-else
+                    class="text-xs text-slate-400 font-bold"
+                  >No License File Uploaded</span>
                 </div>
-                <div v-if="getLicensePhoto(driver)" class="text-right">
+                <div
+                  v-if="getLicensePhoto(driver)"
+                  class="text-right"
+                >
                   <a
                     :href="getLicensePhoto(driver)"
                     target="_blank"

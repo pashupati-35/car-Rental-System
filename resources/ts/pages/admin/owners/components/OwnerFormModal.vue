@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { resolveMediaUrl } from '@/utils/helpers'
 import type { OwnerItem } from '../types'
 import MessageBox from '@/components/MessageBox.vue'
@@ -151,6 +151,7 @@ const handlePhotoChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
+
     photoFile.value = file
     photoPreview.value = URL.createObjectURL(file)
   }
@@ -158,6 +159,7 @@ const handlePhotoChange = (event: Event) => {
 
 const handleSubmit = () => {
   const data = new FormData()
+
   data.append('full_name', form.value.full_name || `${form.value.first_name} ${form.value.last_name}`.trim())
   data.append('first_name', form.value.first_name)
   data.append('middle_name', form.value.middle_name)
@@ -254,7 +256,10 @@ const handleSubmit = () => {
         @submit.prevent="handleSubmit"
       >
         <!-- Tab 1: Identity & Personal -->
-        <div v-show="activeTab === 'personal'" class="space-y-4">
+        <div
+          v-show="activeTab === 'personal'"
+          class="space-y-4"
+        >
           <!-- Avatar Upload -->
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Profile Image</label>
@@ -263,7 +268,10 @@ const handleSubmit = () => {
                 v-if="photoPreview"
                 class="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 dark:border-slate-700 shrink-0"
               >
-                <img :src="photoPreview" class="w-full h-full object-cover">
+                <img
+                  :src="photoPreview"
+                  class="w-full h-full object-cover"
+                >
               </div>
               <div
                 v-else
@@ -339,9 +347,15 @@ const handleSubmit = () => {
                 v-model="form.gender"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="male">
+                  Male
+                </option>
+                <option value="female">
+                  Female
+                </option>
+                <option value="other">
+                  Other
+                </option>
               </select>
             </div>
             <div>
@@ -358,9 +372,15 @@ const handleSubmit = () => {
                 v-model="form.marital_status"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               >
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
+                <option value="single">
+                  Single
+                </option>
+                <option value="married">
+                  Married
+                </option>
+                <option value="divorced">
+                  Divorced
+                </option>
               </select>
             </div>
           </div>
@@ -397,7 +417,10 @@ const handleSubmit = () => {
         </div>
 
         <!-- Tab 2: Contact & Location -->
-        <div v-show="activeTab === 'contact'" class="space-y-4">
+        <div
+          v-show="activeTab === 'contact'"
+          class="space-y-4"
+        >
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Email Address *</label>
@@ -484,7 +507,10 @@ const handleSubmit = () => {
         </div>
 
         <!-- Tab 3: Emergency & Security -->
-        <div v-show="activeTab === 'emergency'" class="space-y-4">
+        <div
+          v-show="activeTab === 'emergency'"
+          class="space-y-4"
+        >
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Contact Person Name</label>
@@ -530,11 +556,19 @@ const handleSubmit = () => {
 
             <div class="space-y-2 pt-4">
               <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
-                <input v-model="form.is_active" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                <input
+                  v-model="form.is_active"
+                  type="checkbox"
+                  class="rounded text-indigo-600 focus:ring-indigo-500"
+                >
                 <span>Account Active & Enabled</span>
               </label>
               <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
-                <input v-model="form.is_mfa_enabled" type="checkbox" class="rounded text-indigo-600 focus:ring-indigo-500">
+                <input
+                  v-model="form.is_mfa_enabled"
+                  type="checkbox"
+                  class="rounded text-indigo-600 focus:ring-indigo-500"
+                >
                 <span>Require 2FA / MFA Authentication</span>
               </label>
             </div>
@@ -544,7 +578,7 @@ const handleSubmit = () => {
             v-if="!isEditing"
             class="p-3 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/60 text-indigo-900 dark:text-indigo-200 text-[11px] leading-relaxed"
           >
-            <i class="ri-shield-check-line font-bold mr-1" />
+            <i class="ri-shield-check-line font-bold me-1" />
             An automated invitation email containing a secure password setup link will also be dispatched upon registration.
           </div>
         </div>

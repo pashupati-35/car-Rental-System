@@ -11,7 +11,7 @@ export interface MediaItem {
   updated_at?: string
 }
 
-export interface MediaFilters extends BaseFilters {}
+export type MediaFilters = BaseFilters
 
 export type MediaListResponse = PaginatedResponse<MediaItem>
 

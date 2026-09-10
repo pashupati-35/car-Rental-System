@@ -27,6 +27,7 @@ const props = defineProps<{
 
 const logsList = computed<EmailLogItem[]>(() => {
   if (Array.isArray(props.logs)) return props.logs
+  
   return props.logs?.data || []
 })
 
@@ -145,7 +146,7 @@ const deleteEmailLog = async (id: number) => {
               v-model="searchQuery"
               type="text"
               placeholder="Search recipient, subject, mailable..."
-              class="w-full pl-9 pr-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              class="w-full ps-9 pe-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               @input="onSearchInput"
               @keyup.enter="applyFilters"
             >

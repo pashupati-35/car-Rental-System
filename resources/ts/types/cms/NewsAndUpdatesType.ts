@@ -12,7 +12,7 @@ export interface NewsAndUpdatesItem {
   updated_at?: string
 }
 
-export interface NewsAndUpdatesFilters extends BaseFilters {}
+export type NewsAndUpdatesFilters = BaseFilters
 
 export type NewsAndUpdatesListResponse = PaginatedResponse<NewsAndUpdatesItem>
 

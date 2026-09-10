@@ -63,6 +63,7 @@ export const resolveMediaUrl = (image?: any, imagePath?: any, defaultFolder = ''
     if (clean.startsWith('uploads/') || clean.startsWith('storage/')) {
       return `/${clean}`
     }
+    
     return defaultFolder ? `/uploads/${defaultFolder.replace(/^\/+|\/+$/g, '')}/${clean}` : `/uploads/${clean}`
   }
 
@@ -91,8 +92,10 @@ export const resolveMediaUrl = (image?: any, imagePath?: any, defaultFolder = ''
       if (clean.startsWith(folderClean + '/')) {
         return `/uploads/${clean}`
       }
+      
       return `/uploads/${folderClean}/${clean}`
     }
+    
     return `/uploads/${clean}`
   }
 

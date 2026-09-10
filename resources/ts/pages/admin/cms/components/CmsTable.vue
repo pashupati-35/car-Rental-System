@@ -46,6 +46,7 @@ const totalPages = computed(() => {
   if (props.meta) {
     return props.meta.last_page || 1
   }
+  
   return 1
 })
 
@@ -53,6 +54,7 @@ const totalItems = computed(() => {
   if (props.meta) {
     return props.meta.total || 0
   }
+  
   return props.items.length
 })
 
@@ -60,6 +62,7 @@ const fromIndex = computed(() => {
   if (props.meta?.from !== undefined && props.meta?.from !== null) {
     return props.meta.from
   }
+  
   return (currentPage.value - 1) * perPage.value + 1
 })
 
@@ -67,6 +70,7 @@ const toIndex = computed(() => {
   if (props.meta?.to !== undefined && props.meta?.to !== null) {
     return props.meta.to
   }
+  
   return Math.min(currentPage.value * perPage.value, totalItems.value)
 })
 
@@ -78,6 +82,7 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
+    
     return range
   }
 
@@ -145,6 +150,7 @@ const isEnquiryOrContact = computed(() => {
 
 const stripHtml = (html?: string): string => {
   if (!html) return ''
+  
   return html.replace(/<[^>]*>?/gm, '').replace(/&nbsp;/g, ' ').trim()
 }
 </script>
@@ -269,7 +275,10 @@ const stripHtml = (html?: string): string => {
               {{ stripHtml(item.short_description || item.description || item.message) }}
             </p>
 
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs" @click.stop>
+            <div
+              class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs"
+              @click.stop
+            >
               <span class="text-[11px] text-slate-400">
                 {{ item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A' }}
               </span>
@@ -388,7 +397,10 @@ const stripHtml = (html?: string): string => {
                 </td>
 
                 <!-- Status Toggle -->
-                <td class="py-4 px-5" @click.stop>
+                <td
+                  class="py-4 px-5"
+                  @click.stop
+                >
                   <button
                     v-if="item.is_active !== undefined"
                     type="button"
@@ -416,7 +428,10 @@ const stripHtml = (html?: string): string => {
                 </td>
 
                 <!-- Actions -->
-                <td class="py-4 px-5 text-right space-x-1.5" @click.stop>
+                <td
+                  class="py-4 px-5 text-right space-x-1.5"
+                  @click.stop
+                >
                   <button
                     type="button"
                     class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"

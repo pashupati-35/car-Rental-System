@@ -17,7 +17,7 @@ export interface TeamItem {
   updated_at?: string
 }
 
-export interface TeamFilters extends BaseFilters {}
+export type TeamFilters = BaseFilters
 
 export type TeamListResponse = PaginatedResponse<TeamItem>
 

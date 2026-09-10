@@ -12,7 +12,7 @@ export interface NoticeItem {
   updated_at?: string
 }
 
-export interface NoticeFilters extends BaseFilters {}
+export type NoticeFilters = BaseFilters
 
 export type NoticeListResponse = PaginatedResponse<NoticeItem>
 

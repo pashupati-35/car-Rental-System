@@ -20,6 +20,7 @@ const props = defineProps<{
 
 const customersList = computed<CustomerItem[]>(() => {
   if (Array.isArray(props.customers)) return props.customers
+  
   return props.customers?.data || []
 })
 
@@ -86,6 +87,7 @@ const submitNewCustomer = async (formData: FormData) => {
     const res = await axios.post('/admin/customers', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Customer profile created successfully!'
       showAddModal.value = false
@@ -112,6 +114,7 @@ const submitEditCustomer = async (formData: FormData) => {
     const res = await axios.post(`/admin/customers/${editingCustomer.value.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Customer profile updated successfully.'
       showEditModal.value = false

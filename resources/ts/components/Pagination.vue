@@ -83,6 +83,7 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
+    
     return range
   }
 
@@ -121,17 +122,19 @@ const goToPage = (page: number) => {
   // If using Inertia pagination with direct link url
   if (props.links && props.links.length > 0) {
     const targetLink = props.links.find(
-      (item: LinkItem) => item.label === String(page)
+      (item: LinkItem) => item.label === String(page),
     )
 
     if (targetLink && targetLink.url) {
       router.visit(targetLink.url, { preserveScroll: true, preserveState: true })
+      
       return
     }
   }
 
   // Fallback to URL search parameter navigation
   const currentUrl = new URL(window.location.href)
+
   currentUrl.searchParams.set('page', String(page))
   if (props.perPage) {
     currentUrl.searchParams.set('per_page', String(props.perPage))
@@ -146,6 +149,7 @@ const onPerPageChange = (event: Event) => {
   emit('update:perPage', val)
 
   const currentUrl = new URL(window.location.href)
+
   currentUrl.searchParams.set('per_page', String(val))
   currentUrl.searchParams.set('page', '1')
   router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })

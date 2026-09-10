@@ -43,8 +43,8 @@ const emit = defineEmits<{
           <div class="text-right">
             <span class="text-slate-400 font-bold block text-[10px] uppercase">Status</span>
             <span
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
               :class="[
-                'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase',
                 log.status === 'sent'
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                   : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'

@@ -13,7 +13,7 @@ export interface PageItem {
   updated_at?: string
 }
 
-export interface PageFilters extends BaseFilters {}
+export type PageFilters = BaseFilters
 
 export type PageListResponse = PaginatedResponse<PageItem>
 

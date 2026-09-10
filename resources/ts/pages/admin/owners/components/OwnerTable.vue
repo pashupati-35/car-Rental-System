@@ -192,7 +192,10 @@ const getOwnerImage = (owner: OwnerItem) => {
                 </span>
               </td>
 
-              <td class="py-4 px-5 text-right space-x-1.5" @click.stop>
+              <td
+                class="py-4 px-5 text-right space-x-1.5"
+                @click.stop
+              >
                 <button
                   type="button"
                   class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"

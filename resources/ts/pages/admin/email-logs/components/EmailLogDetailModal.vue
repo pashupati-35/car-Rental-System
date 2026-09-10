@@ -15,6 +15,7 @@ const formatDate = (dateStr?: string | null) => {
   if (!dateStr) return 'N/A'
   try {
     const d = new Date(dateStr)
+    
     return d.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -32,7 +33,7 @@ const formatJson = (data: any) => {
   if (!data) return 'None'
   try {
     return JSON.stringify(data, null, 2)
-  } catch (e) {
+  } catch {
     return String(data)
   }
 }
@@ -66,8 +67,8 @@ const formatJson = (data: any) => {
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status & Protocol</span>
             <span
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
               :class="[
-                'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                 log.status === 'sent'
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                   : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
@@ -108,10 +109,16 @@ const formatJson = (data: any) => {
             <div class="font-bold text-indigo-600 dark:text-indigo-400 font-mono text-sm break-all">
               {{ log.to }}
             </div>
-            <div v-if="log.cc" class="text-slate-500 font-mono text-[11px]">
+            <div
+              v-if="log.cc"
+              class="text-slate-500 font-mono text-[11px]"
+            >
               CC: {{ log.cc }}
             </div>
-            <div v-if="log.reply_to" class="text-slate-400 font-mono text-[10px]">
+            <div
+              v-if="log.reply_to"
+              class="text-slate-400 font-mono text-[10px]"
+            >
               Reply-To: {{ log.reply_to }}
             </div>
           </div>
@@ -123,7 +130,9 @@ const formatJson = (data: any) => {
           class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-200 space-y-1"
         >
           <span class="text-[10px] font-bold uppercase tracking-wider block">Error Trace</span>
-          <p class="font-mono text-xs">{{ log.error_message }}</p>
+          <p class="font-mono text-xs">
+            {{ log.error_message }}
+          </p>
         </div>
 
         <!-- Network Info -->
@@ -142,7 +151,10 @@ const formatJson = (data: any) => {
         </div>
 
         <!-- Headers / Attachments if any -->
-        <div v-if="log.headers" class="space-y-1">
+        <div
+          v-if="log.headers"
+          class="space-y-1"
+        >
           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Raw Headers</span>
           <div class="p-3 rounded-2xl bg-slate-900 text-emerald-400 font-mono text-[10px] overflow-x-auto max-h-32">
             <pre class="whitespace-pre-wrap">{{ formatJson(log.headers) }}</pre>

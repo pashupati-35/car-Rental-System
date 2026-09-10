@@ -18,11 +18,13 @@ const emit = defineEmits<{
 
 const getCarImage = (c: CarItem | null) => {
   if (!c) return ''
+  
   return resolveMediaUrl(c.car_photo || c.image, c.car_photo_path || c.image_path, 'car')
 }
 
 const getBlueBookImage = (c: CarItem | null) => {
   if (!c) return ''
+  
   return resolveMediaUrl(c.blue_book_photo || c.blue_book_url, c.blue_book_path || c.file_path, 'car')
 }
 </script>
@@ -69,13 +71,13 @@ const getBlueBookImage = (c: CarItem | null) => {
                 {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
               </h4>
               <span
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
                 :class="[
-                  'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                   car.status === 'verified' || car.status === 'available'
                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                     : car.status === 'pending'
-                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
-                    : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                      ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
+                      : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
                 ]"
               >
                 {{ car.status || 'pending' }}
@@ -89,7 +91,10 @@ const getBlueBookImage = (c: CarItem | null) => {
               ${{ car.price_per_day || car.rental_price || car.car_price_per_day || 0 }}
             </span>
             <span class="text-slate-400 block text-[10px]">/ 24 hours</span>
-            <span v-if="car.car_price_per_km" class="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] block">
+            <span
+              v-if="car.car_price_per_km"
+              class="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] block"
+            >
               +${{ car.car_price_per_km }}/km
             </span>
           </div>
@@ -132,7 +137,10 @@ const getBlueBookImage = (c: CarItem | null) => {
         </div>
 
         <!-- Blue Book / Registration Document -->
-        <div v-if="getBlueBookImage(car)" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2">
+        <div
+          v-if="getBlueBookImage(car)"
+          class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2"
+        >
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Bluebook / Registration Document</span>
           <div class="relative group max-h-36 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center">
             <img
@@ -144,6 +152,7 @@ const getBlueBookImage = (c: CarItem | null) => {
             <a
               :href="getBlueBookImage(car)"
               target="_blank"
+              rel="noopener noreferrer"
               class="absolute bottom-2 right-2 px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-[10px] flex items-center gap-1 shadow"
             >
               <i class="ri-external-link-line" />

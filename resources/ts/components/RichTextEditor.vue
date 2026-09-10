@@ -26,6 +26,7 @@ const editableRef = ref<HTMLDivElement | null>(null)
 const isSourceMode = ref(false)
 const sourceContent = ref(props.modelValue || '')
 const isFocused = ref(false)
+
 const activeFormats = ref({
   bold: false,
   italic: false,
@@ -56,6 +57,7 @@ const syncToModel = () => {
     emit('update:modelValue', sourceContent.value)
   } else if (editableRef.value) {
     const html = editableRef.value.innerHTML
+
     // Check if effectively empty
     if (html === '<br>' || html === '<p><br></p>' || html.trim() === '') {
       emit('update:modelValue', '')
@@ -288,7 +290,7 @@ onMounted(() => {
         <button
           type="button"
           :class="isSourceMode ? 'bg-indigo-600 text-white shadow-xs' : 'hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'"
-          class="px-2.5 h-7 rounded-lg flex items-center gap-1 text-[11px] font-bold cursor-pointer transition-all ml-auto"
+          class="px-2.5 h-7 rounded-lg flex items-center gap-1 text-[11px] font-bold cursor-pointer transition-all ms-auto"
           title="Toggle HTML Source Code View"
           @click="toggleSourceMode"
         >

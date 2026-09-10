@@ -18,6 +18,7 @@ const emit = defineEmits<{
 const itemImage = computed(() => {
   if (!props.item) return ''
   const it = props.item
+  
   return (
     resolveMediaUrl(it.image, it.image_path, 'cms') ||
     resolveMediaUrl(it.cover_image, it.cover_image_path, 'cms') ||
@@ -32,15 +33,19 @@ const itemImage = computed(() => {
 const itemTitle = computed(() => {
   if (!props.item) return ''
   const it = props.item
+  
   return it.title || it.question || it.name || it.subject || it.heading || it.menu_title || it.label || `Record #${it.id}`
 })
 
 const itemSubtitle = computed(() => {
   if (!props.item) return ''
   const it = props.item
+
   const cat = typeof it.category === 'object' && it.category !== null 
     ? (it.category.name || it.category.title || it.category.label || '') 
     : it.category
+
+  
   return it.subtitle || cat || it.position_title || it.designation || it.email || it.slug || ''
 })
 
@@ -72,10 +77,27 @@ const formatKeyLabel = (key: string) => {
 
 // Filter keys for key-value display table (excluding bulky/nested/internal ones)
 const ignoredKeys = new Set([
-  'id', 'image', 'banner_image', 'image_path', 'photo', 'cover_image',
-  'avatar', 'logo', 'created_at', 'updated_at', 'deleted_at',
-  'password', 'remember_token', 'author_image', 'author_image_path',
-  'description', 'content', 'answer', 'body', 'message', 'requirements'
+  'id',
+  'image',
+  'banner_image',
+  'image_path',
+  'photo',
+  'cover_image',
+  'avatar',
+  'logo',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'password',
+  'remember_token',
+  'author_image',
+  'author_image_path',
+  'description',
+  'content',
+  'answer',
+  'body',
+  'message',
+  'requirements',
 ])
 
 const formatValue = (val: any): string => {
@@ -85,19 +107,23 @@ const formatValue = (val: any): string => {
       if (typeof item === 'object' && item !== null) {
         return item.title || item.name || item.label || item.full_name || JSON.stringify(item)
       }
+      
       return String(item)
     }).join(', ')
   }
   if (typeof val === 'object' && val !== null) {
     return val.title || val.name || val.label || val.full_name || JSON.stringify(val)
   }
+  
   return String(val)
 }
 
 const displayableProperties = computed(() => {
   if (!props.item) return []
+  
   return Object.entries(props.item).filter(([k, v]) => {
     if (ignoredKeys.has(k)) return false
+    
     return v !== null && v !== undefined && v !== ''
   })
 })
@@ -108,9 +134,7 @@ const displayableProperties = computed(() => {
     v-if="show && item"
     class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-200"
   >
-    <div
-      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
-    >
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
       <!-- Header -->
       <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40 shrink-0">
         <div class="flex items-center gap-3">

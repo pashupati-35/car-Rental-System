@@ -271,8 +271,8 @@ const updateProfile = async () => {
           <div
             v-for="card in themeCards"
             :key="card.id"
+            class="p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden"
             :class="[
-              'p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden',
               theme === card.id 
                 ? 'border-indigo-600 dark:border-indigo-500 bg-indigo-50/40 dark:bg-indigo-950/30 shadow-md ring-2 ring-indigo-500/20' 
                 : 'border-slate-200/80 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-800/30'
@@ -303,7 +303,10 @@ const updateProfile = async () => {
 
               <div>
                 <div class="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
-                  <i :class="card.icon" class="text-base text-indigo-600 dark:text-indigo-400" />
+                  <i
+                    :class="card.icon"
+                    class="text-base text-indigo-600 dark:text-indigo-400"
+                  />
                   <span>{{ card.title }}</span>
                 </div>
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">

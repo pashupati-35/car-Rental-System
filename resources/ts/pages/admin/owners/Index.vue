@@ -20,6 +20,7 @@ const props = defineProps<{
 
 const ownersList = computed<OwnerItem[]>(() => {
   if (Array.isArray(props.owners)) return props.owners
+  
   return props.owners?.data || []
 })
 
@@ -86,6 +87,7 @@ const submitNewOwner = async (formData: FormData) => {
     const res = await axios.post('/admin/owners', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Fleet Owner registered successfully!'
       showAddModal.value = false
@@ -112,6 +114,7 @@ const submitEditOwner = async (formData: FormData) => {
     const res = await axios.post(`/admin/owners/${editingOwner.value.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Owner profile updated successfully.'
       showEditModal.value = false

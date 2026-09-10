@@ -13,6 +13,7 @@ export function useAdminTheme() {
   const serverTheme = computed<AdminThemeStyle>(() => {
     const auth = page.props.auth as any
     const user = auth?.admin || auth?.user
+    
     return (user?.theme_style as AdminThemeStyle) || 'dark'
   })
 
@@ -83,7 +84,7 @@ export function useAdminTheme() {
         applyThemeToDOM(newTheme)
       }
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   return {

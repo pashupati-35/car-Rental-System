@@ -15,7 +15,7 @@ export interface AlbumItem {
   updated_at?: string
 }
 
-export interface AlbumFilters extends BaseFilters {}
+export type AlbumFilters = BaseFilters
 
 export type AlbumListResponse = PaginatedResponse<AlbumItem>
 

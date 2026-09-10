@@ -13,7 +13,7 @@ export interface PartnerItem {
   updated_at?: string
 }
 
-export interface PartnerFilters extends BaseFilters {}
+export type PartnerFilters = BaseFilters
 
 export type PartnerListResponse = PaginatedResponse<PartnerItem>
 

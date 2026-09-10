@@ -32,6 +32,7 @@ const carsList = computed<Array<any>>(() => {
 
 const getCarImage = (car: any) => {
   const url = resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
+  
   return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'
 }
 

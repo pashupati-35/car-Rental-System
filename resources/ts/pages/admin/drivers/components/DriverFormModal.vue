@@ -92,6 +92,7 @@ const handlePhotoChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
+
     photoFile.value = file
     photoPreview.value = URL.createObjectURL(file)
   }
@@ -101,6 +102,7 @@ const handleLicensePhotoChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
+
     licensePhotoFile.value = file
     licensePhotoPreview.value = URL.createObjectURL(file)
   }
@@ -108,6 +110,7 @@ const handleLicensePhotoChange = (event: Event) => {
 
 const handleSubmit = () => {
   const data = new FormData()
+
   data.append('name', form.value.name)
   data.append('phone', form.value.phone)
   data.append('email', form.value.email || '')

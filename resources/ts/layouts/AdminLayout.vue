@@ -39,6 +39,7 @@ watch(
   },
   { immediate: true, deep: true },
 )
+
 const currentUrl = computed(() => page.url)
 
 const liveSiteUrl = computed(() => {
@@ -46,8 +47,10 @@ const liveSiteUrl = computed(() => {
     const host = window.location.host
     const protocol = window.location.protocol
     const publicHost = host.replace(/^portal\./, '')
+    
     return `${protocol}//${publicHost}/`
   }
+  
   return '/'
 })
 
@@ -59,50 +62,50 @@ const adminNav = computed(() => [
     title: 'Fleet Cars Verification', 
     icon: 'ri-car-line', 
     href: '/admin/cars', 
-    badge: adminCounts.value.pendingCars ? `${adminCounts.value.pendingCars} Pend` : (adminCounts.value.totalCars ? String(adminCounts.value.totalCars) : '') 
+    badge: adminCounts.value.pendingCars ? `${adminCounts.value.pendingCars} Pend` : (adminCounts.value.totalCars ? String(adminCounts.value.totalCars) : ''), 
   },
   { 
     title: 'Driver Directory', 
     icon: 'ri-user-star-line', 
     href: '/admin/drivers', 
-    badge: adminCounts.value.totalDrivers ? String(adminCounts.value.totalDrivers) : '' 
+    badge: adminCounts.value.totalDrivers ? String(adminCounts.value.totalDrivers) : '', 
   },
   { 
     title: 'Rental Bookings', 
     icon: 'ri-calendar-check-line', 
     href: '/admin/booked-cars', 
-    badge: adminCounts.value.pendingBookings ? `${adminCounts.value.pendingBookings} Pend` : (adminCounts.value.totalBookings ? String(adminCounts.value.totalBookings) : '') 
+    badge: adminCounts.value.pendingBookings ? `${adminCounts.value.pendingBookings} Pend` : (adminCounts.value.totalBookings ? String(adminCounts.value.totalBookings) : ''), 
   },
   { 
     title: 'Fleet Owners', 
     icon: 'ri-building-line', 
     href: '/admin/owners', 
-    badge: adminCounts.value.totalOwners ? String(adminCounts.value.totalOwners) : '' 
+    badge: adminCounts.value.totalOwners ? String(adminCounts.value.totalOwners) : '', 
   },
   { 
     title: 'Customers', 
     icon: 'ri-user-smile-line', 
     href: '/admin/customers', 
-    badge: adminCounts.value.totalCustomers ? String(adminCounts.value.totalCustomers) : '' 
+    badge: adminCounts.value.totalCustomers ? String(adminCounts.value.totalCustomers) : '', 
   },
   { title: 'Master CMS Suite', icon: 'ri-layout-masonry-line', href: '/admin/cms', badge: '16' },
   { 
     title: 'Email Templates', 
     icon: 'ri-mail-settings-line', 
     href: '/admin/email-templates', 
-    badge: adminCounts.value.totalEmailTemplates ? String(adminCounts.value.totalEmailTemplates) : '' 
+    badge: adminCounts.value.totalEmailTemplates ? String(adminCounts.value.totalEmailTemplates) : '', 
   },
   { 
     title: 'Activity Logs', 
     icon: 'ri-history-line', 
     href: '/admin/activity-logs', 
-    badge: '' 
+    badge: '', 
   },
   { 
     title: 'Email Logs', 
     icon: 'ri-mail-check-line', 
     href: '/admin/email-logs', 
-    badge: '' 
+    badge: '', 
   },
   { title: 'Admin Profile', icon: 'ri-user-settings-line', href: '/admin/profile', badge: '' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/admin/security', badge: '' },
@@ -164,6 +167,7 @@ const currentThemeIcon = computed(() => {
   if (theme.value === 'light') return 'ri-sun-line text-amber-500'
   if (theme.value === 'midnight') return 'ri-sparkling-2-line text-purple-400'
   if (theme.value === 'system') return 'ri-computer-line text-blue-400'
+  
   return 'ri-moon-clear-line text-indigo-400'
 })
 
@@ -313,7 +317,10 @@ onUnmounted(() => {
               title="Change Theme Style"
               @click="showThemeMenu = !showThemeMenu; showProfileMenu = false; showCmsMenu = false"
             >
-              <i :class="currentThemeIcon" class="text-base" />
+              <i
+                :class="currentThemeIcon"
+                class="text-base"
+              />
               <span class="hidden sm:inline capitalize">{{ theme }}</span>
               <i
                 class="ri-arrow-down-s-line text-xs transition-transform"
@@ -337,7 +344,10 @@ onUnmounted(() => {
                 @click="setTheme(opt.value); showThemeMenu = false"
               >
                 <div class="flex items-center gap-2">
-                  <i :class="opt.icon" class="text-sm" />
+                  <i
+                    :class="opt.icon"
+                    class="text-sm"
+                  />
                   <span>{{ opt.label }}</span>
                 </div>
                 <i
@@ -549,7 +559,7 @@ onUnmounted(() => {
 
               <div
                 v-if="isMobileCmsExpanded"
-                class="py-1 pl-4 pr-1 space-y-0.5 max-h-56 overflow-y-auto"
+                class="py-1 ps-4 pe-1 space-y-0.5 max-h-56 overflow-y-auto"
               >
                 <Link
                   v-for="c in cmsQuickLinks"
@@ -615,7 +625,7 @@ onUnmounted(() => {
           </div>
 
           <!-- Main Nav List (Matching screenshot pill items) -->
-          <nav class="space-y-1.5 flex-1 overflow-y-auto no-scrollbar pr-0.5">
+          <nav class="space-y-1.5 flex-1 overflow-y-auto no-scrollbar pe-0.5">
             <Link
               v-for="item in adminNav"
               :key="item.title"
@@ -663,7 +673,7 @@ onUnmounted(() => {
 
               <div
                 v-if="isMobileCmsExpanded"
-                class="mt-1 ml-4 pl-3 border-l border-slate-300 dark:border-slate-800 space-y-0.5 max-h-48 overflow-y-auto py-1"
+                class="mt-1 ms-4 ps-3 border-l border-slate-300 dark:border-slate-800 space-y-0.5 max-h-48 overflow-y-auto py-1"
               >
                 <Link
                   v-for="c in cmsQuickLinks"
@@ -672,7 +682,10 @@ onUnmounted(() => {
                   :class="currentUrl.includes(c.href.split('?')[1] || '') ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/80 dark:bg-slate-800/60' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/40'"
                   class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors"
                 >
-                  <i :class="c.icon" class="text-sm text-indigo-500" />
+                  <i
+                    :class="c.icon"
+                    class="text-sm text-indigo-500"
+                  />
                   <span class="truncate">{{ c.label }}</span>
                 </Link>
               </div>

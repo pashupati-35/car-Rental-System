@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, computed } from 'vue'
+import { watch, onMounted, onUnmounted, computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -37,6 +37,7 @@ const isVisible = computed(() => {
   if (typeof props.message === 'string') {
     return Boolean(props.message.trim())
   }
+  
   return false
 })
 
@@ -47,6 +48,7 @@ const displayMessage = computed(() => {
   if (typeof props.message === 'string') {
     return props.message
   }
+  
   return ''
 })
 
@@ -100,31 +102,31 @@ onUnmounted(() => {
 
 const typeConfig = computed(() => {
   switch (props.type) {
-    case 'error':
-      return {
-        wrapper: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200',
-        icon: 'ri-error-warning-fill text-rose-600 dark:text-rose-400',
-        closeBtn: 'text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40',
-      }
-    case 'warning':
-      return {
-        wrapper: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200',
-        icon: 'ri-alert-fill text-amber-600 dark:text-amber-400',
-        closeBtn: 'text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40',
-      }
-    case 'info':
-      return {
-        wrapper: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-800 dark:text-indigo-200',
-        icon: 'ri-information-fill text-indigo-600 dark:text-indigo-400',
-        closeBtn: 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40',
-      }
-    case 'success':
-    default:
-      return {
-        wrapper: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200',
-        icon: 'ri-checkbox-circle-fill text-emerald-600 dark:text-emerald-400',
-        closeBtn: 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40',
-      }
+  case 'error':
+    return {
+      wrapper: 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200',
+      icon: 'ri-error-warning-fill text-rose-600 dark:text-rose-400',
+      closeBtn: 'text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/40',
+    }
+  case 'warning':
+    return {
+      wrapper: 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-200',
+      icon: 'ri-alert-fill text-amber-600 dark:text-amber-400',
+      closeBtn: 'text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40',
+    }
+  case 'info':
+    return {
+      wrapper: 'bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200 dark:border-indigo-800/60 text-indigo-800 dark:text-indigo-200',
+      icon: 'ri-information-fill text-indigo-600 dark:text-indigo-400',
+      closeBtn: 'text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40',
+    }
+  case 'success':
+  default:
+    return {
+      wrapper: 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200',
+      icon: 'ri-checkbox-circle-fill text-emerald-600 dark:text-emerald-400',
+      closeBtn: 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40',
+    }
   }
 })
 </script>

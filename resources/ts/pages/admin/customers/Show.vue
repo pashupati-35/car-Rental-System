@@ -39,6 +39,7 @@ const profileForm = ref<Partial<CustomerItem>>({
 
 const resolveCustomerImage = (c: CustomerItem) => {
   if (!c) return ''
+  
   return resolveMediaUrl(c.image || c.photo, c.image_path, 'customer')
 }
 
@@ -61,6 +62,7 @@ const saveCustomerProfile = async (formData: FormData) => {
     const res = await axios.post(`/admin/customers/${props.customer.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Customer profile updated successfully.'
       showEditProfileModal.value = false

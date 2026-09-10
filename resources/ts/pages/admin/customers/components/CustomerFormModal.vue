@@ -144,13 +144,14 @@ watch(
     photoFile.value = null
     activeTab.value = 'personal'
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 const handleImageChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
+
     photoFile.value = file
     photoPreview.value = URL.createObjectURL(file)
   }
@@ -190,6 +191,7 @@ const handleSubmit = () => {
   // Auto-compose name if missing
   if (!form.value.name) {
     const parts = [form.value.first_name, form.value.middle_name, form.value.last_name].filter(Boolean)
+
     form.value.name = parts.join(' ')
   }
 
@@ -219,9 +221,7 @@ const handleSubmit = () => {
     v-if="show"
     class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-200"
   >
-    <div
-      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
-    >
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
       <!-- Modal Header -->
       <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40 shrink-0">
         <div class="flex items-center gap-3">
@@ -251,8 +251,8 @@ const handleSubmit = () => {
       <div class="flex border-b border-slate-100 dark:border-slate-800 px-6 bg-slate-50/30 dark:bg-slate-800/20 shrink-0">
         <button
           type="button"
+          class="py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors"
           :class="[
-            'py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors',
             activeTab === 'personal'
               ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -265,8 +265,8 @@ const handleSubmit = () => {
 
         <button
           type="button"
+          class="py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors"
           :class="[
-            'py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors',
             activeTab === 'contact'
               ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -279,8 +279,8 @@ const handleSubmit = () => {
 
         <button
           type="button"
+          class="py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors"
           :class="[
-            'py-3 px-4 font-bold text-xs border-b-2 flex items-center gap-2 cursor-pointer transition-colors',
             activeTab === 'emergency'
               ? 'border-indigo-600 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400'
               : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
@@ -420,9 +420,15 @@ const handleSubmit = () => {
                   v-model="form.gender"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
+                  <option value="male">
+                    Male
+                  </option>
+                  <option value="female">
+                    Female
+                  </option>
+                  <option value="other">
+                    Other
+                  </option>
                 </select>
               </div>
               <div>
@@ -439,10 +445,18 @@ const handleSubmit = () => {
                   v-model="form.marital_status"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
-                  <option value="single">Single</option>
-                  <option value="married">Married</option>
-                  <option value="divorced">Divorced</option>
-                  <option value="widowed">Widowed</option>
+                  <option value="single">
+                    Single
+                  </option>
+                  <option value="married">
+                    Married
+                  </option>
+                  <option value="divorced">
+                    Divorced
+                  </option>
+                  <option value="widowed">
+                    Widowed
+                  </option>
                 </select>
               </div>
             </div>

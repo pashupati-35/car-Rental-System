@@ -45,28 +45,22 @@ const selectedDriver = ref<any | null>(null)
 // Image resolvers
 const resolveOwnerImage = (o: any) => {
   if (!o) return ''
+  
   return resolveMediaUrl(o.image, o.image_path, 'owner')
 }
 
 const resolveDriverImage = (d: any) => {
   if (!d) return ''
+  
   return resolveMediaUrl(d.image || d.photo, d.image_path || d.photo_path, 'driver')
 }
 
 const resolveCarImage = (c: any) => {
   if (!c) return 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'
   const url = resolveMediaUrl(c.car_photo || c.image, c.car_photo_path || c.image_path, 'car')
+  
   return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=400&auto=format&fit=crop&q=80'
 }
-
-const ownerForm = ref({
-  full_name: props.owner.full_name || '',
-  email: props.owner.email || '',
-  contact_number: props.owner.contact_number || '',
-  address: props.owner.address || '',
-  gender: props.owner.gender || 'male',
-  password: '',
-})
 
 // Car Form
 const carForm = ref({
@@ -167,6 +161,7 @@ const submitUpdateOwner = async (formData: FormData) => {
     const res = await axios.post(`/admin/owners/${props.owner.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200) {
       showEditOwnerModal.value = false
       router.reload({ only: ['owner'] })

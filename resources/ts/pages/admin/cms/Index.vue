@@ -25,7 +25,6 @@ import {
   PartnerService,
   NoticeService,
   NewsAndUpdatesService,
-  MediaService,
   MenuService,
   PopupService,
   AlbumService,
@@ -146,6 +145,7 @@ const fetchModuleData = async (): Promise<void> => {
         per_page: perPage.value,
         search: searchQuery.value || undefined,
       }
+
       const res = await service.list(filters)
       
       // Handle Laravel LengthAwarePaginator / ResourceCollection structure
@@ -311,6 +311,7 @@ const toggleStatus = async (item: CmsItem): Promise<void> => {
   try {
     const service = getActiveService()
     const newStatus = item.is_active ? 0 : 1
+
     await service.update(item.id, { is_active: newStatus })
     item.is_active = newStatus
   } catch (err) {

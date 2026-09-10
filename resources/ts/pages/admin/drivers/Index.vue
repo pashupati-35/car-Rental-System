@@ -115,6 +115,7 @@ const submitNewDriver = async (formData: FormData) => {
     const res = await axios.post('/admin/drivers', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Chauffeur registered successfully!'
       showAddModal.value = false
@@ -135,6 +136,7 @@ const submitEditDriver = async (formData: FormData) => {
     const res = await axios.post(`/admin/drivers/${editingDriver.value.id}`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     })
+
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Driver details updated.'
       showEditModal.value = false
@@ -324,7 +326,7 @@ const deleteDriver = async (driverId: number) => {
       <!-- Edit Driver Modal -->
       <DriverFormModal
         :show="showEditModal"
-        :is-editing="true"
+        is-editing
         :driver="editingDriver"
         :owners="ownersList"
         :submitting="submitting"

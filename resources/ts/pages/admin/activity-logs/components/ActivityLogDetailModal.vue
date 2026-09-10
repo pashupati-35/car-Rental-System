@@ -14,7 +14,7 @@ const formatJson = (data: any) => {
   if (!data) return 'None'
   try {
     return JSON.stringify(data, null, 2)
-  } catch (e) {
+  } catch {
     return String(data)
   }
 }
@@ -23,6 +23,7 @@ const formatDate = (dateStr?: string) => {
   if (!dateStr) return 'N/A'
   try {
     const d = new Date(dateStr)
+    
     return d.toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -65,15 +66,15 @@ const formatDate = (dateStr?: string) => {
           <div class="flex items-center justify-between">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Log Action / Type</span>
             <span
+              class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
               :class="[
-                'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                 log.log_type === 'login' || log.log_type === 'create'
                   ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                   : log.log_type === 'delete'
-                  ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
-                  : log.log_type === 'update'
-                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
-                  : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
+                    ? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                    : log.log_type === 'update'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+                      : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
               ]"
             >
               {{ log.log_type }}
@@ -99,7 +100,10 @@ const formatDate = (dateStr?: string) => {
             <div class="text-slate-500 dark:text-slate-400 text-[11px]">
               Role: <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ log.causer_role || 'System' }}</span>
             </div>
-            <div v-if="log.causer?.email" class="text-slate-400 text-[11px] font-mono truncate">
+            <div
+              v-if="log.causer?.email"
+              class="text-slate-400 text-[11px] font-mono truncate"
+            >
               {{ log.causer.email }}
             </div>
           </div>
@@ -112,7 +116,10 @@ const formatDate = (dateStr?: string) => {
             <div class="text-slate-500 dark:text-slate-400 text-[11px]">
               Subject ID: <span class="font-mono">{{ log.subject_id ?? 'N/A' }}</span>
             </div>
-            <div v-if="log.subject_type" class="text-slate-400 text-[10px] font-mono truncate">
+            <div
+              v-if="log.subject_type"
+              class="text-slate-400 text-[10px] font-mono truncate"
+            >
               {{ log.subject_type }}
             </div>
           </div>
@@ -127,7 +134,10 @@ const formatDate = (dateStr?: string) => {
 
           <div class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-1 overflow-hidden">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">User Agent</span>
-            <span class="text-slate-600 dark:text-slate-400 text-[10px] font-mono line-clamp-2 block" :title="log.user_agent || ''">
+            <span
+              class="text-slate-600 dark:text-slate-400 text-[10px] font-mono line-clamp-2 block"
+              :title="log.user_agent || ''"
+            >
               {{ log.user_agent || 'Unknown Client' }}
             </span>
           </div>

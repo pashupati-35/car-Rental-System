@@ -15,12 +15,14 @@ const emit = defineEmits<{
 }>()
 
 const imgError = ref(false)
+
 watch(() => props.customer, () => {
   imgError.value = false
 })
 
 const avatarUrl = computed(() => {
   if (!props.customer) return ''
+  
   return resolveMediaUrl(props.customer.image, props.customer.image_path, 'customer')
 })
 
@@ -58,9 +60,7 @@ const formatDateTime = (dateStr?: string) => {
     v-if="show && customer"
     class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-200"
   >
-    <div
-      class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]"
-    >
+    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl w-full max-w-4xl overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
       <!-- Modal Header -->
       <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/40 shrink-0">
         <div class="flex items-center gap-3">
@@ -155,14 +155,14 @@ const formatDateTime = (dateStr?: string) => {
 
             <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
               <span class="px-2.5 py-1 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                <i class="ri-calendar-check-line text-indigo-500 mr-1" />
+                <i class="ri-calendar-check-line text-indigo-500 me-1" />
                 {{ customer.bookings_count ?? 0 }} Total Bookings
               </span>
               <span
                 v-if="customer.is_mfa_enabled"
                 class="px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[10px]"
               >
-                <i class="ri-shield-keyhole-line mr-0.5" /> MFA Enabled
+                <i class="ri-shield-keyhole-line me-0.5" /> MFA Enabled
               </span>
             </div>
           </div>

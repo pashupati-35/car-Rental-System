@@ -33,7 +33,7 @@ const props = withDefaults(
   }>(),
   {
     bookingTrends: () => [],
-  }
+  },
 )
 
 const activeMetric = ref<'revenue' | 'bookings' | 'cumulative'>('revenue')
@@ -59,6 +59,7 @@ const trendData = computed(() => {
   for (let i = 1; i <= count; i++) {
     const variance = Math.sin(i * 0.8) * (avg * 0.45)
     const amount = Math.max(80, Math.round(avg + variance))
+
     fallback.push({
       id: i,
       booking_id: i,
@@ -71,25 +72,30 @@ const trendData = computed(() => {
       car_number: `BA-${i}-PA`,
     })
   }
+  
   return fallback
 })
 
 // Max metric values for scaling
 const maxAmount = computed(() => {
   const max = Math.max(...trendData.value.map((d: BookingTrendPoint) => d.amount), 500)
+  
   return Math.ceil(max / 100) * 100
 })
 
 const cumulativeData = computed(() => {
   let runningTotal = 0
+  
   return trendData.value.map((d: BookingTrendPoint) => {
     runningTotal += d.amount
+    
     return runningTotal
   })
 })
 
 const maxCumulative = computed(() => {
   const max = cumulativeData.value[cumulativeData.value.length - 1] || 1000
+  
   return Math.ceil(max / 500) * 500
 })
 
@@ -111,14 +117,17 @@ const chartPoints = computed(() => {
 
     if (activeMetric.value === 'revenue') {
       const ratio = item.amount / maxAmount.value
+
       y = padding.top + usableHeight - ratio * usableHeight
     } else if (activeMetric.value === 'bookings') {
       // Step or index elevation with status factor
       const weight = item.status === 'confirm' || item.status === 'completed' ? 0.85 : item.status === 'pending' ? 0.5 : 0.25
+
       y = padding.top + usableHeight - weight * usableHeight
     } else {
       const cumVal = cumulativeData.value[index] || 0
       const ratio = cumVal / maxCumulative.value
+
       y = padding.top + usableHeight - ratio * usableHeight
     }
 
@@ -152,6 +161,7 @@ const smoothLinePath = computed(() => {
 
     d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`
   }
+  
   return d
 })
 
@@ -163,6 +173,7 @@ const smoothAreaPath = computed(() => {
   const first = pts[0]
   const last = pts[pts.length - 1]
   const baselineY = svgHeight - padding.bottom
+  
   return `${lineD} L ${last.x.toFixed(1)} ${baselineY} L ${first.x.toFixed(1)} ${baselineY} Z`
 })
 
@@ -176,21 +187,25 @@ const yAxisGrid = computed(() => {
     let label = ''
     if (activeMetric.value === 'revenue') {
       const val = Math.round(maxAmount.value * (1 - i / count))
+
       label = `$${val}`
     } else if (activeMetric.value === 'bookings') {
       label = i === 0 ? 'High' : i === 2 ? 'Med' : i === 4 ? 'Low' : ''
     } else {
       const val = Math.round(maxCumulative.value * (1 - i / count))
+
       label = `$${val >= 1000 ? (val / 1000).toFixed(1) + 'k' : val}`
     }
     lines.push({ y, label })
   }
+  
   return lines
 })
 
 // Currently active/hovered point details
 const activeHoverPoint = computed(() => {
   if (hoveredIndex.value === null) return null
+  
   return chartPoints.value[hoveredIndex.value] || null
 })
 
@@ -198,6 +213,7 @@ const activeHoverPoint = computed(() => {
 const shouldShowLabel = (idx: number, total: number): boolean => {
   if (total <= 10) return true
   const step = Math.ceil(total / 8) || 1
+  
   return idx % step === 0 || idx === total - 1
 }
 
@@ -332,6 +348,7 @@ const avgBookingValue = computed(() => {
   const rev = props.stats.totalRevenue || 0
   const b = props.stats.totalBookings || 0
   if (!b) return '$0'
+  
   return `$${Math.round(rev / b)}`
 })
 
@@ -339,6 +356,7 @@ const confirmationRate = computed(() => {
   const b = props.stats.totalBookings || 0
   const conf = props.stats.confirmedBookings || 0
   if (!b) return '0%'
+  
   return `${Math.round((conf / b) * 100)}%`
 })
 
@@ -346,6 +364,7 @@ const driverAllocationRate = computed(() => {
   const cars = props.stats.totalCars || 0
   const drivers = props.stats.totalDrivers || 0
   if (!cars) return '100%'
+  
   return `${Math.min(100, Math.round((drivers / cars) * 100))}%`
 })
 </script>
@@ -447,7 +466,7 @@ const driverAllocationRate = computed(() => {
               :class="activeMetric === 'revenue' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-2xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
               @click="activeMetric = 'revenue'"
             >
-              <i class="ri-line-chart-line mr-1" /> Revenue ($)
+              <i class="ri-line-chart-line me-1" /> Revenue ($)
             </button>
             <button
               type="button"
@@ -455,7 +474,7 @@ const driverAllocationRate = computed(() => {
               :class="activeMetric === 'cumulative' ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-2xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
               @click="activeMetric = 'cumulative'"
             >
-              <i class="ri-funds-line mr-1" /> Cumulative
+              <i class="ri-funds-line me-1" /> Cumulative
             </button>
             <button
               type="button"
@@ -463,7 +482,7 @@ const driverAllocationRate = computed(() => {
               :class="activeMetric === 'bookings' ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-2xs' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
               @click="activeMetric = 'bookings'"
             >
-              <i class="ri-calendar-event-line mr-1" /> Volume
+              <i class="ri-calendar-event-line me-1" /> Volume
             </button>
           </div>
 
@@ -489,31 +508,97 @@ const driverAllocationRate = computed(() => {
         >
           <defs>
             <!-- Area Gradient for Revenue -->
-            <linearGradient id="areaGradientRevenue" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.38" />
-              <stop offset="70%" stop-color="#3B82F6" stop-opacity="0.08" />
-              <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.0" />
+            <linearGradient
+              id="areaGradientRevenue"
+              x1="0%"
+              y1="0%"
+              x2="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stop-color="#4F46E5"
+                stop-opacity="0.38"
+              />
+              <stop
+                offset="70%"
+                stop-color="#3B82F6"
+                stop-opacity="0.08"
+              />
+              <stop
+                offset="100%"
+                stop-color="#3B82F6"
+                stop-opacity="0.0"
+              />
             </linearGradient>
 
             <!-- Area Gradient for Cumulative -->
-            <linearGradient id="areaGradientCumulative" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#10B981" stop-opacity="0.4" />
-              <stop offset="70%" stop-color="#059669" stop-opacity="0.08" />
-              <stop offset="100%" stop-color="#059669" stop-opacity="0.0" />
+            <linearGradient
+              id="areaGradientCumulative"
+              x1="0%"
+              y1="0%"
+              x2="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stop-color="#10B981"
+                stop-opacity="0.4"
+              />
+              <stop
+                offset="70%"
+                stop-color="#059669"
+                stop-opacity="0.08"
+              />
+              <stop
+                offset="100%"
+                stop-color="#059669"
+                stop-opacity="0.0"
+              />
             </linearGradient>
 
             <!-- Line Stroke Gradient -->
-            <linearGradient id="lineStrokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#3B82F6" />
-              <stop offset="50%" stop-color="#6366F1" />
-              <stop offset="100%" stop-color="#8B5CF6" />
+            <linearGradient
+              id="lineStrokeGradient"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop
+                offset="0%"
+                stop-color="#3B82F6"
+              />
+              <stop
+                offset="50%"
+                stop-color="#6366F1"
+              />
+              <stop
+                offset="100%"
+                stop-color="#8B5CF6"
+              />
             </linearGradient>
 
             <!-- Cumulative Stroke Gradient -->
-            <linearGradient id="lineStrokeCumulative" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#06B6D4" />
-              <stop offset="50%" stop-color="#10B981" />
-              <stop offset="100%" stop-color="#059669" />
+            <linearGradient
+              id="lineStrokeCumulative"
+              x1="0%"
+              y1="0%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop
+                offset="0%"
+                stop-color="#06B6D4"
+              />
+              <stop
+                offset="50%"
+                stop-color="#10B981"
+              />
+              <stop
+                offset="100%"
+                stop-color="#059669"
+              />
             </linearGradient>
           </defs>
 
@@ -661,16 +746,19 @@ const driverAllocationRate = computed(() => {
               <span class="font-black text-emerald-400 font-mono text-sm">${{ activeHoverPoint.raw.amount }}</span>
             </div>
 
-            <div v-if="activeMetric === 'cumulative'" class="flex items-center justify-between text-[11px]">
+            <div
+              v-if="activeMetric === 'cumulative'"
+              class="flex items-center justify-between text-[11px]"
+            >
               <span class="text-slate-400">Cumulative:</span>
               <span class="font-bold text-cyan-300 font-mono">${{ activeHoverPoint.cumulative }}</span>
             </div>
 
             <div class="text-[10px] text-slate-300 truncate max-w-[180px]">
-              <i class="ri-user-line text-indigo-400 mr-1" />{{ activeHoverPoint.raw.customer_name }}
+              <i class="ri-user-line text-indigo-400 me-1" />{{ activeHoverPoint.raw.customer_name }}
             </div>
             <div class="text-[10px] text-slate-400 truncate max-w-[180px]">
-              <i class="ri-car-line text-indigo-400 mr-1" />{{ activeHoverPoint.raw.car_name }}
+              <i class="ri-car-line text-indigo-400 me-1" />{{ activeHoverPoint.raw.car_name }}
             </div>
             <div class="text-[9px] text-indigo-300/80 text-right pt-0.5 font-semibold">
               Click to inspect order &rarr;
@@ -749,12 +837,15 @@ const driverAllocationRate = computed(() => {
           >
             <div class="flex items-center justify-between text-xs">
               <div class="flex items-center gap-2.5">
-                <div class="w-7 h-7 rounded-xl flex items-center justify-center text-xs group-hover:scale-110 transition-transform" :class="bar.bgLight">
+                <div
+                  class="w-7 h-7 rounded-xl flex items-center justify-center text-xs group-hover:scale-110 transition-transform"
+                  :class="bar.bgLight"
+                >
                   <i :class="bar.icon" />
                 </div>
                 <div>
                   <span class="font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{{ bar.label }}</span>
-                  <span class="text-slate-400 text-[11px] ml-1.5">({{ bar.sublabel }})</span>
+                  <span class="text-slate-400 text-[11px] ms-1.5">({{ bar.sublabel }})</span>
                 </div>
               </div>
               <div class="flex items-center gap-2">
@@ -777,19 +868,39 @@ const driverAllocationRate = computed(() => {
 
         <!-- Bottom Legend -->
         <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-[11px] text-slate-400">
-          <button type="button" class="flex items-center gap-1.5 hover:text-blue-500 cursor-pointer" @click="navigateTo('/admin/booked-cars')">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 hover:text-blue-500 cursor-pointer"
+            @click="navigateTo('/admin/booked-cars')"
+          >
             <span class="w-2 h-2 rounded-full bg-blue-500" /> Bookings
           </button>
-          <button type="button" class="flex items-center gap-1.5 hover:text-emerald-500 cursor-pointer" @click="navigateTo('/admin/owners')">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 hover:text-emerald-500 cursor-pointer"
+            @click="navigateTo('/admin/owners')"
+          >
             <span class="w-2 h-2 rounded-full bg-emerald-500" /> Owners
           </button>
-          <button type="button" class="flex items-center gap-1.5 hover:text-purple-500 cursor-pointer" @click="navigateTo('/admin/customers')">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 hover:text-purple-500 cursor-pointer"
+            @click="navigateTo('/admin/customers')"
+          >
             <span class="w-2 h-2 rounded-full bg-purple-500" /> Customers
           </button>
-          <button type="button" class="flex items-center gap-1.5 hover:text-cyan-500 cursor-pointer" @click="navigateTo('/admin/drivers')">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 hover:text-cyan-500 cursor-pointer"
+            @click="navigateTo('/admin/drivers')"
+          >
             <span class="w-2 h-2 rounded-full bg-cyan-500" /> Drivers
           </button>
-          <button type="button" class="flex items-center gap-1.5 hover:text-indigo-500 cursor-pointer" @click="navigateTo('/admin/cars')">
+          <button
+            type="button"
+            class="flex items-center gap-1.5 hover:text-indigo-500 cursor-pointer"
+            @click="navigateTo('/admin/cars')"
+          >
             <span class="w-2 h-2 rounded-full bg-indigo-500" /> Vehicles
           </button>
         </div>
@@ -819,7 +930,10 @@ const driverAllocationRate = computed(() => {
               class="relative w-28 h-28 flex items-center justify-center shrink-0 cursor-pointer group"
               @click="navigateTo('/admin/booked-cars')"
             >
-              <svg class="w-28 h-28 -rotate-90 transform group-hover:scale-105 transition-transform" viewBox="0 0 100 100">
+              <svg
+                class="w-28 h-28 -rotate-90 transform group-hover:scale-105 transition-transform"
+                viewBox="0 0 100 100"
+              >
                 <!-- Background Ring -->
                 <circle
                   cx="50"
@@ -937,7 +1051,10 @@ const driverAllocationRate = computed(() => {
               class="relative w-28 h-28 flex items-center justify-center shrink-0 cursor-pointer group"
               @click="navigateTo('/admin/owners')"
             >
-              <svg class="w-28 h-28 -rotate-90 transform group-hover:scale-105 transition-transform" viewBox="0 0 100 100">
+              <svg
+                class="w-28 h-28 -rotate-90 transform group-hover:scale-105 transition-transform"
+                viewBox="0 0 100 100"
+              >
                 <!-- Background Ring -->
                 <circle
                   cx="50"

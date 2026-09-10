@@ -76,9 +76,7 @@ const getCarImage = (car: CarItem) => {
                   class="w-full h-full object-cover"
                   @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                 >
-                <div
-                  class="w-full h-full flex items-center justify-center text-slate-400"
-                >
+                <div class="w-full h-full flex items-center justify-center text-slate-400">
                   <i class="ri-car-line text-xl" />
                 </div>
               </div>
@@ -247,9 +245,7 @@ const getCarImage = (car: CarItem) => {
                       class="w-full h-full object-cover"
                       @error="(e) => (e.target as HTMLElement).style.display = 'none'"
                     >
-                    <div
-                      class="w-full h-full flex items-center justify-center text-slate-400"
-                    >
+                    <div class="w-full h-full flex items-center justify-center text-slate-400">
                       <i class="ri-car-line text-lg" />
                     </div>
                   </div>

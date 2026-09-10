@@ -107,7 +107,10 @@ const selectModule = (id: string) => {
         class="px-3.5 py-2.5 rounded-xl text-xs flex items-center gap-2 shrink-0 transition-all cursor-pointer"
         @click="emit('update:activeModule', mod.id)"
       >
-        <i :class="mod.icon" class="text-sm" />
+        <i
+          :class="mod.icon"
+          class="text-sm"
+        />
         <span>{{ mod.label }}</span>
         <span
           v-if="stats && stats[mod.id] !== undefined"

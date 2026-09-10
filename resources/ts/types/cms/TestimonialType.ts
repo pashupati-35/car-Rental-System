@@ -17,7 +17,7 @@ export interface TestimonialItem {
   updated_at?: string
 }
 
-export interface TestimonialFilters extends BaseFilters {}
+export type TestimonialFilters = BaseFilters
 
 export type TestimonialListResponse = PaginatedResponse<TestimonialItem>
 

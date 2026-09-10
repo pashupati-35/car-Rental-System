@@ -17,6 +17,7 @@ const formatDate = (dateStr?: string | null) => {
   if (!dateStr) return 'N/A'
   try {
     const d = new Date(dateStr)
+    
     return d.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -35,12 +36,24 @@ const formatDate = (dateStr?: string | null) => {
       <table class="w-full text-left text-xs text-slate-600 dark:text-slate-400">
         <thead class="bg-slate-50/80 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-200/80 dark:border-slate-800 tracking-wider">
           <tr>
-            <th class="py-3.5 px-4">Log ID & Sent Time</th>
-            <th class="py-3.5 px-4">Recipient (To)</th>
-            <th class="py-3.5 px-4">Subject</th>
-            <th class="py-3.5 px-4">Sender (Triggered By)</th>
-            <th class="py-3.5 px-4">Status</th>
-            <th class="py-3.5 px-4 text-right">Actions</th>
+            <th class="py-3.5 px-4">
+              Log ID & Sent Time
+            </th>
+            <th class="py-3.5 px-4">
+              Recipient (To)
+            </th>
+            <th class="py-3.5 px-4">
+              Subject
+            </th>
+            <th class="py-3.5 px-4">
+              Sender (Triggered By)
+            </th>
+            <th class="py-3.5 px-4">
+              Status
+            </th>
+            <th class="py-3.5 px-4 text-right">
+              Actions
+            </th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
@@ -57,20 +70,32 @@ const formatDate = (dateStr?: string | null) => {
 
             <!-- Recipient -->
             <td class="py-3 px-4 max-w-[200px]">
-              <span class="font-mono text-indigo-600 dark:text-indigo-400 font-bold block truncate" :title="log.to">
+              <span
+                class="font-mono text-indigo-600 dark:text-indigo-400 font-bold block truncate"
+                :title="log.to"
+              >
                 {{ log.to }}
               </span>
-              <span v-if="log.from" class="text-[10px] text-slate-400 truncate block">
+              <span
+                v-if="log.from"
+                class="text-[10px] text-slate-400 truncate block"
+              >
                 From: {{ log.from }}
               </span>
             </td>
 
             <!-- Subject -->
             <td class="py-3 px-4 max-w-xs">
-              <p class="font-bold text-slate-800 dark:text-slate-200 truncate" :title="log.subject">
+              <p
+                class="font-bold text-slate-800 dark:text-slate-200 truncate"
+                :title="log.subject"
+              >
                 {{ log.subject }}
               </p>
-              <span v-if="log.mailable_class" class="text-[10px] font-mono text-slate-400 truncate block">
+              <span
+                v-if="log.mailable_class"
+                class="text-[10px] font-mono text-slate-400 truncate block"
+              >
                 {{ log.mailable_class.split('\\').pop() }}
               </span>
             </td>
@@ -90,8 +115,8 @@ const formatDate = (dateStr?: string | null) => {
             <!-- Status -->
             <td class="py-3 px-4">
               <span
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
                 :class="[
-                  'px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
                   log.status === 'sent'
                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
                     : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
@@ -137,7 +162,10 @@ const formatDate = (dateStr?: string | null) => {
           </tr>
 
           <tr v-if="logs.length === 0">
-            <td colspan="6" class="py-12 text-center text-slate-400">
+            <td
+              colspan="6"
+              class="py-12 text-center text-slate-400"
+            >
               <i class="ri-mail-check-line text-3xl mb-2 block opacity-40" />
               No email log records found matching criteria.
             </td>
@@ -155,18 +183,22 @@ const formatDate = (dateStr?: string | null) => {
         Showing {{ pagination.from || 0 }} to {{ pagination.to || 0 }} of {{ pagination.total || 0 }} emails
       </span>
       <div class="flex gap-1">
-        <template v-for="(link, i) in pagination.links" :key="i">
+        <template
+          v-for="(link, i) in pagination.links"
+          :key="i"
+        >
           <Link
             v-if="link.url"
             :href="link.url"
+            class="px-3 py-1.5 rounded-xl font-bold transition-colors"
             :class="[
-              'px-3 py-1.5 rounded-xl font-bold transition-colors',
               link.active
                 ? 'bg-indigo-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
             ]"
-            v-html="link.label"
-          />
+          >
+            <span v-html="link.label" />
+          </Link>
           <span
             v-else
             class="px-3 py-1.5 rounded-xl text-slate-400 opacity-50 cursor-not-allowed border border-slate-200/50 dark:border-slate-700/50"
