@@ -271,6 +271,7 @@ declare global {
   const useForm: typeof import('@inertiajs/vue3').useForm
   const useFormValidation: typeof import('./resources/ts/utils/useFormValidation').useFormValidation
   const useFps: typeof import('@vueuse/core').useFps
+  const useFrontendTheme: typeof import('./resources/ts/composable/useFrontendTheme').useFrontendTheme
   const useFullscreen: typeof import('@vueuse/core').useFullscreen
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
@@ -414,6 +415,9 @@ declare global {
   // @ts-ignore
   export type { ThemeMode } from './resources/ts/composable/useDashboardTheme'
   import('./resources/ts/composable/useDashboardTheme')
+  // @ts-ignore
+  export type { FrontendTheme } from './resources/ts/composable/useFrontendTheme'
+  import('./resources/ts/composable/useFrontendTheme')
   // @ts-ignore
   export type { ValidationErrors } from './resources/ts/composable/useHelpers'
   import('./resources/ts/composable/useHelpers')
@@ -684,6 +688,7 @@ declare module 'vue' {
     readonly useForm: UnwrapRef<typeof import('@inertiajs/vue3')['useForm']>
     readonly useFormValidation: UnwrapRef<typeof import('./resources/ts/utils/useFormValidation')['useFormValidation']>
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
+    readonly useFrontendTheme: UnwrapRef<typeof import('./resources/ts/composable/useFrontendTheme')['useFrontendTheme']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>

@@ -2,8 +2,10 @@
 import { Link, usePage, router } from '@inertiajs/vue3'
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import MessageBox from '@/components/MessageBox.vue'
+import { useFrontendTheme } from '@/composable/useFrontendTheme'
 
 const page = usePage()
+const { theme, toggleTheme, initTheme } = useFrontendTheme()
 const auth = computed(() => page.props.auth as any)
 const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
 const showProfileMenu = ref(false)
@@ -75,6 +77,7 @@ const isActive = (href: string) => {
 }
 
 onMounted(() => {
+  initTheme()
   document.addEventListener('click', handleClickOutside)
 })
 
@@ -84,9 +87,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans">
+  <div class="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
     <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm">
+    <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link
           href="/"
@@ -95,7 +98,7 @@ onUnmounted(() => {
           <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
             CR
           </div>
-          <span class="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">AutoRent</span>
+          <span class="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">Car Rental</span>
         </Link>
 
         <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -129,7 +132,23 @@ onUnmounted(() => {
           </Link>
         </nav>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5">
+          <!-- Theme Toggle Switcher -->
+          <button
+            type="button"
+            class="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center text-base transition-all cursor-pointer shadow-2xs"
+            :title="theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+            @click="toggleTheme"
+          >
+            <i
+              v-if="theme === 'dark'"
+              class="ri-sun-line text-amber-400 text-base"
+            />
+            <i
+              v-else
+              class="ri-moon-line text-slate-700 text-base"
+            />
+          </button>
           <!-- When Logged In: Show Profile Dropdown & Dashboard link -->
           <template v-if="user">
             <Link
@@ -279,7 +298,7 @@ onUnmounted(() => {
               <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                 CR
               </div>
-              <span class="font-extrabold text-lg text-white">AutoRent Fleet</span>
+              <span class="font-extrabold text-lg text-white">Car Rental Fleet</span>
             </div>
             <p class="text-xs text-gray-400 leading-relaxed">
               Premium car rental marketplace with zero-overlap calendar booking, dedicated chauffeur rosters, and instant verification.
@@ -392,7 +411,7 @@ onUnmounted(() => {
         </div>
 
         <div class="pt-6 text-center text-xs text-gray-500">
-          &copy; 2026 AutoRent Car Rental & Fleet Management System. All rights reserved.
+          &copy; 2026 Car Rental & Fleet Management System. All rights reserved.
         </div>
       </div>
     </footer>

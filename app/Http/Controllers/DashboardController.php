@@ -17,8 +17,13 @@ class DashboardController extends Controller
     public function index(?Request $request = null)
     {
         $request = $request ?? request();
+        $page = (int) $request->input('page', 1);
         $perPage = (int) $request->input('per_page', 12);
-        $cars = $this->carService->paginateCars([], $perPage);
+
+        $cacheKey = "homepage_featured_cars_page_{$page}_per_{$perPage}";
+        $cars = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($perPage) {
+            return $this->carService->paginateCars([], $perPage);
+        });
 
         if ($request->wantsJson()) {
             return response()->json([
