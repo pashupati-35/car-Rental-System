@@ -363,7 +363,7 @@ const submitBookingAndPayment = async () => {
                   {{ disabledDatesList.length }} Days
                 </span>
               </div>
-              <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
+              <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pe-1">
                 <span
                   v-for="d in disabledDatesList"
                   :key="d"
@@ -379,43 +379,43 @@ const submitBookingAndPayment = async () => {
               @submit.prevent="proceedToPayment"
             >
               <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pickup Location</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pickup Location</label>
                 <input
                   v-model="pickupLocation"
                   type="text"
                   required
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  class="w-full px-3.5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Drop-off Location</label>
+                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Drop-off Location</label>
                 <input
                   v-model="dropLocation"
                   type="text"
                   required
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  class="w-full px-3.5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 >
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
+                <div class="min-w-0">
                   <AppDatePicker
                     v-model="pickupDate"
                     label="Pickup Date"
                     required
-                    placeholder="Select pickup date..."
+                    placeholder="Select pickup date"
                     min-date="today"
                     :disabled-dates="disabledDatesList"
                     @change="checkCalendarAvailability"
                   />
                 </div>
-                <div>
+                <div class="min-w-0">
                   <AppDatePicker
                     v-model="returnDate"
                     label="Return Date"
                     required
-                    placeholder="Select return date..."
+                    placeholder="Select return date"
                     :min-date="pickupDate || 'today'"
                     :disabled-dates="disabledDatesList"
                     @change="checkCalendarAvailability"

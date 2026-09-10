@@ -45,8 +45,8 @@ class CarService
     public function createCarForOwner(int $ownerId, array $data, $carPhoto = null, $blueBookPhoto = null): Car
     {
         $data['owner_id'] = $ownerId;
-        $data['status'] = $data['status'] ?? 'verified';
-        $data['available'] = 1;
+        $data['status'] = $data['status'] ?? 'pending';
+        $data['available'] = $data['available'] ?? 'no';
 
         if ($carPhoto && $carPhoto->isValid()) {
             $fileName = time() . '_' . $carPhoto->getClientOriginalName();
@@ -63,6 +63,27 @@ class CarService
         $car = $this->carRepository->create($data);
         AdminCountCacheService::clear();
         return $car;
+    }
+
+    public function updateCarDetails(int $id, array $data, $carPhoto = null, $blueBookPhoto = null): Car
+    {
+        $car = $this->carRepository->findOrFail($id);
+
+        if ($carPhoto && $carPhoto->isValid()) {
+            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $carPhoto->move(public_path('uploads/cars'), $fileName);
+            $data['car_photo'] = 'uploads/cars/' . $fileName;
+        }
+
+        if ($blueBookPhoto && $blueBookPhoto->isValid()) {
+            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
+            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+        }
+
+        $car->update($data);
+        AdminCountCacheService::clear();
+        return $car->fresh(['owner', 'driver']);
     }
 
     public function updateCarForOwner(int $ownerId, int $carId, array $data, $carPhoto = null, $blueBookPhoto = null): Car

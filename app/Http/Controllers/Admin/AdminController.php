@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Booking\StoreCustomerBookingRequest;
 use App\Http\Requests\Admin\Booking\UpdateCustomerBookingRequest;
+use App\Http\Requests\Admin\Car\UpdateCarRequest;
 use App\Http\Requests\Admin\Customer\StoreCustomerRequest;
 use App\Http\Requests\Admin\Customer\UpdateCustomerRequest;
 use App\Http\Requests\Admin\Driver\StoreDriverRequest;
@@ -48,10 +49,14 @@ class AdminController extends Controller
 
         $cars = $this->carService->getAdminCars($filters, $perPage);
         $statusCounts = $this->carService->getCarStatusCounts();
+        $owners = $this->ownerService->getOwnersDropdown();
+        $drivers = $this->driverService->getAllDriversDropdown();
 
         return Inertia::render('admin/CarsList', [
             'cars' => $cars,
             'counts' => $statusCounts,
+            'owners' => $owners,
+            'drivers' => $drivers,
             'filters' => [
                 'status' => $status ?? 'all',
                 'search' => $search ?? '',
@@ -93,6 +98,29 @@ class AdminController extends Controller
         $this->carService->deleteCar((int) $id);
 
         return redirect()->back()->with('success', 'Vehicle removed from system fleet.');
+    }
+
+    /**
+     * Update vehicle specifications & attributes by Admin.
+     */
+    public function updateCar(UpdateCarRequest $request, $id)
+    {
+        $car = $this->carService->updateCarDetails(
+            (int) $id,
+            $request->validated(),
+            $request->file('car_photo'),
+            $request->file('blue_book_photo')
+        );
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Car details updated successfully.',
+                'data' => $car,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Car details updated successfully.');
     }
 
     /**

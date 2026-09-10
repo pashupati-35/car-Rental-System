@@ -77,7 +77,7 @@ const flatpickrConfig = computed(() => ({
   dateFormat: props.type === 'datetime-local' ? 'Y-m-d H:i' : props.type === 'time' ? 'H:i' : 'Y-m-d',
   altInput: true,
   altFormat: props.type === 'datetime-local' ? 'M j, Y h:i K' : props.type === 'time' ? 'h:i K' : 'M j, Y',
-  altInputClass: 'app-date-input-styled',
+  altInputClass: 'app-date-input-styled w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none py-3 pe-3 cursor-pointer min-w-0 truncate',
   minDate: props.minDate ?? 'today',
   maxDate: props.maxDate,
   disable: combinedDisabledDates.value,
@@ -137,12 +137,12 @@ const clearValue = () => {
 <template>
   <div
     ref="inputContainerRef"
-    class="app-date-picker-container w-full"
+    class="app-date-picker-container w-full min-w-0"
   >
     <!-- Label -->
     <label
       v-if="label"
-      class="block text-xs sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 mb-1.5 flex items-center justify-between tracking-tight"
+      class="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5 flex items-center justify-between tracking-tight"
     >
       <span class="flex items-center gap-1">
         <span>{{ cleanLabelText }}</span>
@@ -155,7 +155,7 @@ const clearValue = () => {
       <button
         v-if="clearable && modelValue && !disabled && !readonly"
         type="button"
-        class="text-[10px] text-slate-400 hover:text-rose-500 transition-colors font-semibold cursor-pointer px-1.5 py-0.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40"
+        class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium cursor-pointer px-1.5 py-0.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40"
         @click.stop="clearValue"
       >
         Clear
@@ -164,7 +164,7 @@ const clearValue = () => {
 
     <!-- Input Wrapper -->
     <div
-      class="relative flex items-center rounded-xl border transition-all duration-200 shadow-xs"
+      class="relative flex items-center rounded-xl border transition-all duration-200 shadow-xs min-w-0 overflow-hidden"
       :class="[
         error
           ? 'border-rose-400 dark:border-rose-600 bg-rose-50/40 ring-2 ring-rose-500/20'
@@ -196,7 +196,7 @@ const clearValue = () => {
         :config="flatpickrConfig"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-3.5 pe-4 font-semibold cursor-pointer"
+        class="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-3 pe-3 font-semibold cursor-pointer min-w-0 truncate"
         @update:model-value="handleInput"
         @on-open="isOpen = true"
         @on-close="isOpen = false"
@@ -228,6 +228,41 @@ const clearValue = () => {
 
 <style>
 @import "flatpickr/dist/flatpickr.css";
+
+/* Style generated altInput from flatpickr */
+.app-date-input-styled {
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-inline-end: 0.75rem !important;
+}
+
+.dark .app-date-input-styled {
+  color: #f8fafc !important;
+}
+
+.app-date-input-styled::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+.dark .app-date-input-styled::placeholder {
+  color: #64748b !important;
+}
 
 /* Modern Dropdown & Calendar Styling */
 .flatpickr-calendar {

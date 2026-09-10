@@ -24,5 +24,7 @@ interface DriverRepositoryInterface extends BaseRepositoryInterface
 
     public function getAvailableDriversForOwner(int $ownerId): Collection;
 
+    public function getAllDrivers(): Collection;
+
     public function getOwnerDriver(int $ownerId, int $driverId): Driver;
 }

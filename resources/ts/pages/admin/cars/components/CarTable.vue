@@ -10,6 +10,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'view', car: CarItem): void
+  (e: 'edit', car: CarItem): void
   (e: 'verify', id: number): void
   (e: 'reject', id: number): void
   (e: 'delete', id: number): void
@@ -102,14 +103,24 @@ const emit = defineEmits<{
           </div>
 
           <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-            <button
-              type="button"
-              class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 cursor-pointer"
-              @click="emit('view', car)"
-            >
-              <span>Inspect Car</span>
-              <i class="ri-eye-line" />
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 cursor-pointer"
+                @click="emit('view', car)"
+              >
+                <span>Inspect</span>
+                <i class="ri-eye-line" />
+              </button>
+              <button
+                type="button"
+                class="px-2 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs cursor-pointer flex items-center gap-0.5"
+                @click="emit('edit', car)"
+              >
+                <i class="ri-edit-line" />
+                <span>Edit</span>
+              </button>
+            </div>
 
             <div class="flex items-center gap-1.5">
               <button
@@ -255,6 +266,13 @@ const emit = defineEmits<{
                   @click="emit('view', car)"
                 >
                   Inspect
+                </button>
+                <button
+                  type="button"
+                  class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold text-[11px] cursor-pointer"
+                  @click="emit('edit', car)"
+                >
+                  Edit
                 </button>
                 <button
                   v-if="car.status === 'pending' || !car.status"

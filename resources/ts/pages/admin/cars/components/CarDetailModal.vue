@@ -9,6 +9,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'edit', car: CarItem): void
   (e: 'verify', id: number): void
   (e: 'reject', id: number): void
   (e: 'delete', id: number): void
@@ -119,6 +120,14 @@ const emit = defineEmits<{
         </button>
 
         <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold text-xs cursor-pointer flex items-center gap-1"
+            @click="emit('edit', car); emit('close');"
+          >
+            <i class="ri-edit-line" />
+            <span>Edit Vehicle</span>
+          </button>
           <button
             v-if="car.status === 'pending' || !car.status"
             type="button"

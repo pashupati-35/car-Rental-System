@@ -295,6 +295,8 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('cars', [AdminController::class, 'index'])->name('admin.cars.index');
     $route->get('cars-list', [AdminController::class, 'index'])->name('admin.cars-list');
     $route->get('cars/{id}', [AdminController::class, 'show'])->name('admin.cars.show');
+    $route->patch('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update');
+    $route->post('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update.post');
     $route->patch('cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('admin.cars.verify');
     $route->patch('cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('admin.cars.reject');
     $route->delete('cars/{id}', [AdminController::class, 'destroyCar'])->name('admin.cars.destroy');

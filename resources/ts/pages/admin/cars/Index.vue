@@ -2,9 +2,11 @@
 import { ref, computed } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import axios from 'axios'
 import type { CarItem } from './types'
 import CarTable from './components/CarTable.vue'
 import CarDetailModal from './components/CarDetailModal.vue'
+import CarEditModal from './components/CarEditModal.vue'
 
 const props = defineProps<{
   cars: any
@@ -14,6 +16,8 @@ const props = defineProps<{
     verified?: number
     rejected?: number
   }
+  owners?: Array<any>
+  drivers?: Array<any>
   filters?: {
     status?: string
     search?: string
@@ -27,7 +31,12 @@ const activeTab = ref<'all' | 'pending' | 'verified' | 'rejected'>(
 
 const searchQuery = ref(props.filters?.search || '')
 const selectedCar = ref<CarItem | null>(null)
+const editingCar = ref<CarItem | null>(null)
 const showDetailModal = ref(false)
+const showEditModal = ref(false)
+const submitting = ref(false)
+const errorMessage = ref('')
+const successMessage = ref('')
 
 const carsList = computed<CarItem[]>(() => {
   if (Array.isArray(props.cars)) return props.cars
@@ -84,6 +93,40 @@ const openDetails = (car: CarItem) => {
   selectedCar.value = car
   showDetailModal.value = true
 }
+
+const openEdit = (car: CarItem) => {
+  editingCar.value = car
+  errorMessage.value = ''
+  showEditModal.value = true
+}
+
+const handleSaveCar = async (formData: FormData) => {
+  if (!editingCar.value?.id) return
+
+  submitting.value = true
+  errorMessage.value = ''
+
+  try {
+    const res = await axios.post(`/admin/cars/${editingCar.value.id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    if (res.data?.status === 'success' || res.status === 200) {
+      showEditModal.value = false
+      successMessage.value = 'Vehicle specifications updated successfully!'
+      setTimeout(() => {
+        successMessage.value = ''
+      }, 4000)
+      router.reload({ only: ['cars', 'counts'] })
+    }
+  } catch (err: any) {
+    errorMessage.value = err.response?.data?.message || 'Failed to update vehicle details.'
+  } finally {
+    submitting.value = false
+  }
+}
 </script>
 
 <template>
@@ -107,6 +150,15 @@ const openDetails = (car: CarItem) => {
             Audit newly submitted owner vehicles, verify documentation, approve for customer booking, or manage active inventory.
           </p>
         </div>
+      </div>
+
+      <!-- Success Notification -->
+      <div
+        v-if="successMessage"
+        class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2 shadow-xs"
+      >
+        <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
+        <span>{{ successMessage }}</span>
       </div>
 
       <!-- Filter Tabs & Search Bar -->
@@ -193,6 +245,7 @@ const openDetails = (car: CarItem) => {
         :cars="carsList"
         :pagination="props.cars"
         @view="openDetails"
+        @edit="openEdit"
         @verify="verifyCar"
         @reject="rejectCar"
         @delete="deleteCar"
@@ -203,9 +256,22 @@ const openDetails = (car: CarItem) => {
         :show="showDetailModal"
         :car="selectedCar"
         @close="showDetailModal = false"
+        @edit="openEdit"
         @verify="verifyCar"
         @reject="rejectCar"
         @delete="deleteCar"
+      />
+
+      <!-- Edit Car Modal -->
+      <CarEditModal
+        :show="showEditModal"
+        :car="editingCar"
+        :owners="props.owners"
+        :drivers="props.drivers"
+        :submitting="submitting"
+        :error-message="errorMessage"
+        @close="showEditModal = false"
+        @save="handleSaveCar"
       />
     </div>
   </AdminLayout>

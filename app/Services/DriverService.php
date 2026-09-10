@@ -61,6 +61,11 @@ class DriverService
         return $this->driverRepository->getAvailableDriversForOwner($ownerId);
     }
 
+    public function getAllDriversDropdown(): \Illuminate\Support\Collection
+    {
+        return $this->driverRepository->getAllDrivers();
+    }
+
     public function createDriverForOwner(int $ownerId, array $data, $photo = null): Driver
     {
         $data['owner_id'] = $ownerId;

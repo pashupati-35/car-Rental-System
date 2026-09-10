@@ -91,6 +91,13 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         })->where('status', 'active')->get();
     }
 
+    public function getAllDrivers(): \Illuminate\Support\Collection
+    {
+        return $this->model->select('id', 'name', 'phone', 'owner_id', 'status')
+            ->orderBy('name')
+            ->get();
+    }
+
     public function getOwnerDriver(int $ownerId, int $driverId): Driver
     {
         return $this->model->where('owner_id', $ownerId)->findOrFail($driverId);

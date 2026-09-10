@@ -130,6 +130,11 @@ const openDetailModal = (driver: DriverItem) => {
   showDetailModal.value = true
 }
 
+const handleEditFromDetail = (driver: DriverItem) => {
+  showDetailModal.value = false
+  openEditModal(driver)
+}
+
 const submitNewDriver = async () => {
   submitting.value = true
   errorMessage.value = ''
@@ -355,7 +360,7 @@ const deleteDriver = async (driverId: number) => {
         :show="showDetailModal"
         :driver="selectedDriver"
         @close="showDetailModal = false"
-        @edit="(d) => { showDetailModal = false; openEditModal(d) }"
+        @edit="handleEditFromDetail"
       />
     </div>
   </AdminLayout>

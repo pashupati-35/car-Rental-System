@@ -23,6 +23,10 @@ class UpdateCarRequest extends FormRequest
             'driver_id' => 'nullable|exists:drivers,id',
             'owner_id' => 'nullable|exists:owners,id',
             'status' => 'nullable|string',
+            'available' => 'nullable|string',
+            'fuel_type' => 'nullable|string|max:100',
+            'transmission' => 'nullable|string|max:100',
+            'description' => 'nullable|string',
             'car_photo' => 'nullable|image|max:5120',
             'blue_book_photo' => 'nullable|image|max:5120',
         ];
