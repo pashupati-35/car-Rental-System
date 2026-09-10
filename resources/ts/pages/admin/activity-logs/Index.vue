@@ -17,6 +17,8 @@ const props = defineProps<{
     search?: string
     log_type?: string
     causer_type?: string
+    owner_id?: number
+    customer_id?: number
     per_page?: number
   }
 }>()
@@ -41,6 +43,8 @@ const applyFilters = () => {
     search: searchQuery.value || undefined,
     log_type: selectedLogType.value || undefined,
     causer_type: selectedCauserType.value || undefined,
+    owner_id: props.filters?.owner_id || undefined,
+    customer_id: props.filters?.customer_id || undefined,
     per_page: props.filters?.per_page || undefined,
   }, {
     preserveState: true,
@@ -60,7 +64,15 @@ const resetFilters = () => {
   searchQuery.value = ''
   selectedLogType.value = ''
   selectedCauserType.value = ''
-  applyFilters()
+  router.get('/admin/activity-logs', {
+    owner_id: props.filters?.owner_id || undefined,
+    customer_id: props.filters?.customer_id || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
 }
 
 const openDetailModal = (log: ActivityLogItem) => {

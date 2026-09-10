@@ -21,6 +21,8 @@ const props = defineProps<{
     to?: string
     status?: string
     sender_type?: string
+    owner_id?: number
+    customer_id?: number
     per_page?: number
   }
 }>()
@@ -46,6 +48,8 @@ const applyFilters = () => {
     search: searchQuery.value || undefined,
     status: selectedStatus.value || undefined,
     sender_type: selectedSenderType.value || undefined,
+    owner_id: props.filters?.owner_id || undefined,
+    customer_id: props.filters?.customer_id || undefined,
     per_page: props.filters?.per_page || undefined,
   }, {
     preserveState: true,
@@ -65,7 +69,15 @@ const resetFilters = () => {
   searchQuery.value = ''
   selectedStatus.value = ''
   selectedSenderType.value = ''
-  applyFilters()
+  router.get('/admin/email-logs', {
+    owner_id: props.filters?.owner_id || undefined,
+    customer_id: props.filters?.customer_id || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
 }
 
 const openDetailModal = (log: EmailLogItem) => {

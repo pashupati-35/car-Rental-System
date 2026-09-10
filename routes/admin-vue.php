@@ -42,9 +42,27 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('email-templates', [AdminPageController::class, 'emailTemplates'])->name('admin.email-templates.index');
     $route->get('email-templates/{id}/edit', [AdminPageController::class, 'emailTemplateEdit'])->name('admin.email-templates.edit');
 
-    // Activity Logs & Email Logs Views
+    // Activity Logs Views (Global & Per Owner / Customer)
     $route->get('activity-logs', [AdminPageController::class, 'activityLogs'])->name('admin.activity-logs.index');
+    $route->get('activity-logs/owner/{owner_id}', function ($owner_id) {
+        request()->merge(['owner_id' => $owner_id]);
+        return app(AdminPageController::class)->activityLogs(request());
+    })->name('admin.activity-logs.owner');
+    $route->get('activity-logs/customer/{customer_id}', function ($customer_id) {
+        request()->merge(['customer_id' => $customer_id]);
+        return app(AdminPageController::class)->activityLogs(request());
+    })->name('admin.activity-logs.customer');
+
+    // Email Logs Views (Global & Per Owner / Customer)
     $route->get('email-logs', [AdminPageController::class, 'emailLogs'])->name('admin.email-logs.index');
+    $route->get('email-logs/owner/{owner_id}', function ($owner_id) {
+        request()->merge(['owner_id' => $owner_id]);
+        return app(AdminPageController::class)->emailLogs(request());
+    })->name('admin.email-logs.owner');
+    $route->get('email-logs/customer/{customer_id}', function ($customer_id) {
+        request()->merge(['customer_id' => $customer_id]);
+        return app(AdminPageController::class)->emailLogs(request());
+    })->name('admin.email-logs.customer');
 
     // Profile & Security
     $route->get('profile', [AdminPageController::class, 'profile'])->name('admin.profile.edit');

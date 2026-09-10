@@ -400,7 +400,7 @@ const cancelBooking = (bookingId: number) => {
 
         <div class="flex flex-wrap items-center gap-2">
           <Link
-            :href="`/admin/activity-logs?search=${encodeURIComponent(owner.full_name || owner.email || '')}`"
+            :href="`/admin/activity-logs?owner_id=${owner.id}&search=${encodeURIComponent(owner.full_name || owner.email || '')}`"
             class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5"
             title="View fleet owner activity logs"
           >
@@ -409,7 +409,7 @@ const cancelBooking = (bookingId: number) => {
           </Link>
 
           <Link
-            :href="`/admin/email-logs?to=${encodeURIComponent(owner.email || '')}`"
+            :href="`/admin/email-logs?owner_id=${owner.id}&to=${encodeURIComponent(owner.email || '')}`"
             class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5"
             title="View fleet owner email logs"
           >

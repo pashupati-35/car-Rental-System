@@ -2,7 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DTOs\Filters\ActivityLogFilterDTO;
+use App\DTOs\Filters\EmailLogFilterDTO;
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog\ActivityLog;
+use App\Models\EmailLog\EmailLog;
+use App\Repositories\Admin\ActivityLogRepositoryInterface;
+use App\Repositories\Admin\EmailLogRepositoryInterface;
 use App\Services\BookingService;
 use App\Services\CarService;
 use App\Services\CustomerService;
@@ -24,6 +30,8 @@ class AdminPageController extends Controller
         protected CustomerService $customerService,
         protected PaymentService $paymentService,
         protected EmailTemplateService $emailTemplateService,
+        protected ActivityLogRepositoryInterface $activityLogRepo,
+        protected EmailLogRepositoryInterface $emailLogRepo,
     ) {}
 
     public function dashboard(Request $request)
@@ -214,12 +222,51 @@ class AdminPageController extends Controller
 
     public function activityLogs(Request $request)
     {
-        return Inertia::render('admin/activity-logs/Index');
+        $filter = ActivityLogFilterDTO::fromArray($request->all());
+        $logs = $this->activityLogRepo->getFilteredPaginated($filter);
+        $logTypes = ActivityLog::query()->select('log_type')->distinct()->pluck('log_type')->filter()->values();
+
+        return Inertia::render('admin/activity-logs/Index', [
+            'logs' => $logs,
+            'filters' => [
+                'search' => $request->search ?? '',
+                'log_type' => $request->log_type ?? '',
+                'causer_type' => $request->causer_type ?? '',
+                'owner_id' => $request->owner_id ?? null,
+                'customer_id' => $request->customer_id ?? null,
+                'per_page' => $filter->per_page,
+            ],
+            'logTypes' => $logTypes,
+            'counts' => [
+                'total' => ActivityLog::query()->count(),
+                'today' => ActivityLog::query()->whereDate('created_at', today())->count(),
+            ],
+        ]);
     }
 
     public function emailLogs(Request $request)
     {
-        return Inertia::render('admin/email-logs/Index');
+        $filter = EmailLogFilterDTO::fromArray($request->all());
+        $logs = $this->emailLogRepo->getFilteredPaginated($filter);
+
+        return Inertia::render('admin/email-logs/Index', [
+            'logs' => $logs,
+            'filters' => [
+                'search' => $request->search ?? '',
+                'to' => $request->to ?? '',
+                'status' => $request->status ?? '',
+                'sender_type' => $request->sender_type ?? '',
+                'owner_id' => $request->owner_id ?? null,
+                'customer_id' => $request->customer_id ?? null,
+                'per_page' => $filter->per_page,
+            ],
+            'counts' => [
+                'total' => EmailLog::query()->count(),
+                'sent' => EmailLog::query()->where('status', 'sent')->count(),
+                'failed' => EmailLog::query()->where('status', 'failed')->count(),
+                'today' => EmailLog::query()->whereDate('created_at', today())->count(),
+            ],
+        ]);
     }
 
     public function profile(Request $request)
