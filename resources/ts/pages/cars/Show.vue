@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { Head, Link, usePage, router } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
+import AppDatePicker from '@/components/AppDatePicker.vue'
 import axios from 'axios'
 
 const props = defineProps<{
@@ -368,24 +369,20 @@ const isDateDisabled = (dateStr: string) => {
                 />
               </div>
 
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pickup Date</label>
-                  <input
+                  <AppDatePicker
                     v-model="pickupDate"
-                    type="date"
-                    required
-                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium"
+                    label="Pickup Date *"
+                    placeholder="Select pickup date..."
                     @change="checkCalendarAvailability"
                   />
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Return Date</label>
-                  <input
+                  <AppDatePicker
                     v-model="returnDate"
-                    type="date"
-                    required
-                    class="w-full px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none font-medium"
+                    label="Return Date *"
+                    placeholder="Select return date..."
                     @change="checkCalendarAvailability"
                   />
                 </div>

@@ -60,13 +60,18 @@ class Blog extends Model
 
     public function getAuthorImagePathAttribute()
     {
-        $imagePath = [];
+        $imagePath = null;
         if (! empty($this->author_image)) {
             $uploadPath = $this->getUploadPath($this->uploadPath);
             $imagePath = getImagePath($uploadPath, $this->author_image);
         }
 
         return $imagePath;
+    }
+
+    public function getShareLinkAttribute()
+    {
+        return url('/blog/' . ($this->slug ?? $this->id));
     }
 
     public function getCategoriesAttribute()

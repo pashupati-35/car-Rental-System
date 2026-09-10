@@ -236,10 +236,11 @@ onUnmounted(() => {
           </div>
 
           <div>
-            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">Administration</h4>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gray-200 mb-3">Support & Help</h4>
             <ul class="space-y-2 text-xs">
-              <li><Link href="/admin/login" class="hover:text-indigo-400 transition-colors">Master Admin Login</Link></li>
-              <li><Link href="/ai-chat" class="hover:text-amber-400 transition-colors">AI Fleet Assistant</Link></li>
+              <li><Link href="/ai-chat" class="hover:text-amber-400 transition-colors flex items-center gap-1"><span>✨</span> AI Fleet Assistant</Link></li>
+              <li><Link href="/car-calendar" class="hover:text-white transition-colors">Availability Schedule</Link></li>
+              <li><Link href="/cars" class="hover:text-white transition-colors">Vehicle Directory</Link></li>
             </ul>
           </div>
         </div>

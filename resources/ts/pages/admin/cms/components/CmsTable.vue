@@ -41,12 +41,49 @@ const filteredItems = computed<CmsItem[]>(() => {
 
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage.value) || 1)
 
+const visiblePages = computed(() => {
+  const current = currentPage.value
+  const total = totalPages.value
+  const delta = 2
+  const range: (number | string)[] = []
+
+  if (total <= 7) {
+    for (let i = 1; i <= total; i++) range.push(i)
+    return range
+  }
+
+  const left = current - delta
+  const right = current + delta + 1
+  const rangeWithDots: (number | string)[] = []
+  let l: number | undefined
+
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= left && i < right)) {
+      range.push(i)
+    }
+  }
+
+  for (const i of range) {
+    if (l !== undefined) {
+      if (typeof i === 'number' && i - l === 2) {
+        rangeWithDots.push(l + 1)
+      } else if (typeof i === 'number' && i - l !== 1) {
+        rangeWithDots.push('...')
+      }
+    }
+    rangeWithDots.push(i)
+    if (typeof i === 'number') l = i
+  }
+
+  return rangeWithDots
+})
+
 const paginatedItems = computed<CmsItem[]>(() => {
   const start = (currentPage.value - 1) * perPage.value
   return filteredItems.value.slice(start, start + perPage.value)
 })
 
-watch([() => props.activeModule, searchQuery], () => {
+watch([() => props.activeModule, searchQuery, perPage], () => {
   currentPage.value = 1
 })
 
@@ -298,43 +335,102 @@ const isEnquiryOrContact = computed(() => {
           </table>
         </div>
 
-        <!-- CMS Client Pagination Bar -->
+        <!-- CMS Client Pagination Bar Matching 3rd Screenshot -->
         <div
-          v-if="filteredItems.length > perPage"
-          class="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 bg-slate-50/50 dark:bg-slate-800/30"
+          class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 select-none"
         >
-          <div>
-            Showing <span class="font-bold text-slate-900 dark:text-white">{{ (currentPage - 1) * perPage + 1 }}</span> to
-            <span class="font-bold text-slate-900 dark:text-white">{{ Math.min(currentPage * perPage, filteredItems.length) }}</span> of
-            <span class="font-bold text-slate-900 dark:text-white">{{ filteredItems.length }}</span> records
+          <!-- Left: Showing 1 – 25 of 518 [25 v] -->
+          <div class="flex items-center gap-3">
+            <div>
+              Showing
+              <span class="font-bold text-slate-900 dark:text-white">{{ filteredItems.length === 0 ? 0 : (currentPage - 1) * perPage + 1 }} – {{ Math.min(currentPage * perPage, filteredItems.length) }}</span>
+              of
+              <span class="font-bold text-slate-900 dark:text-white">{{ filteredItems.length }}</span>
+            </div>
+
+            <div class="relative">
+              <select
+                v-model="perPage"
+                class="appearance-none px-2.5 py-1 pr-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+              >
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+              <span class="pointer-events-none absolute inset-y-0 right-1.5 flex items-center text-slate-400 text-[10px]">
+                ▼
+              </span>
+            </div>
           </div>
 
+          <!-- Right: |< < 1 2 3 4 5 6 ... 21 > >| -->
           <div class="flex items-center gap-1">
+            <!-- First |< -->
             <button
               type="button"
-              :disabled="currentPage === 1"
-              class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+              :disabled="currentPage <= 1"
+              title="First Page"
+              class="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-[11px] font-semibold cursor-pointer"
+              @click="setPage(1)"
+            >
+              <i class="ri-skip-back-line text-xs" />
+            </button>
+
+            <!-- Prev < -->
+            <button
+              type="button"
+              :disabled="currentPage <= 1"
+              title="Previous Page"
+              class="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-[11px] font-semibold cursor-pointer"
               @click="setPage(currentPage - 1)"
             >
-              Previous
+              <i class="ri-arrow-left-s-line text-sm" />
             </button>
+
+            <!-- Numbers -->
+            <template v-for="(p, idx) in visiblePages" :key="idx">
+              <span
+                v-if="p === '...'"
+                class="w-7 h-7 flex items-center justify-center text-slate-400 text-xs font-bold"
+              >
+                ...
+              </span>
+              <button
+                v-else
+                type="button"
+                :class="[
+                  p === currentPage
+                    ? 'bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300 font-extrabold shadow-2xs'
+                    : 'border border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'
+                ]"
+                class="min-w-7 h-7 px-1.5 flex items-center justify-center rounded-lg text-xs transition-colors cursor-pointer"
+                @click="setPage(Number(p))"
+              >
+                {{ p }}
+              </button>
+            </template>
+
+            <!-- Next > -->
             <button
-              v-for="p in totalPages"
-              :key="p"
               type="button"
-              :class="p === currentPage ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50'"
-              class="w-8 h-8 rounded-xl text-xs flex items-center justify-center font-semibold cursor-pointer"
-              @click="setPage(p)"
-            >
-              {{ p }}
-            </button>
-            <button
-              type="button"
-              :disabled="currentPage === totalPages"
-              class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 font-semibold disabled:opacity-40 hover:bg-slate-50 cursor-pointer"
+              :disabled="currentPage >= totalPages"
+              title="Next Page"
+              class="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-[11px] font-semibold cursor-pointer"
               @click="setPage(currentPage + 1)"
             >
-              Next
+              <i class="ri-arrow-right-s-line text-sm" />
+            </button>
+
+            <!-- Last >| -->
+            <button
+              type="button"
+              :disabled="currentPage >= totalPages"
+              title="Last Page"
+              class="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200/70 dark:border-slate-700/80 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-[11px] font-semibold cursor-pointer"
+              @click="setPage(totalPages)"
+            >
+              <i class="ri-skip-forward-line text-xs" />
             </button>
           </div>
         </div>

@@ -168,8 +168,16 @@ const emit = defineEmits<{
       </div>
 
       <!-- Pagination -->
-      <div v-if="pagination && pagination.links" class="p-4 border-t border-slate-100 dark:border-slate-800">
-        <Pagination :links="pagination.links" />
+      <div v-if="pagination && (pagination.links || pagination.total)" class="border-t border-slate-100 dark:border-slate-800">
+        <Pagination
+          :links="pagination.links"
+          :from="pagination.from"
+          :to="pagination.to"
+          :total="pagination.total"
+          :current-page="pagination.current_page"
+          :last-page="pagination.last_page"
+          :per-page="pagination.per_page"
+        />
       </div>
     </template>
   </div>

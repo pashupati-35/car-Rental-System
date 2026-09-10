@@ -81,6 +81,10 @@ const fetchModuleData = async (): Promise<void> => {
   }
 }
 
+onMounted(() => {
+  fetchModuleData()
+})
+
 watch(activeModule, () => {
   message.value = ''
   errorMessage.value = ''

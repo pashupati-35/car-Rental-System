@@ -131,9 +131,11 @@ const handleLogin = async () => {
         </div>
       </form>
 
-      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between text-xs text-gray-500">
-        <Link href="/customer/login" class="hover:text-emerald-600 transition-colors">&larr; Customer Login</Link>
-        <Link href="/admin/login" class="hover:text-emerald-600 transition-colors">Admin Portal &rarr;</Link>
+      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-gray-500">
+        <span>Looking to rent a car?</span>
+        <Link href="/customer/login" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+          Customer Portal &rarr;
+        </Link>
       </div>
     </div>
 

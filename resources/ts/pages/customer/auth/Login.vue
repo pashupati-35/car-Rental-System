@@ -131,9 +131,11 @@ const handleLogin = async () => {
         </div>
       </form>
 
-      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between text-xs text-gray-500">
-        <Link href="/owner/login" class="hover:text-blue-600 transition-colors">&larr; Owner Login</Link>
-        <Link href="/admin/login" class="hover:text-blue-600 transition-colors">Admin Portal &rarr;</Link>
+      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between text-xs text-gray-500">
+        <span>Are you a fleet car owner?</span>
+        <Link href="/owner/login" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">
+          Fleet Owner Portal &rarr;
+        </Link>
       </div>
     </div>
 

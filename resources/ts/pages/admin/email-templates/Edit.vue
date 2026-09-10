@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
+import FormToggle from '@/components/FormToggle.vue'
 
 const props = defineProps<{
   template: {
@@ -34,7 +36,7 @@ const getPlaceholder = (tag: string) => {
 
 const insertPlaceholder = (tag: string) => {
   const ph = `{{$${tag.trim()}}}`
-  form.description += ' ' + ph
+  form.description = (form.description || '') + ' ' + ph
 }
 </script>
 
@@ -77,17 +79,17 @@ const insertPlaceholder = (tag: string) => {
               v-model="form.title"
               type="text"
               required
-              class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
           </div>
 
           <div>
-            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email Subject *</label>
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Email Subject Line *</label>
             <input
               v-model="form.subject"
               type="text"
               required
-              class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             >
           </div>
 
@@ -110,36 +112,33 @@ const insertPlaceholder = (tag: string) => {
           </div>
 
           <div>
-            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">HTML Email Template Body</label>
-            <textarea
+            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">HTML Email Template Body (Rich Text)</label>
+            <RichTextEditor
               v-model="form.description"
-              rows="10"
-              class="w-full px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              placeholder="Design formatted email message content..."
+              min-height="260px"
             />
           </div>
 
-          <div class="flex items-center gap-2">
-            <input
-              id="is_active"
+          <div>
+            <FormToggle
               v-model="form.is_active"
-              type="checkbox"
-              class="rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4 cursor-pointer"
-            >
-            <label
-              for="is_active"
-              class="font-bold text-slate-700 dark:text-slate-300 cursor-pointer"
-            >
-              Enable this template for automated system emails
-            </label>
+              label="Template Active Status"
+              description="Enable or disable this template for automated system dispatch"
+              active-text="Active & Enabled"
+              inactive-text="Disabled"
+            />
           </div>
 
           <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
             <button
               type="submit"
               :disabled="form.processing"
-              class="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 transition-all cursor-pointer"
+              class="py-2.5 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 transition-all cursor-pointer flex items-center gap-1.5"
             >
-              {{ form.processing ? 'Saving...' : 'Save Template Changes' }}
+              <i v-if="form.processing" class="ri-loader-4-line animate-spin" />
+              <i v-else class="ri-save-line" />
+              <span>{{ form.processing ? 'Saving...' : 'Save Template Changes' }}</span>
             </button>
           </div>
         </form>

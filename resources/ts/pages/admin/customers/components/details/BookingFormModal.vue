@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import type { CustomerBookingItem } from '../../types'
+import AppDatePicker from '@/components/AppDatePicker.vue'
 
 const props = defineProps<{
   show: boolean
@@ -48,7 +49,7 @@ const onCarSelect = () => {
           <select
             v-model="bookingForm.car_id"
             required
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-medium"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-medium text-xs focus:ring-2 focus:ring-indigo-500"
             @change="onCarSelect"
           >
             <option value="" disabled>Choose an active vehicle...</option>
@@ -58,24 +59,20 @@ const onCarSelect = () => {
           </select>
         </div>
 
-        <!-- Dates -->
+        <!-- Dates using AppDatePicker -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Pickup Date *</label>
-            <input
+            <AppDatePicker
               v-model="bookingForm.pick_up_date"
-              type="date"
-              required
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              label="Pickup Date *"
+              placeholder="Select pickup date..."
             />
           </div>
           <div>
-            <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Return / Drop-off Date *</label>
-            <input
+            <AppDatePicker
               v-model="bookingForm.last_date"
-              type="date"
-              required
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              label="Return / Drop-off Date *"
+              placeholder="Select drop-off date..."
             />
           </div>
         </div>
@@ -89,7 +86,7 @@ const onCarSelect = () => {
               type="text"
               required
               placeholder="e.g. LAX Terminal 2 or Downtown Hub"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
             />
           </div>
           <div>
@@ -99,7 +96,7 @@ const onCarSelect = () => {
               type="text"
               required
               placeholder="e.g. Same Location or Airport Drop"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
             />
           </div>
         </div>
@@ -114,14 +111,14 @@ const onCarSelect = () => {
               step="0.01"
               required
               placeholder="150.00"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono font-bold"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono font-bold text-xs focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Booking Status</label>
             <select
               v-model="bookingForm.status"
-              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold"
+              class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-bold text-xs focus:ring-2 focus:ring-indigo-500"
             >
               <option value="confirm">Confirmed / Active</option>
               <option value="pending">Pending Review</option>
@@ -137,7 +134,7 @@ const onCarSelect = () => {
             v-model="bookingForm.purpose"
             type="text"
             placeholder="e.g. Business Travel, Vacation, Wedding..."
-            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 font-medium"
           />
         </div>
 

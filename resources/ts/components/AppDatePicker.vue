@@ -1,400 +1,306 @@
 <script setup lang="ts">
-import { useTheme } from 'vuetify'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import FlatPickr from 'vue-flatpickr-component'
 
-const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
-  type: 'date',
-  label: '',
-  disabled: false,
-  readonly: false,
-  clearable: false,
-  errorMessages: () => [],
-  config: () => ({}),
-})
-
-const emit = defineEmits<{
-    'update:modelValue': [value: string]
-    'blur': []
-}>()
-
-defineOptions({
-  inheritAttrs: false,
-})
-
-interface Props {
-    modelValue?: string
-
-    type?: 'date' | 'datetime-local'
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string | null
+    type?: 'date' | 'datetime-local' | 'time'
     label?: string
     placeholder?: string
     disabled?: boolean
     readonly?: boolean
     clearable?: boolean
-    errorMessages?: string[]
+    minDate?: string
+    maxDate?: string
+    error?: string
     config?: Record<string, any>
-}
+  }>(),
+  {
+    modelValue: '',
+    type: 'date',
+    label: '',
+    placeholder: 'Select date...',
+    disabled: false,
+    readonly: false,
+    clearable: true,
+    error: '',
+    config: () => ({}),
+  }
+)
 
-const vuetifyTheme = useTheme()
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+  (e: 'change', value: string): void
+  (e: 'blur'): void
+}>()
 
-const refFlatPicker = ref()
-const refTextField = ref()
-const isCalendarOpen = ref(false)
+const inputContainerRef = ref<HTMLElement | null>(null)
+const flatpickrRef = ref<any>(null)
+const isOpen = ref(false)
 
-const hasTime = computed(() => props.type === 'datetime-local')
-
-// flatpickr's own input is hidden, so the visible Vuetify field is what the
-// calendar has to line up with
-const getAnchorElement = (): HTMLElement | null => {
-  const root = refTextField.value?.$el as HTMLElement | undefined
-
-  return (root?.querySelector('.v-field') as HTMLElement | null) ?? root ?? null
-}
-
-// The calendar lives on <body> and is positioned in document coordinates.
-// Vuetify pins <html> with `position: fixed` while a dialog is open, which both
-// zeroes `pageYOffset` and turns <html> into the containing block — flatpickr's
-// own math then drops the calendar near the top of the screen. Measuring
-// against the document element covers the pinned and the normal case alike.
-const positionCalendar = (fp: any) => {
-  const anchor = getAnchorElement()
-  const calendar = fp?.calendarContainer as HTMLElement | undefined
-
-  if (!anchor || !calendar) return
-
-  const anchorRect = anchor.getBoundingClientRect()
-  const origin = document.documentElement.getBoundingClientRect()
-  const calendarHeight = calendar.offsetHeight
-  const calendarWidth = calendar.offsetWidth
-  const gap = 2
-
-  // Flip above the field when there is not enough room underneath it
-  const showOnTop = window.innerHeight - anchorRect.bottom < calendarHeight
-    && anchorRect.top > calendarHeight
-
-  const top = showOnTop
-    ? anchorRect.top - calendarHeight - gap
-    : anchorRect.bottom + gap
-
-  // Keep the calendar on screen when the field sits close to the right edge
-  const left = Math.max(8, Math.min(anchorRect.left, window.innerWidth - calendarWidth - 8))
-
-  calendar.style.top = `${top - origin.top}px`
-  calendar.style.left = `${left - origin.left}px`
-  calendar.style.right = 'auto'
-}
-
-const repositionCalendar = () => {
-  if (refFlatPicker.value?.fp)
-    positionCalendar(refFlatPicker.value.fp)
-}
+const hasTime = computed(() => props.type === 'datetime-local' || props.type === 'time')
 
 const flatpickrConfig = computed(() => ({
   enableTime: hasTime.value,
-
-  // Escaped "T" keeps the emitted value in the same shape as a native
-  // datetime-local input, e.g. "2025-06-26T09:30"
-  dateFormat: hasTime.value ? 'Y-m-d\\TH:i' : 'Y-m-d',
+  noCalendar: props.type === 'time',
+  dateFormat: props.type === 'datetime-local' ? 'Y-m-d H:i' : props.type === 'time' ? 'H:i' : 'Y-m-d',
   altInput: true,
-  altFormat: hasTime.value ? 'F j, Y h:i K' : 'F j, Y',
-  position: positionCalendar,
+  altFormat: props.type === 'datetime-local' ? 'M j, Y h:i K' : props.type === 'time' ? 'h:i K' : 'M j, Y',
+  altInputClass: 'app-date-input-styled',
+  minDate: props.minDate,
+  maxDate: props.maxDate,
+  prevArrow: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>',
+  nextArrow: '<svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>',
   ...props.config,
 }))
 
-// vue-flatpickr applies config changes through fp.set(), which cannot add or
-// remove the time inputs on an existing instance, so rebuild it on type change
-const pickerKey = computed(() => (hasTime.value ? 'datetime' : 'date'))
-
-// The text field mirrors the raw model value; hide the "T" separator from it
-const displayValue = computed(() => (props.modelValue ?? '').replace('T', ' '))
-
-// The calendar is appended to <body>, outside Vuetify's app root, so it carries
-// its own theme class for the --v-theme-* variables to resolve
-const updateThemeClassInCalendar = () => {
-  if (!refFlatPicker.value?.fp?.calendarContainer) return
-
-  const themeName = vuetifyTheme.global.name.value
-
-  refFlatPicker.value.fp.calendarContainer.classList.add(`v-theme--${themeName}`)
-}
-
-onMounted(() => {
-  updateThemeClassInCalendar()
-})
-
-const onCalendarOpen = () => {
-  isCalendarOpen.value = true
-
-  // The container is recreated whenever the picker is rebuilt (type change)
-  updateThemeClassInCalendar()
-
-  // Capture phase so scrolling inside a dialog moves the calendar along too
-  window.addEventListener('scroll', repositionCalendar, true)
-}
-
-const onCalendarClose = () => {
-  isCalendarOpen.value = false
-  window.removeEventListener('scroll', repositionCalendar, true)
-}
-
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', repositionCalendar, true)
-})
-
 const handleInput = (val: string) => {
-  // vue-flatpickr v12 calls setDate(value, true) on programmatic prop changes,
-  // which makes flatpickr echo update:modelValue back even when the user didn't
-  // interact. Ignore echoes that match the current value so they don't mark the
-  // field dirty / trigger validation.
-  if ((val ?? '') === (props.modelValue ?? ''))
-    return
-
   emit('update:modelValue', val)
+  emit('change', val)
 }
 
-const handleBlur = () => {
-  emit('blur')
-}
-
-const handleClear = () => {
+const clearValue = () => {
   emit('update:modelValue', '')
-}
-
-const openCalendar = () => {
-  if (!props.disabled && !props.readonly && refFlatPicker.value) {
-    refFlatPicker.value.fp.open()
-  }
+  emit('change', '')
 }
 </script>
 
 <template>
-  <div class="app-date-picker-wrapper">
-    <VTextField
-      ref="refTextField"
-      :model-value="displayValue"
-      :label="label"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      readonly
-      :clearable="clearable"
-      :error-messages="errorMessages"
-      prepend-inner-icon="ri-calendar-line"
-      @click="openCalendar"
-      @click:clear="handleClear"
-      @blur="handleBlur"
-    >
-      <template #label>
-        <slot name="label">
-          {{ label }}
-        </slot>
-      </template>
-    </VTextField>
+  <div ref="inputContainerRef" class="app-date-picker-container w-full">
+    <!-- Label -->
+    <label v-if="label" class="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs flex items-center justify-between">
+      <span>{{ label }}</span>
+      <button
+        v-if="clearable && modelValue && !disabled && !readonly"
+        type="button"
+        class="text-[10px] text-slate-400 hover:text-rose-500 transition-colors font-medium cursor-pointer"
+        @click.stop="clearValue"
+      >
+        Clear
+      </button>
+    </label>
 
-    <FlatPickr
-      :key="pickerKey"
-      ref="refFlatPicker"
-      :model-value="modelValue"
-      :config="flatpickrConfig"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      class="flat-picker-hidden"
-      @update:model-value="handleInput"
-      @on-open="onCalendarOpen"
-      @on-close="onCalendarClose"
-    />
+    <!-- Input Wrapper -->
+    <div
+      class="relative flex items-center rounded-xl border transition-all duration-150"
+      :class="[
+        error
+          ? 'border-rose-300 dark:border-rose-700 bg-rose-50/30'
+          : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20',
+        disabled ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900' : ''
+      ]"
+    >
+      <!-- Calendar Icon Prefix -->
+      <div class="pl-3.5 pr-1.5 text-slate-400 dark:text-slate-500 pointer-events-none flex items-center">
+        <i class="ri-calendar-line text-sm" />
+      </div>
+
+      <!-- Flatpickr Core Component -->
+      <FlatPickr
+        ref="flatpickrRef"
+        :model-value="modelValue || ''"
+        :config="flatpickrConfig"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        class="w-full bg-transparent text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none py-2.5 pr-3 font-medium cursor-pointer"
+        @update:model-value="handleInput"
+        @on-open="isOpen = true"
+        @on-close="isOpen = false"
+      />
+    </div>
+
+    <!-- Error message if any -->
+    <p v-if="error" class="text-[11px] text-rose-500 mt-1 font-medium">{{ error }}</p>
   </div>
 </template>
 
-<style lang="scss">
-@use "flatpickr/dist/flatpickr.css";
+<style>
+@import "flatpickr/dist/flatpickr.css";
 
-.app-date-picker-wrapper {
-    position: relative;
-}
-
-.flat-picker-hidden {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
-}
-
+/* Custom Date Picker Dropdown theme matching screenshot */
 .flatpickr-calendar {
-    border-radius: 8px;
-    background-color: rgb(var(--v-theme-surface));
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(var(--v-border-color), 0.12);
-    padding: 8px;
-    width: 320px;
+  background: #ffffff !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
+  padding: 0.75rem !important;
+  width: 300px !important;
+  font-family: inherit !important;
+  z-index: 99999 !important;
+}
 
-    .flatpickr-months {
-        padding: 8px 0 12px;
+.dark .flatpickr-calendar {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5) !important;
+}
 
-        .flatpickr-month {
-            height: 36px;
-        }
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  display: none !important;
+}
 
-        .flatpickr-current-month {
-            font-size: 1rem;
-            font-weight: 600;
-            color: rgba(var(--v-theme-on-surface), 0.87);
+.flatpickr-months {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
 
-            .flatpickr-monthDropdown-months {
-                font-weight: 600;
-                appearance: none;
-                background: transparent;
-                border: none;
-                color: rgba(var(--v-theme-on-surface), 0.87);
-            }
+.dark .flatpickr-months {
+  border-bottom-color: #1e293b !important;
+}
 
-            .numInputWrapper {
-                input.cur-year {
-                    font-weight: 600;
-                    color: rgba(var(--v-theme-on-surface), 0.87);
-                }
-            }
-        }
+.flatpickr-months .flatpickr-month {
+  height: 36px !important;
+  color: #0f172a !important;
+}
 
-        .flatpickr-prev-month,
-        .flatpickr-next-month {
-            fill: rgba(var(--v-theme-on-surface), 0.6);
-            padding: 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
+.dark .flatpickr-months .flatpickr-month {
+  color: #f8fafc !important;
+}
 
-            &:hover {
-                background: rgba(var(--v-theme-on-surface), 0.08);
+.flatpickr-current-month {
+  font-size: 0.9375rem !important;
+  font-weight: 700 !important;
+  padding: 0 !important;
+}
 
-                svg {
-                    fill: rgba(var(--v-theme-on-surface), 0.87);
-                }
-            }
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  appearance: none !important;
+}
 
-            svg {
-                width: 14px;
-                height: 14px;
-                fill: rgba(var(--v-theme-on-surface), 0.6);
-                stroke: none;
-            }
-        }
-    }
+.dark .flatpickr-current-month .flatpickr-monthDropdown-months {
+  color: #f1f5f9 !important;
+  background: #0f172a !important;
+}
 
-    .flatpickr-weekdays {
-        margin: 8px 0;
+.flatpickr-current-month input.cur-year {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
 
-        .flatpickr-weekday {
-            color: rgba(var(--v-theme-on-surface), 0.6);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-    }
+.dark .flatpickr-current-month input.cur-year {
+  color: #f1f5f9 !important;
+}
 
-    .flatpickr-days {
-        width: 100%;
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  padding: 6px !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.15s !important;
+}
 
-        .dayContainer {
-            width: 100%;
-            min-width: 100%;
-            max-width: 100%;
-        }
-    }
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  background: #f1f5f9 !important;
+}
 
-    .flatpickr-day {
-        color: rgba(var(--v-theme-on-background), 0.87);
-        border-radius: 6px;
-        font-weight: 500;
-        height: 40px;
-        line-height: 40px;
-        max-width: 40px;
-        transition: all 0.2s ease;
-        border: none;
+.dark .flatpickr-prev-month:hover,
+.dark .flatpickr-next-month:hover {
+  background: #1e293b !important;
+}
 
-        &.today {
-            border: 2px solid rgb(var(--v-theme-primary));
-            background-color: transparent;
-            color: rgb(var(--v-theme-primary));
-            font-weight: 600;
+.flatpickr-weekdays {
+  margin: 0.5rem 0 !important;
+}
 
-            &:hover {
-                background-color: rgba(var(--v-theme-primary), 0.08);
-            }
-        }
+span.flatpickr-weekday {
+  color: #64748b !important;
+  font-size: 0.6875rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+}
 
-        &.selected,
-        &.selected:hover {
-            background: rgb(var(--v-theme-primary));
-            color: rgb(var(--v-theme-on-primary));
-            font-weight: 600;
-            box-shadow: 0px 2px 4px rgba(var(--v-theme-primary), 0.3);
-            border: none;
-        }
+.dark span.flatpickr-weekday {
+  color: #94a3b8 !important;
+}
 
-        &.inRange {
-            background: rgba(var(--v-theme-primary), 0.12) !important;
-            color: rgb(var(--v-theme-primary));
-            box-shadow: none !important;
-            border: none;
-        }
+.flatpickr-days {
+  width: 100% !important;
+}
 
-        &.startRange,
-        &.endRange {
-            background: rgb(var(--v-theme-primary)) !important;
-            color: rgb(var(--v-theme-on-primary));
-            font-weight: 600;
-            box-shadow: 0px 2px 4px rgba(var(--v-theme-primary), 0.3);
-        }
+.dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  justify-content: space-around !important;
+}
 
-        &.prevMonthDay,
-        &.nextMonthDay {
-            color: rgba(var(--v-theme-on-background), 0.38);
-        }
+.flatpickr-day {
+  border-radius: 0.5rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: #334155 !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  max-width: 36px !important;
+  border: 1px solid transparent !important;
+  margin: 2px 0 !important;
+  transition: all 0.15s !important;
+}
 
-        &.flatpickr-disabled {
-            color: rgba(var(--v-theme-on-background), 0.26);
-            cursor: not-allowed;
-        }
+.dark .flatpickr-day {
+  color: #cbd5e1 !important;
+}
 
-        &:hover:not(.selected):not(.startRange):not(.endRange):not(.flatpickr-disabled) {
-            background: rgba(var(--v-theme-on-surface), 0.08);
-            color: rgba(var(--v-theme-on-surface), 0.87);
-            border: none;
-        }
-    }
+.flatpickr-day:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
 
-    &.open {
-        z-index: 2401;
-    }
+.dark .flatpickr-day:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
 
-    &::before,
-    &::after {
-        display: none;
-    }
+.flatpickr-day.today {
+  border: 2px solid #0f766e !important;
+  border-radius: 0.5rem !important;
+  background: transparent !important;
+  color: #0f766e !important;
+  font-weight: 700 !important;
+}
 
-    // Time picker styles (if enabled)
-    &.hasTime {
-        .flatpickr-time {
-            border-top: 1px solid rgba(var(--v-border-color), 0.12);
-            margin-top: 8px;
-            padding-top: 12px;
+.dark .flatpickr-day.today {
+  border-color: #2dd4bf !important;
+  color: #2dd4bf !important;
+}
 
-            input,
-            .flatpickr-am-pm {
-                color: rgba(var(--v-theme-on-surface), 0.87);
-                font-weight: 500;
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: #0f766e !important;
+  border-color: #0f766e !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3) !important;
+}
 
-                &:hover,
-                &:focus {
-                    background: rgba(var(--v-theme-on-surface), 0.04);
-                }
-            }
+.dark .flatpickr-day.selected {
+  background: #0d9488 !important;
+  border-color: #0d9488 !important;
+}
 
-            .flatpickr-time-separator {
-                color: rgba(var(--v-theme-on-surface), 0.6);
-            }
-        }
-    }
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: #cbd5e1 !important;
+}
+
+.dark .flatpickr-day.prevMonthDay,
+.dark .flatpickr-day.nextMonthDay {
+  color: #475569 !important;
+}
+
+.flatpickr-day.disabled {
+  color: #e2e8f0 !important;
+  cursor: not-allowed !important;
+}
+
+.dark .flatpickr-day.disabled {
+  color: #334155 !important;
 }
 </style>

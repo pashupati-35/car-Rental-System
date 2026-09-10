@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CmsItem, CmsModuleMeta } from '../types'
+import FormToggle from '@/components/FormToggle.vue'
 import FaqForm from '../forms/FaqForm.vue'
 import BlogForm from '../forms/BlogForm.vue'
 import CareerForm from '../forms/CareerForm.vue'
@@ -38,77 +39,88 @@ const emit = defineEmits<{
     v-if="show"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
   >
-    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl relative space-y-4">
-      <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-        <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-          <i :class="currentModuleMeta.icon" class="text-indigo-600" />
-          <span>{{ isEditing ? 'Edit' : 'Create New' }} {{ currentModuleMeta.label }}</span>
-        </h3>
+    <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800 shadow-2xl relative">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-lg border border-indigo-100 dark:border-indigo-900">
+            <i :class="currentModuleMeta.icon" />
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-900 dark:text-white leading-tight">
+              {{ isEditing ? 'Edit' : 'Create New' }} {{ currentModuleMeta.label }}
+            </h3>
+            <p class="text-[11px] text-slate-400">Manage CMS content, publishing status, and rich details</p>
+          </div>
+        </div>
+
         <button
           type="button"
-          class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
+          class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-lg cursor-pointer"
           @click="emit('close')"
         >
           &times;
         </button>
       </div>
 
-      <div v-if="errorMessage" class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold">
+      <!-- Error Alert -->
+      <div v-if="errorMessage" class="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300 text-xs font-semibold">
         {{ errorMessage }}
       </div>
 
-      <form class="space-y-4 text-xs" @submit.prevent="emit('save')">
-        <!-- Separate Component Per CMS Module -->
-        <FaqForm v-if="activeModule === 'faqs'" :item="item" />
-        <BlogForm v-else-if="activeModule === 'blogs'" :item="item" />
-        <CareerForm v-else-if="activeModule === 'careers'" :item="item" />
-        <TeamForm v-else-if="activeModule === 'teams'" :item="item" />
-        <ServiceForm v-else-if="activeModule === 'services'" :item="item" />
-        <PopupForm v-else-if="activeModule === 'popups'" :item="item" />
-        <NoticeForm v-else-if="activeModule === 'notices'" :item="item" />
-        <NewsForm v-else-if="activeModule === 'news'" :item="item" />
-        <SliderForm v-else-if="activeModule === 'sliders'" :item="item" />
-        <PageForm v-else-if="activeModule === 'pages'" :item="item" />
-        <TestimonialForm v-else-if="activeModule === 'testimonials'" :item="item" />
-        <AlbumForm v-else-if="activeModule === 'albums'" :item="item" />
-        <MenuForm v-else-if="activeModule === 'menus'" :item="item" />
-        <PartnerForm v-else-if="activeModule === 'partners'" :item="item" />
-        <GenericForm v-else :item="item" />
+      <!-- Scrollable Modal Body -->
+      <div class="flex-1 overflow-y-auto px-6 py-5">
+        <form id="cmsModalForm" class="space-y-5 text-xs" @submit.prevent="emit('save')">
+          <!-- CMS Module Specific Form -->
+          <FaqForm v-if="activeModule === 'faqs'" :item="item" />
+          <BlogForm v-else-if="activeModule === 'blogs'" :item="item" />
+          <CareerForm v-else-if="activeModule === 'careers'" :item="item" />
+          <TeamForm v-else-if="activeModule === 'teams'" :item="item" />
+          <ServiceForm v-else-if="activeModule === 'services'" :item="item" />
+          <PopupForm v-else-if="activeModule === 'popups'" :item="item" />
+          <NoticeForm v-else-if="activeModule === 'notices'" :item="item" />
+          <NewsForm v-else-if="activeModule === 'news'" :item="item" />
+          <SliderForm v-else-if="activeModule === 'sliders'" :item="item" />
+          <PageForm v-else-if="activeModule === 'pages'" :item="item" />
+          <TestimonialForm v-else-if="activeModule === 'testimonials'" :item="item" />
+          <AlbumForm v-else-if="activeModule === 'albums'" :item="item" />
+          <MenuForm v-else-if="activeModule === 'menus'" :item="item" />
+          <PartnerForm v-else-if="activeModule === 'partners'" :item="item" />
+          <GenericForm v-else :item="item" />
 
-        <!-- Status Toggle -->
-        <div class="flex items-center gap-2 pt-2">
-          <input
-            v-model="item.is_active"
-            type="checkbox"
-            id="modal_active"
-            :true-value="1"
-            :false-value="0"
-            class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-          />
-          <label for="modal_active" class="font-bold cursor-pointer text-slate-700 dark:text-slate-300">
-            Active / Published on Public Site
-          </label>
-        </div>
+          <!-- Publication Status Toggle -->
+          <div v-if="item.is_active !== undefined || !isEditing" class="pt-2">
+            <FormToggle
+              v-model="item.is_active"
+              label="Active & Published on Public Site"
+              description="Toggle whether this record is visible to customers on the public frontend"
+              active-text="Published"
+              inactive-text="Draft / Hidden"
+            />
+          </div>
+        </form>
+      </div>
 
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <button
-            type="button"
-            class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
-            @click="emit('close')"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            :disabled="submitting"
-            class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
-          >
-            <i class="ri-check-line" />
-            <span>{{ submitting ? 'Saving...' : 'Save Record' }}</span>
-          </button>
-        </div>
-      </form>
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 shrink-0">
+        <button
+          type="button"
+          class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold text-xs cursor-pointer transition-colors"
+          @click="emit('close')"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          form="cmsModalForm"
+          :disabled="submitting"
+          class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 disabled:opacity-50 cursor-pointer flex items-center gap-1.5 transition-all"
+        >
+          <i v-if="submitting" class="ri-loader-4-line animate-spin" />
+          <i v-else class="ri-check-line" />
+          <span>{{ submitting ? 'Saving...' : 'Save Record' }}</span>
+        </button>
+      </div>
     </div>
   </div>
 </template>
