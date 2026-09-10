@@ -58,7 +58,11 @@ class BookingApiController extends Controller
      */
     public function store(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
+        if (!$customer && $request->has('customer_id')) {
+            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        }
+
         if (!$customer) {
             return response()->json([
                 'status' => 'error',
@@ -130,7 +134,11 @@ class BookingApiController extends Controller
      */
     public function processPayment(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
+        if (!$customer && $request->has('customer_id')) {
+            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        }
+
         if (!$customer) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized.'], 401);
         }
@@ -177,7 +185,11 @@ class BookingApiController extends Controller
      */
     public function myBookings(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
+        if (!$customer && $request->has('customer_id')) {
+            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        }
+
         if (!$customer) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized.'], 401);
         }

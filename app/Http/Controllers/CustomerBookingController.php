@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookingCar;
 use App\Services\BookingService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class CustomerBookingController extends Controller
 {
@@ -13,33 +16,65 @@ class CustomerBookingController extends Controller
 
     public function index()
     {
-        $customerId = Auth::guard('customer')->user()->id;
-        $bookings = $this->bookingService->getCustomerBookings($customerId);
+        $customer = Auth::guard('customer')->user() ?: Auth::user();
+        if (!$customer) {
+            return redirect()->route('customer.login');
+        }
 
-        return view('customer.view_booking', compact('bookings'));
+        $bookings = BookingCar::with(['car.owner', 'car.driver', 'payment'])
+            ->where('customer_id', $customer->id)
+            ->latest()
+            ->get();
+
+        return Inertia::render('customer/Bookings', [
+            'bookings' => $bookings,
+            'customer' => $customer,
+        ]);
     }
 
     public function show($id)
     {
-        $customerId = Auth::guard('customer')->id();
-        $booking = $this->bookingService->getBookingWithCar((int) $id);
-
-        if (! $booking || $booking->customer_id !== $customerId) {
-            abort(404);
+        $customer = Auth::guard('customer')->user() ?: Auth::user();
+        if (!$customer) {
+            return redirect()->route('customer.login');
         }
 
-        return view('customer.show_booking', compact('booking'));
+        $booking = BookingCar::with(['car.owner', 'car.driver', 'payment'])
+            ->where('id', (int) $id)
+            ->where('customer_id', $customer->id)
+            ->firstOrFail();
+
+        return Inertia::render('customer/Bookings', [
+            'bookings' => [$booking],
+            'selectedBooking' => $booking,
+            'customer' => $customer,
+        ]);
     }
 
-    public function cancelBooking($id)
+    public function cancelBooking(Request $request, $id)
     {
-        $customerId = Auth::guard('customer')->id();
+        $customer = Auth::guard('customer')->user() ?: Auth::user();
+        if (!$customer) {
+            return redirect()->route('customer.login');
+        }
 
         try {
-            $this->bookingService->cancelBookingByCustomer((int) $id, $customerId);
+            $booking = BookingCar::where('id', (int)$id)
+                ->where('customer_id', $customer->id)
+                ->firstOrFail();
+
+            $booking->update(['status' => 'cancel']);
+
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'success', 'message' => 'Booking canceled successfully.']);
+            }
 
             return redirect()->route('customer.bookings')->with('success', 'Your booking has been canceled.');
-        } catch (\RuntimeException $e) {
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'This booking cannot be canceled.'], 422);
+            }
+
             return redirect()->route('customer.bookings')->with('error', 'This booking cannot be canceled.');
         }
     }
