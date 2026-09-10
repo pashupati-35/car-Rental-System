@@ -19,6 +19,8 @@ class MediaResource extends JsonResource
             'id' => $this->id,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file' => $this->file ?? $this->image,
+            'file_path' => $this->file_path ?? $this->image_path,
             'title' => $this->title,
             'type' => $this->type,
             'size' => $this->size,

@@ -37,8 +37,9 @@ onUnmounted(() => {
 })
 
 const getCarImage = (car: CarItem) => {
-  if (car.image) return car.image
   if (car.image_path?.original) return car.image_path.original
+  if (car.car_photo_path?.original) return car.car_photo_path.original
+  if (car.image) return car.image.startsWith('http') ? car.image : `/${car.image.replace(/^\/+/, '')}`
   if (car.car_photo) {
     return car.car_photo.startsWith('http') ? car.car_photo : `/${car.car_photo.replace(/^\/+/, '')}`
   }

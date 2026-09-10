@@ -35,6 +35,14 @@ const profileForm = ref<Partial<CustomerItem>>({
   gender: props.customer.gender || 'male',
 })
 
+const resolveCustomerImage = (c: CustomerItem) => {
+  if (!c) return null
+  if (c.image_path?.original) return c.image_path.original
+  if (c.image) return c.image.startsWith('http') ? c.image : `/${c.image.replace(/^\/+/, '')}`
+  if (c.photo) return c.photo.startsWith('http') ? c.photo : `/${c.photo.replace(/^\/+/, '')}`
+  return null
+}
+
 const openEditProfile = () => {
   profileForm.value = {
     name: props.customer.name || props.customer.full_name || '',
@@ -237,8 +245,16 @@ const deletePayment = async (paymentId: number) => {
           </div>
 
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-md shadow-indigo-500/20">
-              {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-lg shadow-md shadow-indigo-500/20 overflow-hidden shrink-0">
+              <img
+                v-if="resolveCustomerImage(customer)"
+                :src="resolveCustomerImage(customer)!"
+                :alt="customer.name || customer.full_name"
+                class="w-full h-full object-cover"
+              >
+              <span v-else>
+                {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
+              </span>
             </div>
             <div>
               <h2 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
@@ -403,7 +419,7 @@ const deletePayment = async (paymentId: number) => {
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
               <span class="text-[10px] uppercase font-bold text-slate-400">Phone Contact</span>
               <p class="font-semibold text-slate-800 dark:text-slate-200">
-                {{ customer.phone_number || customer.phone || 'N/A' }}
+                {{ customer.phone_number || customer.phone || customer.mobile || 'N/A' }}
               </p>
             </div>
             <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-1">
@@ -417,6 +433,31 @@ const deletePayment = async (paymentId: number) => {
               <p class="font-semibold text-slate-800 dark:text-slate-200">
                 {{ customer.address || 'No address provided' }}
               </p>
+            </div>
+            <div
+              v-if="resolveCustomerImage(customer)"
+              class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 space-y-2 sm:col-span-3"
+            >
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Customer Profile / ID Document Photo</span>
+              <div class="flex items-center gap-4">
+                <img
+                  :src="resolveCustomerImage(customer)!"
+                  :alt="customer.name || customer.full_name"
+                  class="w-20 h-20 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
+                >
+                <div class="space-y-1">
+                  <span class="font-semibold text-slate-800 dark:text-slate-200 block text-xs font-mono break-all">{{ customer.image }}</span>
+                  <a
+                    :href="resolveCustomerImage(customer)!"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                  >
+                    <i class="ri-external-link-line" />
+                    <span>Open Full Image</span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>

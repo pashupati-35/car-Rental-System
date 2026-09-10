@@ -35,7 +35,16 @@ class Car extends Model
         'status',
     ];
 
-    protected $appends = ['image_path', 'image', 'blue_book_url'];
+    protected $appends = [
+        'image_path',
+        'image',
+        'car_photo_path',
+        'blue_book_path',
+        'blue_book_url',
+        'driver_photo_path',
+        'licence_photo_path',
+        'file_path',
+    ];
 
     public function getImagePathAttribute()
     {
@@ -45,6 +54,11 @@ class Car extends Model
             return getImagePath($uploadPath, $img);
         }
         return null;
+    }
+
+    public function getCarPhotoPathAttribute()
+    {
+        return $this->image_path;
     }
 
     public function getImageAttribute()
@@ -58,14 +72,48 @@ class Car extends Model
         return null;
     }
 
-    public function getBlueBookUrlAttribute()
+    public function getBlueBookPathAttribute()
     {
         $doc = $this->blue_book_photo ?? null;
         if (!empty($doc)) {
-            $path = getImagePath('uploads/bluebooks', $doc);
-            return $path['original'] ?? asset(ltrim($doc, '/'));
+            return getFilePath('uploads/bluebooks', $doc);
         }
         return null;
+    }
+
+    public function getBlueBookUrlAttribute()
+    {
+        if (isset($this->blue_book_path['original'])) {
+            return $this->blue_book_path['original'];
+        }
+        $doc = $this->blue_book_photo ?? null;
+        if (!empty($doc)) {
+            return asset(ltrim($doc, '/'));
+        }
+        return null;
+    }
+
+    public function getDriverPhotoPathAttribute()
+    {
+        $img = $this->driver_photo ?? null;
+        if (!empty($img)) {
+            return getImagePath('uploads/drivers', $img);
+        }
+        return null;
+    }
+
+    public function getLicencePhotoPathAttribute()
+    {
+        $img = $this->licence_photo ?? null;
+        if (!empty($img)) {
+            return getFilePath('uploads/drivers/license', $img);
+        }
+        return null;
+    }
+
+    public function getFilePathAttribute()
+    {
+        return $this->blue_book_path ?? $this->licence_photo_path ?? $this->image_path;
     }
 
     public function owner()

@@ -29,6 +29,8 @@ class DownloadResource extends JsonResource
             'type_name' => ! empty($this->type) ? $this->type->title : null,
             'file' => $this->file,
             'file_path' => $this->file_path,
+            'image' => $this->preview_image ?? $this->file,
+            'image_path' => $this->preview_image_path ?? $this->file_path,
             'preview_image' => $this->preview_image,
             'preview_image_path' => $this->preview_image_path,
             'is_private' => $this->is_private,

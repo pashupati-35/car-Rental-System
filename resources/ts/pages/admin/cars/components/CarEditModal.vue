@@ -78,8 +78,8 @@ watch(
         available: newCar.available || 'no',
         description: newCar.description || '',
       }
-      carPhotoPreview.value = resolveImageUrl(newCar.image || newCar.car_photo, newCar.image_path)
-      blueBookPhotoPreview.value = resolveImageUrl(newCar.blue_book_url || newCar.blue_book_photo)
+      carPhotoPreview.value = resolveImageUrl(newCar.image || newCar.car_photo, newCar.image_path || newCar.car_photo_path)
+      blueBookPhotoPreview.value = resolveImageUrl(newCar.blue_book_url || newCar.blue_book_photo, newCar.blue_book_path || newCar.file_path)
       carPhotoFile.value = null
       blueBookPhotoFile.value = null
     }

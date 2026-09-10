@@ -15,8 +15,9 @@ const emit = defineEmits<{
 }>()
 
 const getDriverImage = (d: DriverItem) => {
-  if (d.image) return d.image
   if (d.image_path?.original) return d.image_path.original
+  if (d.photo_path?.original) return d.photo_path.original
+  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
   if (d.photo) {
     return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
   }

@@ -28,6 +28,7 @@ class TeamResource extends JsonResource
             'position' => $this->position,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file_path' => $this->file_path ?? $this->image_path,
             'is_active' => $this->is_active,
             'whatsapp' => $this->whatsapp,
         ];

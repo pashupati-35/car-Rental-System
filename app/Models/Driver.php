@@ -27,16 +27,21 @@ class Driver extends Model
         'status',
     ];
 
-    protected $appends = ['image_path', 'image', 'license_photo_url'];
+    protected $appends = ['image_path', 'image', 'photo_path', 'license_photo_path', 'license_photo_url', 'file_path'];
 
     public function getImagePathAttribute()
     {
-        $img = $this->photo ?? null;
+        $img = $this->photo ?? $this->image ?? null;
         if (!empty($img)) {
             $uploadPath = $this->getUploadPath($this->uploadPath);
             return getImagePath($uploadPath, $img);
         }
         return null;
+    }
+
+    public function getPhotoPathAttribute()
+    {
+        return $this->image_path;
     }
 
     public function getImageAttribute()
@@ -50,14 +55,30 @@ class Driver extends Model
         return null;
     }
 
-    public function getLicensePhotoUrlAttribute()
+    public function getLicensePhotoPathAttribute()
     {
         $doc = $this->license_photo ?? null;
         if (!empty($doc)) {
-            $path = getImagePath('uploads/drivers/license', $doc);
-            return $path['original'] ?? asset(ltrim($doc, '/'));
+            return getFilePath('uploads/drivers/license', $doc);
         }
         return null;
+    }
+
+    public function getLicensePhotoUrlAttribute()
+    {
+        if (isset($this->license_photo_path['original'])) {
+            return $this->license_photo_path['original'];
+        }
+        $doc = $this->license_photo ?? null;
+        if (!empty($doc)) {
+            return asset(ltrim($doc, '/'));
+        }
+        return null;
+    }
+
+    public function getFilePathAttribute()
+    {
+        return $this->license_photo_path ?? $this->image_path;
     }
 
     public function owner()

@@ -67,7 +67,7 @@ class Admin extends Authenticatable
         'mfa_authentication_image',
     ];
 
-    protected $appends = ['full_name', 'image_path'];
+    protected $appends = ['full_name', 'image_path', 'file_path'];
 
     protected function casts(): array
     {
@@ -104,6 +104,11 @@ class Admin extends Authenticatable
             return getImagePath($uploadPath, $img);
         }
         return null;
+    }
+
+    public function getFilePathAttribute()
+    {
+        return $this->image_path;
     }
 
     protected static function booted(): void

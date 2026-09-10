@@ -26,8 +26,9 @@ const formatDate = (date?: string) => {
 
 const getDriverImage = (d: DriverItem | null) => {
   if (!d) return null
-  if (d.image) return d.image
   if (d.image_path?.original) return d.image_path.original
+  if (d.photo_path?.original) return d.photo_path.original
+  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
   if (d.photo) {
     return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
   }
@@ -36,7 +37,9 @@ const getDriverImage = (d: DriverItem | null) => {
 
 const getLicensePhoto = (d: DriverItem | null) => {
   if (!d) return null
+  if (d.license_photo_path?.original) return d.license_photo_path.original
   if (d.license_photo_url) return d.license_photo_url
+  if (d.file_path?.original) return d.file_path.original
   if (d.license_photo) {
     return d.license_photo.startsWith('http') ? d.license_photo : `/${d.license_photo.replace(/^\/+/, '')}`
   }

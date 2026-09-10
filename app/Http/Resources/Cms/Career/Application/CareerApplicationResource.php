@@ -27,6 +27,7 @@ class CareerApplicationResource extends JsonResource
             'phone' => $this->phone,
             'file' => $this->file,
             'file_path' => $this->file_path,
+            'image_path' => $this->file_path,
             'received_at' => $this->received_at,
             'formatted_received_at' => formatDate($this->received_at),
             'is_read' => $this->is_read,

@@ -22,6 +22,7 @@ class TestimonialResource extends JsonResource
             'name' => $this->name,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file_path' => $this->file_path ?? $this->image_path,
             'position' => $this->position,
             'rating' => $this->rating,
             'type' => $this->type,

@@ -28,6 +28,7 @@ class SliderResource extends JsonResource
             'link' => $this->link,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file_path' => $this->file_path ?? $this->image_path,
             'position' => $this->position,
             'new_tab' => $this->new_tab,
             'is_active' => $this->is_active,

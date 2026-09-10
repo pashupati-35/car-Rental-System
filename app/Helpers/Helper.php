@@ -468,23 +468,30 @@ if (! function_exists('getImagePath')) {
             return null;
         }
 
-        $fileType = checkFileType($imageName);
-        if ($fileType === 'other') {
-            return null;
-        }
-
-        $uploadClean = trim($uploadPath, '/');
         $imageClean = ltrim($imageName, '/');
 
-        if (str_starts_with($imageClean, $uploadClean.'/')) {
+        if (str_starts_with($imageClean, 'http://') || str_starts_with($imageClean, 'https://') || str_starts_with($imageClean, 'blob:')) {
+            return [
+                'original' => $imageClean,
+                'thumb' => $imageClean,
+            ];
+        }
+
+        $fileType = checkFileType($imageClean);
+
+        $uploadClean = trim(str_replace('uploads/', '', $uploadPath), '/');
+
+        if (str_starts_with($imageClean, 'uploads/')) {
             $basePath = $imageClean;
-            $thumbPath = $uploadClean.'/thumb/'.substr($imageClean, strlen($uploadClean) + 1);
-        } elseif (str_starts_with($imageClean, 'uploads/')) {
-            $basePath = $imageClean;
-            $thumbPath = 'uploads/thumb/'.substr($imageClean, strlen('uploads/'));
+            $relativeInside = substr($imageClean, strlen('uploads/'));
+            $thumbPath = 'uploads/thumb/'.$relativeInside;
+        } elseif (str_starts_with($imageClean, $uploadClean.'/')) {
+            $basePath = 'uploads/'.$imageClean;
+            $relativeInside = substr($imageClean, strlen($uploadClean) + 1);
+            $thumbPath = 'uploads/'.$uploadClean.'/thumb/'.$relativeInside;
         } else {
-            $basePath = $uploadClean.'/'.$imageClean;
-            $thumbPath = $uploadClean.'/thumb/'.$imageClean;
+            $basePath = 'uploads/'.$uploadClean.'/'.$imageClean;
+            $thumbPath = 'uploads/'.$uploadClean.'/thumb/'.$imageClean;
         }
 
         if (getStorageType() !== 'local' && app()->environment('production')) {
@@ -499,6 +506,14 @@ if (! function_exists('getImagePath')) {
             'original' => $originalUrl,
             'thumb' => $thumbUrl,
         ], static fn (?string $value): bool => filled($value));
+    }
+}
+
+if (! function_exists('getFilePath')) {
+    /** @return array{original:string, thumb?:string}|null */
+    function getFilePath(string $uploadPath, ?string $fileName, bool $signed = false): ?array
+    {
+        return getImagePath($uploadPath, $fileName, $signed);
     }
 }
 
@@ -530,6 +545,7 @@ if (! function_exists('checkFileType')) {
             in_array($extension, ['csv', 'txt'], true) => 'csv',
             in_array($extension, ['xls', 'xlsx'], true) => 'xls',
             $extension === 'pdf' => 'pdf',
+            in_array($extension, ['zip', 'rar', '7z', 'tar', 'gz'], true) => 'archive',
             $extension !== '' => 'file',
             default => 'other',
         };

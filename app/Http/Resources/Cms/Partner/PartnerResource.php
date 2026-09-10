@@ -22,6 +22,9 @@ class PartnerResource extends JsonResource
             'description' => $this->description,
             'featured_photo' => $this->featured_photo,
             'featured_photo_path' => $this->featured_photo_path,
+            'image' => $this->image ?? $this->featured_photo,
+            'image_path' => $this->image_path ?? $this->featured_photo_path,
+            'file_path' => $this->file_path ?? $this->image_path ?? $this->featured_photo_path,
             'is_active' => $this->is_active,
         ];
 

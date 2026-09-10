@@ -43,6 +43,22 @@ const selectedCar = ref<any | null>(null)
 const selectedDriver = ref<any | null>(null)
 
 // Owner Form
+const resolveOwnerImage = (o: any) => {
+  if (!o) return null
+  if (o.image_path?.original) return o.image_path.original
+  if (o.image) return o.image.startsWith('http') ? o.image : `/${o.image.replace(/^\/+/, '')}`
+  return null
+}
+
+const resolveDriverImage = (d: any) => {
+  if (!d) return null
+  if (d.image_path?.original) return d.image_path.original
+  if (d.photo_path?.original) return d.photo_path.original
+  if (d.photo) return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
+  if (d.image) return d.image.startsWith('http') ? d.image : `/${d.image.replace(/^\/+/, '')}`
+  return null
+}
+
 const ownerForm = ref({
   full_name: props.owner.full_name || '',
   email: props.owner.email || '',
@@ -443,8 +459,14 @@ const cancelBooking = (bookingId: number) => {
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div class="flex items-center gap-5">
-            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shrink-0">
-              {{ owner.full_name ? owner.full_name.charAt(0).toUpperCase() : 'O' }}
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-emerald-500 to-indigo-500 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shrink-0 overflow-hidden">
+              <img
+                v-if="resolveOwnerImage(owner)"
+                :src="resolveOwnerImage(owner)!"
+                :alt="owner.full_name"
+                class="w-full h-full object-cover"
+              >
+              <span v-else>{{ owner.full_name ? owner.full_name.charAt(0).toUpperCase() : 'O' }}</span>
             </div>
             <div>
               <div class="flex flex-wrap items-center gap-2 mb-1">
@@ -855,8 +877,8 @@ const cancelBooking = (bookingId: number) => {
                   <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 font-bold flex items-center justify-center text-xs overflow-hidden">
                       <img
-                        v-if="driver.photo"
-                        :src="'/' + driver.photo"
+                        v-if="resolveDriverImage(driver)"
+                        :src="resolveDriverImage(driver)!"
                         class="w-full h-full object-cover"
                       >
                       <span v-else>{{ driver.name ? driver.name[0].toUpperCase() : 'D' }}</span>

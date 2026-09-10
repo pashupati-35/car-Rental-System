@@ -17,10 +17,22 @@ const emit = defineEmits<{
 
 const getCarImage = (c: CarItem | null) => {
   if (!c) return null
-  if (c.image) return c.image
   if (c.image_path?.original) return c.image_path.original
+  if (c.car_photo_path?.original) return c.car_photo_path.original
+  if (c.image) return c.image.startsWith('http') ? c.image : `/${c.image.replace(/^\/+/, '')}`
   if (c.car_photo) {
     return c.car_photo.startsWith('http') ? c.car_photo : `/${c.car_photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
+
+const getBlueBookImage = (c: CarItem | null) => {
+  if (!c) return null
+  if (c.blue_book_path?.original) return c.blue_book_path.original
+  if (c.blue_book_url) return c.blue_book_url
+  if (c.file_path?.original) return c.file_path.original
+  if (c.blue_book_photo) {
+    return c.blue_book_photo.startsWith('http') ? c.blue_book_photo : `/${c.blue_book_photo.replace(/^\/+/, '')}`
   }
   return null
 }
@@ -130,16 +142,16 @@ const getCarImage = (c: CarItem | null) => {
         </div>
 
         <!-- Blue Book / Registration Document -->
-        <div v-if="car.blue_book_url || car.blue_book_photo" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2">
+        <div v-if="getBlueBookImage(car)" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2">
           <span class="text-[10px] text-slate-400 uppercase font-bold block">Bluebook / Registration Document</span>
           <div class="relative group max-h-36 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center">
             <img
-              :src="(car.blue_book_url || (car.blue_book_photo && car.blue_book_photo.startsWith('http') ? car.blue_book_photo : '/' + (car.blue_book_photo || '').replace(/^\/+/, '')))"
+              :src="getBlueBookImage(car)!"
               class="w-full h-36 object-contain"
               alt="Blue Book Document"
             >
             <a
-              :href="(car.blue_book_url || (car.blue_book_photo && car.blue_book_photo.startsWith('http') ? car.blue_book_photo : '/' + (car.blue_book_photo || '').replace(/^\/+/, '')))"
+              :href="getBlueBookImage(car)!"
               target="_blank"
               class="absolute bottom-2 right-2 px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-[10px] flex items-center gap-1 shadow"
             >

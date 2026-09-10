@@ -22,6 +22,7 @@ class ServiceResource extends JsonResource
             'position' => $this->position,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file_path' => $this->file_path ?? $this->image_path,
             'slug' => $this->slug,
             'type' => $this->type,
             'is_active' => $this->is_active,
