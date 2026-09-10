@@ -23,6 +23,25 @@ const formatDate = (date?: string) => {
     day: 'numeric',
   })
 }
+
+const getDriverImage = (d: DriverItem | null) => {
+  if (!d) return null
+  if (d.image) return d.image
+  if (d.image_path?.original) return d.image_path.original
+  if (d.photo) {
+    return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
+
+const getLicensePhoto = (d: DriverItem | null) => {
+  if (!d) return null
+  if (d.license_photo_url) return d.license_photo_url
+  if (d.license_photo) {
+    return d.license_photo.startsWith('http') ? d.license_photo : `/${d.license_photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
 </script>
 
 <template>
@@ -50,7 +69,7 @@ const formatDate = (date?: string) => {
         >
           <div
             v-if="show && driver"
-            class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl relative overflow-hidden"
+            class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl relative overflow-hidden my-8 max-h-[90vh] overflow-y-auto"
           >
             <!-- Header with gradient background -->
             <div class="relative bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700 px-6 pt-6 pb-12">
@@ -58,7 +77,7 @@ const formatDate = (date?: string) => {
                 <div class="flex items-center gap-2">
                   <span class="w-2 h-2 rounded-full bg-white/60" />
                   <h3 class="font-bold text-sm text-white/90 tracking-wide uppercase">
-                    Driver Profile
+                    Driver Profile & Credentials
                   </h3>
                 </div>
                 <button
@@ -72,15 +91,23 @@ const formatDate = (date?: string) => {
             </div>
 
             <!-- Avatar overlapping header -->
-            <div class="relative -mt-8 px-6">
+            <div class="relative -mt-10 px-6">
               <div class="flex items-end gap-4">
-                <div class="w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-900 shadow-lg flex items-center justify-center shrink-0">
-                  <span class="text-2xl font-black text-purple-600 dark:text-purple-400">
+                <div class="w-20 h-20 rounded-2xl bg-white dark:bg-slate-800 border-4 border-white dark:border-slate-900 shadow-lg flex items-center justify-center shrink-0 overflow-hidden">
+                  <img
+                    v-if="getDriverImage(driver)"
+                    :src="getDriverImage(driver)!"
+                    class="w-full h-full object-cover"
+                  >
+                  <span
+                    v-else
+                    class="text-3xl font-black text-purple-600 dark:text-purple-400"
+                  >
                     {{ (driver.name || 'D').charAt(0).toUpperCase() }}
                   </span>
                 </div>
                 <div class="pb-1">
-                  <h4 class="font-black text-lg text-slate-900 dark:text-white leading-tight">
+                  <h4 class="font-black text-xl text-slate-900 dark:text-white leading-tight">
                     {{ driver.name }}
                   </h4>
                   <span class="text-xs text-slate-400 font-mono">#DRV-{{ driver.id }}</span>
@@ -161,11 +188,38 @@ const formatDate = (date?: string) => {
                 class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60"
               >
                 <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
-                  <i class="ri-map-pin-line me-1" />Address
+                  <i class="ri-map-pin-line me-1" />Residential Address
                 </span>
                 <span class="font-semibold text-sm text-slate-800 dark:text-slate-200">
                   {{ driver.address }}
                 </span>
+              </div>
+
+              <!-- License Document Preview if available -->
+              <div
+                v-if="getLicensePhoto(driver)"
+                class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2"
+              >
+                <span class="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
+                  <i class="ri-file-shield-line me-1" />Commercial Driver License Document
+                </span>
+                <div class="h-40 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100">
+                  <img
+                    :src="getLicensePhoto(driver)!"
+                    class="w-full h-full object-cover"
+                  >
+                </div>
+                <div class="text-right">
+                  <a
+                    :href="getLicensePhoto(driver)!"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-xs font-bold text-indigo-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    <span>View Full License File</span>
+                    <i class="ri-external-link-line" />
+                  </a>
+                </div>
               </div>
 
               <!-- Timestamps -->

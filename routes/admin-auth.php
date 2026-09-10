@@ -305,6 +305,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('drivers', [AdminController::class, 'viewDrivers'])->name('admin.drivers');
     $route->post('drivers', [AdminController::class, 'storeDriver'])->name('admin.drivers.store');
     $route->patch('drivers/{id}', [AdminController::class, 'updateDriver'])->name('admin.drivers.update');
+    $route->post('drivers/{id}', [AdminController::class, 'updateDriver'])->name('admin.drivers.update.post');
     $route->delete('drivers/{id}', [AdminController::class, 'destroyDriver'])->name('admin.drivers.destroy');
 
     // Managing customers

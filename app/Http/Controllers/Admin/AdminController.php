@@ -158,7 +158,11 @@ class AdminController extends Controller
 
     public function storeDriver(StoreDriverRequest $request)
     {
-        $driver = $this->driverService->createDriver($request->validated());
+        $driver = $this->driverService->createDriver(
+            $request->validated(),
+            $request->file('photo'),
+            $request->file('license_photo'),
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver added successfully.', 'data' => $driver]);
@@ -169,7 +173,12 @@ class AdminController extends Controller
 
     public function updateDriver(UpdateDriverRequest $request, $id)
     {
-        $driver = $this->driverService->updateDriver((int) $id, $request->validated());
+        $driver = $this->driverService->updateDriver(
+            (int) $id,
+            $request->validated(),
+            $request->file('photo'),
+            $request->file('license_photo'),
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver updated successfully.', 'data' => $driver]);

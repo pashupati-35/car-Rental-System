@@ -167,7 +167,8 @@ class OwnerController extends Controller
         $this->driverService->createDriverForOwner(
             (int) $ownerId,
             $validated,
-            $request->file('photo')
+            $request->file('photo'),
+            $request->file('license_photo')
         );
 
         if ($request->wantsJson()) {
@@ -188,7 +189,8 @@ class OwnerController extends Controller
             (int) $ownerId,
             (int) $driverId,
             $validated,
-            $request->file('photo')
+            $request->file('photo'),
+            $request->file('license_photo')
         );
 
         if ($request->wantsJson()) {

@@ -25,15 +25,41 @@ class DriverService
         return $this->driverRepository->getDriverStatusCounts();
     }
 
-    public function createDriver(array $data): Driver
+    public function createDriver(array $data, $photo = null, $licensePhoto = null): Driver
     {
+        if ($photo && $photo->isValid()) {
+            $fileName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/drivers'), $fileName);
+            $data['photo'] = 'uploads/drivers/' . $fileName;
+        }
+
+        if ($licensePhoto && $licensePhoto->isValid()) {
+            $fileName = 'license_' . time() . '_' . $licensePhoto->getClientOriginalName();
+            $licensePhoto->move(public_path('uploads/drivers/license'), $fileName);
+            $data['license_photo'] = 'uploads/drivers/license/' . $fileName;
+        }
+
         $driver = $this->driverRepository->createDriver($data);
         AdminCountCacheService::clear();
         return $driver;
     }
 
-    public function updateDriver(int $id, array $data): Driver
+    public function updateDriver(int $id, array $data, $photo = null, $licensePhoto = null): Driver
     {
+        $driver = $this->driverRepository->find($id) ?? $this->driverRepository->getDriverById($id);
+
+        if ($photo && $photo->isValid()) {
+            $fileName = time() . '_' . $photo->getClientOriginalName();
+            $photo->move(public_path('uploads/drivers'), $fileName);
+            $data['photo'] = 'uploads/drivers/' . $fileName;
+        }
+
+        if ($licensePhoto && $licensePhoto->isValid()) {
+            $fileName = 'license_' . time() . '_' . $licensePhoto->getClientOriginalName();
+            $licensePhoto->move(public_path('uploads/drivers/license'), $fileName);
+            $data['license_photo'] = 'uploads/drivers/license/' . $fileName;
+        }
+
         $driver = $this->driverRepository->updateDriver($id, $data);
         AdminCountCacheService::clear();
         return $driver;
@@ -66,7 +92,7 @@ class DriverService
         return $this->driverRepository->getAllDrivers();
     }
 
-    public function createDriverForOwner(int $ownerId, array $data, $photo = null): Driver
+    public function createDriverForOwner(int $ownerId, array $data, $photo = null, $licensePhoto = null): Driver
     {
         $data['owner_id'] = $ownerId;
         $data['status'] = $data['status'] ?? 'active';
@@ -77,12 +103,18 @@ class DriverService
             $data['photo'] = 'uploads/drivers/' . $fileName;
         }
 
+        if ($licensePhoto && $licensePhoto->isValid()) {
+            $fileName = 'license_' . time() . '_' . $licensePhoto->getClientOriginalName();
+            $licensePhoto->move(public_path('uploads/drivers/license'), $fileName);
+            $data['license_photo'] = 'uploads/drivers/license/' . $fileName;
+        }
+
         $driver = $this->driverRepository->createDriver($data);
         AdminCountCacheService::clear();
         return $driver;
     }
 
-    public function updateDriverForOwner(int $ownerId, int $driverId, array $data, $photo = null): Driver
+    public function updateDriverForOwner(int $ownerId, int $driverId, array $data, $photo = null, $licensePhoto = null): Driver
     {
         $driver = $this->driverRepository->getOwnerDriver($ownerId, $driverId);
 
@@ -90,6 +122,12 @@ class DriverService
             $fileName = time() . '_' . $photo->getClientOriginalName();
             $photo->move(public_path('uploads/drivers'), $fileName);
             $data['photo'] = 'uploads/drivers/' . $fileName;
+        }
+
+        if ($licensePhoto && $licensePhoto->isValid()) {
+            $fileName = 'license_' . time() . '_' . $licensePhoto->getClientOriginalName();
+            $licensePhoto->move(public_path('uploads/drivers/license'), $fileName);
+            $data['license_photo'] = 'uploads/drivers/license/' . $fileName;
         }
 
         $driver->update($data);

@@ -13,6 +13,15 @@ const emit = defineEmits<{
   (e: 'delete', id: number): void
   (e: 'view-details', driver: DriverItem): void
 }>()
+
+const getDriverImage = (d: DriverItem) => {
+  if (d.image) return d.image
+  if (d.image_path?.original) return d.image_path.original
+  if (d.photo) {
+    return d.photo.startsWith('http') ? d.photo : `/${d.photo.replace(/^\/+/, '')}`
+  }
+  return null
+}
 </script>
 
 <template>
@@ -41,8 +50,15 @@ const emit = defineEmits<{
         >
           <div class="flex items-start justify-between gap-2">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0">
-                {{ (driver.name || 'D').charAt(0).toUpperCase() }}
+              <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                <img
+                  v-if="getDriverImage(driver)"
+                  :src="getDriverImage(driver)!"
+                  class="w-full h-full object-cover"
+                >
+                <span v-else>
+                  {{ (driver.name || 'D').charAt(0).toUpperCase() }}
+                </span>
               </div>
               <div>
                 <button
@@ -144,8 +160,15 @@ const emit = defineEmits<{
             >
               <td class="py-4 px-5">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0">
-                    {{ (driver.name || 'D').charAt(0).toUpperCase() }}
+                  <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <img
+                      v-if="getDriverImage(driver)"
+                      :src="getDriverImage(driver)!"
+                      class="w-full h-full object-cover"
+                    >
+                    <span v-else>
+                      {{ (driver.name || 'D').charAt(0).toUpperCase() }}
+                    </span>
                   </div>
                   <div>
                     <button

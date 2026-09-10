@@ -62,24 +62,41 @@ const getCarImage = (c: CarItem | null) => {
       <div class="space-y-3 text-xs">
         <div class="flex items-start justify-between">
           <div>
-            <h4 class="font-black text-lg text-slate-900 dark:text-white">
-              {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
-            </h4>
+            <div class="flex items-center gap-2">
+              <h4 class="font-black text-lg text-slate-900 dark:text-white">
+                {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
+              </h4>
+              <span
+                :class="[
+                  'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider',
+                  car.status === 'verified' || car.status === 'available'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                    : car.status === 'pending'
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'
+                    : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
+                ]"
+              >
+                {{ car.status || 'pending' }}
+              </span>
+            </div>
             <span class="font-mono text-xs text-slate-400">Plate: {{ car.car_number || car.plate_number || 'N/A' }}</span>
           </div>
 
           <div class="text-right">
             <span class="text-2xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
-              ${{ car.price_per_day || car.rental_price || 0 }}
+              ${{ car.price_per_day || car.rental_price || car.car_price_per_day || 0 }}
             </span>
             <span class="text-slate-400 block text-[10px]">/ 24 hours</span>
+            <span v-if="car.car_price_per_km" class="text-emerald-600 dark:text-emerald-400 font-mono text-[11px] block">
+              +${{ car.car_price_per_km }}/km
+            </span>
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60">
           <div>
             <span class="text-[10px] text-slate-400 uppercase font-bold block">Capacity</span>
-            <span class="font-bold text-slate-900 dark:text-white">{{ car.seating_capacity || 4 }} Seats</span>
+            <span class="font-bold text-slate-900 dark:text-white">{{ car.seating_capacity || car.number_of_seats || 4 }} Seats</span>
           </div>
           <div>
             <span class="text-[10px] text-slate-400 uppercase font-bold block">Fuel Type</span>
@@ -108,7 +125,27 @@ const getCarImage = (c: CarItem | null) => {
           </div>
           <div>
             <span class="text-[10px] text-slate-400 uppercase font-bold block">Assigned Driver</span>
-            <span class="font-bold text-slate-900 dark:text-white">{{ car.driver ? car.driver.name : 'Self-Drive' }}</span>
+            <span class="font-bold text-slate-900 dark:text-white">{{ car.driver ? (car.driver.name + (car.driver.phone ? ' (' + car.driver.phone + ')' : '')) : 'Self-Drive / None' }}</span>
+          </div>
+        </div>
+
+        <!-- Blue Book / Registration Document -->
+        <div v-if="car.blue_book_url || car.blue_book_photo" class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 space-y-2">
+          <span class="text-[10px] text-slate-400 uppercase font-bold block">Bluebook / Registration Document</span>
+          <div class="relative group max-h-36 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 flex items-center justify-center">
+            <img
+              :src="(car.blue_book_url || (car.blue_book_photo && car.blue_book_photo.startsWith('http') ? car.blue_book_photo : '/' + (car.blue_book_photo || '').replace(/^\/+/, '')))"
+              class="w-full h-36 object-contain"
+              alt="Blue Book Document"
+            >
+            <a
+              :href="(car.blue_book_url || (car.blue_book_photo && car.blue_book_photo.startsWith('http') ? car.blue_book_photo : '/' + (car.blue_book_photo || '').replace(/^\/+/, '')))"
+              target="_blank"
+              class="absolute bottom-2 right-2 px-3 py-1 rounded-lg bg-slate-900/80 hover:bg-slate-900 text-white font-bold text-[10px] flex items-center gap-1 shadow"
+            >
+              <i class="ri-external-link-line" />
+              <span>View Full Document</span>
+            </a>
           </div>
         </div>
 

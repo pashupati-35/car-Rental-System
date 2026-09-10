@@ -265,6 +265,7 @@ const openCreateDriver = () => {
     status: 'active',
     address: '',
     photo: null,
+    license_photo: null,
   }
   showAddDriverModal.value = true
 }
@@ -281,6 +282,7 @@ const openEditDriver = (driver: any) => {
     status: driver.status || 'active',
     address: driver.address || '',
     photo: null,
+    license_photo: null,
   }
   showEditDriverModal.value = true
 }
@@ -296,6 +298,7 @@ const submitCreateDriver = () => {
   formData.append('status', driverForm.value.status)
   if (driverForm.value.address) formData.append('address', driverForm.value.address)
   if (driverForm.value.photo) formData.append('photo', driverForm.value.photo)
+  if (driverForm.value.license_photo) formData.append('license_photo', driverForm.value.license_photo)
 
   router.post(`/admin/owners/${props.owner.id}/drivers`, formData, {
     preserveScroll: true,
@@ -317,6 +320,7 @@ const submitUpdateDriver = () => {
   formData.append('status', driverForm.value.status)
   if (driverForm.value.address) formData.append('address', driverForm.value.address)
   if (driverForm.value.photo) formData.append('photo', driverForm.value.photo)
+  if (driverForm.value.license_photo) formData.append('license_photo', driverForm.value.license_photo)
 
   router.post(`/admin/owners/${props.owner.id}/drivers/${selectedDriver.value.id}`, formData, {
     preserveScroll: true,
@@ -1405,13 +1409,25 @@ const cancelBooking = (bookingId: number) => {
               </div>
             </div>
 
-            <div>
-              <label class="block font-bold mb-1">Driver Photo</label>
-              <input
-                type="file"
-                class="w-full text-[11px]"
-                @change="(e: any) => driverForm.photo = e.target.files[0]"
-              >
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold mb-1">Driver Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="w-full text-[11px]"
+                  @change="(e: any) => driverForm.photo = e.target.files[0]"
+                >
+              </div>
+              <div>
+                <label class="block font-bold mb-1">License Document</label>
+                <input
+                  type="file"
+                  accept="image/*,.pdf,.doc,.docx"
+                  class="w-full text-[11px]"
+                  @change="(e: any) => driverForm.license_photo = e.target.files[0]"
+                >
+              </div>
             </div>
 
             <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">

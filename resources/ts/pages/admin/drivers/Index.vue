@@ -43,17 +43,7 @@ const submitting = ref(false)
 const errorMessage = ref('')
 const message = ref('')
 
-const driverForm = ref<Partial<DriverItem>>({
-  id: 0,
-  name: '',
-  phone: '',
-  email: '',
-  license_number: '',
-  experience_years: 1,
-  status: 'active',
-  owner_id: '',
-  address: '',
-})
+
 
 let searchTimeout: any = null
 
@@ -93,34 +83,16 @@ const resetFilters = () => {
   applyFilters()
 }
 
+const editingDriver = ref<DriverItem | null>(null)
+
 const openAddModal = () => {
-  driverForm.value = {
-    id: 0,
-    name: '',
-    phone: '',
-    email: '',
-    license_number: '',
-    experience_years: 1,
-    status: 'active',
-    owner_id: '',
-    address: '',
-  }
+  editingDriver.value = null
   errorMessage.value = ''
   showAddModal.value = true
 }
 
 const openEditModal = (driver: DriverItem) => {
-  driverForm.value = {
-    id: driver.id,
-    name: driver.name,
-    phone: driver.phone,
-    email: driver.email || '',
-    license_number: driver.license_number || '',
-    experience_years: driver.experience_years || 1,
-    status: driver.status || 'active',
-    owner_id: driver.owner_id || '',
-    address: driver.address || '',
-  }
+  editingDriver.value = driver
   errorMessage.value = ''
   showEditModal.value = true
 }
@@ -135,11 +107,13 @@ const handleEditFromDetail = (driver: DriverItem) => {
   openEditModal(driver)
 }
 
-const submitNewDriver = async () => {
+const submitNewDriver = async (formData: FormData) => {
   submitting.value = true
   errorMessage.value = ''
   try {
-    const res = await axios.post('/admin/drivers', driverForm.value)
+    const res = await axios.post('/admin/drivers', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Chauffeur registered successfully!'
       showAddModal.value = false
@@ -152,12 +126,14 @@ const submitNewDriver = async () => {
   }
 }
 
-const submitEditDriver = async () => {
-  if (!driverForm.value.id) return
+const submitEditDriver = async (formData: FormData) => {
+  if (!editingDriver.value?.id) return
   submitting.value = true
   errorMessage.value = ''
   try {
-    const res = await axios.patch(`/admin/drivers/${driverForm.value.id}`, driverForm.value)
+    const res = await axios.post(`/admin/drivers/${editingDriver.value.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Driver details updated.'
       showEditModal.value = false
@@ -333,9 +309,9 @@ const deleteDriver = async (driverId: number) => {
 
       <!-- Create Driver Modal -->
       <DriverFormModal
-        v-model:form="driverForm"
         :show="showAddModal"
         :is-editing="false"
+        :driver="null"
         :owners="ownersList"
         :submitting="submitting"
         :error-message="errorMessage"
@@ -345,9 +321,9 @@ const deleteDriver = async (driverId: number) => {
 
       <!-- Edit Driver Modal -->
       <DriverFormModal
-        v-model:form="driverForm"
         :show="showEditModal"
-        is-editing
+        :is-editing="true"
+        :driver="editingDriver"
         :owners="ownersList"
         :submitting="submitting"
         :error-message="errorMessage"
