@@ -90,6 +90,7 @@ const onCarSelect = () => {
               v-model="bookingForm.pick_up_date"
               label="Pickup Date *"
               placeholder="Select pickup date..."
+              min-date="today"
             />
           </div>
           <div>
@@ -97,6 +98,7 @@ const onCarSelect = () => {
               v-model="bookingForm.last_date"
               label="Return / Drop-off Date *"
               placeholder="Select drop-off date..."
+              :min-date="bookingForm.pick_up_date || 'today'"
             />
           </div>
         </div>

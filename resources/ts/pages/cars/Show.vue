@@ -352,16 +352,22 @@ const submitBookingAndPayment = async () => {
             <!-- Unavailable dates indicator -->
             <div
               v-if="disabledDatesList.length > 0"
-              class="p-3 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 text-xs"
+              class="p-4 rounded-2xl bg-rose-50/70 dark:bg-rose-950/40 border border-rose-200/80 dark:border-rose-900/50 text-xs"
             >
-              <span class="font-semibold text-gray-700 dark:text-gray-300 block mb-1">
-                🔒 Already Reserved Dates:
-              </span>
-              <div class="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                  Reserved Dates (Unavailable)
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-200/80 dark:bg-rose-900 text-rose-800 dark:text-rose-200">
+                  {{ disabledDatesList.length }} Days
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
                 <span
                   v-for="d in disabledDatesList"
                   :key="d"
-                  class="px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 text-[10px] font-mono"
+                  class="px-2 py-1 rounded-lg bg-white dark:bg-rose-900/60 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-[11px] font-mono font-semibold shadow-xs"
                 >
                   {{ d }}
                 </span>
@@ -396,16 +402,22 @@ const submitBookingAndPayment = async () => {
                 <div>
                   <AppDatePicker
                     v-model="pickupDate"
-                    label="Pickup Date *"
+                    label="Pickup Date"
+                    required
                     placeholder="Select pickup date..."
+                    min-date="today"
+                    :disabled-dates="disabledDatesList"
                     @change="checkCalendarAvailability"
                   />
                 </div>
                 <div>
                   <AppDatePicker
                     v-model="returnDate"
-                    label="Return Date *"
+                    label="Return Date"
+                    required
                     placeholder="Select return date..."
+                    :min-date="pickupDate || 'today'"
+                    :disabled-dates="disabledDatesList"
                     @change="checkCalendarAvailability"
                   />
                 </div>
