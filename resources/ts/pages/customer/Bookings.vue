@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import CustomerLayout from '@/layouts/CustomerLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
@@ -80,7 +80,7 @@ const getCarImage = (car: any) => {
 </script>
 
 <template>
-  <AppLayout>
+  <CustomerLayout>
     <Head title="My Rental Bookings - Customer" />
 
     <div class="max-w-7xl mx-auto space-y-8">
@@ -365,5 +365,5 @@ const getCarImage = (car: any) => {
         </Link>
       </div>
     </div>
-  </AppLayout>
+  </CustomerLayout>
 </template>

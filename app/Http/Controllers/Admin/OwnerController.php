@@ -104,17 +104,26 @@ class OwnerController extends Controller
         }
 
         Auth::guard('owner')->loginUsingId($owner->id);
-        $request->session()->regenerate();
+        $request->session()->put('admin_impersonating', true);
+        $request->session()->put('impersonated_by_admin', Auth::guard('admin')->id());
+        $request->session()->save();
+
+        $host = $request->getHost();
+        $mainHost = preg_replace('/^portal\./i', '', $host);
+        $scheme = $request->getScheme();
+        $port = $request->getPort();
+        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
+        $redirectUrl = $scheme . '://' . $mainHost . $portSuffix . '/owner/dashboard';
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Logged in as fleet owner ' . ($owner->full_name ?? $owner->email),
-                'redirect_url' => route('owner.dashboard'),
+                'redirect_url' => $redirectUrl,
             ]);
         }
 
-        return redirect()->route('owner.dashboard');
+        return redirect()->away($redirectUrl);
     }
 
     /**

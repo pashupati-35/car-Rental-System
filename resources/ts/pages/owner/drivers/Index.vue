@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Head } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import axios from 'axios'
 
 const props = defineProps<{
@@ -133,7 +133,7 @@ const deleteDriver = async (id: number) => {
 </script>
 
 <template>
-  <AppLayout>
+  <OwnerLayout>
     <Head title="Owner - Driver Roster Management" />
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
@@ -386,5 +386,5 @@ const deleteDriver = async (id: number) => {
         </form>
       </div>
     </div>
-  </AppLayout>
+  </OwnerLayout>
 </template>

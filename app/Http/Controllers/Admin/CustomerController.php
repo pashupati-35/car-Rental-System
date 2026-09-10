@@ -113,17 +113,26 @@ class CustomerController extends Controller
         }
 
         Auth::guard('customer')->loginUsingId($customer->id);
-        $request->session()->regenerate();
+        $request->session()->put('admin_impersonating', true);
+        $request->session()->put('impersonated_by_admin', Auth::guard('admin')->id());
+        $request->session()->save();
+
+        $host = $request->getHost();
+        $mainHost = preg_replace('/^portal\./i', '', $host);
+        $scheme = $request->getScheme();
+        $port = $request->getPort();
+        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
+        $redirectUrl = $scheme . '://' . $mainHost . $portSuffix . '/customer/dashboard';
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Logged in as customer ' . ($customer->name ?? $customer->email),
-                'redirect_url' => route('customer.dashboard'),
+                'redirect_url' => $redirectUrl,
             ]);
         }
 
-        return redirect()->route('customer.dashboard');
+        return redirect()->away($redirectUrl);
     }
 
     /**

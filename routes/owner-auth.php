@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\OwnerController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CarController;
 use App\Http\Controllers\Owner\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Owner\Auth\LoginController;
 use App\Http\Controllers\Owner\Auth\MFAController;
 use App\Http\Controllers\Owner\Auth\NewPasswordController;
 use App\Http\Controllers\Owner\Auth\PasswordController;
@@ -14,6 +15,14 @@ use App\Http\Controllers\Owner\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('owner')->name('owner.')->group(function () {
+    // API / Unified Auth endpoints matching Admin structure
+    Route::post('check/verification-enabled', [MFAController::class, 'checkVerificationEnabled']);
+    Route::post('reset/password', [LoginController::class, 'resetPassword']);
+    Route::post('do-reset/password', [LoginController::class, 'doResetPassword']);
+    Route::post('request/verification-code', [MFAController::class, 'requestEmailVerificationCode']);
+    Route::post('verify/mfa-verification-code', [MFAController::class, 'verifyMfaVerificationCode']);
+    Route::post('verify/email-verification-code', [MFAController::class, 'verifyEmailVerificationCode']);
+
     // Guest Owner routes
     Route::middleware('guest:owner')->group(function () {
         Route::get('register', [RegisteredOwnerController::class, 'create'])->name('register');

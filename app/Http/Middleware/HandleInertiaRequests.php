@@ -40,12 +40,21 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $host = $request->getHost();
+        $scheme = $request->getScheme();
+        $port = $request->getPort();
+        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
+        $portalHost = str_starts_with($host, 'portal.') ? $host : 'portal.' . $host;
+        $adminPortalBaseUrl = $scheme . '://' . $portalHost . $portSuffix;
+
         return array_merge(parent::share($request), [
             'auth' => [
                 'admin' => fn () => $request->user('admin'),
                 'owner' => fn () => $request->user('owner'),
                 'customer' => fn () => $request->user('customer'),
                 'user' => fn () => $request->user('admin') ?? $request->user('owner') ?? $request->user('customer'),
+                'isImpersonating' => fn () => (bool) ($request->session()->get('admin_impersonating') || ($request->user('admin') && ($request->user('owner') || $request->user('customer')))),
+                'adminPortalUrl' => $adminPortalBaseUrl,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

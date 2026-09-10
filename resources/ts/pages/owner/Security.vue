@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
 
@@ -145,7 +145,7 @@ const disableMfa = async () => {
 </script>
 
 <template>
-  <AppLayout>
+  <OwnerLayout>
     <Head title="Owner Account Security & MFA" />
 
     <div class="space-y-6 max-w-5xl mx-auto">
@@ -445,5 +445,5 @@ const disableMfa = async () => {
         </div>
       </div>
     </div>
-  </AppLayout>
+  </OwnerLayout>
 </template>

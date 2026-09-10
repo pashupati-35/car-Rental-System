@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import CustomerLayout from '@/layouts/CustomerLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
 
@@ -38,7 +38,7 @@ const updateProfile = async () => {
 </script>
 
 <template>
-  <AppLayout>
+  <CustomerLayout>
     <Head title="Customer Profile Settings" />
 
     <div class="space-y-6 max-w-5xl mx-auto">
@@ -164,5 +164,5 @@ const updateProfile = async () => {
         </form>
       </div>
     </div>
-  </AppLayout>
+  </CustomerLayout>
 </template>

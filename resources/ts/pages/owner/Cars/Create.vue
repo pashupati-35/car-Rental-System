@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 import axios from 'axios'
 
@@ -59,7 +59,7 @@ const submit = () => {
 </script>
 
 <template>
-  <AppLayout>
+  <OwnerLayout>
     <Head title="Owner - Register New Car" />
 
     <div class="max-w-4xl mx-auto space-y-6 py-6">
@@ -300,5 +300,5 @@ const submit = () => {
         </form>
       </div>
     </div>
-  </AppLayout>
+  </OwnerLayout>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import CustomerLayout from '@/layouts/CustomerLayout.vue'
 import axios from 'axios'
 
 const props = defineProps<{
@@ -36,79 +36,91 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppLayout>
-    <Head title="Customer Travel & Rental Portal" />
+  <CustomerLayout>
+    <Head title="Traveler Portal Dashboard" />
 
-    <template #header>
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-blue-600" />
-        Customer Rental Dashboard
-      </div>
-    </template>
-
-    <div class="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <!-- Banner -->
+    <div class="space-y-8 max-w-7xl mx-auto">
+      <!-- Traveler Hero Banner -->
       <div class="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-900 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div class="space-y-2 relative z-10">
           <span class="px-3 py-1 rounded-full bg-white/20 text-blue-100 text-xs font-semibold uppercase tracking-wider">
-            Premium Car Rental
+            Premium Traveler Hub
           </span>
-          <h2 class="text-3xl font-black tracking-tight">
+          <h2 class="text-2xl sm:text-3xl font-black tracking-tight">
             Ready for your next journey, {{ customer?.name || 'Traveler' }}?
           </h2>
-          <p class="text-xs text-blue-100/90 max-w-lg leading-relaxed">
-            Browse verified vehicles with transparent pricing, zero-conflict calendar scheduling, certified drivers, and instant payment receipts.
+          <p class="text-xs sm:text-sm text-blue-100/90 max-w-xl leading-relaxed">
+            Browse verified vehicles with transparent daily rates, certified chauffeurs, live GPS-ready itineraries, and instant PDF invoices.
           </p>
         </div>
-        <Link
-          href="/cars"
-          class="px-6 py-3.5 rounded-2xl bg-white text-blue-700 font-bold text-xs shadow-xl hover:bg-blue-50 transition-all shrink-0 relative z-10"
-        >
-          Explore Fleet Cars &rarr;
-        </Link>
+
+        <div class="flex flex-wrap gap-3 relative z-10">
+          <Link
+            href="/cars"
+            class="px-5 py-3.5 rounded-2xl bg-white text-blue-700 font-bold text-xs shadow-xl hover:bg-blue-50 transition-all flex items-center gap-2 shrink-0"
+          >
+            <span>Explore Fleet Cars</span>
+            <i class="ri-arrow-right-line text-sm" />
+          </Link>
+          <Link
+            href="/ai-chat"
+            class="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md transition-all flex items-center gap-2 shrink-0"
+          >
+            <i class="ri-sparkling-fill text-amber-300" />
+            <span>AI Route Planner</span>
+          </Link>
+        </div>
       </div>
 
       <!-- Quick Metrics -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Confirmed Rentals
             </p>
-            <h3 class="text-3xl font-black text-gray-900 dark:text-white mt-1">
-              {{ bookingsList.filter((b: any) => b.status === 'confirm').length }}
+            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1">
+              {{ bookingsList.filter((b: any) => b.status === 'confirm' || b.status === 'booked').length }}
             </h3>
+            <Link
+              href="/customer/bookings"
+              class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline mt-2 inline-block"
+            >
+              View Invoices &rarr;
+            </Link>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl">
-            🚗
+          <div class="w-12 h-12 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-2xl shadow-xs">
+            <i class="ri-car-line" />
           </div>
         </div>
 
-        <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Pending Approval
             </p>
             <h3 class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
               {{ bookingsList.filter((b: any) => b.status === 'pending').length }}
             </h3>
+            <span class="text-xs text-slate-400 mt-2 block">Awaiting partner confirmation</span>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
-            ⏳
+          <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-2xl shadow-xs">
+            <i class="ri-time-line" />
           </div>
         </div>
 
-        <div class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between">
+        <div class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
-            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">
               Total Rental Spend
             </p>
             <h3 class="text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-              ${{ bookingsList.filter((b: any) => b.status === 'confirm').reduce((acc: number, b: any) => acc + (parseFloat(b.total_price) || 0), 0) }}
+              ${{ bookingsList.filter((b: any) => b.status === 'confirm' || b.status === 'booked').reduce((acc: number, b: any) => acc + (parseFloat(b.total_price) || 0), 0) }}
             </h3>
+            <span class="text-xs text-slate-400 mt-2 block">Lifetime confirmed spend</span>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
-            💳
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-2xl shadow-xs">
+            <i class="ri-wallet-3-line" />
           </div>
         </div>
       </div>
@@ -117,18 +129,18 @@ onMounted(() => {
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">
               My Rental Bookings & Invoices
             </h3>
-            <p class="text-xs text-gray-500">
-              Your active and past car bookings with driver details and payment receipts
+            <p class="text-xs text-slate-500">
+              Active reservations with assigned chauffeurs, route points, and PDF invoices
             </p>
           </div>
           <Link
             href="/cars"
-            class="text-xs font-semibold text-blue-600 hover:underline"
+            class="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 hover:bg-blue-100 font-bold text-xs transition-colors"
           >
-            + Book another car
+            + Book Another Car
           </Link>
         </div>
 
@@ -137,8 +149,8 @@ onMounted(() => {
           class="py-12 text-center"
         >
           <div class="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p class="text-xs text-gray-500">
-            Loading bookings...
+          <p class="text-xs text-slate-500">
+            Loading reservations...
           </p>
         </div>
 
@@ -149,15 +161,15 @@ onMounted(() => {
           <div
             v-for="booking in bookingsList"
             :key="booking.id"
-            class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4 hover:shadow-md transition-shadow"
+            class="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4 hover:shadow-md transition-shadow"
           >
             <div class="flex items-start justify-between gap-4">
               <div>
-                <span class="text-[10px] font-mono font-bold text-gray-400 block mb-0.5">Booking #{{ booking.id }}</span>
-                <h4 class="font-bold text-lg text-gray-900 dark:text-white">
+                <span class="text-[10px] font-mono font-bold text-slate-400 block mb-0.5">Booking #{{ booking.id }}</span>
+                <h4 class="font-bold text-lg text-slate-900 dark:text-white">
                   {{ booking.car?.car_name || booking.car?.brand }} {{ booking.car?.car_model || booking.car?.model }}
                 </h4>
-                <span class="text-xs font-mono text-gray-500">{{ booking.car?.car_number }}</span>
+                <span class="text-xs font-mono text-slate-500">{{ booking.car?.car_number }}</span>
               </div>
               <span
                 :class="booking.status === 'confirm' || booking.status === 'booked' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
@@ -167,44 +179,53 @@ onMounted(() => {
               </span>
             </div>
 
-            <div class="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/60">
+            <div class="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
               <div>
-                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Pickup Date:</span>
-                <span class="font-bold text-gray-900 dark:text-white">{{ String(booking.pick_up_date || '').split('T')[0] }}</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Pickup Date:</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ String(booking.pick_up_date || '').split('T')[0] }}</span>
               </div>
               <div>
-                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Return Date:</span>
-                <span class="font-bold text-gray-900 dark:text-white">{{ String(booking.last_date || '').split('T')[0] }}</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Return Date:</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ String(booking.last_date || '').split('T')[0] }}</span>
               </div>
               <div class="col-span-2">
-                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Pickup Location:</span>
-                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ booking.pickup_location }} &rarr; {{ booking.drop_location }}</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Route:</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">{{ booking.pickup_location }} &rarr; {{ booking.drop_location }}</span>
               </div>
-              <div class="col-span-2 flex items-center justify-between pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
-                <span class="text-gray-500 font-medium">Total Charged:</span>
+              <div class="col-span-2 flex items-center justify-between pt-1 border-t border-slate-200/50 dark:border-slate-700/50">
+                <span class="text-slate-500 font-medium">Total Charged:</span>
                 <span class="font-black text-emerald-600 text-sm">${{ booking.total_price }}</span>
               </div>
             </div>
 
-            <!-- Driver & Owner Details snippet -->
-            <div class="p-3 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 text-xs flex justify-between items-center text-gray-600 dark:text-gray-300">
+            <!-- Chauffeur & Fleet Partner Info -->
+            <div class="p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 text-xs flex justify-between items-center text-slate-700 dark:text-slate-300 border border-blue-100/60 dark:border-blue-900/40">
               <div>
-                <span>Chauffeur: <strong>{{ booking.car?.driver?.name || booking.car?.driver_name || 'Assigned Chauffeur' }}</strong></span>
+                <span class="font-bold text-slate-900 dark:text-white">Chauffeur: {{ booking.car?.driver?.name || booking.car?.driver_name || 'Assigned Chauffeur' }}</span>
                 <span
                   v-if="booking.car?.driver?.phone"
-                  class="block text-[11px] text-gray-400"
+                  class="block text-[11px] text-slate-400 font-mono"
                 >Tel: {{ booking.car?.driver?.phone }}</span>
               </div>
-              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Owner: {{ booking.car?.owner?.full_name || 'Fleet Partner' }}</span>
+              <span class="text-[11px] text-blue-600 dark:text-blue-400 font-bold">Owner: {{ booking.car?.owner?.full_name || 'Fleet Partner' }}</span>
             </div>
 
-            <div class="flex items-center justify-end pt-1">
+            <div class="flex items-center justify-between pt-1">
+              <Link
+                v-if="booking.status === 'confirm' || booking.status === 'booked'"
+                :href="`/customer/booking/${booking.id}/pdf`"
+                class="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 flex items-center gap-1"
+              >
+                <i class="ri-file-download-line text-sm" />
+                <span>Invoice PDF</span>
+              </Link>
+              <span v-else />
+
               <Link
                 href="/customer/bookings"
-                class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
+                class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
               >
-                <span>View Full Details & Invoice</span>
-                <i class="ri-arrow-right-line" />
+                <span>View Full Details &rarr;</span>
               </Link>
             </div>
           </div>
@@ -212,19 +233,25 @@ onMounted(() => {
 
         <div
           v-else
-          class="p-12 text-center bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800"
+          class="p-12 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs"
         >
-          <p class="text-xs text-gray-500">
-            You haven't reserved any vehicles yet.
+          <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-950 text-blue-600 flex items-center justify-center text-3xl mx-auto mb-3">
+            <i class="ri-car-line" />
+          </div>
+          <h4 class="font-black text-lg text-slate-900 dark:text-white">
+            No active reservations
+          </h4>
+          <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+            You don't have any vehicle reservations currently. Explore our premium showroom and book your dream car.
           </p>
           <Link
             href="/cars"
-            class="mt-3 inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md"
+            class="mt-4 inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:bg-blue-700 transition-colors"
           >
             Browse Available Cars
           </Link>
         </div>
       </div>
     </div>
-  </AppLayout>
+  </CustomerLayout>
 </template>

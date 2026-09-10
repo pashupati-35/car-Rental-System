@@ -9,14 +9,25 @@ const showProfileMenu = ref(false)
 const showCmsMenu = ref(false)
 
 const auth = computed(() => page.props.auth as any)
-const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
+const currentUrl = computed(() => page.url)
 
 const role = computed(() => {
-  if (auth.value?.admin) return 'Admin'
-  if (auth.value?.owner) return 'Owner'
+  if (currentUrl.value.startsWith('/customer')) return 'Customer'
+  if (currentUrl.value.startsWith('/owner')) return 'Owner'
+  if (currentUrl.value.startsWith('/admin')) return 'Admin'
   if (auth.value?.customer) return 'Customer'
+  if (auth.value?.owner) return 'Owner'
+  if (auth.value?.admin) return 'Admin'
   
-  return 'User'
+  return 'Customer'
+})
+
+const user = computed(() => {
+  if (role.value === 'Customer') return auth.value?.customer || auth.value?.user
+  if (role.value === 'Owner') return auth.value?.owner || auth.value?.user
+  if (role.value === 'Admin') return auth.value?.admin || auth.value?.user
+
+  return auth.value?.user
 })
 
 const rolePrefix = computed(() => {

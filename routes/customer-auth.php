@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Customer\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Customer\Auth\LoginController;
 use App\Http\Controllers\Customer\Auth\MFAController;
 use App\Http\Controllers\Customer\Auth\NewPasswordController;
 use App\Http\Controllers\Customer\Auth\PasswordController;
@@ -12,6 +13,14 @@ use App\Http\Controllers\CustomerBookingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('customer')->name('customer.')->group(function () {
+    // API / Unified Auth endpoints matching Admin structure
+    Route::post('check/verification-enabled', [MFAController::class, 'checkVerificationEnabled']);
+    Route::post('reset/password', [LoginController::class, 'resetPassword']);
+    Route::post('do-reset/password', [LoginController::class, 'doResetPassword']);
+    Route::post('request/verification-code', [MFAController::class, 'requestEmailVerificationCode']);
+    Route::post('verify/mfa-verification-code', [MFAController::class, 'verifyMfaVerificationCode']);
+    Route::post('verify/email-verification-code', [MFAController::class, 'verifyEmailVerificationCode']);
+
     // Guest Customer routes
     Route::middleware('guest:customer')->group(function () {
         Route::get('register', [RegisteredCustomerController::class, 'create'])->name('register');

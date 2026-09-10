@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3'
-import AppLayout from '@/layouts/AppLayout.vue'
+import OwnerLayout from '@/layouts/OwnerLayout.vue'
 
 defineProps<{
   cars: Array<any>
@@ -14,7 +14,7 @@ const deleteCar = (id: number) => {
 </script>
 
 <template>
-  <AppLayout>
+  <OwnerLayout>
     <Head title="My Vehicles" />
 
     <template #header>
@@ -84,5 +84,5 @@ const deleteCar = (id: number) => {
         </div>
       </div>
     </div>
-  </AppLayout>
+  </OwnerLayout>
 </template>
