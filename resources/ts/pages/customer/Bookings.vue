@@ -114,7 +114,7 @@ const getCarImage = (car: any) => {
         </div>
 
         <Link
-          href="/cars"
+          href="/customer/cars"
           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-all self-start sm:self-auto"
         >
           <i class="ri-add-line text-sm" />
@@ -221,13 +221,12 @@ const getCarImage = (car: any) => {
 
         <!-- Search Input -->
         <div class="relative w-full sm:w-64">
-          <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
+          <i class="ri-search-line absolute start-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
           <input
             v-model="search"
             type="text"
             placeholder="Search bookings..."
-            class="w-full py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500"
-            style="padding-left: 2.25rem; padding-right: 0.875rem"
+            class="w-full py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs focus:ring-2 focus:ring-blue-500 ps-9 pe-3.5"
           >
         </div>
       </div>
@@ -331,7 +330,7 @@ const getCarImage = (car: any) => {
               <span>{{ cancellingId === booking.id ? 'Canceling...' : 'Cancel Reservation' }}</span>
             </button>
             <Link
-              :href="`/cars/${booking.car_id}`"
+              :href="`/customer/cars/${booking.car_id}`"
               class="px-3.5 py-1.5 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-semibold transition-colors flex items-center gap-1.5"
             >
               <i class="ri-car-line" />
@@ -358,7 +357,7 @@ const getCarImage = (car: any) => {
           </p>
         </div>
         <Link
-          href="/cars"
+          href="/customer/cars"
           class="inline-block px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all"
         >
           Explore Available Cars &rarr;

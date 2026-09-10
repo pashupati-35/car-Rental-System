@@ -77,9 +77,20 @@ class AuthenticatedSessionController extends Controller
                 ->orderByDesc('created_at')
                 ->get();
 
+            $featuredCars = \App\Models\Car::with(['owner', 'driver'])
+                ->where(function ($q) {
+                    $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
+                      ->orWhere('available', 'yes')
+                      ->orWhereNull('status');
+                })
+                ->orderByDesc('id')
+                ->take(6)
+                ->get();
+
             return Inertia::render('customer/Dashboard', [
                 'customer' => $customer,
                 'activeBookings' => $bookings,
+                'featuredCars' => $featuredCars,
                 'totalRentedCars' => $bookings->where('status', 'confirm')->count(),
                 'totalSpent' => $bookings->where('status', 'confirm')->sum('total_price') ?: 0,
             ]);

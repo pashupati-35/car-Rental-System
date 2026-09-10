@@ -48,14 +48,21 @@ class BookingService
         ];
     }
 
-    public function hasDateConflict(int $carId, Carbon $startDate, Carbon $endDate): bool
+    public function hasDateConflict(int $carId, \DateTimeInterface|string|null $startDate, \DateTimeInterface|string|null $endDate): bool
     {
+        if (! $startDate || ! $endDate) {
+            return false;
+        }
+
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+
         $existingBookings = $this->bookingRepository->getBookingsForCar($carId);
 
         foreach ($existingBookings as $booking) {
             if ($this->datesOverlap(
-                $startDate,
-                $endDate,
+                $start,
+                $end,
                 Carbon::parse($booking->pick_up_date),
                 Carbon::parse($booking->last_date)
             )) {
@@ -71,11 +78,18 @@ class BookingService
         return $start1 <= $end2 && $end1 >= $start2;
     }
 
-    public function calculateTotalPrice(int $carId, Carbon $startDate, Carbon $endDate, float $distanceTraveled = 0): float
+    public function calculateTotalPrice(int $carId, \DateTimeInterface|string|null $startDate, \DateTimeInterface|string|null $endDate, float $distanceTraveled = 0): float
     {
         $car = $this->carRepository->findOrFail($carId);
 
-        $days = $startDate->diffInDays($endDate) + 1;
+        if (! $startDate || ! $endDate) {
+            return (float) $car->car_price_per_day;
+        }
+
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+
+        $days = $start->diffInDays($end) + 1;
 
         return $days > 0
             ? $days * $car->car_price_per_day

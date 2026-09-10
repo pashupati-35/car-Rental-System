@@ -63,6 +63,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('mfa/email/activate', [MFAController::class, 'activateEmailAuthenticator'])->name('mfa.email.activate');
         Route::post('mfa/email/deactivate', [MFAController::class, 'deactivateEmailAuthenticator'])->name('mfa.email.deactivate');
 
+        // Fleet Showroom & Availability within Customer Portal
+        Route::get('/cars', [\App\Http\Controllers\Customer\FleetController::class, 'index'])->name('cars');
+        Route::get('/cars/{id}', [\App\Http\Controllers\Customer\FleetController::class, 'show'])->name('cars.show');
+        Route::get('/calendar', [\App\Http\Controllers\Customer\FleetController::class, 'calendar'])->name('calendar');
+
         // Bookings
         Route::get('/bookings', [CustomerBookingController::class, 'index'])->name('bookings');
         Route::get('/bookings/{id}', [CustomerBookingController::class, 'show'])->name('booking.detail');

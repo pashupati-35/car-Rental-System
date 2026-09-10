@@ -2,17 +2,26 @@
 import { ref, onMounted } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import CustomerLayout from '@/layouts/CustomerLayout.vue'
+import { resolveMediaUrl } from '@/utils/helpers'
 import axios from 'axios'
 
 const props = defineProps<{
   customer?: any
   activeBookings?: Array<any>
+  featuredCars?: Array<any>
   totalRentedCars?: number
   totalSpent?: number
 }>()
 
 const bookingsList = ref<Array<any>>(props.activeBookings || [])
+const featuredFleet = ref<Array<any>>(props.featuredCars || [])
 const loading = ref(false)
+
+const getCarImage = (car: any) => {
+  const url = resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
+
+  return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'
+}
 
 const fetchMyBookings = async () => {
   loading.value = true
@@ -41,7 +50,7 @@ onMounted(() => {
 
     <div class="space-y-8 max-w-7xl mx-auto">
       <!-- Traveler Hero Banner -->
-      <div class="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-600 to-slate-900 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+      <div class="p-8 sm:p-10 rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
         <div class="space-y-2 relative z-10">
           <span class="px-3 py-1 rounded-full bg-white/20 text-blue-100 text-xs font-semibold uppercase tracking-wider">
             Premium Traveler Hub
@@ -56,18 +65,25 @@ onMounted(() => {
 
         <div class="flex flex-wrap gap-3 relative z-10">
           <Link
-            href="/cars"
+            href="/customer/cars"
             class="px-5 py-3.5 rounded-2xl bg-white text-blue-700 font-bold text-xs shadow-xl hover:bg-blue-50 transition-all flex items-center gap-2 shrink-0"
           >
-            <span>Explore Fleet Cars</span>
-            <i class="ri-arrow-right-line text-sm" />
+            <i class="ri-car-line text-base text-blue-600" />
+            <span>Browse Fleet</span>
+          </Link>
+          <Link
+            href="/customer/calendar"
+            class="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md transition-all flex items-center gap-2 shrink-0"
+          >
+            <i class="ri-calendar-line text-base" />
+            <span>Check Calendar</span>
           </Link>
           <Link
             href="/ai-chat"
             class="px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs backdrop-blur-md transition-all flex items-center gap-2 shrink-0"
           >
             <i class="ri-sparkling-fill text-amber-300" />
-            <span>AI Route Planner</span>
+            <span>AI Trip Assistant</span>
           </Link>
         </div>
       </div>
@@ -125,6 +141,80 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- Featured Vehicles for Next Journey -->
+      <div
+        v-if="featuredFleet.length > 0"
+        class="space-y-4"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-black text-xl text-slate-900 dark:text-white">
+              Featured Fleet & Quick Booking
+            </h3>
+            <p class="text-xs text-slate-500">
+              Top verified vehicles ready for immediate reservation
+            </p>
+          </div>
+          <Link
+            href="/customer/cars"
+            class="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 hover:bg-blue-100 font-bold text-xs transition-colors"
+          >
+            All Fleet ({{ featuredFleet.length }}+) &rarr;
+          </Link>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="car in featuredFleet.slice(0, 3)"
+            :key="car.id"
+            class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-900 transition-all group"
+          >
+            <div>
+              <div class="relative overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-800 h-44">
+                <img
+                  :src="getCarImage(car)"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  :alt="car.car_name"
+                >
+                <span class="absolute top-3 end-3 px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-md">
+                  ${{ car.car_price_per_day || 65 }}/day
+                </span>
+              </div>
+
+              <div>
+                <h4 class="font-bold text-base text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                  {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
+                </h4>
+                <p class="text-xs text-slate-400 font-mono">
+                  {{ car.car_number }} &bull; {{ car.number_of_seats }} Seats
+                </p>
+              </div>
+
+              <div class="mt-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs space-y-1">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Chauffeur:</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ car.driver?.name || car.driver_name || 'Assigned Driver' }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400">Partner:</span>
+                  <span class="font-semibold text-blue-600 dark:text-blue-400">{{ car.owner?.full_name || 'Fleet Partner' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+              <Link
+                :href="`/customer/cars/${car.id}`"
+                class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-xs text-center shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5"
+              >
+                <span>Reserve Vehicle</span>
+                <i class="ri-arrow-right-line" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Bookings List -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
@@ -137,7 +227,7 @@ onMounted(() => {
             </p>
           </div>
           <Link
-            href="/cars"
+            href="/customer/cars"
             class="px-4 py-2 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-950/80 dark:text-blue-300 hover:bg-blue-100 font-bold text-xs transition-colors"
           >
             + Book Another Car
@@ -245,7 +335,7 @@ onMounted(() => {
             You don't have any vehicle reservations currently. Explore our premium showroom and book your dream car.
           </p>
           <Link
-            href="/cars"
+            href="/customer/cars"
             class="mt-4 inline-block px-5 py-2.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:bg-blue-700 transition-colors"
           >
             Browse Available Cars

@@ -64,9 +64,9 @@ const liveSiteUrl = computed(() => {
 
 const customerNav = computed(() => [
   { title: 'Customer Dashboard', icon: 'ri-dashboard-3-line', href: '/customer/dashboard' },
-  { title: 'Browse Fleet', icon: 'ri-car-line', href: '/cars' },
+  { title: 'Browse Fleet', icon: 'ri-car-line', href: '/customer/cars' },
   { title: 'My Bookings', icon: 'ri-calendar-check-line', href: '/customer/bookings' },
-  { title: 'Availability Calendar', icon: 'ri-calendar-line', href: '/car-calendar' },
+  { title: 'Availability Calendar', icon: 'ri-calendar-line', href: '/customer/calendar' },
   { title: 'AI Assistant', icon: 'ri-sparkling-line', href: '/ai-chat' },
   { title: 'Customer Profile', icon: 'ri-user-smile-line', href: '/customer/profile' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/customer/security' },
@@ -83,11 +83,11 @@ const isActive = (href: string) => {
   if (href === '/customer/security') {
     return current === '/customer/security'
   }
-  if (href === '/cars') {
-    return current === '/cars' || current.startsWith('/cars/')
+  if (href === '/customer/cars') {
+    return current === '/customer/cars' || current.startsWith('/customer/cars/')
   }
-  if (href === '/car-calendar') {
-    return current.startsWith('/car-calendar')
+  if (href === '/customer/calendar') {
+    return current === '/customer/calendar' || current.startsWith('/customer/calendar/')
   }
   if (href === '/customer/bookings') {
     return current.startsWith('/customer/bookings')
@@ -200,8 +200,8 @@ onUnmounted(() => {
             Dashboard
           </Link>
           <Link
-            href="/cars"
-            :class="isActive('/cars') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
+            href="/customer/cars"
+            :class="isActive('/customer/cars') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
             class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] transition-colors font-sans"
           >
             Browse Fleet
@@ -214,8 +214,8 @@ onUnmounted(() => {
             My Bookings
           </Link>
           <Link
-            href="/car-calendar"
-            :class="isActive('/car-calendar') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
+            href="/customer/calendar"
+            :class="isActive('/customer/calendar') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
             class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] transition-colors font-sans"
           >
             Calendar
@@ -429,7 +429,7 @@ onUnmounted(() => {
               <i class="ri-external-link-line text-sm" /> Live Site
             </a>
             <Link
-              href="/car-calendar"
+              href="/customer/calendar"
               class="text-center py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center justify-center gap-1.5"
               @click="isMobileDrawerOpen = false"
             >
@@ -558,7 +558,7 @@ onUnmounted(() => {
                 <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-600 text-white font-bold text-xs flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-slate-800">
                   {{ (displayName || 'C')[0].toUpperCase() }}
                 </div>
-                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-100 dark:ring-slate-900" />
+                <span class="absolute bottom-0 end-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-100 dark:ring-slate-900" />
               </div>
               <div class="min-w-0 flex-1">
                 <span class="text-sm font-bold text-slate-900 dark:text-white block truncate leading-tight">
@@ -607,7 +607,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-4 text-xs text-slate-400">
           <span>&copy; 2026 Car Rental Global Systems</span>
           <Link
-            href="/cars"
+            href="/customer/cars"
             class="hover:text-blue-600 transition-colors font-semibold"
           >
             Showroom

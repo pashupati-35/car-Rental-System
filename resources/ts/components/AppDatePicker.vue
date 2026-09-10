@@ -96,6 +96,12 @@ const flatpickrConfig = computed(() => ({
       if (typeof d === 'string') {
         return d.startsWith(ymd)
       }
+      if (d && typeof d === 'object' && d.from && d.to) {
+        const fromStr = typeof d.from === 'string' ? d.from.split('T')[0] : ''
+        const toStr = typeof d.to === 'string' ? d.to.split('T')[0] : ''
+
+        return ymd >= fromStr && ymd <= toStr
+      }
 
       return false
     })
