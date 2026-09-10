@@ -6,6 +6,7 @@ import axios from 'axios'
 import type { DriverItem } from './types'
 import DriverTable from './components/DriverTable.vue'
 import DriverFormModal from './components/DriverFormModal.vue'
+import DriverDetailModal from './components/DriverDetailModal.vue'
 
 const props = defineProps<{
   drivers: any
@@ -36,6 +37,8 @@ const selectedStatusFilter = ref(props.filters?.status || 'all')
 
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showDetailModal = ref(false)
+const selectedDriver = ref<DriverItem | null>(null)
 const submitting = ref(false)
 const errorMessage = ref('')
 const message = ref('')
@@ -120,6 +123,11 @@ const openEditModal = (driver: DriverItem) => {
   }
   errorMessage.value = ''
   showEditModal.value = true
+}
+
+const openDetailModal = (driver: DriverItem) => {
+  selectedDriver.value = driver
+  showDetailModal.value = true
 }
 
 const submitNewDriver = async () => {
@@ -315,6 +323,7 @@ const deleteDriver = async (driverId: number) => {
         :pagination="props.drivers"
         @edit="openEditModal"
         @delete="deleteDriver"
+        @view-details="openDetailModal"
       />
 
       <!-- Create Driver Modal -->
@@ -339,6 +348,14 @@ const deleteDriver = async (driverId: number) => {
         :error-message="errorMessage"
         @close="showEditModal = false"
         @save="submitEditDriver"
+      />
+
+      <!-- Driver Detail Modal -->
+      <DriverDetailModal
+        :show="showDetailModal"
+        :driver="selectedDriver"
+        @close="showDetailModal = false"
+        @edit="(d) => { showDetailModal = false; openEditModal(d) }"
       />
     </div>
   </AdminLayout>

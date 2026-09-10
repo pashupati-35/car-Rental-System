@@ -52,8 +52,12 @@ const isOpen = ref(false)
 const hasTime = computed(() => props.type === 'datetime-local' || props.type === 'time')
 
 const isRequired = computed(() => props.required || (props.label ? props.label.includes('*') : false))
+
 const cleanLabelText = computed(() => {
-  if (!props.label) return ''
+  if (!props.label) {
+    return ''
+  }
+
   return props.label.replace(/\s*\*\s*$/, '').trim()
 })
 
@@ -63,6 +67,7 @@ const combinedDisabledDates = computed(() => {
     ...(props.bookedDates || []),
     ...((props.config?.disable as any) || []),
   ]
+
   return list
 })
 
@@ -91,6 +96,7 @@ const flatpickrConfig = computed(() => ({
       if (typeof d === 'string') {
         return d.startsWith(ymd)
       }
+
       return false
     })
 
@@ -104,6 +110,7 @@ const flatpickrConfig = computed(() => ({
     const calendarContainer = instance.calendarContainer
     if (calendarContainer && !calendarContainer.querySelector('.app-calendar-legend')) {
       const legend = document.createElement('div')
+
       legend.className = 'app-calendar-legend'
       legend.innerHTML = `
         <div class="legend-item"><span class="legend-dot dot-booked"></span><span>Booked</span></div>
@@ -166,11 +173,9 @@ const clearValue = () => {
       ]"
     >
       <!-- Calendar Icon Prefix -->
-      <div
-        class="text-blue-600 dark:text-blue-400 pointer-events-none flex items-center shrink-0 pl-3 pr-2"
-      >
+      <div class="text-blue-600 dark:text-blue-400 pointer-events-none flex items-center shrink-0 ps-3.5 pe-2">
         <svg
-          class="w-4 h-4"
+          class="w-5 h-5"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -191,7 +196,7 @@ const clearValue = () => {
         :config="flatpickrConfig"
         :placeholder="placeholder"
         :disabled="disabled"
-        class="w-full bg-transparent text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-2.5 pr-3 font-semibold cursor-pointer"
+        class="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-3.5 pe-4 font-semibold cursor-pointer"
         @update:model-value="handleInput"
         @on-open="isOpen = true"
         @on-close="isOpen = false"

@@ -56,9 +56,13 @@ const emit = defineEmits<{
                 </div>
               </div>
               <div>
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                <button
+                  type="button"
+                  class="font-bold text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline cursor-pointer text-left transition-colors"
+                  @click="emit('view', car)"
+                >
                   {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
-                </h4>
+                </button>
                 <p class="text-[11px] font-mono text-slate-400">
                   {{ car.car_number || car.plate_number || 'No Plate' }}
                 </p>
@@ -184,9 +188,13 @@ const emit = defineEmits<{
                     </div>
                   </div>
                   <div>
-                    <span class="font-bold text-slate-900 dark:text-white block text-sm">
+                    <button
+                      type="button"
+                      class="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline cursor-pointer block text-sm text-left transition-colors"
+                      @click="emit('view', car)"
+                    >
                       {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
-                    </span>
+                    </button>
                     <span class="text-slate-400 font-mono text-[11px]">{{ car.car_number || car.plate_number || 'N/A' }}</span>
                   </div>
                 </div>

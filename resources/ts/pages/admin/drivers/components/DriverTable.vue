@@ -11,6 +11,7 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'edit', driver: DriverItem): void
   (e: 'delete', id: number): void
+  (e: 'view-details', driver: DriverItem): void
 }>()
 </script>
 
@@ -44,9 +45,13 @@ const emit = defineEmits<{
                 {{ (driver.name || 'D').charAt(0).toUpperCase() }}
               </div>
               <div>
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white">
+                <button
+                  type="button"
+                  class="font-bold text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline cursor-pointer text-left transition-colors"
+                  @click="emit('view-details', driver)"
+                >
                   {{ driver.name }}
-                </h4>
+                </button>
                 <p class="text-[11px] text-slate-400 font-mono">
                   {{ driver.phone }}
                 </p>
@@ -143,7 +148,13 @@ const emit = defineEmits<{
                     {{ (driver.name || 'D').charAt(0).toUpperCase() }}
                   </div>
                   <div>
-                    <span class="font-bold text-slate-900 dark:text-white block text-sm">{{ driver.name }}</span>
+                    <button
+                      type="button"
+                      class="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 hover:underline cursor-pointer block text-sm text-left transition-colors"
+                      @click="emit('view-details', driver)"
+                    >
+                      {{ driver.name }}
+                    </button>
                     <span class="text-slate-400 font-mono text-[10px]">#DRV-{{ driver.id }}</span>
                   </div>
                 </div>
