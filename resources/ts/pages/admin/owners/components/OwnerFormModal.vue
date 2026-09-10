@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { OwnerItem } from '../types'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   show: boolean
@@ -214,12 +215,10 @@ const handleSubmit = () => {
       </div>
 
       <!-- Error Alert -->
-      <div
-        v-if="errorMessage"
-        class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold"
-      >
-        {{ errorMessage }}
-      </div>
+      <MessageBox
+        :message="errorMessage"
+        type="error"
+      />
 
       <!-- Modal Tabs -->
       <div class="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-2 text-xs">

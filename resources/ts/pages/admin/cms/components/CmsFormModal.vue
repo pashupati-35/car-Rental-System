@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CmsItem, CmsModuleMeta } from '../types'
 import FormToggle from '@/components/FormToggle.vue'
+import MessageBox from '@/components/MessageBox.vue'
 import FaqForm from '../forms/FaqForm.vue'
 import BlogForm from '../forms/BlogForm.vue'
 import CareerForm from '../forms/CareerForm.vue'
@@ -67,11 +68,11 @@ const item = defineModel<CmsItem>('item', { required: true })
       </div>
 
       <!-- Error Alert -->
-      <div
-        v-if="errorMessage"
-        class="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-900 text-rose-800 dark:text-rose-300 text-xs font-semibold"
-      >
-        {{ errorMessage }}
+      <div class="px-6 pt-3">
+        <MessageBox
+          :message="errorMessage"
+          type="error"
+        />
       </div>
 
       <!-- Scrollable Modal Body -->

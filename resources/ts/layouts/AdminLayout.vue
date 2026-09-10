@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
+import MessageBox from '@/components/MessageBox.vue'
 
 const page = usePage()
 const isMobileDrawerOpen = ref(false)
@@ -19,7 +20,21 @@ const adminEmail = computed(() => {
   return admin.value?.email || 'admin@autorent.com'
 })
 
-const flash = computed(() => page.props.flash as any)
+const flashSuccess = ref('')
+const flashError = ref('')
+
+watch(
+  () => page.props.flash as any,
+  (newFlash) => {
+    if (newFlash?.success) {
+      flashSuccess.value = newFlash.success
+    }
+    if (newFlash?.error) {
+      flashError.value = newFlash.error
+    }
+  },
+  { immediate: true, deep: true },
+)
 const currentUrl = computed(() => page.url)
 
 const liveSiteUrl = computed(() => {
@@ -556,20 +571,16 @@ onUnmounted(() => {
       <!-- Main Content Area - Expands to use full screen -->
       <main class="flex-1 min-w-0 w-full">
         <!-- Flash Alerts -->
-        <div
-          v-if="flash?.success"
-          class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs"
-        >
-          <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
-          <span>{{ flash.success }}</span>
-        </div>
-        <div
-          v-if="flash?.error"
-          class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2.5 shadow-xs"
-        >
-          <i class="ri-error-warning-fill text-rose-600 text-base shrink-0" />
-          <span>{{ flash.error }}</span>
-        </div>
+        <MessageBox
+          v-model="flashSuccess"
+          type="success"
+          class="mb-5"
+        />
+        <MessageBox
+          v-model="flashError"
+          type="error"
+          class="mb-5"
+        />
 
         <slot />
       </main>

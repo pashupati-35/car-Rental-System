@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import axios from 'axios'
+import MessageBox from '@/components/MessageBox.vue'
 
 const page = usePage()
 const auth = ref(page.props.auth as any)
@@ -189,39 +190,14 @@ const disableMfa = async () => {
       </div>
 
       <!-- Global Success / Error Alerts -->
-      <div
-        v-if="mfaSuccess"
-        class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800 flex items-center justify-between shadow-xs"
-      >
-        <div class="flex items-center gap-2">
-          <i class="ri-checkbox-circle-fill text-lg text-emerald-500" />
-          <span>{{ mfaSuccess }}</span>
-        </div>
-        <button
-          type="button"
-          class="text-emerald-600 hover:text-emerald-900 cursor-pointer"
-          @click="mfaSuccess = ''"
-        >
-          &times;
-        </button>
-      </div>
-
-      <div
-        v-if="mfaError"
-        class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 text-xs font-semibold border border-rose-200 dark:border-rose-800 flex items-center justify-between shadow-xs"
-      >
-        <div class="flex items-center gap-2">
-          <i class="ri-error-warning-fill text-lg text-rose-500" />
-          <span>{{ mfaError }}</span>
-        </div>
-        <button
-          type="button"
-          class="text-rose-600 hover:text-rose-900 cursor-pointer"
-          @click="mfaError = ''"
-        >
-          &times;
-        </button>
-      </div>
+      <MessageBox
+        v-model="mfaSuccess"
+        type="success"
+      />
+      <MessageBox
+        v-model="mfaError"
+        type="error"
+      />
 
       <!-- Two-Factor Authentication Card -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-6">
@@ -385,21 +361,14 @@ const disableMfa = async () => {
           </p>
         </div>
 
-        <div
-          v-if="passwordMsg"
-          class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-800 text-xs font-bold border border-emerald-200 flex items-center gap-2"
-        >
-          <i class="ri-checkbox-circle-fill text-emerald-600" />
-          <span>{{ passwordMsg }}</span>
-        </div>
-
-        <div
-          v-if="passwordError"
-          class="p-3.5 rounded-2xl bg-rose-50 text-rose-800 text-xs font-bold border border-rose-200 flex items-center gap-2"
-        >
-          <i class="ri-error-warning-fill text-rose-600" />
-          <span>{{ passwordError }}</span>
-        </div>
+        <MessageBox
+          v-model="passwordMsg"
+          type="success"
+        />
+        <MessageBox
+          v-model="passwordError"
+          type="error"
+        />
 
         <form
           class="space-y-4"

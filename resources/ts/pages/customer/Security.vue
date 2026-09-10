@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { Head, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import axios from 'axios'
+import MessageBox from '@/components/MessageBox.vue'
 
 const page = usePage()
 const auth = ref(page.props.auth as any)
@@ -182,37 +183,22 @@ const disableMfa = async () => {
       </div>
 
       <!-- Feedback Alerts -->
-      <div
-        v-if="mfaSuccess"
-        class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between"
-      >
-        <div class="flex items-center gap-2">
-          <i class="ri-checkbox-circle-fill text-lg text-emerald-600" />
-          <span class="font-semibold">{{ mfaSuccess }}</span>
-        </div>
-        <button
-          class="text-emerald-700 hover:underline cursor-pointer"
-          @click="mfaSuccess = ''"
-        >
-          <i class="ri-close-line" />
-        </button>
-      </div>
-
-      <div
-        v-if="mfaError"
-        class="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-center justify-between"
-      >
-        <div class="flex items-center gap-2">
-          <i class="ri-error-warning-fill text-lg text-rose-600" />
-          <span class="font-semibold">{{ mfaError }}</span>
-        </div>
-        <button
-          class="text-rose-700 hover:underline cursor-pointer"
-          @click="mfaError = ''"
-        >
-          <i class="ri-close-line" />
-        </button>
-      </div>
+      <MessageBox
+        v-model="mfaSuccess"
+        type="success"
+      />
+      <MessageBox
+        v-model="mfaError"
+        type="error"
+      />
+      <MessageBox
+        v-model="passwordMsg"
+        type="success"
+      />
+      <MessageBox
+        v-model="passwordError"
+        type="error"
+      />
 
       <!-- Two-Factor Authentication Box -->
       <div class="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">

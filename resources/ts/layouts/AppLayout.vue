@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
+import MessageBox from '@/components/MessageBox.vue'
 
 const page = usePage()
-
 
 const showProfileMenu = ref(false)
 const showCmsMenu = ref(false)
@@ -34,7 +34,21 @@ const userEmail = computed(() => {
   return user.value?.email || ''
 })
 
-const flash = computed(() => page.props.flash as any)
+const flashSuccess = ref('')
+const flashError = ref('')
+
+watch(
+  () => page.props.flash as any,
+  (newFlash) => {
+    if (newFlash?.success) {
+      flashSuccess.value = newFlash.success
+    }
+    if (newFlash?.error) {
+      flashError.value = newFlash.error
+    }
+  },
+  { immediate: true, deep: true },
+)
 
 const adminNav = [
   { title: 'Master Dashboard', icon: 'ri-dashboard-line', href: '/admin/dashboard' },
@@ -394,20 +408,16 @@ onUnmounted(() => {
       <!-- Main Content Area -->
       <main class="flex-1 min-w-0">
         <!-- Flash Alerts -->
-        <div
-          v-if="flash?.success"
-          class="mb-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2 shadow-sm"
-        >
-          <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
-          <span>{{ flash.success }}</span>
-        </div>
-        <div
-          v-if="flash?.error"
-          class="mb-5 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2 shadow-sm"
-        >
-          <i class="ri-error-warning-fill text-rose-600 text-base" />
-          <span>{{ flash.error }}</span>
-        </div>
+        <MessageBox
+          v-model="flashSuccess"
+          type="success"
+          class="mb-5"
+        />
+        <MessageBox
+          v-model="flashError"
+          type="error"
+          class="mb-5"
+        />
 
         <slot />
       </main>

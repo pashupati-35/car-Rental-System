@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { CarItem } from '../types'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   show: boolean
@@ -174,13 +175,10 @@ const handleSubmit = () => {
       </div>
 
       <!-- Error message banner -->
-      <div
-        v-if="errorMessage"
-        class="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-800 dark:text-rose-200 text-xs font-semibold border border-rose-200 dark:border-rose-800 flex items-center gap-2"
-      >
-        <i class="ri-error-warning-line text-rose-500 text-base shrink-0" />
-        <span>{{ errorMessage }}</span>
-      </div>
+      <MessageBox
+        :message="errorMessage"
+        type="error"
+      />
 
       <form
         class="space-y-4 text-xs"

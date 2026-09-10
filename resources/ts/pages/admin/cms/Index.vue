@@ -10,6 +10,7 @@ import CmsFormModal from './components/CmsFormModal.vue'
 import SiteSettingsView from './components/SiteSettingsView.vue'
 import EnquiryDetailsModal from './components/EnquiryDetailsModal.vue'
 import CmsDetailModal from './components/CmsDetailModal.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 // Import dedicated Typed CMS Services
 import {
@@ -352,13 +353,14 @@ const toggleStatus = async (item: CmsItem): Promise<void> => {
       </div>
 
       <!-- Flash Notification -->
-      <div
-        v-if="message"
-        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
-        <span>{{ message }}</span>
-      </div>
+      <MessageBox
+        v-model="message"
+        type="success"
+      />
+      <MessageBox
+        v-model="errorMessage"
+        type="error"
+      />
 
       <!-- Module Switcher Tabs -->
       <CmsModuleTabs

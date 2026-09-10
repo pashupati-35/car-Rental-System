@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 defineProps<{
   status?: string
@@ -30,12 +31,11 @@ const submit = () => {
     </template>
 
     <div class="space-y-4">
-      <div
+      <MessageBox
         v-if="status"
-        class="p-3.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-semibold border border-emerald-200"
-      >
-        {{ status }}
-      </div>
+        :message="status"
+        type="success"
+      />
 
       <form
         class="space-y-4"

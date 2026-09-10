@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -138,21 +139,19 @@ const verifyCode = async () => {
     </div>
 
     <!-- Alert Messages -->
-    <div
+    <MessageBox
       v-if="successMessage"
-      class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 text-xs flex items-center gap-2.5 border border-emerald-200 dark:border-emerald-800"
-    >
-      <i class="ri-checkbox-circle-line text-base text-emerald-600" />
-      <span class="font-medium">{{ successMessage }}</span>
-    </div>
+      :message="successMessage"
+      type="success"
+      @close="successMessage = ''"
+    />
 
-    <div
+    <MessageBox
       v-if="errorMessage"
-      class="p-3.5 rounded-2xl bg-rose-50 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 text-xs flex items-center gap-2.5 border border-rose-200 dark:border-rose-800"
-    >
-      <i class="ri-error-warning-line text-base text-rose-600" />
-      <span class="font-medium">{{ errorMessage }}</span>
-    </div>
+      :message="errorMessage"
+      type="error"
+      @close="errorMessage = ''"
+    />
 
     <!-- Verification Code Input -->
     <div>

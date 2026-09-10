@@ -7,6 +7,7 @@ import type { DriverItem } from './types'
 import DriverTable from './components/DriverTable.vue'
 import DriverFormModal from './components/DriverFormModal.vue'
 import DriverDetailModal from './components/DriverDetailModal.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   drivers: any
@@ -193,13 +194,14 @@ const deleteDriver = async (driverId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div
-        v-if="message"
-        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
-        <span>{{ message }}</span>
-      </div>
+      <MessageBox
+        v-model="message"
+        type="success"
+      />
+      <MessageBox
+        v-model="errorMessage"
+        type="error"
+      />
 
       <!-- Search & Filters Toolbar -->
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">

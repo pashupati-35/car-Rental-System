@@ -10,6 +10,7 @@ import CustomerPaymentsTab from './components/details/CustomerPaymentsTab.vue'
 import BookingFormModal from './components/details/BookingFormModal.vue'
 import PaymentFormModal from './components/details/PaymentFormModal.vue'
 import CustomerFormModal from './components/CustomerFormModal.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   customer: CustomerItem
@@ -305,13 +306,14 @@ const deletePayment = async (paymentId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div
-        v-if="message"
-        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
-        <span>{{ message }}</span>
-      </div>
+      <MessageBox
+        v-model="message"
+        type="success"
+      />
+      <MessageBox
+        v-model="errorMessage"
+        type="error"
+      />
 
       <!-- KPI Stats Overview -->
       <CustomerStatsOverview :stats="props.stats" />

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   bookings: Array<any>
@@ -167,20 +168,18 @@ const getCarImage = (car: any) => {
       </div>
 
       <!-- Alerts -->
-      <div
+      <MessageBox
         v-if="cancelSuccess"
-        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
-        <span>{{ cancelSuccess }}</span>
-      </div>
-      <div
+        :message="cancelSuccess"
+        type="success"
+        @close="cancelSuccess = ''"
+      />
+      <MessageBox
         v-if="cancelError"
-        class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2"
-      >
-        <i class="ri-error-warning-fill text-rose-600 text-base" />
-        <span>{{ cancelError }}</span>
-      </div>
+        :message="cancelError"
+        type="error"
+        @close="cancelError = ''"
+      />
 
       <!-- Filters & Search Bar -->
       <div class="flex flex-col sm:flex-row items-center justify-between gap-4">

@@ -1,11 +1,28 @@
 <script setup lang="ts">
 import { Link, usePage, router } from '@inertiajs/vue3'
-import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const page = usePage()
 const auth = computed(() => page.props.auth as any)
 const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
 const showProfileMenu = ref(false)
+
+const flashSuccess = ref('')
+const flashError = ref('')
+
+watch(
+  () => page.props.flash as any,
+  (newFlash) => {
+    if (newFlash?.success) {
+      flashSuccess.value = newFlash.success
+    }
+    if (newFlash?.error) {
+      flashError.value = newFlash.error
+    }
+  },
+  { immediate: true, deep: true },
+)
 
 const role = computed(() => {
   if (auth.value?.admin) return 'Admin'
@@ -235,6 +252,21 @@ onUnmounted(() => {
 
     <!-- Main Content -->
     <main class="flex-1">
+      <div
+        v-if="flashSuccess || flashError"
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+      >
+        <MessageBox
+          v-model="flashSuccess"
+          type="success"
+          class="mb-4"
+        />
+        <MessageBox
+          v-model="flashError"
+          type="error"
+          class="mb-4"
+        />
+      </div>
       <slot />
     </main>
 

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -104,23 +105,20 @@ const resendCode = async () => {
       </p>
     </div>
 
-    <!-- Success Feedback Alert -->
-    <div
+    <!-- Feedback Alerts -->
+    <MessageBox
       v-if="successMessage"
-      class="p-3 rounded-xl bg-emerald-50 text-emerald-700 text-xs flex items-center gap-2 border border-emerald-200"
-    >
-      <i class="ri-checkbox-circle-fill text-base text-emerald-500 shrink-0" />
-      <span>{{ successMessage }}</span>
-    </div>
+      :message="successMessage"
+      type="success"
+      @close="successMessage = ''"
+    />
 
-    <!-- Error Alert -->
-    <div
+    <MessageBox
       v-if="errorMessage"
-      class="p-3 rounded-xl bg-red-50 text-red-700 text-xs flex items-center gap-2 border border-red-200"
-    >
-      <i class="ri-error-warning-fill text-base text-red-500 shrink-0" />
-      <span>{{ errorMessage }}</span>
-    </div>
+      :message="errorMessage"
+      type="error"
+      @close="errorMessage = ''"
+    />
 
     <div>
       <input

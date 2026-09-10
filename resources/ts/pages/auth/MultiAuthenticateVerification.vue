@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import axios from 'axios'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   guard: string
@@ -66,13 +67,12 @@ const verifyCode = async () => {
       </p>
     </div>
 
-    <div
+    <MessageBox
       v-if="errorMessage"
-      class="p-3 rounded-xl bg-red-50 text-red-700 text-xs flex items-center gap-2"
-    >
-      <i class="ri-error-warning-fill" />
-      <span>{{ errorMessage }}</span>
-    </div>
+      :message="errorMessage"
+      type="error"
+      @close="errorMessage = ''"
+    />
 
     <div>
       <input

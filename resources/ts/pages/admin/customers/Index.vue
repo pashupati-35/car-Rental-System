@@ -8,6 +8,7 @@ import CustomerTable from './components/CustomerTable.vue'
 import CustomerFormModal from './components/CustomerFormModal.vue'
 import CustomerDetailModal from './components/CustomerDetailModal.vue'
 import CustomerPasswordModal from './components/CustomerPasswordModal.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   customers?: any
@@ -170,13 +171,14 @@ const deleteCustomer = async (customerId: number) => {
       </div>
 
       <!-- Flash Notification -->
-      <div
-        v-if="message"
-        class="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2 shadow-xs"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base shrink-0" />
-        <span>{{ message }}</span>
-      </div>
+      <MessageBox
+        v-model="message"
+        type="success"
+      />
+      <MessageBox
+        v-model="errorMessage"
+        type="error"
+      />
 
       <!-- Search & Toolbar -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">

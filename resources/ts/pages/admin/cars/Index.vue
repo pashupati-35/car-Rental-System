@@ -7,6 +7,7 @@ import type { CarItem } from './types'
 import CarTable from './components/CarTable.vue'
 import CarDetailModal from './components/CarDetailModal.vue'
 import CarEditModal from './components/CarEditModal.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   cars: any
@@ -152,14 +153,15 @@ const handleSaveCar = async (formData: FormData) => {
         </div>
       </div>
 
-      <!-- Success Notification -->
-      <div
-        v-if="successMessage"
-        class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs font-bold flex items-center gap-2 shadow-xs"
-      >
-        <i class="ri-checkbox-circle-fill text-emerald-600 text-base" />
-        <span>{{ successMessage }}</span>
-      </div>
+      <!-- Notifications -->
+      <MessageBox
+        v-model="successMessage"
+        type="success"
+      />
+      <MessageBox
+        v-model="errorMessage"
+        type="error"
+      />
 
       <!-- Filter Tabs & Search Bar -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">

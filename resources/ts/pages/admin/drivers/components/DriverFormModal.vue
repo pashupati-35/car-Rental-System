@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import type { DriverItem } from '../types'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   show: boolean
@@ -148,12 +149,10 @@ const handleSubmit = () => {
         </button>
       </div>
 
-      <div
-        v-if="errorMessage"
-        class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold"
-      >
-        {{ errorMessage }}
-      </div>
+      <MessageBox
+        :message="errorMessage"
+        type="error"
+      />
 
       <form
         class="space-y-4 text-xs"

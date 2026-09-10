@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CustomerBookingItem } from '../../types'
 import AppDatePicker from '@/components/AppDatePicker.vue'
+import MessageBox from '@/components/MessageBox.vue'
 
 const props = defineProps<{
   show: boolean
@@ -47,12 +48,10 @@ const onCarSelect = () => {
         </button>
       </div>
 
-      <div
-        v-if="errorMessage"
-        class="p-3 rounded-2xl bg-rose-50 text-rose-800 text-xs font-semibold"
-      >
-        {{ errorMessage }}
-      </div>
+      <MessageBox
+        :message="errorMessage"
+        type="error"
+      />
 
       <form
         class="space-y-4 text-xs"
