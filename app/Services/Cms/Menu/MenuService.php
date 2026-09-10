@@ -2,132 +2,54 @@
 
 namespace App\Services\Cms\Menu;
 
+use App\DTOs\Filters\MenuFilterDTO;
 use App\Http\Resources\Cms\Menu\MenuResource;
-use App\Models\Cms\Menu\Menu;
+use App\Repositories\Cms\MenuRepositoryInterface;
 use App\Services\Service;
 
 class MenuService extends Service
 {
-    protected $menu;
+    public function __construct(protected MenuRepositoryInterface $menuRepo) {}
 
-    protected $uploadPath = 'menu';
-
-    public function __construct(Menu $menu)
+    public function paginate(MenuFilterDTO $filter)
     {
-        $this->menu = $menu;
+        $menus = $this->menuRepo->getFilteredPaginated($filter);
+        return MenuResource::collection($menus);
     }
 
-    public function paginate($request)
+    public function sort(array $sortedIds): bool
     {
-        $menu = $this->menu->when($request->filled('title'), fn ($q) => $q->where('title', 'like', "%{$request->title}%"))
-            ->when($request->filled('is_active'), fn ($q): mixed => $q->where('is_active', $request->is_active))->orderBy('position', 'ASC')->get();
-
-        return MenuResource::collection($menu);
+        return $this->menuRepo->updatePositions($sortedIds);
     }
 
-    public function paginateFront($limit = 25)
-    {
-        $menu = $this->menu->orderBy('id', 'DESC')->whereIsActive(1)->paginate($limit);
-
-        return MenuResource::collection($menu);
-    }
-
-    public function getByType($type, $limit)
-    {
-        $news = $this->menu->whereType($type)->orderBy('id', 'DESC')->paginate($limit);
-
-        return MenuResource::collection($news);
-    }
-
-    public function store($data)
+    public function store(array $data)
     {
         try {
-            $data['position'] = $this->menu->max('position') + 1 ?? 1;
-
-            return $this->menu->create($data);
+            return $this->menuRepo->create($data);
         } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public function find($id, $resource = false)
+    public function find($id)
     {
-        $menu = $this->menu->find($id);
-        if (! empty($menu)) {
-            return $resource ? new MenuResource($menu) : $menu;
-        }
-
-        return null;
+        $menu = $this->menuRepo->find($id);
+        return $menu ? new MenuResource($menu) : null;
     }
 
-    public function update($id, $data)
+    public function update($id, array $data)
     {
         try {
-            $menu = $this->find($id);
-            $data['position'] = $this->menu->max('position') + 1 ?? 1;
-
-            return $menu->update($data);
+            return $this->menuRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public function delete($id)
+    public function delete($id): bool
     {
         try {
-            $menu = $this->find($id);
-
-            return $menu->delete();
-        } catch (\Exception $ex) {
-            return false;
-        }
-    }
-
-    public function findByColumn($column, $value)
-    {
-        return $this->menu->where($column, $value)->first();
-    }
-
-    public function findAllByColumn($column, $value)
-    {
-        return $this->menu->where($column, $value)->get();
-    }
-
-    public function findByColumns($data, $all = false)
-    {
-        $response = $this->menu->where(function ($query) use ($data) {
-            if (count($data) > 0) {
-                foreach ($data as $k => $v) {
-                    $query->where($k, $data[$k]);
-                }
-            }
-        });
-        if ($all) {
-            return MenuResource::collection($response->get());
-        } else {
-            $response = $response->first();
-            if (empty($response)) {
-                return null;
-            }
-
-            return new MenuResource($response);
-        }
-    }
-
-    public function sort($data)
-    {
-        try {
-            if (count($data) > 0) {
-                foreach ($data as $i => $id) {
-                    $menu = $this->menu->whereId($id)->first();
-                    if (! empty($menu)) {
-                        $v['position'] = ($i + 1);
-                        $menu->update($v);
-                    }
-                }
-            }
-
-            return true;
+            return $this->menuRepo->delete($id);
         } catch (\Exception $ex) {
             return false;
         }

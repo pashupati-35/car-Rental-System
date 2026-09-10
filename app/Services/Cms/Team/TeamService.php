@@ -2,98 +2,64 @@
 
 namespace App\Services\Cms\Team;
 
+use App\DTOs\Filters\TeamFilterDTO;
 use App\Http\Resources\Cms\Team\TeamResource;
-use App\Models\Cms\Team\Team;
+use App\Repositories\Cms\TeamRepositoryInterface;
 use App\Services\Service;
 
 class TeamService extends Service
 {
     protected $uploadPath = 'team';
 
-    public function __construct(protected Team $team) {}
+    public function __construct(protected TeamRepositoryInterface $teamRepo) {}
 
-    public function paginate($limit, $request)
+    public function paginate(TeamFilterDTO $filter)
     {
-        $teams = $this->team->where(function ($query) use ($request) {
-            if ($request->filled('title')) {
-                $query->where('title', 'like', '%'.$request->title.'%');
-            }
-
-            if ($request->filled('is_active')) {
-                $query->whereIsActive($request->is_active);
-            }
-        })->orderBy('position', 'ASC')->paginate($limit);
-
+        $teams = $this->teamRepo->getFilteredPaginated($filter);
         return TeamResource::collection($teams);
     }
 
     public function getAllActive()
     {
-        $teams = $this->team->whereIsActive(1)->orderBy('position', 'ASC')->get();
-
-        return TeamResource::collection($teams);
+        return TeamResource::collection($this->teamRepo->where('is_active', 1)->get());
     }
 
-    public function sort($data)
+    public function sort(array $data)
     {
-        try {
-            if (count($data) > 0) {
-                foreach ($data as $i => $id) {
-                    $team = $this->team->whereId($id)->first();
-                    if (! empty($team)) {
-                        $v['position'] = ($i + 1);
-                        $team->update($v);
-                    }
-                }
-            }
-
-            return true;
-        } catch (\Exception $ex) {
-            return $ex;
-        }
+        return $this->teamRepo->updatePositions($data);
     }
 
-    public function store($data)
+    public function store(array $data)
     {
         try {
-            $data['position'] = $this->team->orderBy('position', 'DESC')->first();
-            $data['position'] = $data['position'] && $data['position']->position ? $data['position']->position + 1 : 1;
-            if (! empty($data['image'])) {
+            if (!empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
-            $team = $this->team->create($data);
-
+            $team = $this->teamRepo->create($data);
             return new TeamResource($team);
         } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public function find($teamId)
+    public function find($id)
     {
-        $team = $this->team->find($teamId);
-        if (! empty($team)) {
-            return $team;
-        }
-
-        return null;
+        return $this->teamRepo->find($id);
     }
 
-    public function update($id, $data)
+    public function update($id, array $data)
     {
         try {
-            $team = $this->find($id);
-            if (! empty($data['image'])) {
-                if (! empty($team->image)) {
+            $team = $this->teamRepo->findOrFail($id);
+            if (!empty($data['image'])) {
+                if (!empty($team->image)) {
                     $this->deleteFile($this->uploadPath, $team->image);
                 }
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
 
-            return $team->update($data);
+            return $this->teamRepo->update($id, $data);
         } catch (\Exception $ex) {
-            throw $ex;
-
             return false;
         }
     }
@@ -101,44 +67,13 @@ class TeamService extends Service
     public function delete($id)
     {
         try {
-            $team = $this->find($id);
-
-            return $team->delete();
+            $team = $this->teamRepo->find($id);
+            if ($team && !empty($team->image)) {
+                $this->deleteFile($this->uploadPath, $team->image);
+            }
+            return $this->teamRepo->delete($id);
         } catch (\Exception $ex) {
             return false;
-        }
-    }
-
-    public function findByColumn($column, $value)
-    {
-        return $this->team->where($column, $value)->first();
-    }
-
-    public function getBySlug($slug)
-    {
-        return $this->team->whereSlug($slug)->whereIsActive(1)->first();
-    }
-
-    public function findByColumns($data, $all = false, $resource = true)
-    {
-        $result = $this->team->where(function ($query) use ($data) {
-            if (count($data) > 0) {
-                foreach ($data as $k => $v) {
-                    $query->where($k, $data[$k]);
-                }
-            }
-        });
-        if ($all) {
-            $result = $result->get();
-
-            return $resource ? TeamResource::collection($result) : $result;
-        } else {
-            $result = $result->first();
-            if (empty($result)) {
-                return null;
-            }
-
-            return $resource ? new TeamResource($result) : $result;
         }
     }
 }

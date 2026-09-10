@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Cms\Team;
 
+use App\DTOs\Filters\TeamFilterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cms\Team\TeamRequest;
 use App\Http\Resources\Cms\Team\TeamResource;
@@ -10,56 +11,59 @@ use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
-    public function __construct(protected TeamService $team) {}
+    public function __construct(protected TeamService $teamService) {}
 
     public function index(Request $request)
     {
-        return $this->team->paginate($request->per_pages ?? 25, $request);
+        $filter = TeamFilterDTO::fromArray($request->all());
+        return $this->teamService->paginate($filter);
     }
 
     public function sort(Request $request)
     {
-        if ($this->team->sort($request->all())) {
-            return response(['status' => 'OK'], 200);
+        $data = $request->all();
+        $sortedIds = isset($data['ids']) ? $data['ids'] : (is_array($data) ? $data : []);
+        if ($this->teamService->sort($sortedIds)) {
+            return response()->json(['status' => 'OK', 'message' => 'Sorted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to sort.'], 500);
     }
 
     public function store(TeamRequest $request)
     {
-        if ($this->team->store($request->validated())) {
-            return response(['status' => 'OK'], 200);
+        if ($this->teamService->store($request->validated())) {
+            return response()->json(['status' => 'OK', 'message' => 'Team member created.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to create team member.'], 500);
     }
 
     public function show($id)
     {
-        if ($team = $this->team->find($id)) {
-            return response(['status' => 'OK', 'team' => new TeamResource($team)], 200);
+        if ($team = $this->teamService->find($id)) {
+            return response()->json(['status' => 'OK', 'team' => new TeamResource($team)], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Team member not found.'], 404);
     }
 
     public function update(TeamRequest $request, $id)
     {
-        $team = $this->team->update($id, $request->validated());
+        $team = $this->teamService->update($id, $request->validated());
         if ($team) {
-            return response(['status' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Team member updated.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to update team member.'], 500);
     }
 
     public function destroy($id)
     {
-        if ($this->team->delete($id)) {
-            return response(['status' => 'OK'], 200);
+        if ($this->teamService->delete($id)) {
+            return response()->json(['status' => 'OK', 'message' => 'Team member deleted.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to delete team member.'], 500);
     }
 }

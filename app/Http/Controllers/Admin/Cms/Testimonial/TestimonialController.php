@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Cms\Testimonial;
 
+use App\DTOs\Filters\TestimonialFilterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cms\Testimonial\TestimonialRequest;
 use App\Services\Cms\Testimonial\TestimonialService;
@@ -9,63 +10,60 @@ use Illuminate\Http\Request;
 
 class TestimonialController extends Controller
 {
-    public function __construct(protected TestimonialService $testimonial) {}
+    public function __construct(protected TestimonialService $testimonialService) {}
 
     public function index(Request $request)
     {
-        return $this->testimonial->paginate($request->per_pages ?? 25, $request);
+        $filter = TestimonialFilterDTO::fromArray($request->all());
+        return $this->testimonialService->paginate($filter);
     }
 
     public function store(TestimonialRequest $request)
     {
-        $testimonial = $this->testimonial->store($request->validated());
+        $testimonial = $this->testimonialService->store($request->validated());
         if ($testimonial) {
-            return response(['status' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Testimonial created successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to create testimonial.'], 500);
     }
 
     public function sort(Request $request)
     {
-        $testimonial = $this->testimonial->sort($request->all());
-        if ($testimonial) {
-            return response(['status' => 'OK'], 200);
+        $data = $request->all();
+        $sortedIds = isset($data['ids']) ? $data['ids'] : (is_array($data) ? $data : []);
+        if ($this->testimonialService->sort($sortedIds)) {
+            return response()->json(['status' => 'OK', 'message' => 'Sorted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to sort.'], 500);
     }
 
-    public function edit($id)
+    public function update(Request $request, $id)
     {
-        return view('admin.cms.testimonial.edit', compact('id'));
-    }
-
-    public function update(TestimonialRequest $request, $id)
-    {
-        $testimonial = $this->testimonial->update($id, $request->validated());
+        $testimonial = $this->testimonialService->update($id, $request->all());
         if ($testimonial) {
-            return response(['status' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Testimonial updated successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to update testimonial.'], 500);
     }
 
     public function destroy($id)
     {
-        if ($this->testimonial->delete($id)) {
-            return response(['status' => 'OK'], 200);
+        if ($this->testimonialService->delete($id)) {
+            return response()->json(['status' => 'OK', 'message' => 'Testimonial deleted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to delete testimonial.'], 500);
     }
 
     public function show($id)
     {
-        if ($testimonial = $this->testimonial->getById($id)) {
-            return response(['status' => 'OK', 'testimonial' => $testimonial], 200);
+        if ($testimonial = $this->testimonialService->find($id)) {
+            return response()->json(['status' => 'OK', 'data' => $testimonial], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Testimonial not found.'], 404);
     }
 }

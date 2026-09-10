@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Cms\NewsAndUpdates;
 
+use App\DTOs\Filters\NewsAndUpdatesFilterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cms\NewsAndUpdate\NewsAndUpdateRequest;
 use App\Services\Cms\NewsAndUpdates\NewsAndUpdatesService;
@@ -9,52 +10,48 @@ use Illuminate\Http\Request;
 
 class NewsAndUpdatesController extends Controller
 {
-    public function __construct(protected NewsAndUpdatesService $newsandupdates) {}
+    public function __construct(protected NewsAndUpdatesService $newsService) {}
 
     public function index(Request $request)
     {
-        return $this->newsandupdates->paginate($request->per_pages ?? 20, $request);
+        $filter = NewsAndUpdatesFilterDTO::fromArray($request->all());
+        return $this->newsService->paginate($filter);
     }
 
     public function store(NewsAndUpdateRequest $request)
     {
-        if ($this->newsandupdates->store($request->validated())) {
-            return response(['status' => 'OK'], 200);
+        if ($this->newsService->store($request->validated())) {
+            return response()->json(['status' => 'OK', 'message' => 'News and update created successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to create news and update.'], 500);
     }
 
     public function show($id)
     {
-        if ($newsandupdates = $this->newsandupdates->find($id)) {
-            return response(['status' => 'OK', 'newsandupdates' => $newsandupdates], 200);
+        if ($news = $this->newsService->find($id)) {
+            return response()->json(['status' => 'OK', 'data' => $news], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'News and update not found.'], 404);
     }
 
-    public function edit($id)
+    public function update(Request $request, $id)
     {
-        return view('admin.cms.new-and-update.edit', compact('id'));
-    }
-
-    public function update(NewsAndUpdateRequest $request, $id)
-    {
-        $newsandupdates = $this->newsandupdates->update($id, $request->validated());
-        if ($newsandupdates) {
-            return response(['status' => 'OK'], 200);
+        $data = $request->all();
+        if ($this->newsService->update($id, $data)) {
+            return response()->json(['status' => 'OK', 'message' => 'News and update updated successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to update news and update.'], 500);
     }
 
     public function destroy($id)
     {
-        if ($this->newsandupdates->delete($id)) {
-            return response(['status' => 'OK'], 200);
+        if ($this->newsService->delete($id)) {
+            return response()->json(['status' => 'OK', 'message' => 'News and update deleted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 200);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to delete news and update.'], 500);
     }
 }

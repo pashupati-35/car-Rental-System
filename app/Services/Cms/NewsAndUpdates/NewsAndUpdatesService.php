@@ -2,130 +2,61 @@
 
 namespace App\Services\Cms\NewsAndUpdates;
 
+use App\DTOs\Filters\NewsAndUpdatesFilterDTO;
 use App\Http\Resources\Cms\NewsAndUpdates\NewsAndUpdatesResource;
-use App\Models\Cms\NewsAndUpdates\NewsAndUpdates;
+use App\Repositories\Cms\NewsAndUpdatesRepositoryInterface;
 use App\Services\Service;
 
 class NewsAndUpdatesService extends Service
 {
     protected $uploadPath = 'news-and-updates';
 
-    public function __construct(protected NewsAndUpdates $newsAndUpdates) {}
+    public function __construct(protected NewsAndUpdatesRepositoryInterface $newsRepo) {}
 
-    public function paginate($limit, $request)
+    public function paginate(NewsAndUpdatesFilterDTO $filter)
     {
-        $newsAndUpdates = $this->newsAndUpdates->where(function ($query) use ($request) {
-            if ($request->filled('title')) {
-                $query->where('title', 'like', '%'.$request->title.'%');
-            }
-
-            if ($request->filled('is_active')) {
-                $query->whereIsActive($request->is_active);
-            }
-        })->paginate($limit);
-
-        return NewsAndUpdatesResource::collection($newsAndUpdates);
-    }
-
-    public function getBySlug($slug)
-    {
-        return $this->newsAndUpdates->whereSlug($slug)->whereIsActive(1)->first();
-    }
-
-    public function frontPaginate($limit = 25)
-    {
-        $album = $this->newsAndUpdates->orderBy('id', 'DESC')->whereIsActive(1)
-            ->paginate($limit);
-
-        return NewsAndUpdatesResource::collection($album);
-    }
-
-    public function getByType($type, $limit)
-    {
-        $news = $this->newsAndUpdates->whereType($type)->orderBy('id', 'DESC')->paginate($limit);
-
+        $news = $this->newsRepo->getFilteredPaginated($filter);
         return NewsAndUpdatesResource::collection($news);
     }
 
-    public function store($data)
+    public function store(array $data)
     {
         try {
-            if (! empty($data['social_share_image'])) {
+            if (!empty($data['social_share_image'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
             }
-
-            return $this->newsAndUpdates->create($data);
+            return $this->newsRepo->create($data);
         } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public function find($newsAndUpdates_id)
+    public function find($id)
     {
-        $newsAndUpdates = $this->newsAndUpdates->find($newsAndUpdates_id);
-        if (! empty($newsAndUpdates)) {
-            return $newsAndUpdates;
-        }
-
-        return null;
+        $news = $this->newsRepo->find($id);
+        return $news ? new NewsAndUpdatesResource($news) : null;
     }
 
-    public function update($id, $data)
+    public function update($id, array $data)
     {
         try {
-            $newsAndUpdates = $this->find($id);
-            if (! empty($data['social_share_image'])) {
-                if (! empty($newsAndUpdates->social_share_image)) {
-                    $this->deleteFile($this->uploadPath, $newsAndUpdates->social_share_image);
-                }
+            if (!empty($data['social_share_image'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
+            } else {
+                unset($data['social_share_image']);
             }
-
-            return $newsAndUpdates->update($data);
+            return $this->newsRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;
         }
     }
 
-    public function delete($id)
+    public function delete($id): bool
     {
         try {
-            $newsAndUpdates = $this->find($id);
-            if (! empty($newsAndUpdates->social_share_image)) {
-                $this->deleteFile($this->uploadPath, $newsAndUpdates->social_share_image);
-            }
-
-            return $newsAndUpdates->delete();
+            return $this->newsRepo->delete($id);
         } catch (\Exception $ex) {
             return false;
         }
-    }
-
-    public function findByColumn($column, $value)
-    {
-        return $this->newsAndUpdates->where($column, $value)->first();
-    }
-
-    public function findByColumns($data = null, $limit = 0)
-    {
-        $result = $this->newsAndUpdates->where(function ($query) use ($data) {
-            foreach ($data as $key => $value) {
-                $query->where($key, $data[$key]);
-            }
-        });
-        if (! empty($limit) || $limit != 0) {
-            $result = $result->take($limit);
-
-            return NewsAndUpdatesResource::collection($result);
-        } else {
-            return new NewsAndUpdatesResource($result);
-        }
-    }
-
-    public function getAllActive()
-    {
-        $newsandupdates = $this->newsAndUpdates->whereIsActive(1)->get();
-
-        return NewsAndUpdatesResource::collection($newsandupdates);
     }
 }

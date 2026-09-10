@@ -2,64 +2,51 @@
 
 namespace App\Services\Cms\Enquiry;
 
+use App\DTOs\Filters\EnquiryFilterDTO;
 use App\Http\Resources\Cms\Enquiry\EnquiryResource;
-use App\Models\Cms\Enquiry\Enquiry;
+use App\Repositories\Cms\EnquiryRepositoryInterface;
+use App\Services\Service;
 
-class EnquiryService
+class EnquiryService extends Service
 {
-    private $enquiry;
+    public function __construct(protected EnquiryRepositoryInterface $enquiryRepo) {}
 
-    public function __construct(Enquiry $enquiry)
+    public function paginate(EnquiryFilterDTO $filter)
     {
-        $this->enquiry = $enquiry;
-    }
-
-    public function paginate($perPage, $filters)
-    {
-        $query = $this->enquiry->newQuery()
-            ->when($filters['name'] ?? false, fn ($q, $name) => $q->where('name', 'like', "%$name%"))
-            ->when($filters['email'] ?? false, fn ($q, $email) => $q->where('email', 'like', "%$email%"))
-            ->when($filters['message'] ?? false, fn ($q, $message) => $q->where('message', 'like', "%$message%"))
-            ->orderBy('created_at', 'desc')
-            ->paginate($perPage);
-
-        return EnquiryResource::collection($query);
-    }
-
-    public function show(string $id)
-    {
-        $enquiry = $this->enquiry->find($id);
-
-        return EnquiryResource::collection($enquiry);
-
-    }
-
-    public function update(string $id, array $data)
-    {
-        $enquiry = $this->enquiry->find($id);
-        if ($enquiry) {
-            $enquiry->update($data);
-
-            return $enquiry;
-        }
-
-        return null;
-    }
-
-    public function delete(string $id)
-    {
-        $enquiry = $this->enquiry->find($id);
-        if ($enquiry) {
-            $enquiry->delete();
-
-            return true;
-        }
-
-        return false;
+        $enquiries = $this->enquiryRepo->getFilteredPaginated($filter);
+        return EnquiryResource::collection($enquiries);
     }
 
     public function create(array $data)
     {
-        return $this->enquiry->create($data);
+        try {
+            return $this->enquiryRepo->create($data);
+        } catch (\Exception $ex) {
+            return false;
+        }
+    }
+
+    public function show(string|int $id)
+    {
+        $enquiry = $this->enquiryRepo->find($id);
+        return $enquiry ? new EnquiryResource($enquiry) : null;
+    }
+
+    public function update(string|int $id, array $data)
+    {
+        try {
+            return $this->enquiryRepo->update($id, $data);
+        } catch (\Exception $ex) {
+            return false;
+        }
+    }
+
+    public function delete(string|int $id): bool
+    {
+        try {
+            return $this->enquiryRepo->delete($id);
+        } catch (\Exception $ex) {
+            return false;
+        }
     }
 }

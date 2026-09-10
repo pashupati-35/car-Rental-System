@@ -173,4 +173,17 @@ class DashboardController extends Controller
             'data' => $dates,
         ]);
     }
+
+    public function getStats(Request $request)
+    {
+        $totalCars = Car::count();
+        $totalBookings = BookingCar::count();
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'totalCars' => $totalCars,
+                'totalBookings' => $totalBookings,
+            ],
+        ]);
+    }
 }

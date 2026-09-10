@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { CmsItem, CmsModuleMeta } from '../types'
+import type { PaginationMeta } from '@/types/cms/CommonPagination'
 
 const props = defineProps<{
   items: CmsItem[]
   loading: boolean
   activeModule: string
   currentModuleMeta: CmsModuleMeta
+  meta?: PaginationMeta
 }>()
 
 const emit = defineEmits<{
@@ -15,32 +17,57 @@ const emit = defineEmits<{
   (e: 'toggle-status', item: CmsItem): void
   (e: 'view', item: CmsItem): void
   (e: 'refresh'): void
+  (e: 'page-change', page: number): void
+  (e: 'per-page-change', perPage: number): void
+  (e: 'search-change', search: string): void
 }>()
 
 const searchQuery = ref('')
-const currentPage = ref(1)
-const perPage = ref(10)
+const currentPage = ref(props.meta?.current_page || 1)
+const perPage = ref(props.meta?.per_page || 20)
 
-const filteredItems = computed<CmsItem[]>(() => {
-  if (!searchQuery.value.trim()) return props.items
-  const q = searchQuery.value.toLowerCase()
-  
-  return props.items.filter((item: CmsItem) => {
-    return (
-      (item.title && String(item.title).toLowerCase().includes(q)) ||
-      (item.name && String(item.name).toLowerCase().includes(q)) ||
-      (item.email && String(item.email).toLowerCase().includes(q)) ||
-      (item.company_name && String(item.company_name).toLowerCase().includes(q)) ||
-      (item.description && String(item.description).toLowerCase().includes(q)) ||
-      (item.subject && String(item.subject).toLowerCase().includes(q)) ||
-      (item.job_title && String(item.job_title).toLowerCase().includes(q)) ||
-      (item.department && String(item.department).toLowerCase().includes(q)) ||
-      (item.location && String(item.location).toLowerCase().includes(q))
-    )
-  })
+let searchDebounceTimer: any = null
+watch(searchQuery, (newVal) => {
+  clearTimeout(searchDebounceTimer)
+  searchDebounceTimer = setTimeout(() => {
+    emit('search-change', newVal)
+  }, 300)
 })
 
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / perPage.value) || 1)
+watch(() => props.meta, (newMeta) => {
+  if (newMeta) {
+    currentPage.value = newMeta.current_page
+    perPage.value = newMeta.per_page
+  }
+}, { deep: true })
+
+const totalPages = computed(() => {
+  if (props.meta) {
+    return props.meta.last_page || 1
+  }
+  return 1
+})
+
+const totalItems = computed(() => {
+  if (props.meta) {
+    return props.meta.total || 0
+  }
+  return props.items.length
+})
+
+const fromIndex = computed(() => {
+  if (props.meta?.from !== undefined && props.meta?.from !== null) {
+    return props.meta.from
+  }
+  return (currentPage.value - 1) * perPage.value + 1
+})
+
+const toIndex = computed(() => {
+  if (props.meta?.to !== undefined && props.meta?.to !== null) {
+    return props.meta.to
+  }
+  return Math.min(currentPage.value * perPage.value, totalItems.value)
+})
 
 const visiblePages = computed(() => {
   const current = currentPage.value
@@ -50,7 +77,6 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
-    
     return range
   }
 
@@ -80,20 +106,15 @@ const visiblePages = computed(() => {
   return rangeWithDots
 })
 
-const paginatedItems = computed<CmsItem[]>(() => {
-  const start = (currentPage.value - 1) * perPage.value
-  
-  return filteredItems.value.slice(start, start + perPage.value)
-})
-
-watch([() => props.activeModule, searchQuery, perPage], () => {
-  currentPage.value = 1
-})
-
 const setPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
+    emit('page-change', page)
   }
+}
+
+const onPerPageSelect = () => {
+  emit('per-page-change', perPage.value)
 }
 
 const getItemImage = (item: CmsItem): string | undefined => {
@@ -122,7 +143,7 @@ const isEnquiryOrContact = computed(() => {
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="`Search ${currentModuleMeta.label.toLowerCase()}...`"
+          :placeholder="`Search ${currentModuleMeta.label.toLowerCase()} (server-paginated)...`"
           class="w-full py-2 sm:py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           style="padding-left: 2rem; padding-right: 0.75rem"
         >
@@ -130,7 +151,7 @@ const isEnquiryOrContact = computed(() => {
 
       <div class="flex items-center justify-between sm:justify-end gap-3">
         <span class="text-xs font-bold text-slate-400">
-          Showing {{ filteredItems.length }} {{ currentModuleMeta.label }}
+          Total {{ totalItems }} {{ currentModuleMeta.label }}
         </span>
         <button
           type="button"
@@ -161,7 +182,7 @@ const isEnquiryOrContact = computed(() => {
 
       <!-- Empty State -->
       <div
-        v-else-if="filteredItems.length === 0"
+        v-else-if="items.length === 0"
         class="py-16 text-center px-4"
       >
         <i
@@ -180,7 +201,7 @@ const isEnquiryOrContact = computed(() => {
         <!-- Mobile Cards View for Small Screens (xs, sm) -->
         <div class="block md:hidden divide-y divide-slate-100 dark:divide-slate-800">
           <div
-            v-for="item in paginatedItems"
+            v-for="item in items"
             :key="item.id"
             class="p-4 space-y-3"
           >
@@ -300,7 +321,7 @@ const isEnquiryOrContact = computed(() => {
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
               <tr
-                v-for="item in paginatedItems"
+                v-for="item in items"
                 :key="item.id"
                 class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
               >
@@ -417,25 +438,28 @@ const isEnquiryOrContact = computed(() => {
           </table>
         </div>
 
-        <!-- CMS Client Pagination Bar Matching 3rd Screenshot -->
+        <!-- Server-Side API Pagination Bar -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-5 py-3.5 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-800/30 select-none">
-          <!-- Left: Showing 1 – 25 of 518 [25 v] -->
+          <!-- Left: Showing 1 – 20 of 518 [20 v] -->
           <div class="flex items-center gap-3">
             <div>
               Showing
-              <span class="font-bold text-slate-900 dark:text-white">{{ filteredItems.length === 0 ? 0 : (currentPage - 1) * perPage + 1 }} – {{ Math.min(currentPage * perPage, filteredItems.length) }}</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ totalItems === 0 ? 0 : fromIndex }} – {{ toIndex }}</span>
               of
-              <span class="font-bold text-slate-900 dark:text-white">{{ filteredItems.length }}</span>
+              <span class="font-bold text-slate-900 dark:text-white">{{ totalItems }}</span>
             </div>
 
             <div class="relative">
               <select
                 v-model="perPage"
-                class="appearance-none px-2.5 py-1 rounded-lg"
-                style="padding-right: 1.5rem border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+                class="appearance-none px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
+                @change="onPerPageSelect"
               >
                 <option :value="10">
                   10
+                </option>
+                <option :value="20">
+                  20
                 </option>
                 <option :value="25">
                   25

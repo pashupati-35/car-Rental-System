@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Cms\Page;
 
+use App\DTOs\Filters\PageFilterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cms\Page\PageRequest;
 use App\Services\Cms\Page\PageService;
@@ -9,48 +10,49 @@ use Illuminate\Http\Request;
 
 class PageController extends Controller
 {
-    public function __construct(protected PageService $page) {}
+    public function __construct(protected PageService $pageService) {}
 
     public function index(Request $request)
     {
-        return $this->page->paginate($request, $request->per_pages ?? 25);
+        $filter = PageFilterDTO::fromArray($request->all());
+        return $this->pageService->paginate($filter);
     }
 
     public function store(PageRequest $request)
     {
-        $page = $this->page->store($request->validated());
+        $page = $this->pageService->store($request->validated());
         if ($page) {
-            return response(['status' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Page created successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to create page.'], 500);
     }
 
     public function update(PageRequest $request, $id)
     {
-        $page = $this->page->update($id, $request->validated());
+        $page = $this->pageService->update($id, $request->validated());
         if ($page) {
-            return response(['status' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Page updated successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to update page.'], 500);
     }
 
     public function destroy($id)
     {
-        if ($this->page->delete($id)) {
-            return response(['status' => 'OK'], 200);
+        if ($this->pageService->delete($id)) {
+            return response()->json(['status' => 'OK', 'message' => 'Page deleted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to delete page.'], 500);
     }
 
     public function show($id)
     {
-        if ($page = $this->page->getById($id)) {
-            return response(['status' => 'OK', 'page' => $page], 200);
+        if ($page = $this->pageService->getById($id)) {
+            return response()->json(['status' => 'OK', 'data' => $page], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Page not found.'], 404);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Cms\Enquiry;
 
+use App\DTOs\Filters\EnquiryFilterDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Cms\Enquiry\EnquiryRequest;
 use App\Services\Cms\Enquiry\EnquiryService;
@@ -13,51 +14,45 @@ class EnquiryController extends Controller
 
     public function index(Request $request)
     {
-        $enquiry = $this->enquiryService->paginate($request->per_pages ?? 10, $request);
-        if ($enquiry) {
-            return response(['data' => $enquiry], 200);
-        }
-
-        return response(['status' => 'ERROR'], 500);
+        $filter = EnquiryFilterDTO::fromArray($request->all());
+        return $this->enquiryService->paginate($filter);
     }
 
     public function show(string $id)
     {
-        $enquiry = $this->enquiryService->show($id);
-        if ($enquiry) {
-            return response(['data' => $enquiry], 200);
+        if ($enquiry = $this->enquiryService->show($id)) {
+            return response()->json(['status' => 'OK', 'data' => $enquiry], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Enquiry not found.'], 404);
     }
 
     public function update(EnquiryRequest $request, string $id)
     {
-        $enquiry = $this->enquiryService->update($id, $request->all());
+        $enquiry = $this->enquiryService->update($id, $request->validated());
         if ($enquiry) {
-            return response(['data' => 'OK'], 200);
+            return response()->json(['status' => 'OK', 'message' => 'Enquiry updated successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to update enquiry.'], 500);
     }
 
     public function destroy(string $id)
     {
-        $enquiry = $this->enquiryService->delete($id);
-        if ($enquiry) {
-            return response(['status' => 'OK'], 200);
+        if ($this->enquiryService->delete($id)) {
+            return response()->json(['status' => 'OK', 'message' => 'Enquiry deleted successfully.'], 200);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to delete enquiry.'], 500);
     }
 
     public function store(EnquiryRequest $request)
     {
-        $enquiry = $this->enquiryService->create($request->all());
+        $enquiry = $this->enquiryService->create($request->validated());
         if ($enquiry) {
-            return response(['data' => 'OK'], 201);
+            return response()->json(['status' => 'OK', 'message' => 'Enquiry created successfully.'], 201);
         }
 
-        return response(['status' => 'ERROR'], 500);
+        return response()->json(['status' => 'ERROR', 'message' => 'Failed to create enquiry.'], 500);
     }
 }

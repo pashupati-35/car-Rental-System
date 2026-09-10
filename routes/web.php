@@ -21,6 +21,13 @@ Route::domain('portal.{domain}')->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     });
+    Route::get('/cms', function (\Illuminate\Http\Request $request) {
+        return redirect('/admin/cms' . ($request->getQueryString() ? '?' . $request->getQueryString() : ''));
+    });
+});
+
+Route::get('/cms', function (\Illuminate\Http\Request $request) {
+    return redirect('/admin/cms' . ($request->getQueryString() ? '?' . $request->getQueryString() : ''));
 });
 
 // Authentication routes

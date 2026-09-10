@@ -5,16 +5,13 @@ namespace App\Services\Cms\SiteSetting;
 use App\Http\Resources\Cms\SiteSetting\ColorSettingResource;
 use App\Http\Resources\Cms\SiteSetting\SiteSettingResource;
 use App\Mail\SiteSetting\SMTPTestEmail;
-use App\Models\Cms\SiteSetting\SiteSetting;
-use App\Repositories\Interfaces\Cms\SiteSetting\SiteSettingRepositoryInterface;
+use App\Repositories\Cms\SiteSettingRepositoryInterface;
 use App\Services\Service;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 
 class SiteSettingService extends Service
 {
-    protected $setting;
-
     public $uploadPath = 'setting';
 
     private const IMAGE_COLUMNS = [
@@ -54,33 +51,24 @@ class SiteSettingService extends Service
         'recaptcha_site_key',
     ];
 
-    public function __construct(SiteSetting $setting, protected SiteSettingRepositoryInterface $settings)
-    {
-        $this->setting = $setting;
-    }
+    public function __construct(protected SiteSettingRepositoryInterface $settingRepo) {}
 
-    public function refresh()
-    {
-        return $this->settings->refresh();
-    }
-
-    public function store($data)
+    public function store(array $data)
     {
         return $this->save($data);
     }
 
-    public function update($id, $data)
+    public function update($id, array $data)
     {
         return $this->save($data, $id);
     }
 
-    private function save(array $data, ?int $id = null): bool
+    private function save(array $data, ?int $id = null)
     {
-        $setting = $id
-            ? $this->setting->newQuery()->find($id)
-            : $this->settings->current();
-
-        $setting ??= $this->setting->newInstance();
+        $setting = $id ? $this->settingRepo->find($id) : $this->settingRepo->getSettings();
+        if (!$setting) {
+            $setting = $this->settingRepo->getSettings();
+        }
 
         foreach (self::BOOLEAN_COLUMNS as $column) {
             if (array_key_exists($column, $data)) {
@@ -91,10 +79,10 @@ class SiteSettingService extends Service
         $data = $this->handleImageUploads($setting, $data);
         $data = $this->keepStoredCredentials($setting, $data);
 
-        return (bool) $setting->fill($data)->save();
+        return $this->settingRepo->update($setting->id, $data);
     }
 
-    private function keepStoredCredentials(SiteSetting $setting, array $data): array
+    private function keepStoredCredentials($setting, array $data): array
     {
         foreach ([...self::SECRET_COLUMNS, ...self::CREDENTIAL_COLUMNS] as $column) {
             if (array_key_exists($column, $data) && blank($data[$column]) && filled($setting->{$column})) {
@@ -105,7 +93,7 @@ class SiteSettingService extends Service
         return $data;
     }
 
-    private function handleImageUploads(SiteSetting $setting, array $data): array
+    private function handleImageUploads($setting, array $data): array
     {
         foreach (self::IMAGE_COLUMNS as $column) {
             $isRemoval = filter_var($data["remove_$column"] ?? false, FILTER_VALIDATE_BOOLEAN);
@@ -113,13 +101,12 @@ class SiteSettingService extends Service
 
             unset($data["remove_$column"]);
 
-            if (! $isRemoval && ! $file instanceof UploadedFile) {
+            if (!$isRemoval && !$file instanceof UploadedFile) {
                 unset($data[$column]);
-
                 continue;
             }
 
-            if (! empty($setting->{$column})) {
+            if (!empty($setting->{$column})) {
                 $this->deleteFile($this->uploadPath, $setting->{$column});
             }
 
@@ -131,72 +118,29 @@ class SiteSettingService extends Service
 
     public function all()
     {
-        $setting = $this->setting->get();
-
+        $setting = $this->settingRepo->all();
         return SiteSettingResource::collection($setting);
     }
 
     public function getSiteSetting()
     {
-        $setting = $this->settings->current();
-
-        if (! empty($setting)) {
-            return new SiteSettingResource($setting);
-        }
-
-        return null;
+        $setting = $this->settingRepo->getSettings();
+        return $setting ? new SiteSettingResource($setting) : null;
     }
 
     public function getSettingColors()
     {
-        $setting = $this->settings->current();
-
-        if (! empty($setting)) {
-            return new ColorSettingResource($setting);
-        }
-
-        return null;
+        $setting = $this->settingRepo->getSettings();
+        return $setting ? new ColorSettingResource($setting) : null;
     }
 
-    public function delete($id)
+    public function sendTestEmail(string $email): bool
     {
         try {
-            $setting = $this->settings->current();
-
-            return $setting ? $setting->delete() : false;
-        } catch (\Exception $ex) {
+            Mail::to($email)->send(new SMTPTestEmail);
+            return true;
+        } catch (\Exception $e) {
             return false;
         }
-    }
-
-    public function findByColumn($column, $value)
-    {
-        return $this->setting->where($column, $value)->first();
-    }
-
-    public function testAwsUpload($file)
-    {
-        $uploadPath = 'test';
-        $data = $this->uploadFile($file, $uploadPath);
-        $path = $uploadPath.'/'.$data;
-        if (env('APP_ENV') != 'production') {
-            $path = 'local/'.$path;
-        }
-        $url = s3_image_url($path);
-
-        return $url;
-    }
-
-    public function testS3($type = 'files')
-    {
-        return $this->listFilesAndFolder($type);
-    }
-
-    public function sendTestEmail($email)
-    {
-        setSMTP();
-        Mail::to($email)->send(new SMTPTestEmail);
-
-        return true;
     }
 }
