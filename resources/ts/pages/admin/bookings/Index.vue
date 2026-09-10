@@ -8,6 +8,12 @@ import BookingDetailModal from './components/BookingDetailModal.vue'
 
 const props = defineProps<{
   bookedCars: any
+  counts?: {
+    all?: number
+    pending?: number
+    confirm?: number
+    cancel?: number
+  }
   filters?: {
     status?: string
     search?: string
@@ -29,47 +35,30 @@ const bookingsList = computed<BookingItem[]>(() => {
   return props.bookedCars?.data || []
 })
 
-const filteredBookings = computed<BookingItem[]>(() => {
-  let list = bookingsList.value
+let searchTimeout: any = null
 
-  if (activeTab.value !== 'all' && !props.filters?.status) {
-    list = list.filter((b: BookingItem) => {
-      if (activeTab.value === 'confirm') return b.status === 'confirm' || b.status === 'confirmed' || b.status === 'completed'
-      if (activeTab.value === 'pending') return b.status === 'pending'
-      if (activeTab.value === 'cancel') return b.status === 'cancel' || b.status === 'cancelled'
-      
-      return true
-    })
-  }
+const applyFilters = () => {
+  router.get('/admin/booked-cars', {
+    status: activeTab.value === 'all' ? undefined : activeTab.value,
+    search: searchQuery.value || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
 
-  if (searchQuery.value.trim() && !props.filters?.search) {
-    const q = searchQuery.value.toLowerCase()
-
-    list = list.filter((b: BookingItem) => {
-      const id = String(b.id)
-      const cust = b.customer?.name || b.customer?.full_name || ''
-      const car = (b.car?.car_name || b.car?.brand || '') + ' ' + (b.car?.car_model || b.car?.model || '')
-      
-      return id.includes(q) || cust.toLowerCase().includes(q) || car.toLowerCase().includes(q)
-    })
-  }
-
-  return list
-})
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
+}
 
 const setTab = (tab: 'all' | 'confirm' | 'pending' | 'cancel') => {
   activeTab.value = tab
-  router.get('/admin/booked-cars', {
-    status: tab === 'all' ? '' : tab,
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
-}
-
-const handleSearch = () => {
-  router.get('/admin/booked-cars', {
-    status: activeTab.value === 'all' ? '' : activeTab.value,
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+  applyFilters()
 }
 
 const confirmBooking = (id: number) => {
@@ -126,34 +115,62 @@ const openDetails = (booking: BookingItem) => {
           <button
             type="button"
             :class="activeTab === 'all' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('all')"
           >
-            All Bookings
+            <span>All Bookings</span>
+            <span
+              v-if="props.counts?.all !== undefined"
+              :class="activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-300'"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            >
+              {{ props.counts.all }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'pending' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('pending')"
           >
-            Pending Orders
+            <span>Pending Orders</span>
+            <span
+              v-if="props.counts?.pending !== undefined"
+              :class="activeTab === 'pending' ? 'bg-white/25 text-white' : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            >
+              {{ props.counts.pending }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'confirm' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('confirm')"
           >
-            Confirmed & Active
+            <span>Confirmed & Active</span>
+            <span
+              v-if="props.counts?.confirm !== undefined"
+              :class="activeTab === 'confirm' ? 'bg-white/20 text-white' : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            >
+              {{ props.counts.confirm }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'cancel' ? 'bg-rose-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('cancel')"
           >
-            Cancelled
+            <span>Cancelled</span>
+            <span
+              v-if="props.counts?.cancel !== undefined"
+              :class="activeTab === 'cancel' ? 'bg-white/20 text-white' : 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-bold"
+            >
+              {{ props.counts.cancel }}
+            </span>
           </button>
         </div>
 
@@ -165,14 +182,15 @@ const openDetails = (booking: BookingItem) => {
             placeholder="Search by order #, client, car..."
             class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
-            @keyup.enter="handleSearch"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
           >
         </div>
       </div>
 
       <!-- Main Display Table -->
       <BookingTable
-        :bookings="filteredBookings"
+        :bookings="bookingsList"
         :pagination="props.bookedCars"
         @view="openDetails"
         @confirm="confirmBooking"

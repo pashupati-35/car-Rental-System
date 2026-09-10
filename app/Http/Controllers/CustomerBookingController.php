@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BookingCar;
 use App\Services\BookingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,10 +20,7 @@ class CustomerBookingController extends Controller
             return redirect()->route('customer.login');
         }
 
-        $bookings = BookingCar::with(['car.owner', 'car.driver', 'payment'])
-            ->where('customer_id', $customer->id)
-            ->latest()
-            ->get();
+        $bookings = $this->bookingService->getCustomerBookings($customer->id);
 
         return Inertia::render('customer/Bookings', [
             'bookings' => $bookings,
@@ -39,10 +35,10 @@ class CustomerBookingController extends Controller
             return redirect()->route('customer.login');
         }
 
-        $booking = BookingCar::with(['car.owner', 'car.driver', 'payment'])
-            ->where('id', (int) $id)
-            ->where('customer_id', $customer->id)
-            ->firstOrFail();
+        $booking = $this->bookingService->getBookingById((int) $id);
+        if (!$booking || $booking->customer_id !== $customer->id) {
+            abort(404);
+        }
 
         return Inertia::render('customer/Bookings', [
             'bookings' => [$booking],
@@ -59,11 +55,7 @@ class CustomerBookingController extends Controller
         }
 
         try {
-            $booking = BookingCar::where('id', (int)$id)
-                ->where('customer_id', $customer->id)
-                ->firstOrFail();
-
-            $booking->update(['status' => 'cancel']);
+            $this->bookingService->cancelBookingByCustomer((int) $id, $customer->id);
 
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'success', 'message' => 'Booking canceled successfully.']);

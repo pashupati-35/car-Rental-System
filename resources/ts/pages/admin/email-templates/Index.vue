@@ -14,6 +14,12 @@ const props = defineProps<{
     current_page: number
     last_page: number
   }
+  counts?: {
+    all?: number
+    owner?: number
+    customer?: number
+    admin?: number
+  }
   filters?: {
     title?: string
     role?: string
@@ -23,19 +29,29 @@ const props = defineProps<{
 const activeRole = ref(props.filters?.role || 'all')
 const searchQuery = ref(props.filters?.title || '')
 
-const setRole = (role: string) => {
-  activeRole.value = role
+let searchTimeout: any = null
+
+const applyFilters = () => {
   router.get('/admin/email-templates', {
-    role: role === 'all' ? '' : role,
-    title: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+    role: activeRole.value === 'all' ? undefined : activeRole.value,
+    title: searchQuery.value || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
 }
 
-const handleSearch = () => {
-  router.get('/admin/email-templates', {
-    role: activeRole.value === 'all' ? '' : activeRole.value,
-    title: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
+}
+
+const setRole = (role: string) => {
+  activeRole.value = role
+  applyFilters()
 }
 
 const getRoleBadgeClass = (role: string) => {
@@ -82,6 +98,13 @@ const getRoleBadgeClass = (role: string) => {
           >
             <i class="ri-mail-line" />
             <span>All Templates</span>
+            <span
+              v-if="props.counts?.all !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeRole === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+            >
+              {{ props.counts.all }}
+            </span>
           </button>
 
           <button
@@ -92,6 +115,13 @@ const getRoleBadgeClass = (role: string) => {
           >
             <i class="ri-building-line" />
             <span>Fleet Owners</span>
+            <span
+              v-if="props.counts?.owner !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeRole === 'owner' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'"
+            >
+              {{ props.counts.owner }}
+            </span>
           </button>
 
           <button
@@ -102,6 +132,13 @@ const getRoleBadgeClass = (role: string) => {
           >
             <i class="ri-user-smile-line" />
             <span>Customers</span>
+            <span
+              v-if="props.counts?.customer !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeRole === 'customer' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300'"
+            >
+              {{ props.counts.customer }}
+            </span>
           </button>
 
           <button
@@ -112,6 +149,13 @@ const getRoleBadgeClass = (role: string) => {
           >
             <i class="ri-shield-star-line" />
             <span>Admins</span>
+            <span
+              v-if="props.counts?.admin !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeRole === 'admin' ? 'bg-white/20 text-white' : 'bg-purple-100 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'"
+            >
+              {{ props.counts.admin }}
+            </span>
           </button>
         </div>
 
@@ -124,7 +168,8 @@ const getRoleBadgeClass = (role: string) => {
             placeholder="Search by title or role..."
             class="w-full py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
-            @keyup.enter="handleSearch"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
           >
         </div>
       </div>

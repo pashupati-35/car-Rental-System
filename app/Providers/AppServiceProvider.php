@@ -52,6 +52,10 @@ use App\Repositories\Cms\TestimonialRepository;
 use App\Repositories\Cms\TestimonialRepositoryInterface;
 use App\Repositories\CustomerRepository;
 use App\Repositories\CustomerRepositoryInterface;
+use App\Repositories\DriverRepository;
+use App\Repositories\DriverRepositoryInterface;
+use App\Repositories\OwnerRepository;
+use App\Repositories\OwnerRepositoryInterface;
 use App\Repositories\Option\OptionRepository;
 use App\Repositories\Option\OptionRepositoryInterface;
 use App\Repositories\PaymentRepository;
@@ -68,6 +72,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(BookingRepositoryInterface::class, BookingRepository::class);
         $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
+        $this->app->bind(DriverRepositoryInterface::class, DriverRepository::class);
+        $this->app->bind(OwnerRepositoryInterface::class, OwnerRepository::class);
 
         // CMS Repositories
         $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);

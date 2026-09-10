@@ -143,4 +143,20 @@ class EmailTemplateService
 
         return false;
     }
+
+    public function getRoleCounts(): array
+    {
+        return [
+            'all' => $this->emailTemplate->count(),
+            'owner' => $this->emailTemplate->where('role', 'owner')->count(),
+            'customer' => $this->emailTemplate->where('role', 'customer')->count(),
+            'admin' => $this->emailTemplate->where('role', 'admin')->count(),
+        ];
+    }
+
+    public function findRaw($id): EmailTemplate
+    {
+        return $this->emailTemplate->findOrFail($id);
+    }
 }
+

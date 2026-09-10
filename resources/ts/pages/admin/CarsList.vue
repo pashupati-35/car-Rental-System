@@ -3,6 +3,7 @@ import CarsIndex from './cars/Index.vue'
 
 const props = defineProps<{
   cars: any
+  counts?: Record<string, number>
   filters?: {
     status?: string
     search?: string
@@ -14,6 +15,7 @@ const props = defineProps<{
 <template>
   <CarsIndex
     :cars="props.cars"
+    :counts="props.counts"
     :filters="props.filters"
   />
 </template>

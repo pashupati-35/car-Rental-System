@@ -40,24 +40,24 @@ const form = ref<Partial<CustomerItem>>({
   gender: 'male',
 })
 
-const filteredCustomers = computed<CustomerItem[]>(() => {
-  if (!searchQuery.value.trim() || props.filters?.search) return customersList.value
-  const q = searchQuery.value.toLowerCase()
-  
-  return customersList.value.filter((c: CustomerItem) => {
-    const name = c.name || c.full_name || ''
-    const email = c.email || ''
-    const phone = c.phone_number || c.phone || ''
-    const addr = c.address || ''
-    
-    return name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || addr.toLowerCase().includes(q)
-  })
-})
+let searchTimeout: any = null
 
-const handleSearch = () => {
+const applyFilters = () => {
   router.get('/admin/customers', {
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+    search: searchQuery.value || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
+
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
 }
 
 const openAddModal = () => {
@@ -198,18 +198,19 @@ const deleteCustomer = async (customerId: number) => {
             placeholder="Search customers by name, email, phone..."
             class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
-            @keyup.enter="handleSearch"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
           >
         </div>
 
         <span class="text-xs font-bold text-slate-400">
-          Total Customers: {{ props.customers?.total ?? filteredCustomers.length }}
+          Total Customers: {{ props.customers?.total ?? customersList.length }}
         </span>
       </div>
 
       <!-- Main Display Table -->
       <CustomerTable
-        :customers="filteredCustomers"
+        :customers="customersList"
         :pagination="props.customers"
         @edit="openEditModal"
         @delete="deleteCustomer"

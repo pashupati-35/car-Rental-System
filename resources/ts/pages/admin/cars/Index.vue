@@ -8,6 +8,12 @@ import CarDetailModal from './components/CarDetailModal.vue'
 
 const props = defineProps<{
   cars: any
+  counts?: {
+    all?: number
+    pending?: number
+    verified?: number
+    rejected?: number
+  }
   filters?: {
     status?: string
     search?: string
@@ -29,47 +35,30 @@ const carsList = computed<CarItem[]>(() => {
   return props.cars?.data || []
 })
 
-const filteredCars = computed<CarItem[]>(() => {
-  let list = carsList.value
+let searchTimeout: any = null
 
-  if (activeTab.value !== 'all' && !props.filters?.status) {
-    list = list.filter((c: CarItem) => {
-      if (activeTab.value === 'verified') return c.status === 'verified' || c.status === 'available'
-      if (activeTab.value === 'pending') return c.status === 'pending'
-      if (activeTab.value === 'rejected') return c.status === 'rejected'
-      
-      return true
-    })
-  }
+const applyFilters = () => {
+  router.get('/admin/cars', {
+    status: activeTab.value === 'all' ? undefined : activeTab.value,
+    search: searchQuery.value || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
 
-  if (searchQuery.value.trim() && !props.filters?.search) {
-    const q = searchQuery.value.toLowerCase()
-
-    list = list.filter((c: CarItem) => {
-      const name = (c.car_name || c.brand || '') + ' ' + (c.car_model || c.model || '')
-      const num = c.car_number || c.plate_number || ''
-      const owner = c.owner?.full_name || c.owner?.name || c.owner?.email || ''
-      
-      return name.toLowerCase().includes(q) || num.toLowerCase().includes(q) || owner.toLowerCase().includes(q)
-    })
-  }
-
-  return list
-})
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
+}
 
 const setTab = (tab: 'all' | 'pending' | 'verified' | 'rejected') => {
   activeTab.value = tab
-  router.get('/admin/cars', {
-    status: tab === 'all' ? '' : tab,
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
-}
-
-const handleSearch = () => {
-  router.get('/admin/cars', {
-    status: activeTab.value === 'all' ? '' : activeTab.value,
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+  applyFilters()
 }
 
 const verifyCar = (carId: number) => {
@@ -126,34 +115,62 @@ const openDetails = (car: CarItem) => {
           <button
             type="button"
             :class="activeTab === 'all' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('all')"
           >
-            All Cars
+            <span>All Cars</span>
+            <span
+              v-if="props.counts?.all !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeTab === 'all' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+            >
+              {{ props.counts.all }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'pending' ? 'bg-amber-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('pending')"
           >
             <span>Pending Review</span>
+            <span
+              v-if="props.counts?.pending !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeTab === 'pending' ? 'bg-white/25 text-white' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300'"
+            >
+              {{ props.counts.pending }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'verified' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('verified')"
           >
-            Active & Verified
+            <span>Active & Verified</span>
+            <span
+              v-if="props.counts?.verified !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeTab === 'verified' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'"
+            >
+              {{ props.counts.verified }}
+            </span>
           </button>
           <button
             type="button"
             :class="activeTab === 'rejected' ? 'bg-rose-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
             @click="setTab('rejected')"
           >
-            Rejected
+            <span>Rejected</span>
+            <span
+              v-if="props.counts?.rejected !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="activeTab === 'rejected' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'"
+            >
+              {{ props.counts.rejected }}
+            </span>
           </button>
         </div>
 
@@ -162,17 +179,18 @@ const openDetails = (car: CarItem) => {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Search cars by name, plate, owner..."
+            placeholder="Search cars by name, model, plate, owner..."
             class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
-            @keyup.enter="handleSearch"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
           >
         </div>
       </div>
 
       <!-- Main Display Table -->
       <CarTable
-        :cars="filteredCars"
+        :cars="carsList"
         :pagination="props.cars"
         @view="openDetails"
         @verify="verifyCar"

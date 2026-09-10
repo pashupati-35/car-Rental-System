@@ -10,8 +10,15 @@ import DriverFormModal from './components/DriverFormModal.vue'
 const props = defineProps<{
   drivers: any
   owners?: Array<any>
+  counts?: {
+    all?: number
+    active?: number
+    inactive?: number
+  }
   filters?: {
     search?: string
+    owner_id?: string
+    status?: string
     per_page?: number
   }
 }>()
@@ -22,9 +29,10 @@ const driversList = computed<DriverItem[]>(() => {
   return props.drivers?.data || []
 })
 
-const ownersList = ref<Array<any>>(props.owners || [])
+const ownersList = computed<Array<any>>(() => props.owners || [])
 const searchQuery = ref(props.filters?.search || '')
-const selectedOwnerFilter = ref('')
+const selectedOwnerFilter = ref(props.filters?.owner_id || '')
+const selectedStatusFilter = ref(props.filters?.status || 'all')
 
 const showAddModal = ref(false)
 const showEditModal = ref(false)
@@ -44,33 +52,42 @@ const driverForm = ref<Partial<DriverItem>>({
   address: '',
 })
 
-const filteredDrivers = computed<DriverItem[]>(() => {
-  let list = driversList.value
+let searchTimeout: any = null
 
-  if (selectedOwnerFilter.value) {
-    list = list.filter((d: DriverItem) => String(d.owner_id) === String(selectedOwnerFilter.value))
-  }
-
-  if (searchQuery.value.trim() && !props.filters?.search) {
-    const q = searchQuery.value.toLowerCase()
-
-    list = list.filter((d: DriverItem) => {
-      const name = d.name || ''
-      const phone = d.phone || ''
-      const license = d.license_number || ''
-      const owner = d.owner?.full_name || d.owner?.name || ''
-      
-      return name.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || license.toLowerCase().includes(q) || owner.toLowerCase().includes(q)
-    })
-  }
-
-  return list
-})
-
-const handleSearch = () => {
+const applyFilters = () => {
   router.get('/admin/drivers', {
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+    search: searchQuery.value || undefined,
+    owner_id: selectedOwnerFilter.value || undefined,
+    status: selectedStatusFilter.value || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
+
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
+}
+
+const onOwnerChange = () => {
+  applyFilters()
+}
+
+const setStatus = (status: string) => {
+  selectedStatusFilter.value = status === 'all' ? '' : status
+  applyFilters()
+}
+
+const resetFilters = () => {
+  searchQuery.value = ''
+  selectedOwnerFilter.value = ''
+  selectedStatusFilter.value = 'all'
+  applyFilters()
 }
 
 const openAddModal = () => {
@@ -123,6 +140,7 @@ const submitNewDriver = async () => {
 }
 
 const submitEditDriver = async () => {
+  if (!driverForm.value.id) return
   submitting.value = true
   errorMessage.value = ''
   try {
@@ -195,27 +213,64 @@ const deleteDriver = async (driverId: number) => {
       </div>
 
       <!-- Search & Filters Toolbar -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
-        <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          <div class="relative w-full sm:w-72">
-            <i class="ri-search-line absolute left-3 top-2.5 text-slate-400 text-xs" />
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search drivers by name, phone, license..."
-              class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-              style="padding-left: 2rem; padding-right: 0.75rem"
-              @keyup.enter="handleSearch"
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Status Tabs -->
+          <button
+            type="button"
+            :class="selectedStatusFilter === 'all' || !selectedStatusFilter ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
+            @click="setStatus('all')"
+          >
+            <span>All Drivers</span>
+            <span
+              v-if="props.counts?.all !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="(selectedStatusFilter === 'all' || !selectedStatusFilter) ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
             >
-          </div>
+              {{ props.counts.all }}
+            </span>
+          </button>
+          <button
+            type="button"
+            :class="selectedStatusFilter === 'active' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
+            @click="setStatus('active')"
+          >
+            <span>Active</span>
+            <span
+              v-if="props.counts?.active !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="selectedStatusFilter === 'active' ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'"
+            >
+              {{ props.counts.active }}
+            </span>
+          </button>
+          <button
+            type="button"
+            :class="selectedStatusFilter === 'inactive' ? 'bg-slate-600 text-white font-bold shadow-xs' : 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100'"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-semibold cursor-pointer transition-all flex items-center gap-1.5"
+            @click="setStatus('inactive')"
+          >
+            <span>Inactive</span>
+            <span
+              v-if="props.counts?.inactive !== undefined"
+              class="px-1.5 py-0.2 rounded-full text-[10px] font-bold"
+              :class="selectedStatusFilter === 'inactive' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+            >
+              {{ props.counts.inactive }}
+            </span>
+          </button>
 
+          <!-- Owner Select -->
           <div
             v-if="ownersList.length > 0"
-            class="w-full sm:w-60"
+            class="w-full sm:w-48"
           >
             <select
               v-model="selectedOwnerFilter"
-              class="w-full py-2 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500"
+              class="w-full py-1.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              @change="onOwnerChange"
             >
               <option value="">
                 All Fleet Owners
@@ -229,16 +284,34 @@ const deleteDriver = async (driverId: number) => {
               </option>
             </select>
           </div>
+
+          <button
+            v-if="searchQuery || selectedOwnerFilter || (selectedStatusFilter && selectedStatusFilter !== 'all')"
+            type="button"
+            class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs transition-colors cursor-pointer"
+            @click="resetFilters"
+          >
+            Reset
+          </button>
         </div>
 
-        <span class="text-xs font-bold text-slate-400">
-          Total Chauffeurs: {{ props.drivers?.total ?? filteredDrivers.length }}
-        </span>
+        <div class="relative w-full lg:w-64">
+          <i class="ri-search-line absolute left-3 top-2.5 text-slate-400 text-xs" />
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search drivers by name, phone, license..."
+            class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            style="padding-left: 2rem; padding-right: 0.75rem"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
+          >
+        </div>
       </div>
 
       <!-- Main Display Table -->
       <DriverTable
-        :drivers="filteredDrivers"
+        :drivers="driversList"
         :pagination="props.drivers"
         @edit="openEditModal"
         @delete="deleteDriver"

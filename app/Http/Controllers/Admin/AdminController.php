@@ -3,26 +3,27 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Mail\Admin\BookingStatusNotificationMail;
-use App\Mail\Admin\CarStatusNotificationMail;
-use App\Models\Admin;
-use App\Models\BookingCar;
-use App\Models\Car;
-use App\Models\Customer;
-use App\Models\Driver;
-use App\Models\Owner;
-use App\Models\Payment;
-use App\Services\Auth\PasswordResetService;
+use App\Services\BookingService;
+use App\Services\CarService;
+use App\Services\CustomerService;
+use App\Services\DriverService;
+use App\Services\OwnerService;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class AdminController extends Controller
 {
+    public function __construct(
+        protected CarService $carService,
+        protected BookingService $bookingService,
+        protected DriverService $driverService,
+        protected OwnerService $ownerService,
+        protected CustomerService $customerService,
+        protected PaymentService $paymentService,
+    ) {}
+
     /**
      * Paginated Fleet Cars list with filters.
      */
@@ -32,38 +33,17 @@ class AdminController extends Controller
         $status = $request->input('status');
         $search = $request->input('search');
 
-        $query = Car::with(['owner', 'driver']);
+        $filters = [
+            'status' => $status,
+            'search' => $search,
+        ];
 
-        if (filled($status) && $status !== 'all') {
-            if ($status === 'verified') {
-                $query->whereIn('status', ['verified', 'available']);
-            } elseif ($status === 'pending') {
-                $query->where(function ($q) {
-                    $q->where('status', 'pending')->orWhereNull('status');
-                });
-            } else {
-                $query->where('status', $status);
-            }
-        }
-
-        if (filled($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('car_name', 'like', "%{$search}%")
-                  ->orWhere('brand', 'like', "%{$search}%")
-                  ->orWhere('car_model', 'like', "%{$search}%")
-                  ->orWhere('car_number', 'like', "%{$search}%")
-                  ->orWhere('plate_number', 'like', "%{$search}%")
-                  ->orWhereHas('owner', function ($oq) use ($search) {
-                      $oq->where('full_name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $cars = $query->latest('id')->paginate($perPage)->withQueryString();
+        $cars = $this->carService->getAdminCars($filters, $perPage);
+        $statusCounts = $this->carService->getCarStatusCounts();
 
         return Inertia::render('admin/CarsList', [
             'cars' => $cars,
+            'counts' => $statusCounts,
             'filters' => [
                 'status' => $status ?? 'all',
                 'search' => $search ?? '',
@@ -74,7 +54,7 @@ class AdminController extends Controller
 
     public function show($id)
     {
-        $car = Car::with(['owner', 'driver'])->findOrFail($id);
+        $car = $this->carService->getCarDetails((int) $id);
         return Inertia::render('cars/Show', [
             'car' => $car,
         ]);
@@ -83,21 +63,9 @@ class AdminController extends Controller
     /**
      * Approve vehicle and send email notification to owner.
      */
-    public function verifyCar(Car $car)
+    public function verifyCar($id)
     {
-        $car->update([
-            'status' => 'verified',
-            'available' => 'yes',
-        ]);
-
-        // Send email to the vehicle owner
-        if ($car->owner && filled($car->owner->email)) {
-            try {
-                Mail::to($car->owner->email)->send(new CarStatusNotificationMail($car, 'verified'));
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send car verification email to owner: ' . $e->getMessage());
-            }
-        }
+        $this->carService->verifyCarAndNotify((int) $id);
 
         return redirect()->back()->with('success', 'Car has been verified, listed, and an approval notification has been emailed to the owner.');
     }
@@ -105,29 +73,16 @@ class AdminController extends Controller
     /**
      * Reject vehicle and send email notification to owner.
      */
-    public function rejectCar(Car $car)
+    public function rejectCar($id)
     {
-        $car->update([
-            'status' => 'rejected',
-            'available' => 'no',
-        ]);
-
-        // Send email to the vehicle owner
-        if ($car->owner && filled($car->owner->email)) {
-            try {
-                Mail::to($car->owner->email)->send(new CarStatusNotificationMail($car, 'rejected'));
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send car rejection email to owner: ' . $e->getMessage());
-            }
-        }
+        $this->carService->rejectCarAndNotify((int) $id);
 
         return redirect()->back()->with('success', 'Car has been rejected and an update email has been sent to the owner.');
     }
 
     public function destroyCar($id)
     {
-        $car = Car::findOrFail($id);
-        $car->delete();
+        $this->carService->deleteCar((int) $id);
 
         return redirect()->back()->with('success', 'Vehicle removed from system fleet.');
     }
@@ -139,26 +94,27 @@ class AdminController extends Controller
     {
         $perPage = (int) $request->input('per_page', 10);
         $search = $request->input('search');
+        $ownerId = $request->input('owner_id');
+        $status = $request->input('status');
 
-        $query = Driver::with(['owner', 'cars']);
+        $filters = [
+            'search' => $search,
+            'owner_id' => $ownerId,
+            'status' => $status,
+        ];
 
-        if (filled($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('license_number', 'like', "%{$search}%");
-            });
-        }
-
-        $drivers = $query->latest('id')->paginate($perPage)->withQueryString();
-        $owners = Owner::select('id', 'full_name', 'email')->get();
+        $drivers = $this->driverService->getAdminDrivers($filters, $perPage);
+        $owners = $this->ownerService->getOwnersDropdown();
+        $driverCounts = $this->driverService->getDriverStatusCounts();
 
         return Inertia::render('admin/DriversList', [
             'drivers' => $drivers,
             'owners' => $owners,
+            'counts' => $driverCounts,
             'filters' => [
                 'search' => $search ?? '',
+                'owner_id' => $ownerId ?? '',
+                'status' => $status ?? '',
                 'per_page' => $perPage,
             ],
         ]);
@@ -177,7 +133,7 @@ class AdminController extends Controller
             'address' => 'nullable|string|max:255',
         ]);
 
-        $driver = Driver::create($validated);
+        $driver = $this->driverService->createDriver($validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver added successfully.', 'data' => $driver]);
@@ -188,7 +144,6 @@ class AdminController extends Controller
 
     public function updateDriver(Request $request, $id)
     {
-        $driver = Driver::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -200,7 +155,7 @@ class AdminController extends Controller
             'address' => 'nullable|string|max:255',
         ]);
 
-        $driver->update($validated);
+        $driver = $this->driverService->updateDriver((int) $id, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver updated successfully.', 'data' => $driver]);
@@ -211,8 +166,7 @@ class AdminController extends Controller
 
     public function destroyDriver($id)
     {
-        $driver = Driver::findOrFail($id);
-        $driver->delete();
+        $this->driverService->deleteDriver((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Driver deleted.']);
@@ -229,18 +183,7 @@ class AdminController extends Controller
         $perPage = (int) $request->input('per_page', 10);
         $search = $request->input('search');
 
-        $query = Customer::withCount('bookings');
-
-        if (filled($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone_number', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
-            });
-        }
-
-        $customers = $query->latest('id')->paginate($perPage)->withQueryString();
+        $customers = $this->customerService->getAdminCustomers(['search' => $search], $perPage);
 
         return Inertia::render('admin/CustomersList', [
             'customers' => $customers,
@@ -264,27 +207,14 @@ class AdminController extends Controller
             'gender' => 'nullable|string',
         ]);
 
-        $randomPassword = Str::random(16);
-
-        $customer = Customer::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone_number' => $validated['phone_number'],
-            'address' => $validated['address'],
-            'gender' => $validated['gender'] ?? 'male',
-            'password' => Hash::make($randomPassword),
-            'admin_id' => Auth::guard('admin')->id(),
-        ]);
-
-        // Send reset password / setup email
-        $mailResult = PasswordResetService::sendResetLink($customer->email, 'customer');
+        $result = $this->customerService->createCustomerWithPasswordSetup($validated, Auth::guard('admin')->id());
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Customer created successfully. A password setup email has been dispatched.',
-                'data' => $customer,
-                'reset_url' => $mailResult['reset_url'] ?? null,
+                'data' => $result['customer'],
+                'reset_url' => $result['reset_url'],
             ], 201);
         }
 
@@ -293,7 +223,6 @@ class AdminController extends Controller
 
     public function updateCustomer(Request $request, $id)
     {
-        $customer = Customer::findOrFail($id);
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:customers,email,' . $id,
@@ -302,7 +231,7 @@ class AdminController extends Controller
             'gender' => 'nullable|string',
         ]);
 
-        $customer->update($validated);
+        $customer = $this->customerService->updateCustomer((int) $id, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Customer updated.', 'data' => $customer]);
@@ -324,20 +253,17 @@ class AdminController extends Controller
             'gender' => 'nullable|string',
         ]);
 
-        $randomPassword = Str::random(16);
-
-        $owner = Owner::create([
+        $owner = $this->ownerService->createOwner([
             'full_name' => $validated['full_name'],
             'email' => $validated['email'],
             'contact_number' => $validated['contact_number'],
             'address' => $validated['address'],
             'gender' => $validated['gender'] ?? 'male',
-            'password' => Hash::make($randomPassword),
+            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
             'admin_id' => Auth::guard('admin')->id(),
         ]);
 
-        // Send reset password / setup email
-        $mailResult = PasswordResetService::sendResetLink($owner->email, 'owner');
+        $mailResult = \App\Services\Auth\PasswordResetService::sendResetLink($owner->email, 'owner');
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -353,8 +279,7 @@ class AdminController extends Controller
 
     public function destroy($id)
     {
-        $customer = Customer::findOrFail($id);
-        $customer->delete();
+        $this->customerService->deleteCustomer((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Customer deleted.']);
@@ -368,19 +293,10 @@ class AdminController extends Controller
      */
     public function showCustomer(Request $request, $id)
     {
-        $customer = Customer::withCount('bookings')->findOrFail($id);
-
-        $bookings = BookingCar::with(['car.driver', 'car.owner', 'payment'])
-            ->where('customer_id', $id)
-            ->latest('id')
-            ->get();
-
-        $payments = Payment::with(['car', 'booking'])
-            ->where('customer_id', $id)
-            ->latest('id')
-            ->get();
-
-        $availableCars = Car::whereIn('status', ['verified', 'available'])->get();
+        $customer = $this->customerService->getCustomerDetails((int) $id);
+        $bookings = $this->bookingService->getCustomerBookings((int) $id);
+        $payments = $this->paymentService->getCustomerPayments((int) $id);
+        $availableCars = $this->carService->getAvailableVerifiedCars();
 
         $stats = [
             'total_bookings' => $bookings->count(),
@@ -403,8 +319,6 @@ class AdminController extends Controller
 
     public function storeCustomerBooking(Request $request, $id)
     {
-        $customer = Customer::findOrFail($id);
-
         $validated = $request->validate([
             'car_id' => 'required|exists:cars,id',
             'pick_up_date' => 'required|date',
@@ -416,17 +330,7 @@ class AdminController extends Controller
             'purpose' => 'nullable|string',
         ]);
 
-        $booking = BookingCar::create([
-            'customer_id' => $customer->id,
-            'car_id' => $validated['car_id'],
-            'pick_up_date' => $validated['pick_up_date'],
-            'last_date' => $validated['last_date'],
-            'pickup_location' => $validated['pickup_location'],
-            'drop_location' => $validated['drop_location'],
-            'total_price' => $validated['total_price'],
-            'status' => $validated['status'] ?? 'confirm',
-            'purpose' => $validated['purpose'] ?? 'Admin booked rental',
-        ]);
+        $booking = $this->bookingService->createCustomerBooking((int) $id, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking created for customer.', 'data' => $booking]);
@@ -437,8 +341,6 @@ class AdminController extends Controller
 
     public function updateCustomerBooking(Request $request, $id, $bookingId)
     {
-        $booking = BookingCar::where('customer_id', $id)->findOrFail($bookingId);
-
         $validated = $request->validate([
             'car_id' => 'required|exists:cars,id',
             'pick_up_date' => 'required|date',
@@ -450,7 +352,7 @@ class AdminController extends Controller
             'purpose' => 'nullable|string',
         ]);
 
-        $booking->update($validated);
+        $booking = $this->bookingService->updateCustomerBooking((int) $id, (int) $bookingId, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking updated.', 'data' => $booking]);
@@ -461,8 +363,7 @@ class AdminController extends Controller
 
     public function destroyCustomerBooking($id, $bookingId)
     {
-        $booking = BookingCar::where('customer_id', $id)->findOrFail($bookingId);
-        $booking->delete();
+        $this->bookingService->deleteCustomerBooking((int) $id, (int) $bookingId);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking deleted.']);
@@ -473,8 +374,6 @@ class AdminController extends Controller
 
     public function storeCustomerPayment(Request $request, $id)
     {
-        $customer = Customer::findOrFail($id);
-
         $validated = $request->validate([
             'booking_id' => 'required|exists:booking_car,id',
             'car_id' => 'required|exists:cars,id',
@@ -483,15 +382,7 @@ class AdminController extends Controller
             'expiry_date' => 'nullable|string',
         ]);
 
-        $payment = Payment::create([
-            'customer_id' => $customer->id,
-            'booking_id' => $validated['booking_id'],
-            'car_id' => $validated['car_id'],
-            'amount' => $validated['amount'],
-            'card_number' => $validated['card_number'] ?? '4242424242424242',
-            'expiry_date' => $validated['expiry_date'] ?? '12/28',
-            'cvv' => '123',
-        ]);
+        $payment = $this->paymentService->recordCustomerPayment((int) $id, $validated);
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Payment recorded.', 'data' => $payment]);
@@ -502,8 +393,7 @@ class AdminController extends Controller
 
     public function destroyCustomerPayment($id, $paymentId)
     {
-        $payment = Payment::where('customer_id', $id)->findOrFail($paymentId);
-        $payment->delete();
+        $this->paymentService->deleteCustomerPayment((int) $id, (int) $paymentId);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Payment record deleted.']);
@@ -521,37 +411,17 @@ class AdminController extends Controller
         $status = $request->input('status');
         $search = $request->input('search');
 
-        $query = BookingCar::with(['car.owner', 'customer', 'payment']);
+        $filters = [
+            'status' => $status,
+            'search' => $search,
+        ];
 
-        if (filled($status) && $status !== 'all') {
-            if ($status === 'confirmed' || $status === 'confirm') {
-                $query->whereIn('status', ['confirm', 'confirmed']);
-            } elseif ($status === 'cancelled' || $status === 'cancel') {
-                $query->whereIn('status', ['cancel', 'cancelled']);
-            } else {
-                $query->where('status', $status);
-            }
-        }
-
-        if (filled($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function ($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('car', function ($carq) use ($search) {
-                      $carq->where('car_name', 'like', "%{$search}%")
-                           ->orWhere('car_model', 'like', "%{$search}%")
-                           ->orWhere('car_number', 'like', "%{$search}%");
-                  });
-            });
-        }
-
-        $bookings = $query->latest('id')->paginate($perPage)->withQueryString();
+        $bookings = $this->bookingService->getAdminBookings($filters, $perPage);
+        $bookingCounts = $this->bookingService->getBookingStatusCounts();
 
         return Inertia::render('admin/BookedCars', [
             'bookedCars' => $bookings,
+            'counts' => $bookingCounts,
             'filters' => [
                 'status' => $status ?? 'all',
                 'search' => $search ?? '',
@@ -565,17 +435,7 @@ class AdminController extends Controller
      */
     public function confirmBooking($id)
     {
-        $booking = BookingCar::with(['car', 'customer'])->findOrFail($id);
-        $booking->update(['status' => 'confirm']);
-
-        $recipientEmail = $booking->customer->email ?? $booking->email ?? null;
-        if (filled($recipientEmail)) {
-            try {
-                Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'confirm'));
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send booking confirmation email to customer: ' . $e->getMessage());
-            }
-        }
+        $booking = $this->bookingService->confirmAdminBookingAndNotify((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking confirmed and notification dispatched.', 'data' => $booking]);
@@ -589,17 +449,7 @@ class AdminController extends Controller
      */
     public function cancelBooking($id)
     {
-        $booking = BookingCar::with(['car', 'customer'])->findOrFail($id);
-        $booking->update(['status' => 'cancel']);
-
-        $recipientEmail = $booking->customer->email ?? $booking->email ?? null;
-        if (filled($recipientEmail)) {
-            try {
-                Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'cancel'));
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send booking cancellation email to customer: ' . $e->getMessage());
-            }
-        }
+        $booking = $this->bookingService->cancelAdminBookingAndNotify((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking cancelled and notification dispatched.', 'data' => $booking]);
@@ -610,8 +460,7 @@ class AdminController extends Controller
 
     public function destroyBooking($id)
     {
-        $booking = BookingCar::findOrFail($id);
-        $booking->delete();
+        $this->bookingService->deleteBooking((int) $id);
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Booking deleted.']);
@@ -620,4 +469,3 @@ class AdminController extends Controller
         return redirect()->route('admin.bookings')->with('success', 'Booking deleted successfully.');
     }
 }
-

@@ -40,24 +40,24 @@ const form = ref<Partial<OwnerItem>>({
   gender: 'male',
 })
 
-const filteredOwners = computed<OwnerItem[]>(() => {
-  if (!searchQuery.value.trim() || props.filters?.search) return ownersList.value
-  const q = searchQuery.value.toLowerCase()
-  
-  return ownersList.value.filter((o: OwnerItem) => {
-    const name = o.full_name || o.name || ''
-    const email = o.email || ''
-    const phone = o.contact_number || ''
-    const addr = o.address || ''
-    
-    return name.toLowerCase().includes(q) || email.toLowerCase().includes(q) || phone.toLowerCase().includes(q) || addr.toLowerCase().includes(q)
-  })
-})
+let searchTimeout: any = null
 
-const handleSearch = () => {
+const applyFilters = () => {
   router.get('/admin/owners', {
-    search: searchQuery.value,
-  }, { preserveState: true, preserveScroll: true })
+    search: searchQuery.value || undefined,
+    per_page: props.filters?.per_page || undefined,
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    replace: true,
+  })
+}
+
+const onSearchInput = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 350)
 }
 
 const openAddModal = () => {
@@ -198,18 +198,19 @@ const deleteOwner = async (ownerId: number) => {
             placeholder="Search owners by name, email, company, phone..."
             class="w-full py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             style="padding-left: 2rem; padding-right: 0.75rem"
-            @keyup.enter="handleSearch"
+            @input="onSearchInput"
+            @keyup.enter="applyFilters"
           >
         </div>
 
         <span class="text-xs font-bold text-slate-400">
-          Total Registered: {{ props.owners?.total ?? filteredOwners.length }}
+          Total Registered: {{ props.owners?.total ?? ownersList.length }}
         </span>
       </div>
 
       <!-- Main Display Table -->
       <OwnerTable
-        :owners="filteredOwners"
+        :owners="ownersList"
         :pagination="props.owners"
         @edit="openEditModal"
         @delete="deleteOwner"

@@ -3,6 +3,7 @@ import BookingsIndex from './bookings/Index.vue'
 
 const props = defineProps<{
   bookedCars: any
+  counts?: Record<string, number>
   filters?: {
     status?: string
     search?: string
@@ -14,6 +15,7 @@ const props = defineProps<{
 <template>
   <BookingsIndex
     :booked-cars="props.bookedCars"
+    :counts="props.counts"
     :filters="props.filters"
   />
 </template>

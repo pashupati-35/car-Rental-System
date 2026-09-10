@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Car\StoreCarRequest;
 use App\Http\Requests\Car\UpdateCarRequest;
-use App\Models\Car;
 use App\Services\CarService;
 use Illuminate\Http\Request;
 
@@ -37,7 +36,7 @@ class CarController extends Controller
             $validated['car_number_part4'],
         ]);
 
-        if (Car::where('car_number', $carNumber)->exists()) {
+        if ($this->carService->carNumberExists($carNumber)) {
             return redirect()->back()->withErrors(['car_number' => 'The car number has already been taken.']);
         }
 

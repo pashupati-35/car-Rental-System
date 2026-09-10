@@ -6,6 +6,7 @@ use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Driver;
 use App\Models\Owner;
+use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,20 +14,16 @@ use Illuminate\Support\Facades\Log;
 
 class OwnerController extends Controller
 {
+    public function __construct(
+        protected OwnerService $ownerService,
+    ) {}
+
     public function index(Request $request)
     {
         $search = $request->input('search');
         $perPage = (int) $request->input('per_page', 10);
 
-        $owners = Owner::withCount(['cars', 'drivers'])
-            ->when($search, function ($query, $search) {
-                $query->where('full_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
-            })
-            ->latest('id')
-            ->paginate($perPage)
-            ->withQueryString();
+        $owners = $this->ownerService->getAdminOwners(['search' => $search], $perPage);
 
         if ($request->wantsJson()) {
             return response()->json([

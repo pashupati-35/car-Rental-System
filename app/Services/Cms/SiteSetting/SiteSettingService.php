@@ -79,7 +79,10 @@ class SiteSettingService extends Service
         $data = $this->handleImageUploads($setting, $data);
         $data = $this->keepStoredCredentials($setting, $data);
 
-        return $this->settingRepo->update($setting->id, $data);
+        $result = $this->settingRepo->update($setting->id, $data);
+        \App\Services\Admin\AdminCountCacheService::clear();
+
+        return $result;
     }
 
     private function keepStoredCredentials($setting, array $data): array

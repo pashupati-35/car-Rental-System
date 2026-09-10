@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\BookingCar;
-use App\Models\Car;
-use App\Models\Customer;
-use App\Models\Driver;
-use App\Models\Owner;
+use App\Services\Admin\AdminCountCacheService;
+use App\Services\BookingService;
+use App\Services\CarService;
+use App\Services\CustomerService;
+use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -15,6 +15,13 @@ use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(
+        protected ?CarService $carService = null,
+        protected ?BookingService $bookingService = null,
+        protected ?OwnerService $ownerService = null,
+        protected ?CustomerService $customerService = null,
+    ) {}
+
     /**
      * Display the admin login view.
      */
@@ -48,16 +55,6 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Show MFA verification page for Admin.
-     */
-    public function showMfa(Request $request)
-    {
-        return Inertia::render('admin/auth/MFAVerification', [
-            'email' => $request->query('email', ''),
-        ]);
-    }
-
-    /**
      * Destroy an authenticated admin session.
      */
     public function destroy(Request $request)
@@ -75,60 +72,18 @@ class AuthenticatedSessionController extends Controller
     public function dashboard(Request $request)
     {
         if (Auth::guard('admin')->check()) {
-            $totalCars = Car::count();
-            $pendingCarsCount = Car::where('status', 'pending')->count();
-            $verifiedCarsCount = Car::where('status', 'verified')->count();
-            $rejectedCarsCount = Car::where('status', 'rejected')->count();
+            $stats = AdminCountCacheService::getDashboardStats();
+            $cmsStats = AdminCountCacheService::getCmsStats();
 
-            $totalOwners = Owner::count();
-            $totalCustomers = Customer::count();
-            $totalDrivers = Driver::count();
-            $totalBookings = BookingCar::count();
-            $confirmedBookings = BookingCar::where('status', 'confirm')->orWhere('status', 'confirmed')->count();
-            $pendingBookings = BookingCar::where('status', 'pending')->count();
-            $totalRevenue = BookingCar::whereIn('status', ['confirm', 'confirmed'])->sum('total_price') ?: 0;
-
-            $pendingCars = Car::with('owner')->where('status', 'pending')->latest()->take(6)->get();
-            $recentCars = Car::with('owner')->latest()->take(5)->get();
+            $pendingCars = $this->carService ? $this->carService->getPendingCars(6) : collect();
+            $recentCars = $this->carService ? $this->carService->getRecentCars(5) : collect();
             $perPage = (int) $request->input('per_page', 8);
-            $recentBookings = BookingCar::with(['car', 'customer', 'payment'])->latest()->paginate($perPage)->withQueryString();
-            $recentOwners = Owner::withCount('cars')->latest()->take(5)->get();
-            $recentCustomers = Customer::withCount('bookings')->latest()->take(5)->get();
-
-            // CMS stats
-            $cmsStats = [
-                'faqs' => \App\Models\Cms\Faq\Faq::count(),
-                'blogs' => \App\Models\Cms\Blog\Blog::count(),
-                'services' => \App\Models\Cms\Service\Services::count(),
-                'teams' => \App\Models\Cms\Team\Team::count(),
-                'testimonials' => \App\Models\Cms\Testimonial\Testimonial::count(),
-                'notices' => \App\Models\Cms\Notice\Notice::count(),
-                'sliders' => \App\Models\Cms\Slider\Slider::count(),
-                'popups' => \App\Models\Cms\Popup\Popup::count(),
-                'pages' => \App\Models\Cms\Page\Page::count(),
-                'partners' => \App\Models\Cms\Partner\Partner::count(),
-                'careers' => \App\Models\Cms\Career\Career::count(),
-                'enquiries' => \App\Models\Cms\Enquiry\Enquiry::count(),
-                'contacts' => \App\Models\Cms\ContactUs\ContactUs::count(),
-                'albums' => \App\Models\Cms\Album\Album::count(),
-                'menus' => \App\Models\Cms\Menu\Menu::count(),
-                'news' => \App\Models\Cms\NewsAndUpdates\NewsAndUpdates::count(),
-            ];
+            $recentBookings = $this->bookingService ? $this->bookingService->getRecentBookings($perPage) : [];
+            $recentOwners = $this->ownerService ? $this->ownerService->getRecentOwners(5) : collect();
+            $recentCustomers = $this->customerService ? $this->customerService->getRecentCustomers(5) : collect();
 
             return Inertia::render('admin/Dashboard', [
-                'stats' => [
-                    'totalCars' => $totalCars,
-                    'pendingCarsCount' => $pendingCarsCount,
-                    'verifiedCarsCount' => $verifiedCarsCount,
-                    'rejectedCarsCount' => $rejectedCarsCount,
-                    'totalOwners' => $totalOwners,
-                    'totalCustomers' => $totalCustomers,
-                    'totalDrivers' => $totalDrivers,
-                    'totalBookings' => $totalBookings,
-                    'confirmedBookings' => $confirmedBookings,
-                    'pendingBookings' => $pendingBookings,
-                    'totalRevenue' => $totalRevenue,
-                ],
+                'stats' => $stats,
                 'pendingCars' => $pendingCars,
                 'recentCars' => $recentCars,
                 'recentBookings' => $recentBookings,

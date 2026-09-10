@@ -3,12 +3,17 @@
 namespace App\Services;
 
 use App\DTOs\BookingDTO;
+use App\Mail\Admin\BookingStatusNotificationMail;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Repositories\BookingRepositoryInterface;
 use App\Repositories\CarRepositoryInterface;
+use App\Services\Admin\AdminCountCacheService;
 use Carbon\Carbon;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BookingService
 {
@@ -79,7 +84,7 @@ class BookingService
 
     public function createReservation(BookingDTO $dto): BookingCar
     {
-        return $this->bookingRepository->create([
+        $booking = $this->bookingRepository->create([
             'pickup_location' => $dto->pickup_location,
             'drop_location' => $dto->drop_location,
             'pick_up_date' => $dto->pick_up_date?->format('Y-m-d'),
@@ -91,6 +96,9 @@ class BookingService
             'purpose' => $dto->purpose,
             'other_purpose' => $dto->other_purpose,
         ]);
+
+        AdminCountCacheService::clear();
+        return $booking;
     }
 
     public function reserveCar(BookingDTO $dto, float $distanceTraveled = 0): ?BookingCar
@@ -101,7 +109,7 @@ class BookingService
 
         $totalPrice = $this->calculateTotalPrice($dto->car_id, $dto->pick_up_date, $dto->last_date, $distanceTraveled);
 
-        return $this->bookingRepository->create([
+        $booking = $this->bookingRepository->create([
             'pickup_location' => $dto->pickup_location,
             'drop_location' => $dto->drop_location,
             'pick_up_date' => $dto->pick_up_date?->format('Y-m-d'),
@@ -113,17 +121,14 @@ class BookingService
             'purpose' => $dto->purpose,
             'other_purpose' => $dto->other_purpose,
         ]);
+
+        AdminCountCacheService::clear();
+        return $booking;
     }
 
     public function getOwnerBookings(int $ownerId): Collection
     {
-        $carIds = Car::where('owner_id', $ownerId)->pluck('id');
-
-        return $this->bookingRepository
-            ->whereIn('car_id', $carIds->toArray())
-            ->whereIn('status', ['reserved', 'booked', 'canceled'])
-            ->with('car', 'customer')
-            ->get();
+        return $this->bookingRepository->getByOwner($ownerId);
     }
 
     public function confirmBooking(int $bookingId, int $ownerId): BookingCar
@@ -137,6 +142,7 @@ class BookingService
         $booking->status = 'booked';
         $booking->save();
 
+        AdminCountCacheService::clear();
         return $booking;
     }
 
@@ -151,15 +157,13 @@ class BookingService
         $booking->status = 'canceled';
         $booking->save();
 
+        AdminCountCacheService::clear();
         return $booking;
     }
 
     public function getCustomerBookings(int $customerId): Collection
     {
-        return $this->bookingRepository
-            ->where('customer_id', $customerId)
-            ->with('car')
-            ->get();
+        return $this->bookingRepository->getCustomerBookings($customerId);
     }
 
     public function getBookingById(int $id): ?BookingCar
@@ -169,10 +173,7 @@ class BookingService
 
     public function getBookingWithCar(int $id): ?BookingCar
     {
-        return $this->bookingRepository
-            ->where('id', $id)
-            ->with('car')
-            ->first();
+        return $this->bookingRepository->find($id);
     }
 
     public function cancelBookingByCustomer(int $bookingId, int $customerId): BookingCar
@@ -190,6 +191,7 @@ class BookingService
         $booking->status = 'cancel';
         $booking->save();
 
+        AdminCountCacheService::clear();
         return $booking;
     }
 
@@ -200,6 +202,7 @@ class BookingService
         $booking->status = 'booked';
         $booking->save();
 
+        AdminCountCacheService::clear();
         return $booking;
     }
 
@@ -252,5 +255,98 @@ class BookingService
     public function getTotalBookingsCount(): int
     {
         return $this->bookingRepository->count();
+    }
+
+    public function getAdminBookings(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        return $this->bookingRepository->getAdminPaginatedBookings($filters, $perPage);
+    }
+
+    public function getBookingStatusCounts(): array
+    {
+        return $this->bookingRepository->getBookingStatusCounts();
+    }
+
+    public function confirmAdminBookingAndNotify(int $id): BookingCar
+    {
+        $booking = $this->bookingRepository->confirmBooking($id);
+
+        $recipientEmail = $booking->customer->email ?? $booking->email ?? null;
+        if (filled($recipientEmail)) {
+            try {
+                Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'confirm'));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send booking confirmation email to customer: ' . $e->getMessage());
+            }
+        }
+
+        AdminCountCacheService::clear();
+        return $booking;
+    }
+
+    public function cancelAdminBookingAndNotify(int $id): BookingCar
+    {
+        $booking = $this->bookingRepository->cancelBooking($id);
+
+        $recipientEmail = $booking->customer->email ?? $booking->email ?? null;
+        if (filled($recipientEmail)) {
+            try {
+                Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'cancel'));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send booking cancellation email to customer: ' . $e->getMessage());
+            }
+        }
+
+        AdminCountCacheService::clear();
+        return $booking;
+    }
+
+    public function deleteBooking(int $id): bool
+    {
+        $result = $this->bookingRepository->deleteBooking($id);
+        AdminCountCacheService::clear();
+        return $result;
+    }
+
+    public function createCustomerBooking(int $customerId, array $data): BookingCar
+    {
+        $data['customer_id'] = $customerId;
+        $booking = $this->bookingRepository->createBooking($data);
+        AdminCountCacheService::clear();
+        return $booking;
+    }
+
+    public function updateCustomerBooking(int $customerId, int $bookingId, array $data): BookingCar
+    {
+        $booking = $this->bookingRepository->updateBooking($bookingId, $data);
+        AdminCountCacheService::clear();
+        return $booking;
+    }
+
+    public function deleteCustomerBooking(int $customerId, int $bookingId): bool
+    {
+        $result = $this->bookingRepository->deleteBooking($bookingId);
+        AdminCountCacheService::clear();
+        return $result;
+    }
+
+    public function getRecentBookings(int $perPage = 8): LengthAwarePaginator
+    {
+        return $this->bookingRepository->getRecentBookings($perPage);
+    }
+
+    public function getTotalRevenue(): float
+    {
+        return $this->bookingRepository->getTotalRevenue();
+    }
+
+    public function getConfirmedBookingsCount(): int
+    {
+        return $this->bookingRepository->getConfirmedBookingsCount();
+    }
+
+    public function getPendingBookingsCount(): int
+    {
+        return $this->bookingRepository->getPendingBookingsCount();
     }
 }

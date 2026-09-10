@@ -53,17 +53,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
             ],
             'appName' => config('app.name', 'Car Rental System'),
-            'adminCounts' => fn () => $request->user('admin') ? [
-                'totalCars' => \App\Models\Car::count(),
-                'pendingCars' => \App\Models\Car::where('status', 'pending')->count(),
-                'totalDrivers' => \App\Models\Driver::count(),
-                'totalBookings' => \App\Models\BookingCar::count(),
-                'pendingBookings' => \App\Models\BookingCar::where('status', 'pending')->count(),
-                'totalOwners' => \App\Models\Owner::count(),
-                'totalCustomers' => \App\Models\Customer::count(),
-                'totalCms' => 16,
-                'totalEmailTemplates' => \App\Models\EmailTemplate\EmailTemplate::count(),
-            ] : null,
+            'adminCounts' => fn () => $request->user('admin') ? \App\Services\Admin\AdminCountCacheService::getSharedCounts() : null,
         ]);
     }
 }
