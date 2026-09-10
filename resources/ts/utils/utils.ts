@@ -14,7 +14,7 @@ export const convertFormData = (data: Record<string, any>): FormData => {
     // Array → key[]
     if (Array.isArray(val)) {
       if (val.length === 0) return // don't append empty arrays
-      val.forEach(item => {
+      val.forEach((item: any) => {
         if (item instanceof File) formData.append(`${key}[]`, item)
         else if (typeof item === 'object') formData.append(`${key}[]`, JSON.stringify(item))
         else formData.append(`${key}[]`, String(item))

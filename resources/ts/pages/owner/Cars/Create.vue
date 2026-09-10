@@ -43,7 +43,7 @@ onMounted(() => {
 })
 
 const onDriverSelected = () => {
-  const selected = availableDrivers.value.find(d => d.id == form.driver_id)
+  const selected = availableDrivers.value.find((d: any) => d.id == form.driver_id)
   if (selected) {
     form.driver_name = selected.name
     form.driver_number = selected.phone

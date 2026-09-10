@@ -74,7 +74,7 @@ const visiblePages = computed(() => {
   const current = currentPage.value
   const total = totalPages.value
   const delta = 2
-  const range: (number | string)[] = []
+  const range: number[] = []
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
@@ -93,15 +93,16 @@ const visiblePages = computed(() => {
   }
 
   for (const i of range) {
-    if (l !== undefined) {
-      if (typeof i === 'number' && i - l === 2) {
+    if (typeof l === 'number') {
+      const diff = i - l
+      if (diff === 2) {
         rangeWithDots.push(l + 1)
-      } else if (typeof i === 'number' && i - l !== 1) {
+      } else if (diff > 2) {
         rangeWithDots.push('...')
       }
     }
     rangeWithDots.push(i)
-    if (typeof i === 'number') l = i
+    l = i
   }
 
   return rangeWithDots

@@ -15,6 +15,7 @@ const emit = defineEmits<{
   (e: 'delete', id: number): void
   (e: 'verify', id: number): void
   (e: 'reject', id: number): void
+  (e: 'view', car: CarItem): void
   (e: 'view-details', car: CarItem): void
 }>()
 

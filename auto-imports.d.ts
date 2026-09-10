@@ -414,7 +414,7 @@ declare global {
   export type { ValidationErrors } from './resources/ts/composable/useHelpers'
   import('./resources/ts/composable/useHelpers')
   // @ts-ignore
-  export type { EventRange } from './resources/ts/utils/calendarEvents'
+  export type { CalendarEvent, EventRange } from './resources/ts/utils/calendarEvents'
   import('./resources/ts/utils/calendarEvents')
   // @ts-ignore
   export type { FileCheck } from './resources/ts/utils/chatAttachments'

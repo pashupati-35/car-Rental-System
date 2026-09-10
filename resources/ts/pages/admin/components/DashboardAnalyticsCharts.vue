@@ -76,13 +76,13 @@ const trendData = computed(() => {
 
 // Max metric values for scaling
 const maxAmount = computed(() => {
-  const max = Math.max(...trendData.value.map(d => d.amount), 500)
+  const max = Math.max(...trendData.value.map((d: BookingTrendPoint) => d.amount), 500)
   return Math.ceil(max / 100) * 100
 })
 
 const cumulativeData = computed(() => {
   let runningTotal = 0
-  return trendData.value.map(d => {
+  return trendData.value.map((d: BookingTrendPoint) => {
     runningTotal += d.amount
     return runningTotal
   })
@@ -105,7 +105,7 @@ const chartPoints = computed(() => {
   const usableWidth = svgWidth - padding.left - padding.right
   const usableHeight = svgHeight - padding.top - padding.bottom
 
-  return data.map((item, index) => {
+  return data.map((item: BookingTrendPoint, index: number) => {
     const x = padding.left + (index / (data.length - 1 || 1)) * usableWidth
     let y = padding.top + usableHeight / 2
 
@@ -193,6 +193,13 @@ const activeHoverPoint = computed(() => {
   if (hoveredIndex.value === null) return null
   return chartPoints.value[hoveredIndex.value] || null
 })
+
+// Helper for X-axis tick visibility
+const shouldShowLabel = (idx: number, total: number): boolean => {
+  if (total <= 10) return true
+  const step = Math.ceil(total / 8) || 1
+  return idx % step === 0 || idx === total - 1
+}
 
 // Entity comparisons for Bar Chart
 const entityBars = computed(() => {
@@ -614,7 +621,7 @@ const driverAllocationRate = computed(() => {
           <g class="text-[9px] font-bold fill-slate-400">
             <text
               v-for="(pt, idx) in chartPoints"
-              v-show="chartPoints.length <= 10 || idx % Math.ceil(chartPoints.length / 8) === 0 || idx === chartPoints.length - 1"
+              v-show="shouldShowLabel(Number(idx), chartPoints.length)"
               :key="'x-' + idx"
               :x="pt.x"
               :y="svgHeight - 12"
