@@ -202,4 +202,55 @@ class BookingService
 
         return $booking;
     }
+
+    public function getDisabledDatesForCar(int $carId): array
+    {
+        $bookings = $this->bookingRepository->getDisabledBookings($carId);
+        $disabledDates = [];
+
+        foreach ($bookings as $b) {
+            $curr = Carbon::parse($b->pick_up_date);
+            $end = Carbon::parse($b->last_date);
+            while ($curr <= $end) {
+                $disabledDates[] = $curr->format('Y-m-d');
+                $curr->addDay();
+            }
+        }
+
+        return array_values(array_unique($disabledDates));
+    }
+
+    public function getCalendarBookings(?int $carId = null)
+    {
+        return $this->bookingRepository->getCalendarBookings($carId);
+    }
+
+    public function getActiveBookingDates(int $carId): array
+    {
+        $bookings = $this->bookingRepository->getActiveBookingsByCar($carId);
+
+        $dates = [
+            'booked' => [],
+            'reserved' => []
+        ];
+
+        foreach ($bookings as $booking) {
+            $currentDate = $booking->pick_up_date;
+            while (strtotime($currentDate) <= strtotime($booking->last_date)) {
+                if (in_array($booking->status, ['booked', 'confirm', 'confirmed'])) {
+                    $dates['booked'][] = $currentDate;
+                } else {
+                    $dates['reserved'][] = $currentDate;
+                }
+                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+            }
+        }
+
+        return $dates;
+    }
+
+    public function getTotalBookingsCount(): int
+    {
+        return $this->bookingRepository->count();
+    }
 }

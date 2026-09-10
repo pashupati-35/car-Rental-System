@@ -103,7 +103,13 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->resource('admin-user', AdminUserController::class);
     $route->get('admin-user/get/all/{userType}', [AdminUserController::class, 'getByUserType'])->name('admin-user.user-type');
     $route->post('admin-user/{id}/change-password', [AdminUserController::class, 'changePassword']);
+    // MFA Management (Authenticated)
     $route->get('mfa-authenticator', [MFAController::class, 'getMfaAuthenticatorCode']);
+    $route->post('mfa/generate', [MFAController::class, 'generate'])->name('admin.mfa.generate');
+    $route->post('mfa/activate', [MFAController::class, 'activate'])->name('admin.mfa.activate');
+    $route->post('mfa/deactivate', [MFAController::class, 'deactivate'])->name('admin.mfa.deactivate');
+    $route->post('mfa/email/activate', [MFAController::class, 'activateEmailAuthenticator'])->name('admin.mfa.email.activate');
+    $route->post('mfa/email/deactivate', [MFAController::class, 'deactivateEmailAuthenticator'])->name('admin.mfa.email.deactivate');
     $route->post('activate/email-authenticator', [MFAController::class, 'activateEmailAuthenticator']);
     $route->post('activate/mfa-authenticator', [MFAController::class, 'activateMfaAuthenticator']);
     $route->post('deactivate/mfa-authenticator', [MFAController::class, 'deactivateMfaAuthenticator']);

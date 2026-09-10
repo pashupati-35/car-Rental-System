@@ -19,7 +19,7 @@ const searchQuery = ref(props.filters?.search || '')
 const selectedSeats = ref(props.filters?.seats || '')
 const maxPrice = ref<number | ''>(props.filters?.max_price ? Number(props.filters.max_price) : '')
 const sortBy = ref(props.filters?.sort_by || 'latest')
-const perPage = ref(props.filters?.per_page || 9)
+const perPage = ref(props.filters?.per_page || 12)
 
 const carsList = computed<Array<any>>(() => {
   if (props.cars && Array.isArray(props.cars.data)) {
@@ -145,7 +145,7 @@ const resetFilters = () => {
           </select>
 
           <button
-            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/20"
+            class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-all shadow-md shadow-blue-500/20 cursor-pointer"
             @click="applyFilters"
           >
             Refresh Cars
@@ -153,24 +153,13 @@ const resetFilters = () => {
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div
-        v-if="loading"
-        class="py-20 text-center"
-      >
-        <div class="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p class="text-sm text-gray-500">
-          Loading verified vehicles...
-        </p>
-      </div>
-
       <!-- Car Cards Grid -->
       <div
-        v-else-if="filteredCars.length > 0"
+        v-if="carsList.length > 0"
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
       >
         <div
-          v-for="car in filteredCars"
+          v-for="car in carsList"
           :key="car.id"
           class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
         >

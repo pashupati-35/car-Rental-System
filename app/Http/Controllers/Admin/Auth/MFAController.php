@@ -280,4 +280,24 @@ class MFAController extends Controller
 
         return response()->json(['status' => 'OK', 'message' => 'Email authentication disabled.']);
     }
+
+    public function checkVerificationEnabled(Request $request)
+    {
+        return $this->checkVerification($request);
+    }
+
+    public function requestEmailVerificationCode(Request $request)
+    {
+        return $this->resendCode($request);
+    }
+
+    public function verifyMfaVerificationCode(Request $request)
+    {
+        return $this->verifyCode($request);
+    }
+
+    public function verifyEmailVerificationCode(Request $request)
+    {
+        return $this->verifyCode($request);
+    }
 }

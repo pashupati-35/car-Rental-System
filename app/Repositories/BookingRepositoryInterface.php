@@ -15,4 +15,10 @@ interface BookingRepositoryInterface extends BaseRepositoryInterface
     public function withCarAndCustomer();
 
     public function findByDateRange($carId, \DateTime $startDate, \DateTime $endDate);
+
+    public function getDisabledBookings(int $carId);
+
+    public function getCalendarBookings(?int $carId = null);
+
+    public function getActiveBookingsByCar(int $carId);
 }

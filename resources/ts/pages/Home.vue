@@ -1,33 +1,25 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { Head, Link } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
-import axios from 'axios'
+import Pagination from '@/components/Pagination.vue'
 
 const props = defineProps<{
-  featuredCars?: Array<any>
+  featuredCars?: any
 }>()
 
-const cars = ref<Array<any>>(props.featuredCars || [])
-const loading = ref(false)
-
-const loadCars = async () => {
-  if (cars.value.length > 0) return
-  loading.value = true
-  try {
-    const res = await axios.get('/api/cars')
-    if (res.data.status === 'success') {
-      cars.value = res.data.data.slice(0, 6)
-    }
-  } catch (err) {
-    console.error('Error fetching cars:', err)
-  } finally {
-    loading.value = false
+const carsList = computed<Array<any>>(() => {
+  if (props.featuredCars && Array.isArray(props.featuredCars.data)) {
+    return props.featuredCars.data
   }
-}
+  return Array.isArray(props.featuredCars) ? props.featuredCars : []
+})
 
-onMounted(() => {
-  loadCars()
+const paginationData = computed(() => {
+  if (props.featuredCars && props.featuredCars.links) {
+    return props.featuredCars
+  }
+  return null
 })
 </script>
 
@@ -78,16 +70,16 @@ onMounted(() => {
             href="/cars"
             class="text-xs font-bold text-blue-600 hover:underline"
           >
-            View All {{ cars.length }}+ Cars &rarr;
+            Browse Full Fleet Directory &rarr;
           </Link>
         </div>
 
         <div
-          v-if="cars.length > 0"
+          v-if="carsList.length > 0"
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <div
-            v-for="car in cars"
+            v-for="car in carsList"
             :key="car.id"
             class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
           >
@@ -134,12 +126,27 @@ onMounted(() => {
             <div class="p-6 pt-0">
               <Link
                 :href="`/cars/${car.id}`"
-                class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center block shadow-md shadow-blue-500/20 transition-all"
+                class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center block shadow-md shadow-blue-500/20 transition-all cursor-pointer"
               >
                 View Full Details & Book
               </Link>
             </div>
           </div>
+        </div>
+
+        <!-- Pagination Section -->
+        <div
+          v-if="paginationData && paginationData.links && paginationData.total > 0"
+          class="pt-4"
+        >
+          <Pagination
+            :links="paginationData.links"
+            :from="paginationData.from"
+            :to="paginationData.to"
+            :total="paginationData.total"
+            :per-page="paginationData.per_page"
+            :per-page-options="[6, 12, 24, 48]"
+          />
         </div>
       </div>
     </section>

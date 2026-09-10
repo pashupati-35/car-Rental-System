@@ -113,4 +113,29 @@ class CarService
 
         return $query;
     }
+
+    public function getFeaturedCars(): Collection
+    {
+        return $this->carRepository->getFeaturedCars();
+    }
+
+    public function paginateCars(array $filters = [], int $perPage = 9)
+    {
+        return $this->carRepository->paginateCars($filters, $perPage);
+    }
+
+    public function getCalendarCars(): Collection
+    {
+        return $this->carRepository->getCalendarCars();
+    }
+
+    public function getCarDetails(int $id): Car
+    {
+        return $this->carRepository->getCarDetails($id);
+    }
+
+    public function getTotalCarsCount(): int
+    {
+        return $this->carRepository->count();
+    }
 }

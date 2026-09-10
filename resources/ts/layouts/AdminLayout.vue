@@ -22,18 +22,60 @@ const adminEmail = computed(() => {
 const flash = computed(() => page.props.flash as any)
 const currentUrl = computed(() => page.url)
 
-const adminNav = [
+const liveSiteUrl = computed(() => {
+  if (typeof window !== 'undefined') {
+    const host = window.location.host
+    const protocol = window.location.protocol
+    const publicHost = host.replace(/^portal\./, '')
+    return `${protocol}//${publicHost}/`
+  }
+  return '/'
+})
+
+const adminCounts = computed(() => (page.props.adminCounts as any) || {})
+
+const adminNav = computed(() => [
   { title: 'Master Dashboard', icon: 'ri-dashboard-line', href: '/admin/dashboard', badge: '' },
-  { title: 'Fleet Cars Verification', icon: 'ri-car-line', href: '/admin/cars', badge: '' },
-  { title: 'Driver Directory', icon: 'ri-user-star-line', href: '/admin/drivers', badge: '' },
-  { title: 'Rental Bookings', icon: 'ri-calendar-check-line', href: '/admin/booked-cars', badge: '' },
-  { title: 'Fleet Owners', icon: 'ri-building-line', href: '/admin/owners', badge: '' },
-  { title: 'Customers', icon: 'ri-user-smile-line', href: '/admin/customers', badge: '' },
+  { 
+    title: 'Fleet Cars Verification', 
+    icon: 'ri-car-line', 
+    href: '/admin/cars', 
+    badge: adminCounts.value.pendingCars ? `${adminCounts.value.pendingCars} Pend` : (adminCounts.value.totalCars ? String(adminCounts.value.totalCars) : '') 
+  },
+  { 
+    title: 'Driver Directory', 
+    icon: 'ri-user-star-line', 
+    href: '/admin/drivers', 
+    badge: adminCounts.value.totalDrivers ? String(adminCounts.value.totalDrivers) : '' 
+  },
+  { 
+    title: 'Rental Bookings', 
+    icon: 'ri-calendar-check-line', 
+    href: '/admin/booked-cars', 
+    badge: adminCounts.value.pendingBookings ? `${adminCounts.value.pendingBookings} Pend` : (adminCounts.value.totalBookings ? String(adminCounts.value.totalBookings) : '') 
+  },
+  { 
+    title: 'Fleet Owners', 
+    icon: 'ri-building-line', 
+    href: '/admin/owners', 
+    badge: adminCounts.value.totalOwners ? String(adminCounts.value.totalOwners) : '' 
+  },
+  { 
+    title: 'Customers', 
+    icon: 'ri-user-smile-line', 
+    href: '/admin/customers', 
+    badge: adminCounts.value.totalCustomers ? String(adminCounts.value.totalCustomers) : '' 
+  },
   { title: 'Master CMS Suite', icon: 'ri-layout-masonry-line', href: '/admin/cms', badge: '16' },
-  { title: 'Email Templates', icon: 'ri-mail-settings-line', href: '/admin/email-templates', badge: '' },
+  { 
+    title: 'Email Templates', 
+    icon: 'ri-mail-settings-line', 
+    href: '/admin/email-templates', 
+    badge: adminCounts.value.totalEmailTemplates ? String(adminCounts.value.totalEmailTemplates) : '' 
+  },
   { title: 'Admin Profile', icon: 'ri-user-settings-line', href: '/admin/profile', badge: '' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/admin/security', badge: '' },
-]
+])
 
 const cmsQuickLinks = [
   { label: 'FAQ', href: '/admin/cms?module=faqs', icon: 'ri-question-line' },
@@ -187,11 +229,17 @@ onUnmounted(() => {
             Dashboard
           </Link>
           <Link
-            href="/cars"
-            :class="isActive('/cars') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
-            class="px-3 py-2 rounded-xl text-xs transition-colors"
+            href="/admin/cars"
+            :class="isActive('/admin/cars') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors flex items-center gap-1.5"
           >
-            Browse Fleet
+            <span>Browse Fleet</span>
+            <span
+              v-if="adminCounts.totalCars"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300 font-bold"
+            >
+              {{ adminCounts.totalCars }}
+            </span>
           </Link>
           <Link
             href="/car-calendar"
@@ -204,14 +252,16 @@ onUnmounted(() => {
 
         <!-- Right Side: Live Site & Admin Profile Dropdown -->
         <div class="flex items-center gap-2 sm:gap-3">
-          <Link
-            href="/"
-            title="View Public Website"
+          <a
+            :href="liveSiteUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open Public Website in New Tab"
             class="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 text-sm transition-colors hidden sm:inline-flex items-center gap-1.5"
           >
             <i class="ri-external-link-line text-xs" />
             <span class="text-xs font-medium">Live Site</span>
-          </Link>
+          </a>
 
           <!-- Profile Dropdown Container -->
           <div
@@ -335,16 +385,18 @@ onUnmounted(() => {
 
           <!-- Quick Actions & Links -->
           <div class="flex gap-2">
-            <Link
-              href="/"
-              class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"
+            <a
+              :href="liveSiteUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 inline-block"
               @click="isMobileDrawerOpen = false"
             >
               <i
                 class="ri-external-link-line"
                 style="margin-right: 0.25rem"
               /> Live Site
-            </Link>
+            </a>
             <Link
               href="/car-calendar"
               class="flex-1 text-center py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200"

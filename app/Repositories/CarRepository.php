@@ -38,4 +38,70 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             ->where('status', 'verified')
             ->get();
     }
+
+    public function getFeaturedCars()
+    {
+        return $this->model
+            ->with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
+            ->where('status', 'verified')
+            ->where('available', 'yes')
+            ->latest()
+            ->get();
+    }
+
+    public function paginateCars(array $filters = [], int $perPage = 9)
+    {
+        $search = $filters['search'] ?? null;
+        $seats = $filters['seats'] ?? null;
+        $maxPrice = $filters['max_price'] ?? null;
+        $sortBy = $filters['sort_by'] ?? 'latest';
+
+        $query = $this->model
+            ->with(['owner:id,full_name,contact_number', 'driver:id,name,phone,license_number,experience_years,photo,status'])
+            ->where('status', 'verified');
+
+        if (filled($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('car_name', 'like', "%{$search}%")
+                  ->orWhere('car_model', 'like', "%{$search}%")
+                  ->orWhere('car_number', 'like', "%{$search}%");
+            });
+        }
+
+        if (filled($seats)) {
+            $query->where('number_of_seats', '>=', (int) $seats);
+        }
+
+        if (filled($maxPrice)) {
+            $query->where('car_price_per_day', '<=', (float) $maxPrice);
+        }
+
+        if ($sortBy === 'price-low') {
+            $query->orderBy('car_price_per_day', 'asc');
+        } elseif ($sortBy === 'price-high') {
+            $query->orderBy('car_price_per_day', 'desc');
+        } else {
+            $query->latest();
+        }
+
+        return $query->paginate($perPage)->withQueryString();
+    }
+
+    public function getCalendarCars()
+    {
+        return $this->model
+            ->select('id', 'car_name', 'car_model', 'car_number', 'car_price_per_day', 'car_photo')
+            ->whereIn('status', ['verified', 'available'])
+            ->get();
+    }
+
+    public function getCarDetails(int $id)
+    {
+        return $this->model
+            ->with([
+                'owner:id,full_name,contact_number,email,address',
+                'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status'
+            ])
+            ->findOrFail($id);
+    }
 }
