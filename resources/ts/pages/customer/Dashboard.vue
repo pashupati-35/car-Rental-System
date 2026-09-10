@@ -135,50 +135,60 @@ onMounted(() => {
           <div
             v-for="booking in bookingsList"
             :key="booking.id"
-            class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4"
+            class="p-6 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4 hover:shadow-md transition-shadow"
           >
-            <div class="flex items-start justify-between">
+            <div class="flex items-start justify-between gap-4">
               <div>
                 <span class="text-[10px] font-mono font-bold text-gray-400 block mb-0.5">Booking #{{ booking.id }}</span>
                 <h4 class="font-bold text-lg text-gray-900 dark:text-white">
-                  {{ booking.car?.car_name }} {{ booking.car?.car_model }}
+                  {{ booking.car?.car_name || booking.car?.brand }} {{ booking.car?.car_model || booking.car?.model }}
                 </h4>
                 <span class="text-xs font-mono text-gray-500">{{ booking.car?.car_number }}</span>
               </div>
               <span
-                :class="booking.status === 'confirm' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
+                :class="booking.status === 'confirm' || booking.status === 'booked' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
                 class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
               >
-                {{ booking.status === 'confirm' ? 'Paid & Confirmed' : booking.status }}
+                {{ booking.status === 'confirm' || booking.status === 'booked' ? 'Paid & Confirmed' : booking.status }}
               </span>
             </div>
 
             <div class="grid grid-cols-2 gap-3 text-xs p-3.5 rounded-2xl bg-gray-50 dark:bg-gray-800/60">
               <div>
-                <span class="text-gray-400 block">Pickup Date:</span>
-                <span class="font-bold text-gray-900 dark:text-white">{{ booking.pick_up_date }}</span>
+                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Pickup Date:</span>
+                <span class="font-bold text-gray-900 dark:text-white">{{ String(booking.pick_up_date || '').split('T')[0] }}</span>
               </div>
               <div>
-                <span class="text-gray-400 block">Return Date:</span>
-                <span class="font-bold text-gray-900 dark:text-white">{{ booking.last_date }}</span>
+                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Return Date:</span>
+                <span class="font-bold text-gray-900 dark:text-white">{{ String(booking.last_date || '').split('T')[0] }}</span>
               </div>
-              <div>
-                <span class="text-gray-400 block">Pickup Location:</span>
-                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ booking.pickup_location }}</span>
+              <div class="col-span-2">
+                <span class="text-gray-400 block text-[10px] uppercase font-semibold">Pickup Location:</span>
+                <span class="font-semibold text-gray-800 dark:text-gray-200">{{ booking.pickup_location }} &rarr; {{ booking.drop_location }}</span>
               </div>
-              <div>
-                <span class="text-gray-400 block">Total Charged:</span>
-                <span class="font-black text-emerald-600">${{ booking.total_price }}</span>
+              <div class="col-span-2 flex items-center justify-between pt-1 border-t border-gray-200/50 dark:border-gray-700/50">
+                <span class="text-gray-500 font-medium">Total Charged:</span>
+                <span class="font-black text-emerald-600 text-sm">${{ booking.total_price }}</span>
               </div>
             </div>
 
             <!-- Driver & Owner Details snippet -->
             <div class="p-3 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 text-xs flex justify-between items-center text-gray-600 dark:text-gray-300">
               <div>
-                <span>Chauffeur: <strong>{{ booking.car?.driver?.name || booking.car?.driver_name || 'Assigned' }}</strong></span>
+                <span>Chauffeur: <strong>{{ booking.car?.driver?.name || booking.car?.driver_name || 'Assigned Chauffeur' }}</strong></span>
                 <span v-if="booking.car?.driver?.phone" class="block text-[11px] text-gray-400">Tel: {{ booking.car?.driver?.phone }}</span>
               </div>
               <span class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold">Owner: {{ booking.car?.owner?.full_name || 'Fleet Partner' }}</span>
+            </div>
+
+            <div class="flex items-center justify-end pt-1">
+              <Link
+                href="/customer/bookings"
+                class="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
+              >
+                <span>View Full Details & Invoice</span>
+                <i class="ri-arrow-right-line" />
+              </Link>
             </div>
           </div>
         </div>
