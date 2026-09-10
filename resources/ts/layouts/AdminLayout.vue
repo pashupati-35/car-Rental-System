@@ -593,73 +593,122 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- Main Body Container with Gray-White Desktop Sidebar in Light Theme -->
-    <div class="flex-1 flex w-full mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-5 sm:py-6 gap-6 font-sans">
-      <!-- Desktop Sidebar Navigation (Clean Gray-White in Light Mode, Dark in Dark Mode) -->
-      <aside class="w-64 xl:w-72 shrink-0 hidden lg:block select-none">
-        <div class="sticky top-24 space-y-4">
-          <!-- Sidebar Card with Gray-White (bg-white/95 or bg-slate-50/90) background in Light Theme -->
-          <div class="p-3.5 rounded-3xl bg-white/95 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-1">
-            <div class="px-3.5 py-2 text-[11px] font-black uppercase tracking-wider text-slate-400 font-sans">
-              Navigation
+    <!-- Main Body Container with Flush Gray-White Desktop Sidebar (No Gaps) -->
+    <div class="flex-1 flex w-full font-sans min-h-[calc(100vh-4rem)]">
+      <!-- Desktop Sidebar Navigation (Flush to Left, Header, Footer & Main Content with Gray-White Background) -->
+      <aside class="w-64 xl:w-72 shrink-0 hidden lg:flex flex-col justify-between bg-slate-100/95 dark:bg-slate-900 border-r border-slate-200/90 dark:border-slate-800 p-4 xl:p-5 sticky top-16 h-[calc(100vh-4rem)] select-none z-30">
+        <!-- Top Section: Brand & Nav Links -->
+        <div class="space-y-4 flex-1 flex flex-col min-h-0">
+          <!-- Sidebar Brand Header (Image reference: Icon + Bold Title) -->
+          <div class="flex items-center gap-3 px-1 py-1 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 shrink-0">
+              <i class="ri-steering-2-line text-xl" />
             </div>
-
-            <div class="space-y-1">
-              <Link
-                v-for="item in adminNav"
-                :key="item.title"
-                :href="item.href"
-                :class="isActive(item.href) 
-                  ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/25' 
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white font-medium'"
-                class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[13.5px] transition-all group font-sans cursor-pointer"
-              >
-                <div class="flex items-center gap-3 min-w-0">
-                  <i
-                    :class="[
-                      item.icon,
-                      isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
-                    ]"
-                    class="text-lg transition-transform shrink-0"
-                  />
-                  <span class="truncate">{{ item.title }}</span>
-                </div>
-                <span
-                  v-if="item.badge"
-                  class="px-2 py-0.5 rounded-full text-xs font-mono font-bold shrink-0"
-                  :class="isActive(item.href) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
-                >
-                  {{ item.badge }}
-                </span>
-              </Link>
+            <div class="flex flex-col min-w-0">
+              <span class="font-black text-base tracking-wider text-slate-900 dark:text-white uppercase truncate font-sans">
+                AutoRent
+              </span>
+              <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
+                Admin Panel
+              </span>
             </div>
           </div>
 
-          <!-- AI Support Assistance Card -->
-          <div class="p-4 rounded-3xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 text-white shadow-lg space-y-2 text-xs relative overflow-hidden font-sans">
-            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <h4 class="font-extrabold text-sm">
-                Need Help?
-              </h4>
-            </div>
-            <p class="text-xs text-indigo-100/90 leading-relaxed font-sans">
-              Ask our AI assistant for instant fleet, CMS, and booking dispute guidance.
-            </p>
+          <!-- Main Nav List (Matching screenshot pill items) -->
+          <nav class="space-y-1.5 flex-1 overflow-y-auto no-scrollbar pr-0.5">
             <Link
-              href="/ai-chat"
-              class="inline-flex items-center gap-1.5 mt-1 px-4 py-2 rounded-xl bg-white text-indigo-700 font-extrabold text-xs shadow-sm hover:bg-indigo-50 transition-colors font-sans"
+              v-for="item in adminNav"
+              :key="item.title"
+              :href="item.href"
+              :class="isActive(item.href) 
+                ? 'bg-indigo-600 text-white font-bold shadow-md shadow-indigo-600/30' 
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white font-semibold'"
+              class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[13.5px] transition-all group font-sans cursor-pointer"
             >
-              <span>Chat with AI</span>
-              <i class="ri-arrow-right-line" />
+              <div class="flex items-center gap-3.5 min-w-0">
+                <i
+                  :class="[
+                    item.icon,
+                    isActive(item.href) ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-200'
+                  ]"
+                  class="text-lg transition-transform shrink-0"
+                />
+                <span class="truncate">{{ item.title }}</span>
+              </div>
+              <span
+                v-if="item.badge"
+                class="px-2 py-0.5 rounded-full text-xs font-mono font-bold shrink-0"
+                :class="isActive(item.href) ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'"
+              >
+                {{ item.badge }}
+              </span>
             </Link>
-          </div>
+
+            <!-- CMS Modules Accordion in Sidebar -->
+            <div class="pt-1">
+              <button
+                type="button"
+                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-[13.5px] font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200/70 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer"
+                @click="isMobileCmsExpanded = !isMobileCmsExpanded"
+              >
+                <div class="flex items-center gap-3.5">
+                  <i class="ri-layout-masonry-line text-lg text-slate-400" />
+                  <span>CMS Suite (16)</span>
+                </div>
+                <i
+                  class="ri-arrow-down-s-line text-xs transition-transform duration-200"
+                  :class="isMobileCmsExpanded ? 'rotate-180 text-slate-900 dark:text-white' : ''"
+                />
+              </button>
+
+              <div
+                v-if="isMobileCmsExpanded"
+                class="mt-1 ml-4 pl-3 border-l border-slate-300 dark:border-slate-800 space-y-0.5 max-h-48 overflow-y-auto py-1"
+              >
+                <Link
+                  v-for="c in cmsQuickLinks"
+                  :key="c.label"
+                  :href="c.href"
+                  :class="currentUrl.includes(c.href.split('?')[1] || '') ? 'text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50/80 dark:bg-slate-800/60' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/40'"
+                  class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors"
+                >
+                  <i :class="c.icon" class="text-sm text-indigo-500" />
+                  <span class="truncate">{{ c.label }}</span>
+                </Link>
+              </div>
+            </div>
+          </nav>
+        </div>
+
+        <!-- Bottom Section of Sidebar: User Profile Card (Matching Image Reference) -->
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800/80 shrink-0">
+          <Link
+            href="/admin/profile"
+            class="flex items-center justify-between p-2 rounded-2xl hover:bg-slate-200/70 dark:hover:bg-slate-800/70 transition-colors group cursor-pointer"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="relative shrink-0">
+                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-slate-800">
+                  {{ (displayName || 'A')[0].toUpperCase() }}
+                </div>
+                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-100 dark:ring-slate-900" />
+              </div>
+              <div class="min-w-0 flex-1">
+                <span class="text-sm font-bold text-slate-900 dark:text-white block truncate leading-tight">
+                  {{ displayName }}
+                </span>
+                <span class="text-xs font-medium text-slate-500 dark:text-slate-400 block truncate leading-tight mt-0.5">
+                  Admin
+                </span>
+              </div>
+            </div>
+            <i class="ri-arrow-right-s-line text-sm text-slate-400 group-hover:text-slate-700 dark:group-hover:text-white transition-transform" />
+          </Link>
         </div>
       </aside>
 
-      <!-- Main Content Area -->
-      <main class="flex-1 min-w-0 w-full overflow-hidden">
+      <!-- Main Content Area (Flush to Sidebar Border) -->
+      <main class="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 xl:p-10 bg-slate-100/40 dark:bg-slate-950 overflow-y-auto">
         <!-- Flash Alerts -->
         <MessageBox
           v-model="flashSuccess"
