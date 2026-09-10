@@ -2,6 +2,8 @@
 import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
+import axios from 'axios'
+import OwnerFormModal from './owners/components/OwnerFormModal.vue'
 
 const props = defineProps<{
   owner: any
@@ -139,13 +141,25 @@ const filteredBookings = computed(() => {
 })
 
 // Owner Action Handlers
-const submitUpdateOwner = () => {
-  router.patch(`/admin/owners/${props.owner.id}`, ownerForm.value, {
-    preserveScroll: true,
-    onSuccess: () => {
+const submittingOwner = ref(false)
+const ownerErrorMessage = ref('')
+
+const submitUpdateOwner = async (formData: FormData) => {
+  submittingOwner.value = true
+  ownerErrorMessage.value = ''
+  try {
+    const res = await axios.post(`/admin/owners/${props.owner.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    if (res.data?.status === 'success' || res.status === 200) {
       showEditOwnerModal.value = false
-    },
-  })
+      router.reload({ only: ['owner'] })
+    }
+  } catch (err: any) {
+    ownerErrorMessage.value = err.response?.data?.message || 'Failed to update owner profile.'
+  } finally {
+    submittingOwner.value = false
+  }
 }
 
 // Car Action Handlers
@@ -1041,112 +1055,15 @@ const cancelBooking = (bookingId: number) => {
       <!-- MODALS -->
 
       <!-- 1. Edit Owner Modal -->
-      <div
-        v-if="showEditOwnerModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto"
-      >
-        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-            <h3 class="font-bold text-lg text-slate-900 dark:text-white">
-              Edit Fleet Owner Profile
-            </h3>
-            <button
-              class="text-slate-400 hover:text-slate-600 text-xl cursor-pointer"
-              @click="showEditOwnerModal = false"
-            >
-              &times;
-            </button>
-          </div>
-
-          <form
-            class="space-y-4 text-xs"
-            @submit.prevent="submitUpdateOwner"
-          >
-            <div>
-              <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Full Name *</label>
-              <input
-                v-model="ownerForm.full_name"
-                type="text"
-                required
-                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-              >
-            </div>
-
-            <div>
-              <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Email Address *</label>
-              <input
-                v-model="ownerForm.email"
-                type="email"
-                required
-                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-              >
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Contact Number</label>
-                <input
-                  v-model="ownerForm.contact_number"
-                  type="text"
-                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                >
-              </div>
-              <div>
-                <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Gender</label>
-                <select
-                  v-model="ownerForm.gender"
-                  class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                >
-                  <option value="male">
-                    Male
-                  </option>
-                  <option value="female">
-                    Female
-                  </option>
-                  <option value="other">
-                    Other
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Address / Location</label>
-              <input
-                v-model="ownerForm.address"
-                type="text"
-                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-              >
-            </div>
-
-            <div>
-              <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">New Password (Leave blank to keep current)</label>
-              <input
-                v-model="ownerForm.password"
-                type="password"
-                placeholder="••••••••"
-                class="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-              >
-            </div>
-
-            <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100 dark:border-slate-800">
-              <button
-                type="button"
-                class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
-                @click="showEditOwnerModal = false"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <OwnerFormModal
+        :owner="props.owner"
+        :show="showEditOwnerModal"
+        is-editing
+        :submitting="submittingOwner"
+        :error-message="ownerErrorMessage"
+        @close="showEditOwnerModal = false"
+        @save="submitUpdateOwner"
+      />
 
       <!-- 2. Add / Edit Car Modal -->
       <div

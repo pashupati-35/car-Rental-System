@@ -9,6 +9,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
+  (e: 'view', customer: CustomerItem): void
   (e: 'edit', customer: CustomerItem): void
   (e: 'delete', id: number): void
 }>()
@@ -36,28 +37,35 @@ const emit = defineEmits<{
         <div
           v-for="customer in customers"
           :key="customer.id"
-          class="p-4 space-y-3"
+          class="p-4 space-y-3 cursor-pointer hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+          @click="emit('view', customer)"
         >
           <div class="flex items-start justify-between gap-2">
-            <Link
-              :href="`/admin/customers/${customer.id}`"
-              class="flex items-center gap-3 group"
-            >
-              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
-                {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                <img
+                  v-if="customer.image_path || customer.image"
+                  :src="customer.image_path || (customer.image ? `/storage/${customer.image}` : '')"
+                  :alt="customer.name || customer.full_name"
+                  class="w-full h-full object-cover"
+                >
+                <span v-else>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
               </div>
               <div>
-                <h4 class="font-bold text-sm text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                <h4 class="font-bold text-sm text-slate-900 dark:text-white">
                   {{ customer.name || customer.full_name }}
                 </h4>
                 <p class="text-[11px] text-slate-400 font-mono">
                   {{ customer.email }}
                 </p>
               </div>
-            </Link>
+            </div>
 
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-              Verified
+            <span
+              class="px-2 py-0.5 rounded-full text-[10px] font-bold"
+              :class="customer.is_active !== false ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-50 text-rose-700'"
+            >
+              {{ customer.is_active !== false ? 'Active' : 'Inactive' }}
             </span>
           </div>
 
@@ -74,15 +82,22 @@ const emit = defineEmits<{
             </div>
           </div>
 
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs">
-            <Link
-              :href="`/admin/customers/${customer.id}`"
-              class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-xs" @click.stop>
+            <button
+              type="button"
+              class="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline cursor-pointer"
+              @click="emit('view', customer)"
             >
-              <span>Customer Hub</span>
-              <i class="ri-arrow-right-line" />
-            </Link>
+              <i class="ri-eye-line" />
+              <span>View Profile</span>
+            </button>
             <div class="flex items-center gap-1.5">
+              <Link
+                :href="`/admin/customers/${customer.id}`"
+                class="px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs"
+              >
+                Hub
+              </Link>
               <button
                 type="button"
                 class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold text-xs cursor-pointer"
@@ -108,7 +123,7 @@ const emit = defineEmits<{
           <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-bold border-b border-slate-200/80 dark:border-slate-800">
             <tr>
               <th class="py-3.5 px-5">
-                Customer Name & ID
+                Customer Name & UID
               </th>
               <th class="py-3.5 px-5">
                 Email & Phone
@@ -131,23 +146,27 @@ const emit = defineEmits<{
             <tr
               v-for="customer in customers"
               :key="customer.id"
-              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+              @click="emit('view', customer)"
             >
               <td class="py-4 px-5">
-                <Link
-                  :href="`/admin/customers/${customer.id}`"
-                  class="flex items-center gap-3 group"
-                >
-                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
-                    {{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <img
+                      v-if="customer.image_path || customer.image"
+                      :src="customer.image_path || (customer.image ? `/storage/${customer.image}` : '')"
+                      :alt="customer.name || customer.full_name"
+                      class="w-full h-full object-cover"
+                    >
+                    <span v-else>{{ (customer.name || customer.full_name || 'C').charAt(0).toUpperCase() }}</span>
                   </div>
                   <div>
                     <span class="font-bold text-slate-900 dark:text-white block text-sm group-hover:text-indigo-600 transition-colors">
                       {{ customer.name || customer.full_name }}
                     </span>
-                    <span class="text-slate-400 font-mono text-[10px]">#CUST-{{ customer.id }}</span>
+                    <span class="text-slate-400 font-mono text-[10px]">UID: #{{ customer.unique_identifier || `CUS-${customer.id}` }}</span>
                   </div>
-                </Link>
+                </div>
               </td>
 
               <td class="py-4 px-5">
@@ -171,7 +190,15 @@ const emit = defineEmits<{
                 </span>
               </td>
 
-              <td class="py-4 px-5 text-right space-x-1.5">
+              <td class="py-4 px-5 text-right space-x-1.5" @click.stop>
+                <button
+                  type="button"
+                  class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"
+                  @click="emit('view', customer)"
+                >
+                  <i class="ri-eye-line text-xs" />
+                  <span>View</span>
+                </button>
                 <Link
                   :href="`/admin/customers/${customer.id}`"
                   class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] transition-colors inline-flex items-center gap-1 shadow-xs"

@@ -47,11 +47,13 @@ const openEditProfile = () => {
   showEditProfileModal.value = true
 }
 
-const saveCustomerProfile = async () => {
+const saveCustomerProfile = async (formData: FormData) => {
   submitting.value = true
   errorMessage.value = ''
   try {
-    const res = await axios.patch(`/admin/customers/${props.customer.id}`, profileForm.value)
+    const res = await axios.post(`/admin/customers/${props.customer.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Customer profile updated successfully.'
       showEditProfileModal.value = false
@@ -446,7 +448,7 @@ const deletePayment = async (paymentId: number) => {
 
       <!-- Edit Customer Profile Modal -->
       <CustomerFormModal
-        v-model:form="profileForm"
+        :customer="props.customer"
         :show="showEditProfileModal"
         is-editing
         :submitting="submitting"

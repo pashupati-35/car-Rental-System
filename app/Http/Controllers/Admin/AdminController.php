@@ -222,7 +222,12 @@ class AdminController extends Controller
      */
     public function createCustomer(StoreCustomerRequest $request)
     {
-        $result = $this->customerService->createCustomerWithPasswordSetup($request->validated(), Auth::guard('admin')->id());
+        $validated = $request->validated();
+        $result = $this->customerService->createCustomerWithPasswordSetup(
+            $validated,
+            Auth::guard('admin')->id(),
+            $request->file('image')
+        );
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -238,7 +243,11 @@ class AdminController extends Controller
 
     public function updateCustomer(UpdateCustomerRequest $request, $id)
     {
-        $customer = $this->customerService->updateCustomer((int) $id, $request->validated());
+        $customer = $this->customerService->updateCustomer(
+            (int) $id,
+            $request->validated(),
+            $request->file('image')
+        );
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Customer updated.', 'data' => $customer]);
@@ -253,15 +262,14 @@ class AdminController extends Controller
     public function createOwner(StoreOwnerRequest $request)
     {
         $validated = $request->validated();
-        $owner = $this->ownerService->createOwner([
-            'full_name' => $validated['full_name'] ?? '',
-            'email' => $validated['email'] ?? '',
-            'contact_number' => $validated['contact_number'] ?? '',
-            'address' => $validated['address'] ?? '',
-            'gender' => $validated['gender'] ?? 'male',
-            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16)),
-            'admin_id' => Auth::guard('admin')->id(),
-        ]);
+        $validated['admin_id'] = Auth::guard('admin')->id();
+        if (empty($validated['password'])) {
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(16));
+        } else {
+            $validated['password'] = \Illuminate\Support\Facades\Hash::make($validated['password']);
+        }
+
+        $owner = $this->ownerService->createOwner($validated, $request->file('image'));
 
         $mailResult = \App\Services\Auth\PasswordResetService::sendResetLink($owner->email, 'owner');
 

@@ -6,6 +6,7 @@ import axios from 'axios'
 import type { OwnerItem } from './types'
 import OwnerTable from './components/OwnerTable.vue'
 import OwnerFormModal from './components/OwnerFormModal.vue'
+import OwnerDetailModal from './components/OwnerDetailModal.vue'
 import OwnerPasswordModal from './components/OwnerPasswordModal.vue'
 
 const props = defineProps<{
@@ -18,27 +19,20 @@ const props = defineProps<{
 
 const ownersList = computed<OwnerItem[]>(() => {
   if (Array.isArray(props.owners)) return props.owners
-  
   return props.owners?.data || []
 })
 
 const searchQuery = ref(props.filters?.search || '')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showDetailModal = ref(false)
+const editingOwner = ref<OwnerItem | null>(null)
+const viewingOwner = ref<OwnerItem | null>(null)
 const submitting = ref(false)
 const message = ref('')
 const errorMessage = ref('')
 const generatedResetUrl = ref('')
 const showPasswordModal = ref(false)
-
-const form = ref<Partial<OwnerItem>>({
-  id: 0,
-  full_name: '',
-  email: '',
-  contact_number: '',
-  address: '',
-  gender: 'male',
-})
 
 let searchTimeout: any = null
 
@@ -61,14 +55,7 @@ const onSearchInput = () => {
 }
 
 const openAddModal = () => {
-  form.value = {
-    id: 0,
-    full_name: '',
-    email: '',
-    contact_number: '',
-    address: '',
-    gender: 'male',
-  }
+  editingOwner.value = null
   message.value = ''
   errorMessage.value = ''
   generatedResetUrl.value = ''
@@ -76,27 +63,28 @@ const openAddModal = () => {
 }
 
 const openEditModal = (owner: OwnerItem) => {
-  form.value = {
-    id: owner.id,
-    full_name: owner.full_name || owner.name || '',
-    email: owner.email || '',
-    contact_number: owner.contact_number || '',
-    address: owner.address || '',
-    gender: owner.gender || 'male',
-  }
+  editingOwner.value = { ...owner }
   message.value = ''
   errorMessage.value = ''
+  showDetailModal.value = false
   showEditModal.value = true
 }
 
-const submitNewOwner = async () => {
+const openDetailModal = (owner: OwnerItem) => {
+  viewingOwner.value = owner
+  showDetailModal.value = true
+}
+
+const submitNewOwner = async (formData: FormData) => {
   submitting.value = true
   message.value = ''
   errorMessage.value = ''
   generatedResetUrl.value = ''
 
   try {
-    const res = await axios.post('/admin/owners', form.value)
+    const res = await axios.post('/admin/owners', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Fleet Owner registered successfully!'
       showAddModal.value = false
@@ -104,7 +92,6 @@ const submitNewOwner = async () => {
         generatedResetUrl.value = res.data.reset_url
         showPasswordModal.value = true
       }
-      form.value = { id: 0, full_name: '', email: '', contact_number: '', address: '', gender: 'male' }
       router.reload({ only: ['owners'] })
     }
   } catch (err: any) {
@@ -114,13 +101,16 @@ const submitNewOwner = async () => {
   }
 }
 
-const submitEditOwner = async () => {
+const submitEditOwner = async (formData: FormData) => {
+  if (!editingOwner.value?.id) return
   submitting.value = true
   message.value = ''
   errorMessage.value = ''
 
   try {
-    const res = await axios.patch(`/admin/owner/update/${form.value.id}`, form.value)
+    const res = await axios.post(`/admin/owners/${editingOwner.value.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Owner profile updated successfully.'
       showEditModal.value = false
@@ -212,13 +202,13 @@ const deleteOwner = async (ownerId: number) => {
       <OwnerTable
         :owners="ownersList"
         :pagination="props.owners"
+        @view="openDetailModal"
         @edit="openEditModal"
         @delete="deleteOwner"
       />
 
       <!-- Create Owner Modal -->
       <OwnerFormModal
-        v-model:form="form"
         :show="showAddModal"
         :is-editing="false"
         :submitting="submitting"
@@ -229,13 +219,21 @@ const deleteOwner = async (ownerId: number) => {
 
       <!-- Edit Owner Modal -->
       <OwnerFormModal
-        v-model:form="form"
+        :owner="editingOwner"
         :show="showEditModal"
         is-editing
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showEditModal = false"
         @save="submitEditOwner"
+      />
+
+      <!-- Owner Details Overview Modal -->
+      <OwnerDetailModal
+        :show="showDetailModal"
+        :owner="viewingOwner"
+        @close="showDetailModal = false"
+        @edit="openEditModal"
       />
 
       <!-- Password Setup Modal -->

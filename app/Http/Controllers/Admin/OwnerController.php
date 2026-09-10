@@ -91,7 +91,7 @@ class OwnerController extends Controller
             unset($validated['password']);
         }
 
-        $owner = $this->ownerService->updateOwner((int) $id, $validated);
+        $owner = $this->ownerService->updateOwner((int) $id, $validated, $request->file('image'));
 
         if ($request->wantsJson()) {
             return response()->json(['status' => 'OK', 'message' => 'Owner updated successfully.', 'data' => $owner]);

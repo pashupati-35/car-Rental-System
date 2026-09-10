@@ -32,18 +32,19 @@ class CustomerService
         return $this->customerRepository->getRecentCustomers($limit);
     }
 
-    public function createCustomerWithPasswordSetup(array $data, ?int $adminId = null): array
+    public function createCustomerWithPasswordSetup(array $data, ?int $adminId = null, $image = null): array
     {
         $randomPassword = Str::random(16);
-        $customer = $this->customerRepository->createCustomer([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone_number' => $data['phone_number'],
-            'address' => $data['address'],
-            'gender' => $data['gender'] ?? 'male',
-            'password' => Hash::make($randomPassword),
-            'admin_id' => $adminId,
-        ]);
+        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : Hash::make($randomPassword);
+        $data['admin_id'] = $adminId;
+
+        if ($image && $image->isValid()) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/customer'), $fileName);
+            $data['image'] = 'uploads/customer/' . $fileName;
+        }
+
+        $customer = $this->customerRepository->createCustomer($data);
 
         $mailResult = PasswordResetService::sendResetLink($customer->email, 'customer');
         AdminCountCacheService::clear();
@@ -54,8 +55,20 @@ class CustomerService
         ];
     }
 
-    public function updateCustomer(int $id, array $data): Customer
+    public function updateCustomer(int $id, array $data, $image = null): Customer
     {
+        if ($image && $image->isValid()) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/customer'), $fileName);
+            $data['image'] = 'uploads/customer/' . $fileName;
+        }
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+        }
+
         $customer = $this->customerRepository->updateCustomer($id, $data);
         AdminCountCacheService::clear();
         return $customer;

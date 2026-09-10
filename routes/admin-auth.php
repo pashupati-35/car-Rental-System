@@ -287,6 +287,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->delete('owners/{id}', [OwnerController::class, 'destroy'])->name('admin.owner.destroy');
     $route->patch('owner/update/{id}', [OwnerController::class, 'update'])->name('admin.owner.update');
     $route->patch('owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.patch');
+    $route->post('owners/{id}', [OwnerController::class, 'update'])->name('admin.owner.update.post');
 
     // Owner nested fleet cars & drivers
     $route->post('owners/{id}/cars', [OwnerController::class, 'storeCar'])->name('admin.owner.cars.store');
@@ -304,9 +305,11 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('cars/{id}', [AdminController::class, 'show'])->name('admin.cars.show');
     $route->patch('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update');
     $route->post('cars/{id}', [AdminController::class, 'updateCar'])->name('admin.cars.update.post');
-    $route->patch('cars/{car}/verify', [AdminController::class, 'verifyCar'])->name('admin.cars.verify');
-    $route->patch('cars/{car}/reject', [AdminController::class, 'rejectCar'])->name('admin.cars.reject');
     $route->delete('cars/{id}', [AdminController::class, 'destroyCar'])->name('admin.cars.destroy');
+    $route->patch('cars/{id}/verify', [AdminController::class, 'verifyCar'])->name('admin.cars.verify');
+    $route->patch('cars/{id}/reject', [AdminController::class, 'rejectCar'])->name('admin.cars.reject');
+    $route->get('booked-cars', [AdminController::class, 'viewBookedCars'])->name('admin.booked-cars');
+    $route->get('calendar-events', [AdminController::class, 'getCalendarEvents'])->name('admin.calendar-events');
 
     // Managing drivers directory
     $route->get('drivers', [AdminController::class, 'viewDrivers'])->name('admin.drivers');
@@ -320,6 +323,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->post('customers', [AdminController::class, 'createCustomer'])->name('admin.customer.store');
     $route->get('customers/{id}', [AdminController::class, 'showCustomer'])->name('admin.customer.show');
     $route->patch('customers/{id}', [AdminController::class, 'updateCustomer'])->name('admin.customer.update');
+    $route->post('customers/{id}', [AdminController::class, 'updateCustomer'])->name('admin.customer.update.post');
     $route->delete('customers/{id}', [AdminController::class, 'destroy'])->name('admin.customer.destroy');
 
     // Customer nested bookings & payments

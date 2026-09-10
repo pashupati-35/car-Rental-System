@@ -18,7 +18,7 @@ class ActivityLogController extends Controller
         $filter = ActivityLogFilterDTO::fromArray($request->all());
         $logs = $this->activityLogRepo->getFilteredPaginated($filter);
 
-        if ($request->wantsJson() || $request->is('*/list') || $request->ajax()) {
+        if ($request->is('*/list') || ($request->wantsJson() && !$request->header('X-Inertia') && !$request->hasHeader('X-Inertia'))) {
             return response()->json($logs);
         }
 

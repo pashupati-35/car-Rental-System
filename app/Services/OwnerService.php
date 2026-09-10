@@ -87,15 +87,27 @@ class OwnerService
         ];
     }
 
-    public function createOwner(array $data): Owner
+    public function createOwner(array $data, $image = null): Owner
     {
+        if ($image && $image->isValid()) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/owner'), $fileName);
+            $data['image'] = 'uploads/owner/' . $fileName;
+        }
+
         $owner = $this->ownerRepository->createOwner($data);
         AdminCountCacheService::clear();
         return $owner;
     }
 
-    public function updateOwner(int $id, array $data): Owner
+    public function updateOwner(int $id, array $data, $image = null): Owner
     {
+        if ($image && $image->isValid()) {
+            $fileName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/owner'), $fileName);
+            $data['image'] = 'uploads/owner/' . $fileName;
+        }
+
         $owner = $this->ownerRepository->updateOwner($id, $data);
         AdminCountCacheService::clear();
         return $owner;

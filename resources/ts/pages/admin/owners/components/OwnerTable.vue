@@ -9,6 +9,7 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
+  (e: 'view', owner: OwnerItem): void
   (e: 'edit', owner: OwnerItem): void
   (e: 'delete', id: number): void
 }>()
@@ -131,15 +132,19 @@ const emit = defineEmits<{
             <tr
               v-for="owner in owners"
               :key="owner.id"
-              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+              class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+              @click="emit('view', owner)"
             >
               <td class="py-4 px-5">
-                <Link
-                  :href="`/admin/owners/${owner.id}`"
-                  class="flex items-center gap-3 group"
-                >
-                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0">
-                    {{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center font-black text-sm shrink-0 overflow-hidden border border-slate-200 dark:border-slate-800">
+                    <img
+                      v-if="owner.image_path || owner.image"
+                      :src="owner.image_path || (owner.image ? `/storage/${owner.image}` : '')"
+                      :alt="owner.full_name || owner.name"
+                      class="w-full h-full object-cover"
+                    >
+                    <span v-else>{{ (owner.full_name || owner.name || 'O').charAt(0).toUpperCase() }}</span>
                   </div>
                   <div>
                     <span class="font-bold text-slate-900 dark:text-white block text-sm group-hover:text-indigo-600 transition-colors">
@@ -147,14 +152,14 @@ const emit = defineEmits<{
                     </span>
                     <span class="text-slate-400 font-mono text-[11px]">{{ owner.email }}</span>
                   </div>
-                </Link>
+                </div>
               </td>
 
               <td class="py-4 px-5">
                 <span class="font-medium text-slate-800 dark:text-slate-200 block">
-                  {{ owner.contact_number || 'N/A' }}
+                  {{ owner.contact_number || owner.phone || owner.mobile || 'N/A' }}
                 </span>
-                <span class="text-slate-400 text-[10px]">ID: #OWN-{{ owner.id }}</span>
+                <span class="text-slate-400 text-[10px]">UID: #{{ owner.unique_identifier || `OWN-${owner.id}` }}</span>
               </td>
 
               <td class="py-4 px-5">
@@ -174,7 +179,15 @@ const emit = defineEmits<{
                 </span>
               </td>
 
-              <td class="py-4 px-5 text-right space-x-1.5">
+              <td class="py-4 px-5 text-right space-x-1.5" @click.stop>
+                <button
+                  type="button"
+                  class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"
+                  @click="emit('view', owner)"
+                >
+                  <i class="ri-eye-line text-xs" />
+                  <span>View</span>
+                </button>
                 <Link
                   :href="`/admin/owners/${owner.id}`"
                   class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[11px] transition-colors inline-flex items-center gap-1 shadow-xs"

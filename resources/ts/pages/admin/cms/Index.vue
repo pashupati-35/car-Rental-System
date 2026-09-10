@@ -9,6 +9,7 @@ import CmsTable from './components/CmsTable.vue'
 import CmsFormModal from './components/CmsFormModal.vue'
 import SiteSettingsView from './components/SiteSettingsView.vue'
 import EnquiryDetailsModal from './components/EnquiryDetailsModal.vue'
+import CmsDetailModal from './components/CmsDetailModal.vue'
 
 // Import dedicated Typed CMS Services
 import {
@@ -62,6 +63,8 @@ const submitting = ref<boolean>(false)
 const message = ref<string>('')
 const errorMessage = ref<string>('')
 const currentItem = ref<CmsItem>({ id: 0 })
+const viewingItem = ref<CmsItem | null>(null)
+const showDetailModal = ref<boolean>(false)
 const viewingEnquiry = ref<CmsItem | null>(null)
 const showEnquiryModal = ref<boolean>(false)
 
@@ -242,9 +245,14 @@ const openEditModal = (item: CmsItem): void => {
   errorMessage.value = ''
 }
 
-const openViewEnquiry = (item: CmsItem): void => {
-  viewingEnquiry.value = item
-  showEnquiryModal.value = true
+const openViewItem = (item: CmsItem): void => {
+  if (activeModule.value === 'enquiries' || activeModule.value === 'contacts') {
+    viewingEnquiry.value = item
+    showEnquiryModal.value = true
+  } else {
+    viewingItem.value = item
+    showDetailModal.value = true
+  }
 }
 
 const saveItem = async (): Promise<void> => {
@@ -378,7 +386,7 @@ const toggleStatus = async (item: CmsItem): Promise<void> => {
         @edit="openEditModal"
         @delete="deleteItem"
         @toggle-status="toggleStatus"
-        @view="openViewEnquiry"
+        @view="openViewItem"
         @refresh="fetchModuleData"
         @page-change="handlePageChange"
         @per-page-change="handlePerPageChange"
@@ -396,6 +404,16 @@ const toggleStatus = async (item: CmsItem): Promise<void> => {
         :error-message="errorMessage"
         @save="saveItem"
         @close="showModal = false"
+      />
+
+      <!-- General CMS Item Details Modal -->
+      <CmsDetailModal
+        :show="showDetailModal"
+        :item="viewingItem"
+        :current-module-meta="currentModuleMeta"
+        @close="showDetailModal = false"
+        @edit="openEditModal"
+        @delete="deleteItem"
       />
 
       <!-- Enquiry / Contact Details Modal -->

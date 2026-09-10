@@ -208,57 +208,45 @@ const stripHtml = (html?: string): string => {
           <div
             v-for="item in items"
             :key="item.id"
-            class="p-4 space-y-3"
+            class="p-4 space-y-3 cursor-pointer hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+            @click="emit('view', item)"
           >
             <div class="flex items-start justify-between gap-3">
-              <div class="flex items-start gap-3 min-w-0">
+              <div class="flex items-center gap-3">
                 <div
                   v-if="getItemImage(item)"
-                  class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200"
+                  class="w-12 h-12 rounded-2xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200"
                 >
                   <img
                     :src="getItemImage(item)"
                     class="w-full h-full object-cover"
                   >
                 </div>
-                <div class="min-w-0">
-                  <h4 class="font-bold text-sm text-slate-900 dark:text-white truncate">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-900 dark:text-white">
                     {{ getItemTitle(item) }}
                   </h4>
                   <p
                     v-if="getItemSubtitle(item)"
-                    class="text-slate-500 text-xs"
+                    class="text-xs text-slate-400 font-mono"
                   >
                     {{ getItemSubtitle(item) }}
-                  </p>
-                  <p
-                    v-if="item.slug"
-                    class="font-mono text-[10px] text-slate-400 mt-0.5"
-                  >
-                    /{{ item.slug }}
-                  </p>
-                  <p
-                    v-else-if="item.email"
-                    class="font-mono text-[10px] text-slate-400 mt-0.5"
-                  >
-                    {{ item.email }}
                   </p>
                 </div>
               </div>
 
-              <!-- Status Toggle -->
               <button
                 v-if="item.is_active !== undefined"
                 type="button"
                 :class="item.is_active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'"
-                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 flex items-center gap-1 cursor-pointer"
-                @click="emit('toggle-status', item)"
+                class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 cursor-pointer shrink-0"
+                @click.stop="emit('toggle-status', item)"
               >
                 <span
                   class="w-1.5 h-1.5 rounded-full"
                   :class="item.is_active ? 'bg-emerald-500' : 'bg-slate-400'"
                 />
-                <span>{{ item.is_active ? 'Active' : 'Draft' }}</span>
+                <span>{{ item.is_active ? 'Active' : 'Inactive' }}</span>
               </button>
             </div>
 
@@ -269,30 +257,30 @@ const stripHtml = (html?: string): string => {
               {{ stripHtml(item.short_description || item.description || item.message) }}
             </p>
 
-            <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs">
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800/60 text-xs" @click.stop>
               <span class="text-[11px] text-slate-400">
                 {{ item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A' }}
               </span>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
                 <button
-                  v-if="isEnquiryOrContact"
                   type="button"
-                  class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs cursor-pointer"
+                  class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs cursor-pointer inline-flex items-center gap-1"
                   @click="emit('view', item)"
                 >
-                  View Message
+                  <i class="ri-eye-line text-xs" />
+                  <span>View</span>
                 </button>
                 <button
-                  v-else
+                  v-if="!isEnquiryOrContact"
                   type="button"
-                  class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold text-xs cursor-pointer"
+                  class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold text-xs cursor-pointer"
                   @click="emit('edit', item)"
                 >
                   Edit
                 </button>
                 <button
                   type="button"
-                  class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs cursor-pointer"
+                  class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs cursor-pointer"
                   @click="emit('delete', item.id)"
                 >
                   Delete
@@ -328,7 +316,8 @@ const stripHtml = (html?: string): string => {
               <tr
                 v-for="item in items"
                 :key="item.id"
-                class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
+                class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors cursor-pointer"
+                @click="emit('view', item)"
               >
                 <!-- Title & Image -->
                 <td class="py-4 px-5">
@@ -385,7 +374,7 @@ const stripHtml = (html?: string): string => {
                 </td>
 
                 <!-- Status Toggle -->
-                <td class="py-4 px-5">
+                <td class="py-4 px-5" @click.stop>
                   <button
                     v-if="item.is_active !== undefined"
                     type="button"
@@ -413,17 +402,17 @@ const stripHtml = (html?: string): string => {
                 </td>
 
                 <!-- Actions -->
-                <td class="py-4 px-5 text-right space-x-1.5">
+                <td class="py-4 px-5 text-right space-x-1.5" @click.stop>
                   <button
-                    v-if="isEnquiryOrContact"
                     type="button"
-                    class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-[11px] transition-colors cursor-pointer"
+                    class="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 font-bold text-[11px] transition-colors cursor-pointer inline-flex items-center gap-1"
                     @click="emit('view', item)"
                   >
-                    View
+                    <i class="ri-eye-line text-xs" />
+                    <span>View</span>
                   </button>
                   <button
-                    v-else
+                    v-if="!isEnquiryOrContact"
                     type="button"
                     class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300 font-bold text-[11px] transition-colors cursor-pointer"
                     @click="emit('edit', item)"

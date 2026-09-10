@@ -6,6 +6,7 @@ import axios from 'axios'
 import type { CustomerItem } from './types'
 import CustomerTable from './components/CustomerTable.vue'
 import CustomerFormModal from './components/CustomerFormModal.vue'
+import CustomerDetailModal from './components/CustomerDetailModal.vue'
 import CustomerPasswordModal from './components/CustomerPasswordModal.vue'
 
 const props = defineProps<{
@@ -18,27 +19,20 @@ const props = defineProps<{
 
 const customersList = computed<CustomerItem[]>(() => {
   if (Array.isArray(props.customers)) return props.customers
-  
   return props.customers?.data || []
 })
 
 const searchQuery = ref(props.filters?.search || '')
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showDetailModal = ref(false)
+const editingCustomer = ref<CustomerItem | null>(null)
+const viewingCustomer = ref<CustomerItem | null>(null)
 const submitting = ref(false)
 const message = ref('')
 const errorMessage = ref('')
 const generatedResetUrl = ref('')
 const showPasswordModal = ref(false)
-
-const form = ref<Partial<CustomerItem>>({
-  id: 0,
-  name: '',
-  email: '',
-  phone_number: '',
-  address: '',
-  gender: 'male',
-})
 
 let searchTimeout: any = null
 
@@ -61,14 +55,7 @@ const onSearchInput = () => {
 }
 
 const openAddModal = () => {
-  form.value = {
-    id: 0,
-    name: '',
-    email: '',
-    phone_number: '',
-    address: '',
-    gender: 'male',
-  }
+  editingCustomer.value = null
   message.value = ''
   errorMessage.value = ''
   generatedResetUrl.value = ''
@@ -76,27 +63,28 @@ const openAddModal = () => {
 }
 
 const openEditModal = (customer: CustomerItem) => {
-  form.value = {
-    id: customer.id,
-    name: customer.name || customer.full_name || '',
-    email: customer.email || '',
-    phone_number: customer.phone_number || customer.phone || '',
-    address: customer.address || '',
-    gender: customer.gender || 'male',
-  }
+  editingCustomer.value = { ...customer }
   message.value = ''
   errorMessage.value = ''
+  showDetailModal.value = false
   showEditModal.value = true
 }
 
-const submitNewCustomer = async () => {
+const openDetailModal = (customer: CustomerItem) => {
+  viewingCustomer.value = customer
+  showDetailModal.value = true
+}
+
+const submitNewCustomer = async (formData: FormData) => {
   submitting.value = true
   message.value = ''
   errorMessage.value = ''
   generatedResetUrl.value = ''
 
   try {
-    const res = await axios.post('/admin/customers', form.value)
+    const res = await axios.post('/admin/customers', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200 || res.status === 201) {
       message.value = 'Customer profile created successfully!'
       showAddModal.value = false
@@ -104,7 +92,6 @@ const submitNewCustomer = async () => {
         generatedResetUrl.value = res.data.reset_url
         showPasswordModal.value = true
       }
-      form.value = { id: 0, name: '', email: '', phone_number: '', address: '', gender: 'male' }
       router.reload({ only: ['customers'] })
     }
   } catch (err: any) {
@@ -114,13 +101,16 @@ const submitNewCustomer = async () => {
   }
 }
 
-const submitEditCustomer = async () => {
+const submitEditCustomer = async (formData: FormData) => {
+  if (!editingCustomer.value?.id) return
   submitting.value = true
   message.value = ''
   errorMessage.value = ''
 
   try {
-    const res = await axios.patch(`/admin/customers/${form.value.id}`, form.value)
+    const res = await axios.post(`/admin/customers/${editingCustomer.value.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
     if (res.data?.status === 'success' || res.status === 200) {
       message.value = 'Customer profile updated successfully.'
       showEditModal.value = false
@@ -212,13 +202,13 @@ const deleteCustomer = async (customerId: number) => {
       <CustomerTable
         :customers="customersList"
         :pagination="props.customers"
+        @view="openDetailModal"
         @edit="openEditModal"
         @delete="deleteCustomer"
       />
 
       <!-- Create Customer Modal -->
       <CustomerFormModal
-        v-model:form="form"
         :show="showAddModal"
         :is-editing="false"
         :submitting="submitting"
@@ -229,13 +219,21 @@ const deleteCustomer = async (customerId: number) => {
 
       <!-- Edit Customer Modal -->
       <CustomerFormModal
-        v-model:form="form"
+        :customer="editingCustomer"
         :show="showEditModal"
         is-editing
         :submitting="submitting"
         :error-message="errorMessage"
         @close="showEditModal = false"
         @save="submitEditCustomer"
+      />
+
+      <!-- Customer Details Overview Modal -->
+      <CustomerDetailModal
+        :show="showDetailModal"
+        :customer="viewingCustomer"
+        @close="showDetailModal = false"
+        @edit="openEditModal"
       />
 
       <!-- Password Setup Modal -->
