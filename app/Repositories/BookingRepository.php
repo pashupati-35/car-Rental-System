@@ -173,17 +173,42 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
 
     public function getRecentBookings(int $perPage = 8): LengthAwarePaginator
     {
-        return $this->model->with(['car', 'customer', 'payment'])->latest()->paginate($perPage)->withQueryString();
+        return $this->model->with(['car.owner', 'customer', 'payment'])->latest('id')->paginate($perPage)->withQueryString();
+    }
+
+    public function getBookingTrends(): array
+    {
+        return $this->model->with(['car', 'customer'])
+            ->orderBy('id', 'asc')
+            ->get()
+            ->map(function ($b) {
+                $pickup = $b->pick_up_date ? \Carbon\Carbon::parse($b->pick_up_date) : null;
+                $created = $b->created_at ? \Carbon\Carbon::parse($b->created_at) : null;
+                $dateObj = $pickup ?: $created ?: \Carbon\Carbon::now();
+
+                return [
+                    'id' => $b->id,
+                    'booking_id' => $b->id,
+                    'date' => $dateObj->format('M d'),
+                    'day_name' => $dateObj->format('D'),
+                    'amount' => (float) ($b->total_price ?: 0),
+                    'status' => $b->status ?: 'pending',
+                    'customer_name' => $b->customer->name ?? $b->name ?? ('Customer #' . $b->id),
+                    'car_name' => trim(($b->car->car_name ?? $b->car->brand ?? 'Car') . ' ' . ($b->car->car_model ?? $b->car->model ?? '')),
+                    'car_number' => $b->car->car_number ?? '',
+                ];
+            })
+            ->toArray();
     }
 
     public function getTotalRevenue(): float
     {
-        return (float) ($this->model->whereIn('status', ['confirm', 'confirmed'])->sum('total_price') ?: 0);
+        return (float) ($this->model->whereIn('status', ['confirm', 'confirmed', 'completed'])->sum('total_price') ?: 0);
     }
 
     public function getConfirmedBookingsCount(): int
     {
-        return $this->model->whereIn('status', ['confirm', 'confirmed'])->count();
+        return $this->model->whereIn('status', ['confirm', 'confirmed', 'completed'])->count();
     }
 
     public function getPendingBookingsCount(): int

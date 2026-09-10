@@ -335,6 +335,11 @@ class BookingService
         return $this->bookingRepository->getRecentBookings($perPage);
     }
 
+    public function getBookingTrends(): array
+    {
+        return $this->bookingRepository->getBookingTrends();
+    }
+
     public function getTotalRevenue(): float
     {
         return $this->bookingRepository->getTotalRevenue();

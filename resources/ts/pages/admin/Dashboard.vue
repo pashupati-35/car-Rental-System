@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
-import Pagination from '@/components/Pagination.vue'
 import DashboardAnalyticsCharts from './components/DashboardAnalyticsCharts.vue'
+
+interface BookingTrendPoint {
+  id: number
+  booking_id: number
+  date: string
+  day_name?: string
+  amount: number
+  status: string
+  customer_name?: string
+  car_name?: string
+  car_number?: string
+}
 
 const props = defineProps<{
   stats?: {
@@ -22,6 +33,7 @@ const props = defineProps<{
   pendingCars?: Array<any>
   recentCars?: Array<any>
   recentBookings?: any
+  bookingTrends?: BookingTrendPoint[]
   recentOwners?: Array<any>
   recentCustomers?: Array<any>
   cmsStats?: Record<string, number>
@@ -42,17 +54,6 @@ const statsData = ref({
 })
 
 const pendingCarsList = ref<any[]>(props.pendingCars || [])
-
-const recentBookingsList = computed<any[]>(() => {
-  if (props.recentBookings && props.recentBookings.data) {
-    return props.recentBookings.data
-  }
-  
-  return Array.isArray(props.recentBookings) ? props.recentBookings : []
-})
-
-const recentOwnersList = ref<any[]>(props.recentOwners || [])
-const cmsStatsMap = ref<Record<string, number>>(props.cmsStats || {})
 const refreshing = ref(false)
 
 const cmsModules = [
@@ -77,14 +78,11 @@ const cmsModules = [
 const refreshDashboard = () => {
   refreshing.value = true
   router.reload({
-    only: ['stats', 'pendingCars', 'recentBookings', 'recentOwners', 'recentCustomers', 'cmsStats'],
+    only: ['stats', 'pendingCars', 'bookingTrends', 'cmsStats'],
     onFinish: () => {
       refreshing.value = false
       if (props.stats) statsData.value = { ...props.stats }
       if (props.pendingCars) pendingCarsList.value = props.pendingCars
-      if (props.recentBookings) recentBookingsList.value = props.recentBookings
-      if (props.recentOwners) recentOwnersList.value = props.recentOwners
-      if (props.cmsStats) cmsStatsMap.value = props.cmsStats
     },
   })
 }
@@ -107,26 +105,6 @@ const rejectCar = (carId: number) => {
       pendingCarsList.value = pendingCarsList.value.filter((c: any) => c.id !== carId)
       statsData.value.pendingCarsCount = Math.max(0, statsData.value.pendingCarsCount - 1)
       statsData.value.rejectedCarsCount += 1
-    },
-  })
-}
-
-const confirmBooking = (bookingId: number) => {
-  router.post(`/admin/bookings/${bookingId}/confirm`, {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      const b = recentBookingsList.value.find((item: any) => item.id === bookingId)
-      if (b) b.status = 'confirm'
-    },
-  })
-}
-
-const cancelBooking = (bookingId: number) => {
-  router.post(`/admin/bookings/${bookingId}/cancel`, {}, {
-    preserveScroll: true,
-    onSuccess: () => {
-      const b = recentBookingsList.value.find((item: any) => item.id === bookingId)
-      if (b) b.status = 'cancel'
     },
   })
 }
@@ -182,20 +160,23 @@ const cancelBooking = (bookingId: number) => {
         </div>
       </div>
 
-      <!-- 6 Key Metric KPI Cards Grid - Responsive from 1 col on mobile up to 6 on ultra-wide -->
+      <!-- 6 Key Metric KPI Cards Grid - Fully Clickable Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 sm:gap-5">
         <!-- Card 1: Total Fleet Cars -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/cars"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-indigo-600 transition-colors">
                 Fleet Vehicles
               </p>
               <h3 class="text-3xl font-black text-slate-900 dark:text-white">
                 {{ statsData.totalCars }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               🚗
             </div>
           </div>
@@ -205,27 +186,27 @@ const cancelBooking = (bookingId: number) => {
               <span class="text-slate-300 dark:text-slate-700">&bull;</span>
               <span class="text-amber-500 font-bold">{{ statsData.pendingCarsCount }} Pend</span>
             </div>
-            <Link
-              href="/admin/cars"
-              class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
-            >
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline inline-flex items-center gap-1">
               Manage &rarr;
-            </Link>
+            </span>
           </div>
-        </div>
+        </Link>
 
         <!-- Card 2: Fleet Owners -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/owners"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-emerald-600 transition-colors">
                 Fleet Owners
               </p>
               <h3 class="text-3xl font-black text-slate-900 dark:text-white">
                 {{ statsData.totalOwners }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               🏢
             </div>
           </div>
@@ -233,27 +214,27 @@ const cancelBooking = (bookingId: number) => {
             <p class="text-[11px] text-slate-500 truncate">
               Partner accounts
             </p>
-            <Link
-              href="/admin/owners"
-              class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
-            >
-              Manage &rarr;
-            </Link>
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline inline-flex items-center gap-1">
+              Directory &rarr;
+            </span>
           </div>
-        </div>
+        </Link>
 
         <!-- Card 3: System Drivers -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/drivers"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-blue-600 transition-colors">
                 System Drivers
               </p>
               <h3 class="text-3xl font-black text-slate-900 dark:text-white">
                 {{ statsData.totalDrivers }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               👨‍✈️
             </div>
           </div>
@@ -261,27 +242,27 @@ const cancelBooking = (bookingId: number) => {
             <p class="text-[11px] text-slate-500 truncate">
               Roster drivers
             </p>
-            <Link
-              href="/admin/drivers"
-              class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
-            >
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline inline-flex items-center gap-1">
               Directory &rarr;
-            </Link>
+            </span>
           </div>
-        </div>
+        </Link>
 
         <!-- Card 4: Customers -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/customers"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-purple-600 transition-colors">
                 Customers
               </p>
               <h3 class="text-3xl font-black text-slate-900 dark:text-white">
                 {{ statsData.totalCustomers }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               👥
             </div>
           </div>
@@ -289,27 +270,27 @@ const cancelBooking = (bookingId: number) => {
             <p class="text-[11px] text-slate-500 truncate">
               Registered clients
             </p>
-            <Link
-              href="/admin/customers"
-              class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
-            >
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline inline-flex items-center gap-1">
               Directory &rarr;
-            </Link>
+            </span>
           </div>
-        </div>
+        </Link>
 
         <!-- Card 5: Total Bookings -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/booked-cars"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-amber-600 transition-colors">
                 Bookings
               </p>
               <h3 class="text-3xl font-black text-slate-900 dark:text-white">
                 {{ statsData.totalBookings }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               📅
             </div>
           </div>
@@ -319,36 +300,36 @@ const cancelBooking = (bookingId: number) => {
               <span class="text-slate-300 dark:text-slate-700">&bull;</span>
               <span class="text-amber-500 font-bold">{{ statsData.pendingBookings }} Pend</span>
             </div>
-            <Link
-              href="/admin/booked-cars"
-              class="text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline inline-flex items-center gap-1"
-            >
-              Review &rarr;
-            </Link>
+            <span class="text-xs text-indigo-600 dark:text-indigo-400 font-bold group-hover:underline inline-flex items-center gap-1">
+              Review Roster &rarr;
+            </span>
           </div>
-        </div>
+        </Link>
 
         <!-- Card 6: Total Volume / Revenue -->
-        <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-md transition-all flex flex-col justify-between">
+        <Link
+          href="/admin/booked-cars"
+          class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+        >
           <div class="flex items-start justify-between">
             <div class="space-y-1">
-              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-emerald-600 transition-colors">
                 Rental Revenue
               </p>
               <h3 class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
                 ${{ Number(statsData.totalRevenue).toLocaleString() }}
               </h3>
             </div>
-            <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shadow-xs">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg shadow-xs group-hover:scale-110 transition-transform">
               💵
             </div>
           </div>
           <div class="pt-2 border-t border-slate-100 dark:border-slate-800/60 mt-3 space-y-1">
-            <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold block">
-              Processed Volume
+            <span class="text-[11px] text-emerald-700 dark:text-emerald-300 font-bold block group-hover:underline">
+              View Financials &rarr;
             </span>
           </div>
-        </div>
+        </Link>
       </div>
 
       <!-- Pending Fleet Verification Queue -->
@@ -372,10 +353,10 @@ const cancelBooking = (bookingId: number) => {
           </div>
 
           <Link
-            href="/admin/cars"
+            href="/admin/cars?status=pending"
             class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
           >
-            View All Cars &rarr;
+            View All Pending &rarr;
           </Link>
         </div>
 
@@ -426,135 +407,11 @@ const cancelBooking = (bookingId: number) => {
         </div>
       </div>
 
-      <!-- Interactive Analytics, Bar & Pie Charts Suite -->
-      <DashboardAnalyticsCharts :stats="statsData" />
-
-      <!-- Recent Rental Bookings Section -->
-      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <h3 class="font-extrabold text-lg text-slate-900 dark:text-white">
-              Recent Rental Bookings & Payments
-            </h3>
-            <p class="text-xs text-slate-500">
-              Live reservations stream across customer accounts
-            </p>
-          </div>
-          <Link
-            href="/admin/booked-cars"
-            class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-          >
-            Full Booking Roster &rarr;
-          </Link>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 uppercase font-semibold border-b border-slate-200/80 dark:border-slate-800">
-              <tr>
-                <th class="py-3 px-4">
-                  Booking ID
-                </th>
-                <th class="py-3 px-4">
-                  Customer
-                </th>
-                <th class="py-3 px-4">
-                  Car & Fleet
-                </th>
-                <th class="py-3 px-4">
-                  Rental Duration
-                </th>
-                <th class="py-3 px-4">
-                  Total Amount
-                </th>
-                <th class="py-3 px-4">
-                  Status
-                </th>
-                <th class="py-3 px-4 text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
-              <tr v-if="recentBookingsList.length === 0">
-                <td
-                  colspan="7"
-                  class="py-8 text-center text-slate-400"
-                >
-                  No booking records found in the system.
-                </td>
-              </tr>
-              <tr
-                v-for="b in recentBookingsList"
-                :key="b.id"
-                class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
-              >
-                <td class="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
-                  #BK-{{ b.id }}
-                </td>
-                <td class="py-3.5 px-4">
-                  <span class="font-bold block text-slate-900 dark:text-white">{{ b.customer?.name || b.name || 'Customer' }}</span>
-                  <span class="text-[10px] text-slate-400">{{ b.customer?.email || 'N/A' }}</span>
-                </td>
-                <td class="py-3.5 px-4">
-                  <span class="font-semibold block">{{ b.car?.car_name || b.car?.brand }} {{ b.car?.car_model || b.car?.model }}</span>
-                  <span class="text-[10px] text-slate-400">{{ b.car?.car_number || 'Standard' }}</span>
-                </td>
-                <td class="py-3.5 px-4 text-slate-600 dark:text-slate-400 font-mono">
-                  {{ b.start_date }} &rarr; {{ b.end_date }}
-                </td>
-                <td class="py-3.5 px-4 font-bold text-emerald-600 dark:text-emerald-400">
-                  ${{ b.total_price || b.amount || 0 }}
-                </td>
-                <td class="py-3.5 px-4">
-                  <span
-                    :class="{
-                      'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300': b.status === 'confirm' || b.status === 'confirmed',
-                      'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300': b.status === 'pending',
-                      'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300': b.status === 'cancel' || b.status === 'cancelled',
-                    }"
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                  >
-                    {{ b.status || 'Active' }}
-                  </span>
-                </td>
-                <td class="py-3.5 px-4 text-right space-x-1.5">
-                  <button
-                    v-if="b.status !== 'confirm' && b.status !== 'confirmed'"
-                    type="button"
-                    class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-bold hover:bg-emerald-100 transition-colors"
-                    @click="confirmBooking(b.id)"
-                  >
-                    Confirm
-                  </button>
-                  <button
-                    v-if="b.status !== 'cancel' && b.status !== 'cancelled'"
-                    type="button"
-                    class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 font-bold hover:bg-rose-100 transition-colors"
-                    @click="cancelBooking(b.id)"
-                  >
-                    Cancel
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Pagination for Recent Bookings -->
-        <div
-          v-if="props.recentBookings && props.recentBookings.links && props.recentBookings.total > 0"
-          class="pt-2 border-t border-slate-100 dark:border-slate-800"
-        >
-          <Pagination
-            :links="props.recentBookings.links"
-            :from="props.recentBookings.from"
-            :to="props.recentBookings.to"
-            :total="props.recentBookings.total"
-            :per-page="props.recentBookings.per_page"
-          />
-        </div>
-      </div>
+      <!-- Interactive Analytics, Dynamic Line Graph, Bar & Pie Charts Suite -->
+      <DashboardAnalyticsCharts
+        :stats="statsData"
+        :booking-trends="props.bookingTrends || []"
+      />
 
       <!-- Master CMS Suite Control Matrix (ONLY FOR ADMIN PORTAL) -->
       <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-xs p-6 space-y-4">
@@ -598,11 +455,11 @@ const cancelBooking = (bookingId: number) => {
                   {{ mod.label }}
                 </span>
                 <span class="text-[10px] text-slate-400">
-                  {{ cmsStatsMap[mod.id] !== undefined ? cmsStatsMap[mod.id] + ' items' : 'Manage' }}
+                  Manage Content
                 </span>
               </div>
             </div>
-            <i class="ri-arrow-right-s-line text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all hidden sm:inline" />
+            <i class="ri-arrow-right-s-line text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-0.5 transition-all text-xs" />
           </Link>
         </div>
       </div>

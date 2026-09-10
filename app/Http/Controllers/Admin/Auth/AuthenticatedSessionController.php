@@ -72,6 +72,7 @@ class AuthenticatedSessionController extends Controller
     public function dashboard(Request $request)
     {
         if (Auth::guard('admin')->check()) {
+            AdminCountCacheService::clear();
             $stats = AdminCountCacheService::getDashboardStats();
             $cmsStats = AdminCountCacheService::getCmsStats();
 
@@ -79,6 +80,7 @@ class AuthenticatedSessionController extends Controller
             $recentCars = $this->carService ? $this->carService->getRecentCars(5) : collect();
             $perPage = (int) $request->input('per_page', 8);
             $recentBookings = $this->bookingService ? $this->bookingService->getRecentBookings($perPage) : [];
+            $bookingTrends = $this->bookingService ? $this->bookingService->getBookingTrends() : [];
             $recentOwners = $this->ownerService ? $this->ownerService->getRecentOwners(5) : collect();
             $recentCustomers = $this->customerService ? $this->customerService->getRecentCustomers(5) : collect();
 
@@ -87,6 +89,7 @@ class AuthenticatedSessionController extends Controller
                 'pendingCars' => $pendingCars,
                 'recentCars' => $recentCars,
                 'recentBookings' => $recentBookings,
+                'bookingTrends' => $bookingTrends,
                 'recentOwners' => $recentOwners,
                 'recentCustomers' => $recentCustomers,
                 'cmsStats' => $cmsStats,
