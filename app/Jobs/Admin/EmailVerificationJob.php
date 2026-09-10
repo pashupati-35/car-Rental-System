@@ -32,12 +32,25 @@ class EmailVerificationJob implements ShouldQueue
             // Ignore SMTP set failure if local
         }
 
-        $emailTemplate = getEmailTemplate('admin', 'verification_email') ?: getEmailTemplate('admin', 'welcome_email');
+        $role = 'admin';
+        if ($this->user instanceof \App\Models\Owner) {
+            $role = 'owner';
+        } elseif ($this->user instanceof \App\Models\Customer) {
+            $role = 'customer';
+        }
+
+        $emailTemplate = getEmailTemplate($role, 'email_verification_code')
+            ?: getEmailTemplate($role, 'verification_code_email')
+            ?: getEmailTemplate($role, 'mfa_verification_email')
+            ?: getEmailTemplate($role, 'verification_email');
+
         if ($emailTemplate) {
             $acceptedData = [
-                'first_name' => $this->user?->first_name ?: $this->user?->name,
-                'name' => $this->user?->name,
-                'verification_code' => $this->verification_code,
+                'first_name' => $this->user?->first_name ?: $this->user?->name ?: $this->user?->full_name ?: 'User',
+                'name' => $this->user?->name ?: $this->user?->full_name ?: $this->user?->first_name ?: 'User',
+                'email' => $this->user?->email,
+                'verification_code' => (string) $this->verification_code,
+                'code' => (string) $this->verification_code,
             ];
 
             $acceptedTag = [];
@@ -47,9 +60,10 @@ class EmailVerificationJob implements ShouldQueue
             $content = renderEmailData($content, $acceptedInputs, $acceptedData);
             Mail::to($this->user->email)->send(new WelcomeEmailMail($content, $emailTemplate));
         } else {
-            Mail::raw("Your AutoRent administrative login verification code is: {$this->verification_code}. This code expires in 10 minutes.", function ($message) {
+            $portalName = ucfirst($role);
+            Mail::raw("Your AutoRent {$portalName} login verification code is: {$this->verification_code}. This code expires in 10 minutes.", function ($message) use ($portalName) {
                 $message->to($this->user->email)
-                    ->subject('AutoRent Admin - Login Verification Code');
+                    ->subject("AutoRent {$portalName} - Login Verification Code");
             });
         }
     }

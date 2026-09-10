@@ -53,14 +53,16 @@ const ownerNav = [
   { title: 'Driver Roster', icon: 'ri-user-follow-line', href: '/owner/drivers' },
   { title: 'Add New Car', icon: 'ri-add-circle-line', href: '/owner/cars/create' },
   { title: 'Bookings & Calendar', icon: 'ri-calendar-line', href: '/owner/bookings' },
-  { title: 'Owner Profile & Security', icon: 'ri-user-settings-line', href: '/owner/profile' },
+  { title: 'Owner Profile', icon: 'ri-user-settings-line', href: '/owner/profile' },
+  { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/owner/security' },
 ]
 
 const customerNav = [
   { title: 'Customer Dashboard', icon: 'ri-dashboard-line', href: '/customer/dashboard' },
   { title: 'Browse Fleet', icon: 'ri-car-line', href: '/cars' },
   { title: 'My Bookings', icon: 'ri-book-read-line', href: '/customer/bookings' },
-  { title: 'Profile & Security', icon: 'ri-shield-keyhole-line', href: '/customer/profile' },
+  { title: 'Customer Profile', icon: 'ri-user-smile-line', href: '/customer/profile' },
+  { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/customer/security' },
 ]
 
 const navItems = computed(() => {
@@ -69,6 +71,27 @@ const navItems = computed(() => {
   
   return customerNav
 })
+
+const isActive = (href: string) => {
+  const current = page.url.split('?')[0]
+  if (href === `/${rolePrefix.value}/dashboard`) {
+    return current === `/${rolePrefix.value}/dashboard` || current === `/${rolePrefix.value}`
+  }
+  if (href === `/${rolePrefix.value}/profile`) {
+    return current === `/${rolePrefix.value}/profile`
+  }
+  if (href === `/${rolePrefix.value}/security`) {
+    return current === `/${rolePrefix.value}/security`
+  }
+  if (href === '/cars') {
+    return current === '/cars' || current.startsWith('/cars/')
+  }
+  if (href === '/car-calendar') {
+    return current.startsWith('/car-calendar')
+  }
+  
+  return current.startsWith(href)
+}
 
 const cmsItems = computed(() => {
   if (role.value === 'Admin') {
@@ -200,19 +223,22 @@ onUnmounted(() => {
 
           <Link
             :href="'/' + rolePrefix + '/dashboard'"
-            class="px-3 py-2 rounded-xl text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            :class="isActive('/' + rolePrefix + '/dashboard') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors"
           >
             Dashboard
           </Link>
           <Link
             href="/cars"
-            class="px-3 py-2 rounded-xl text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            :class="isActive('/cars') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors"
           >
             Browse Fleet
           </Link>
           <Link
             href="/car-calendar"
-            class="px-3 py-2 rounded-xl text-xs font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            :class="isActive('/car-calendar') ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold' : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium'"
+            class="px-3 py-2 rounded-xl text-xs transition-colors"
           >
             Calendar
           </Link>
@@ -236,7 +262,7 @@ onUnmounted(() => {
           >
             <button
               type="button"
-              class="flex items-center gap-2.5 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
+              class="flex items-center gap-2.5 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all cursor-pointer"
               style="padding-right: 0.75rem"
               @click="showProfileMenu = !showProfileMenu; showCmsMenu = false"
             >
@@ -290,7 +316,7 @@ onUnmounted(() => {
                 </Link>
 
                 <Link
-                  :href="'/' + rolePrefix + '/profile'"
+                  :href="'/' + rolePrefix + '/security'"
                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   @click="showProfileMenu = false"
                 >
@@ -311,7 +337,7 @@ onUnmounted(() => {
               <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
                 <button
                   type="button"
-                  class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 font-semibold text-xs transition-colors"
+                  class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 font-semibold text-xs transition-colors cursor-pointer"
                   @click="logout"
                 >
                   <span>Logout</span>
@@ -337,7 +363,8 @@ onUnmounted(() => {
               v-for="item in navItems"
               :key="item.title"
               :href="item.href"
-              class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-gray-800 transition-all"
+              :class="isActive(item.href) ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 font-bold shadow-xs' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold'"
+              class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-all"
             >
               <i
                 :class="item.icon"

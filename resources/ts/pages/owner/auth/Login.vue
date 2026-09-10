@@ -10,6 +10,7 @@ defineProps<{
 }>()
 
 const isMfaStep = ref(false)
+const authType = ref<'totp' | 'email'>('totp')
 const errorMessage = ref('')
 
 const form = useForm({
@@ -32,7 +33,8 @@ const handleLogin = async () => {
       password: form.password,
     })
 
-    if (res.data.status === 'OK' && res.data.data?.is_mfa_enabled) {
+    if (res.data.status === 'OK' && (res.data.data?.is_mfa_enabled || res.data.data?.is_email_authentication_enabled)) {
+      authType.value = res.data.data?.auth_type || (res.data.data?.is_mfa_enabled ? 'totp' : 'email')
       isMfaStep.value = true
     } else {
       form.post('/owner/login', {
@@ -179,6 +181,7 @@ const handleLogin = async () => {
         :email="form.email"
         :password="form.password"
         :remember="form.remember"
+        :auth-type="authType"
         @back="isMfaStep = false"
       />
     </div>

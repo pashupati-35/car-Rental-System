@@ -29,6 +29,25 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the owner's security & MFA form.
+     */
+    public function security(Request $request)
+    {
+        $owner = Auth::guard('owner')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $owner,
+            ]);
+        }
+
+        return Inertia::render('owner/Security', [
+            'user' => $owner,
+        ]);
+    }
+
+    /**
      * Update the owner's profile information.
      */
     public function update(Request $request)

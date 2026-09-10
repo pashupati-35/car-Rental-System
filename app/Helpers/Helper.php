@@ -361,21 +361,18 @@ if (! function_exists('renderEmailData')) {
     /** @param iterable<int, string> $acceptedInputs @param array<string, mixed> $acceptedData */
     function renderEmailData(string $content, iterable $acceptedInputs, array $acceptedData): string
     {
-        foreach ($acceptedInputs as $input) {
-            $key = trim($input);
-
-            if (! array_key_exists($key, $acceptedData)) {
+        foreach ($acceptedData as $key => $value) {
+            $key = trim((string) $key);
+            if ($key === '') {
                 continue;
             }
-
-            $value = $acceptedData[$key];
 
             if ($key === 'note') {
                 $value = renderEmailPlainText($value);
             }
 
             $content = preg_replace(
-                '/\{\{\s*\$?'.preg_quote($key, '/').'\s*\}\}/',
+                '/\{\{\s*\$?'.preg_quote($key, '/').'\s*\}\}/i',
                 e((string) $value),
                 $content
             ) ?? $content;
@@ -428,26 +425,13 @@ if (! function_exists('buildTableNameToLogInfoTitle')) {
 if (! function_exists('setSMTP')) {
     function setSMTP(): void
     {
-        if (app()->environment('local')) {
-            return;
-        }
-
         $setting = getSiteSetting();
         if (! $setting) {
             return;
         }
 
-        // ℹ️ Never bail out quietly: without site-setting credentials the mailer
-        // silently falls back to the .env values, and a stale token there surfaces
-        // as "535 Authentication Failed" — which looks like wrong credentials
-        // rather than missing configuration. Say so in the log.
+        // Without site-setting credentials the mailer falls back to the .env values.
         if (blank($setting->mail_host) || blank($setting->mail_user_name) || blank($setting->mail_password)) {
-            Log::warning('SMTP is not fully configured in site settings; falling back to the .env mail config.', [
-                'has_host' => filled($setting->mail_host),
-                'has_username' => filled($setting->mail_user_name),
-                'has_password' => filled($setting->mail_password),
-            ]);
-
             return;
         }
 

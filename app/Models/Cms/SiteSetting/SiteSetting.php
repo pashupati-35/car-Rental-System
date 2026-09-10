@@ -3,14 +3,11 @@
 namespace App\Models\Cms\SiteSetting;
 
 use App\Http\Traits\Loggable;
-use App\Observers\Cms\SiteSetting\SiteSettingObserver;
 use App\Services\Traits\UploadPathTrait;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[ObservedBy(SiteSettingObserver::class)]
 class SiteSetting extends Model
 {
     use HasFactory, Loggable, SoftDeletes, UploadPathTrait;

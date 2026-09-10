@@ -29,6 +29,25 @@ class ProfileController extends Controller
     }
 
     /**
+     * Display the customer's security & MFA form.
+     */
+    public function security(Request $request)
+    {
+        $customer = Auth::guard('customer')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $customer,
+            ]);
+        }
+
+        return Inertia::render('customer/Security', [
+            'user' => $customer,
+        ]);
+    }
+
+    /**
      * Update the customer's profile information.
      */
     public function update(Request $request)

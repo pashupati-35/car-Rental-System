@@ -16,7 +16,6 @@ class PasswordController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|current_password:customer',
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 

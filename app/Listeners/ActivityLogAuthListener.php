@@ -32,7 +32,8 @@ class ActivityLogAuthListener
 
         $title = match ($guard) {
             'admin' => 'Admin login successful.',
-            'employee' => 'Employee login successful.',
+            'owner' => 'Owner login successful.',
+            'customer' => 'Customer login successful.',
             default => 'User login successful.',
         };
 
@@ -60,14 +61,15 @@ class ActivityLogAuthListener
             return;
         }
 
-        $guard = property_exists($event, 'guard') ? $event->guard : 'web';
+        $guard = property_exists($event, 'guard') ? $event->guard : 'customer';
         if ($this->wasHandled('logout', $user, $guard)) {
             return;
         }
 
         $title = match ($guard) {
             'admin' => 'Admin logout.',
-            'employee' => 'Employee logout.',
+            'owner' => 'Owner logout.',
+            'customer' => 'Customer logout.',
             default => 'User logout.',
         };
 

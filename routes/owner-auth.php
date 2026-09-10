@@ -31,6 +31,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
         // MFA Verification
         Route::get('mfa/verify', [AuthenticatedSessionController::class, 'showMfa'])->name('mfa.verify');
         Route::post('mfa/check-verification', [MFAController::class, 'checkVerification'])->name('mfa.check');
+        Route::post('mfa/resend-code', [MFAController::class, 'resendCode'])->name('mfa.resend-code');
         Route::post('mfa/verify-code', [MFAController::class, 'verifyCode'])->name('mfa.verify-code');
     });
 
@@ -39,6 +40,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('/security', [ProfileController::class, 'security'])->name('security');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
