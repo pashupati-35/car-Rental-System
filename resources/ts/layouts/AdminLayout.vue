@@ -73,6 +73,18 @@ const adminNav = computed(() => [
     href: '/admin/email-templates', 
     badge: adminCounts.value.totalEmailTemplates ? String(adminCounts.value.totalEmailTemplates) : '' 
   },
+  { 
+    title: 'Activity Logs', 
+    icon: 'ri-history-line', 
+    href: '/admin/activity-logs', 
+    badge: '' 
+  },
+  { 
+    title: 'Email Logs', 
+    icon: 'ri-mail-check-line', 
+    href: '/admin/email-logs', 
+    badge: '' 
+  },
   { title: 'Admin Profile', icon: 'ri-user-settings-line', href: '/admin/profile', badge: '' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/admin/security', badge: '' },
 ])

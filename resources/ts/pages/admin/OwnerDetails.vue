@@ -374,6 +374,24 @@ const cancelBooking = (bookingId: number) => {
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
+          <Link
+            :href="`/admin/activity-logs?search=${encodeURIComponent(owner.full_name || owner.email || '')}`"
+            class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5"
+            title="View fleet owner activity logs"
+          >
+            <i class="ri-history-line text-indigo-600" />
+            <span>Activity Logs</span>
+          </Link>
+
+          <Link
+            :href="`/admin/email-logs?to=${encodeURIComponent(owner.email || '')}`"
+            class="px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5"
+            title="View fleet owner email logs"
+          >
+            <i class="ri-mail-check-line text-emerald-600" />
+            <span>Email Logs</span>
+          </Link>
+
           <button
             type="button"
             class="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5 cursor-pointer"

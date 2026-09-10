@@ -26,6 +26,33 @@ class ActivityLog extends Model
         'properties' => 'array',
     ];
 
+    protected $appends = [
+        'causer_name',
+        'causer_role',
+    ];
+
+    public function getCauserNameAttribute(): ?string
+    {
+        if ($this->causer) {
+            return $this->causer->full_name ?? $this->causer->name ?? $this->causer->email ?? 'User #' . $this->causer_id;
+        }
+        return 'System / Guest';
+    }
+
+    public function getCauserRoleAttribute(): string
+    {
+        if (!$this->causer_type) {
+            return 'System';
+        }
+        $base = class_basename($this->causer_type);
+        return match ($base) {
+            'Admin', 'AdminUser' => 'Admin',
+            'Owner' => 'Fleet Owner',
+            'Customer', 'User' => 'Customer',
+            default => $base,
+        };
+    }
+
     /**
      * Who performed the activity (AdminUser, Employee, User).
      */

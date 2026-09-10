@@ -80,14 +80,21 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->get('account/security', [ProfileController::class, 'security'])->name('admin.account-security');
     $route->post('dashboard/stats', [DashboardController::class, 'getStats']);
     $route->get('logout', [LoginController::class, 'logout'])->name('admin.logout');
+    // Activity Logs
     $route->get('activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     $route->get('activity-logs/list', [ActivityLogController::class, 'data'])->name('admin.activity-logs.list');
-    $route->get('activity-logs/employee/{employeeId}', [ActivityLogController::class, 'getByEmployee'])->name('admin.activity-logs.by-employee');
-    $route->get('employee/{employeeId}/activity-logs', [ActivityLogController::class, 'getByEmployee'])->name('admin.employee.activity-logs');
+    $route->get('activity-logs/owner/{ownerId}', [ActivityLogController::class, 'getByOwner'])->name('admin.activity-logs.by-owner');
+    $route->get('owner/{ownerId}/activity-logs', [ActivityLogController::class, 'getByOwner'])->name('admin.owner.activity-logs');
+    $route->get('activity-logs/customer/{customerId}', [ActivityLogController::class, 'getByCustomer'])->name('admin.activity-logs.by-customer');
+    $route->get('customer/{customerId}/activity-logs', [ActivityLogController::class, 'getByCustomer'])->name('admin.customer.activity-logs');
+
+    // Email Logs
     $route->get('email-logs', [EmailLogController::class, 'index'])->name('admin.email-logs.index');
     $route->get('email-logs/list', [EmailLogController::class, 'data'])->name('admin.email-logs.list');
-    $route->get('email-logs/employee/{employeeId}', [EmailLogController::class, 'getByEmployee'])->name('admin.email-logs.by-employee');
-    $route->get('employee/{employeeId}/email-logs', [EmailLogController::class, 'getByEmployee'])->name('admin.employee.email-logs');
+    $route->get('email-logs/owner/{ownerId}', [EmailLogController::class, 'getByOwner'])->name('admin.email-logs.by-owner');
+    $route->get('owner/{ownerId}/email-logs', [EmailLogController::class, 'getByOwner'])->name('admin.owner.email-logs');
+    $route->get('email-logs/customer/{customerId}', [EmailLogController::class, 'getByCustomer'])->name('admin.email-logs.by-customer');
+    $route->get('customer/{customerId}/email-logs', [EmailLogController::class, 'getByCustomer'])->name('admin.customer.email-logs');
     $route->get('email-logs/{emailLog}', [EmailLogController::class, 'show'])->name('admin.email-logs.show');
     $route->get('email-logs/{emailLog}/preview', [EmailLogController::class, 'preview'])->name('admin.email-logs.preview');
     $route->delete('email-logs/{emailLog}', [EmailLogController::class, 'destroy'])->name('admin.email-logs.destroy');
