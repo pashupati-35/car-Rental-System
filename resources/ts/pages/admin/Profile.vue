@@ -51,6 +51,7 @@ const resolveImageUrl = (userObj: any) => {
   if (userObj.avatar) {
     return userObj.avatar.startsWith('http') ? userObj.avatar : '/' + userObj.avatar.replace(/^\/+/, '')
   }
+  
   return ''
 }
 
@@ -68,6 +69,7 @@ const handleImageChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
     const file = target.files[0]
+
     imageFile.value = file
     imagePreview.value = URL.createObjectURL(file)
     imageLoadError.value = false
@@ -125,6 +127,7 @@ const updateProfile = async () => {
 
   try {
     const formData = new FormData()
+
     Object.entries(profileForm.value).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
         formData.append(key, value as string)
@@ -165,6 +168,7 @@ const passwordForm = ref({
   password: '',
   password_confirmation: '',
 })
+
 const passwordLoading = ref(false)
 const passwordMsg = ref('')
 const passwordError = ref('')
@@ -174,6 +178,7 @@ const showConfirmPassword = ref(false)
 const updatePassword = async () => {
   if (passwordForm.value.password !== passwordForm.value.password_confirmation) {
     passwordError.value = 'Passwords do not match.'
+    
     return
   }
   passwordLoading.value = true
@@ -305,7 +310,7 @@ const updatePassword = async () => {
                 </div>
                 <div class="flex flex-wrap items-center justify-center sm:justify-end gap-2">
                   <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800">
-                    <i class="ri-shield-user-fill mr-1" /> {{ profileForm.designation || 'Administrator' }}
+                    <i class="ri-shield-user-fill me-1" /> {{ profileForm.designation || 'Administrator' }}
                   </span>
                   <span
                     v-if="authUser?.unique_identifier"
@@ -317,15 +322,24 @@ const updatePassword = async () => {
               </div>
 
               <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-4 text-xs text-slate-500 dark:text-slate-400">
-                <span v-if="profileForm.position" class="flex items-center gap-1.5">
+                <span
+                  v-if="profileForm.position"
+                  class="flex items-center gap-1.5"
+                >
                   <i class="ri-briefcase-line text-indigo-600 dark:text-indigo-400" />
                   <strong class="text-slate-700 dark:text-slate-200">{{ profileForm.position }}</strong>
                 </span>
-                <span v-if="profileForm.contact_number || profileForm.mobile" class="flex items-center gap-1.5 font-mono">
+                <span
+                  v-if="profileForm.contact_number || profileForm.mobile"
+                  class="flex items-center gap-1.5 font-mono"
+                >
                   <i class="ri-phone-line text-indigo-600 dark:text-indigo-400" />
                   {{ profileForm.contact_number || profileForm.mobile }}
                 </span>
-                <span v-if="profileForm.address" class="flex items-center gap-1.5">
+                <span
+                  v-if="profileForm.address"
+                  class="flex items-center gap-1.5"
+                >
                   <i class="ri-map-pin-line text-indigo-600 dark:text-indigo-400" />
                   {{ profileForm.address }}
                 </span>
@@ -402,9 +416,15 @@ const updatePassword = async () => {
                 v-model="profileForm.gender"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="male">
+                  Male
+                </option>
+                <option value="female">
+                  Female
+                </option>
+                <option value="other">
+                  Other
+                </option>
               </select>
             </div>
 
@@ -455,10 +475,18 @@ const updatePassword = async () => {
                 v-model="profileForm.marital_status"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="single">Single</option>
-                <option value="married">Married</option>
-                <option value="divorced">Divorced</option>
-                <option value="widowed">Widowed</option>
+                <option value="single">
+                  Single
+                </option>
+                <option value="married">
+                  Married
+                </option>
+                <option value="divorced">
+                  Divorced
+                </option>
+                <option value="widowed">
+                  Widowed
+                </option>
               </select>
             </div>
 

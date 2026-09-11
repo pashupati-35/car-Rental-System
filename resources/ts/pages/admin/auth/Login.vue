@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useForm, Head, Link, usePage } from '@inertiajs/vue3'
+import { ref } from 'vue'
+import { useForm, Head } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
 import MFAVerification from './MFAVerification.vue'
@@ -9,17 +9,6 @@ import axios from 'axios'
 defineProps<{
   status?: string
 }>()
-
-const page = usePage()
-const mainAppUrl = computed(() => {
-  const url = (page.props.mainAppUrl as string) || ''
-  if (url) return url
-  if (typeof window !== 'undefined') {
-    const host = window.location.host.replace(/^portal\./, '')
-    return `${window.location.protocol}//${host}`
-  }
-  return ''
-})
 
 const isMfaStep = ref(false)
 const authType = ref<'totp' | 'email'>('totp')

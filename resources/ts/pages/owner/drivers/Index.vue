@@ -5,11 +5,10 @@ import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
 
-const props = defineProps<{
+defineProps<{
   drivers: Array<any>
 }>()
 
-const driversList = ref<Array<any>>(props.drivers || [])
 const showModal = ref(false)
 const editingDriver = ref<any>(null)
 const submitting = ref(false)
@@ -81,6 +80,7 @@ const handleLicenseUpload = (e: any) => {
 const saveDriver = async () => {
   if (!form.value.name || !form.value.phone || !form.value.license_number) {
     errorMsg.value = 'Please fill in required fields: Name, Phone, and License Number.'
+    
     return
   }
 
@@ -89,6 +89,7 @@ const saveDriver = async () => {
   feedbackMsg.value = ''
 
   const formData = new FormData()
+
   formData.append('name', form.value.name)
   formData.append('phone', form.value.phone)
   if (form.value.email) formData.append('email', form.value.email)
@@ -358,7 +359,7 @@ const deleteDriver = async (id: number, name: string) => {
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
               <select
@@ -380,8 +381,16 @@ const deleteDriver = async (id: number, name: string) => {
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Driver Photo</label>
               <input
                 type="file"
-                class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-950 dark:file:text-emerald-300"
+                class="w-full text-xs text-slate-500 file:me-2 file:py-1.5 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-950 dark:file:text-emerald-300"
                 @change="handlePhotoUpload"
+              >
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">License Photo</label>
+              <input
+                type="file"
+                class="w-full text-xs text-slate-500 file:me-2 file:py-1.5 file:px-2.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 dark:file:bg-emerald-950 dark:file:text-emerald-300"
+                @change="handleLicenseUpload"
               >
             </div>
           </div>

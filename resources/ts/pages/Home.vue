@@ -17,17 +17,20 @@ const portalName = computed(() => {
   if (auth.value?.admin) return 'Admin'
   if (auth.value?.owner) return 'Fleet Owner'
   if (auth.value?.customer) return 'Customer'
+  
   return 'User'
 })
 
 const portalDashboardUrl = computed(() => {
   if (auth.value?.admin) {
     const base = auth.value?.adminPortalUrl || ''
+    
     return base ? `${base}/admin/dashboard` : '/admin/dashboard'
   }
   if (auth.value?.owner) {
     return '/owner/dashboard'
   }
+  
   return '/customer/dashboard'
 })
 

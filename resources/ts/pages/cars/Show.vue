@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { Head, Link, usePage, router } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 import MessageBox from '@/components/MessageBox.vue'
@@ -12,10 +12,13 @@ const props = defineProps<{
 }>()
 
 const page = usePage()
+
 const authUser = computed(() => {
   const auth = (page.props.auth as any) || {}
+  
   return auth.customer || auth.user || auth.admin || auth.owner || null
 })
+
 const isLoggedIn = computed(() => Boolean(authUser.value))
 
 const carData = ref<any>(props.car)
@@ -102,11 +105,13 @@ const checkCalendarAvailability = async () => {
 const proceedToPayment = () => {
   if (!isLoggedIn.value) {
     showLoginPromptModal.value = true
+    
     return
   }
 
   if (!availabilityResult.value?.available) {
     availabilityError.value = 'Please select available dates before booking.'
+    
     return
   }
 
@@ -118,6 +123,7 @@ const proceedToPayment = () => {
 const submitBookingAndPayment = async () => {
   if (!paymentForm.value.cardNumber || !paymentForm.value.expiryDate || !paymentForm.value.cvv) {
     alert('Please enter all payment information.')
+    
     return
   }
 

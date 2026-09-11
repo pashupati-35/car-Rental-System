@@ -191,7 +191,7 @@ onUnmounted(() => {
               :src="logoUrl"
               :alt="companyName"
               class="h-9 max-w-[140px] sm:max-w-[180px] object-contain group-hover:scale-105 transition-transform"
-            />
+            >
             <template v-else>
               <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
                 CR
@@ -428,7 +428,7 @@ onUnmounted(() => {
                 :src="logoUrl"
                 :alt="companyName"
                 class="h-9 max-w-[140px] object-contain"
-              />
+              >
               <template v-else>
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-800 text-white font-black flex items-center justify-center text-base shadow-md">
                   CR
@@ -526,7 +526,7 @@ onUnmounted(() => {
               :src="logoUrl"
               :alt="companyName"
               class="h-9 max-w-[140px] object-contain"
-            />
+            >
             <template v-else>
               <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-700 flex items-center justify-center text-white font-black text-lg shadow-md shadow-emerald-500/20 shrink-0">
                 <i class="ri-car-line text-xl" />

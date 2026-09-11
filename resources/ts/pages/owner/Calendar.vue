@@ -138,6 +138,7 @@ const calendarMatrix = computed<CalendarDay[]>(() => {
   for (let i = startDayOfWeek - 1; i >= 0; i--) {
     const d = new Date(year.value, month.value - 1, prevMonthLastDay - i)
     const dateString = normalizeDateStr(d)
+
     days.push({
       date: d,
       dateString,
@@ -152,6 +153,7 @@ const calendarMatrix = computed<CalendarDay[]>(() => {
   for (let i = 1; i <= totalDays; i++) {
     const d = new Date(year.value, month.value, i)
     const dateString = normalizeDateStr(d)
+
     days.push({
       date: d,
       dateString,
@@ -168,6 +170,7 @@ const calendarMatrix = computed<CalendarDay[]>(() => {
     for (let i = 1; i <= remainingDays; i++) {
       const d = new Date(year.value, month.value + 1, i)
       const dateString = normalizeDateStr(d)
+
       days.push({
         date: d,
         dateString,
@@ -187,6 +190,7 @@ const getBookingsForDate = (dateStr: string): BookingItem[] => {
     const start = b.pickup_date || b.pick_up_date || b.start_date || ''
     const end = b.return_date || b.last_date || b.end_date || ''
     if (!start || !end) return false
+    
     return dateStr >= start.split('T')[0] && dateStr <= end.split('T')[0]
   })
 }
@@ -212,6 +216,7 @@ const getCustomerName = (booking: BookingItem) => {
   if (booking.customer) {
     return booking.customer.name || `${booking.customer.first_name || ''} ${booking.customer.last_name || ''}`.trim() || 'Customer'
   }
+  
   return booking.name || 'Customer'
 }
 </script>
@@ -263,7 +268,9 @@ const getCustomerName = (booking: BookingItem) => {
         <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">My Registered Fleet</span>
-            <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ stats?.totalCars ?? cars?.length ?? 0 }}</h4>
+            <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
+              {{ stats?.totalCars ?? cars?.length ?? 0 }}
+            </h4>
           </div>
           <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
             <i class="ri-car-line" />
@@ -273,7 +280,9 @@ const getCustomerName = (booking: BookingItem) => {
         <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Bookings This Month</span>
-            <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{{ stats?.thisMonthBookings ?? 0 }}</h4>
+            <h4 class="text-2xl font-black text-slate-900 dark:text-white mt-0.5">
+              {{ stats?.thisMonthBookings ?? 0 }}
+            </h4>
           </div>
           <div class="w-10 h-10 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl">
             <i class="ri-calendar-event-line" />
@@ -283,7 +292,9 @@ const getCustomerName = (booking: BookingItem) => {
         <div class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex items-center justify-between">
           <div>
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Reservations</span>
-            <h4 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{{ stats?.activeBookings ?? bookings?.length ?? 0 }}</h4>
+            <h4 class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">
+              {{ stats?.activeBookings ?? bookings?.length ?? 0 }}
+            </h4>
           </div>
           <div class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
             <i class="ri-checkbox-circle-line" />

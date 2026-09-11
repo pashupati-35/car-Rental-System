@@ -167,7 +167,7 @@ const cancelBooking = (id: number) => {
             v-model="search"
             type="text"
             placeholder="Search car, customer, pickup..."
-            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+            class="w-full ps-9 pe-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
           >
         </div>
       </div>
@@ -343,8 +343,9 @@ const cancelBooking = (id: number) => {
               !link.url ? 'opacity-40 cursor-not-allowed pointer-events-none' : 'cursor-pointer'
             ]"
             class="px-3.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200/80 dark:border-slate-800 transition-all"
-            v-html="link.label"
-          />
+          >
+            <span v-html="link.label" />
+          </Link>
         </div>
       </div>
     </div>

@@ -69,6 +69,7 @@ const handleLogin = async () => {
     }
   } catch (err: any) {
     const data = err.response?.data
+
     errorMessage.value = data?.errors || data?.message || 'Invalid credentials or connection error.'
     if (data?.redirect_portal) {
       redirectPortal.value = {

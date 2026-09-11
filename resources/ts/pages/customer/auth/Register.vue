@@ -16,7 +16,7 @@ const form = useForm({
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
-const handleRegister = async () => {
+const submit = () => {
   form.post('/customer/register', {
     onFinish: () => form.reset('password', 'password_confirmation'),
   })

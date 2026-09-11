@@ -6,13 +6,16 @@ import { useSiteSettings } from '@/composable/useSiteSettings'
 const page = usePage()
 const { logoUrl, companyName } = useSiteSettings()
 const isPortal = computed(() => Boolean(page.props.isPortal))
+
 const mainAppUrl = computed(() => {
   const url = (page.props.mainAppUrl as string) || ''
   if (url) return url
   if (typeof window !== 'undefined') {
     const host = window.location.host.replace(/^portal\./, '')
+    
     return `${window.location.protocol}//${host}`
   }
+  
   return ''
 })
 
@@ -121,7 +124,7 @@ const browseUrl = computed(() => isPortal.value ? `${mainAppUrl.value}/cars` : '
           :src="logoUrl"
           :alt="companyName"
           class="h-12 max-w-[200px] object-contain group-hover:scale-105 transition-transform"
-        />
+        >
         <div
           v-else
           class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform"
@@ -139,7 +142,7 @@ const browseUrl = computed(() => isPortal.value ? `${mainAppUrl.value}/cars` : '
           :src="logoUrl"
           :alt="companyName"
           class="h-12 max-w-[200px] object-contain group-hover:scale-105 transition-transform"
-        />
+        >
         <div
           v-else
           class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform"

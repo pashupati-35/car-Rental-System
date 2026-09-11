@@ -49,9 +49,10 @@ const onDriverSelected = () => {
   if (!form.driver_id) {
     form.driver_name = ''
     form.driver_number = ''
+    
     return
   }
-  const selected = props.drivers?.find((d) => d.id == form.driver_id)
+  const selected = props.drivers?.find(d => d.id == form.driver_id)
   if (selected) {
     form.driver_name = selected.name
     form.driver_number = selected.phone

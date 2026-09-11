@@ -10,7 +10,6 @@ const { theme, toggleTheme, initTheme } = useFrontendTheme()
 const { logoUrl, footerLogoUrl, companyName } = useSiteSettings()
 const auth = computed(() => page.props.auth as any)
 const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
-const showProfileMenu = ref(false)
 
 const flashSuccess = ref('')
 const flashError = ref('')
@@ -47,27 +46,14 @@ const portalName = computed(() => {
 const portalDashboardUrl = computed(() => {
   if (auth.value?.admin) {
     const base = auth.value?.adminPortalUrl || ''
+    
     return base ? `${base}/admin/dashboard` : '/admin/dashboard'
   }
   if (auth.value?.owner) {
     return '/owner/dashboard'
   }
-  return '/customer/dashboard'
-})
-
-const rolePrefix = computed(() => {
-  if (role.value === 'Admin') return 'admin'
-  if (role.value === 'Owner') return 'owner'
   
-  return 'customer'
-})
-
-const displayName = computed(() => {
-  return user.value?.name || user.value?.full_name || 'Account'
-})
-
-const userEmail = computed(() => {
-  return user.value?.email || ''
+  return '/customer/dashboard'
 })
 
 const logout = () => {
@@ -137,7 +123,7 @@ onUnmounted(() => {
             :src="logoUrl"
             :alt="companyName"
             class="h-9 max-w-[150px] object-contain"
-          />
+          >
           <template v-else>
             <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
               CR
@@ -389,7 +375,7 @@ onUnmounted(() => {
                 :src="footerLogoUrl"
                 :alt="companyName"
                 class="h-8 max-w-[140px] object-contain"
-              />
+              >
               <template v-else>
                 <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                   CR

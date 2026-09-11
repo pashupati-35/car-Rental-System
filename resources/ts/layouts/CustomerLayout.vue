@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 import MessageBox from '@/components/MessageBox.vue'
-import { useCustomerTheme, type CustomerThemeStyle } from '@/composable/useCustomerTheme'
+import { useCustomerTheme } from '@/composable/useCustomerTheme'
 import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
@@ -184,7 +184,7 @@ onUnmounted(() => {
               :src="logoUrl"
               :alt="companyName"
               class="h-9 max-w-[140px] sm:max-w-[180px] object-contain group-hover:scale-105 transition-transform"
-            />
+            >
             <template v-else>
               <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
                 CR
@@ -422,7 +422,7 @@ onUnmounted(() => {
                 :src="logoUrl"
                 :alt="companyName"
                 class="h-9 max-w-[140px] object-contain"
-              />
+              >
               <template v-else>
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-sky-600 text-white font-black flex items-center justify-center text-base shadow-md">
                   CR
@@ -522,7 +522,7 @@ onUnmounted(() => {
               :src="logoUrl"
               :alt="companyName"
               class="h-9 max-w-[140px] object-contain"
-            />
+            >
             <template v-else>
               <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-600 flex items-center justify-center text-white font-black text-lg shadow-md shadow-blue-500/20 shrink-0">
                 <i class="ri-compass-3-line text-xl" />

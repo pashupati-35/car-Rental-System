@@ -86,6 +86,7 @@ defineProps<{
             <a
               :href="'/' + car.blue_book_photo"
               target="_blank"
+              rel="noopener noreferrer"
               class="text-emerald-600 dark:text-emerald-400 font-bold hover:underline"
             >
               View Document &rarr;
