@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
+use App\Http\Middleware\EnsureDomainAccess;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\OwnerMiddleware;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'customer' => CustomerMiddleware::class,
         ]);
         $middleware->web(append: [
+            EnsureDomainAccess::class,
             HandleInertiaRequests::class,
         ]);
         $middleware->api(prepend: [

@@ -20,14 +20,14 @@ class LoginController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            if ($request->wantsJson()) {
+            if ($request->wantsJson() && ! $request->header('X-Inertia')) {
                 return response()->json(['status' => 'OK', 'user' => Auth::guard('admin')->user()]);
             }
 
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        if ($request->wantsJson()) {
+        if ($request->wantsJson() && ! $request->header('X-Inertia')) {
             return response()->json(['status' => 'ERROR', 'message' => __('auth.failed')], 422);
         }
 

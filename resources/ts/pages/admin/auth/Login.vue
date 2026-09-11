@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useForm, Head, Link } from '@inertiajs/vue3'
+import { computed, ref } from 'vue'
+import { useForm, Head, Link, usePage } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
 import MFAVerification from './MFAVerification.vue'
@@ -9,6 +9,17 @@ import axios from 'axios'
 defineProps<{
   status?: string
 }>()
+
+const page = usePage()
+const mainAppUrl = computed(() => {
+  const url = (page.props.mainAppUrl as string) || ''
+  if (url) return url
+  if (typeof window !== 'undefined') {
+    const host = window.location.host.replace(/^portal\./, '')
+    return `${window.location.protocol}//${host}`
+  }
+  return ''
+})
 
 const isMfaStep = ref(false)
 const authType = ref<'totp' | 'email'>('totp')
@@ -137,21 +148,6 @@ const handleLogin = async () => {
           <span v-else>Access Admin Dashboard</span>
         </button>
       </form>
-
-      <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800 flex justify-between text-xs text-gray-500">
-        <Link
-          href="/owner/login"
-          class="hover:text-indigo-600 transition-colors"
-        >
-          Owner Login &rarr;
-        </Link>
-        <Link
-          href="/customer/login"
-          class="hover:text-indigo-600 transition-colors"
-        >
-          Customer Login &rarr;
-        </Link>
-      </div>
     </div>
 
     <div v-else>

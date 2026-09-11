@@ -60,7 +60,7 @@ Route::group(['prefix' => 'admin'], function ($route) {
     $route->post('request/verification-code', [MFAController::class, 'requestEmailVerificationCode']);
     $route->post('verify/mfa-verification-code', [MFAController::class, 'verifyMfaVerificationCode']);
     $route->post('verify/email-verification-code', [MFAController::class, 'verifyEmailVerificationCode']);
-    $route->post('login', [LoginController::class, 'login']);
+    $route->post('login', [AuthenticatedSessionController::class, 'store']);
 
     // Web views for Auth
     $route->get('register', [RegisteredAdminController::class, 'create'])->name('admin.register');

@@ -45,10 +45,16 @@ class HandleInertiaRequests extends Middleware
         $scheme = $request->getScheme();
         $port = $request->getPort();
         $portSuffix = ($port && ! in_array($port, [80, 443])) ? ':'.$port : '';
-        $portalHost = str_starts_with($host, 'portal.') ? $host : 'portal.'.$host;
+        $isPortal = str_starts_with($host, 'portal.');
+        $mainHost = $isPortal ? preg_replace('/^portal\./', '', $host) : $host;
+        $portalHost = $isPortal ? $host : 'portal.'.$host;
         $adminPortalBaseUrl = $scheme.'://'.$portalHost.$portSuffix;
+        $mainAppBaseUrl = config('app.url') ? rtrim(config('app.url'), '/') : ($scheme.'://'.$mainHost.$portSuffix);
 
         return array_merge(parent::share($request), [
+            'isPortal' => $isPortal,
+            'adminPortalUrl' => $adminPortalBaseUrl,
+            'mainAppUrl' => $mainAppBaseUrl,
             'auth' => [
                 'admin' => fn () => $request->user('admin'),
                 'owner' => fn () => $request->user('owner'),
@@ -56,6 +62,7 @@ class HandleInertiaRequests extends Middleware
                 'user' => fn () => $request->user('admin') ?? $request->user('owner') ?? $request->user('customer'),
                 'isImpersonating' => fn () => (bool) ($request->session()->get('admin_impersonating') || ($request->user('admin') && ($request->user('owner') || $request->user('customer')))),
                 'adminPortalUrl' => $adminPortalBaseUrl,
+                'mainAppUrl' => $mainAppBaseUrl,
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
