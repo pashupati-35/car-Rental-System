@@ -27,7 +27,31 @@ class MFAController extends Controller
 
         $owner = Owner::where('email', $request->input('email'))->first();
 
-        if ($owner && Hash::check($request->input('password'), $owner->password)) {
+        if (! $owner) {
+            if (\App\Models\Customer::where('email', $request->input('email'))->exists()) {
+                return response()->json([
+                    'status' => 'ERROR',
+                    'errors' => 'This account is registered as a Customer. Please sign in through the Customer Portal.',
+                    'redirect_portal' => '/customer/login?email='.urlencode($request->input('email')),
+                    'portal_name' => 'Customer Portal',
+                ], 401);
+            }
+            if (\App\Models\Admin::where('email', $request->input('email'))->exists()) {
+                return response()->json([
+                    'status' => 'ERROR',
+                    'errors' => 'This account is registered as an Admin. Please sign in through the Admin Portal.',
+                    'redirect_portal' => '/admin/login?email='.urlencode($request->input('email')),
+                    'portal_name' => 'Admin Portal',
+                ], 401);
+            }
+
+            return response()->json([
+                'status' => 'ERROR',
+                'errors' => 'Invalid email or password.',
+            ], 401);
+        }
+
+        if (Hash::check($request->input('password'), $owner->password)) {
             $isMfa = (bool) $owner->is_mfa_enabled;
             $isEmailAuth = (bool) $owner->is_email_authentication_enabled;
             $codeSent = false;

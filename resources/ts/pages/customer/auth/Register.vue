@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 
@@ -12,7 +13,10 @@ const form = useForm({
   password_confirmation: '',
 })
 
-const submit = () => {
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
+
+const handleRegister = async () => {
   form.post('/customer/register', {
     onFinish: () => form.reset('password', 'password_confirmation'),
   })
@@ -121,13 +125,26 @@ const submit = () => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Password *</label>
-            <input
-              v-model="form.password"
-              type="password"
-              required
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-              placeholder="••••••••••••"
-            >
+            <div class="relative">
+              <input
+                v-model="form.password"
+                :type="showPassword ? 'text' : 'password'"
+                required
+                class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                placeholder="••••••••••••"
+              >
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                :title="showPassword ? 'Hide password' : 'Show password'"
+                @click="showPassword = !showPassword"
+              >
+                <i
+                  :class="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                  class="text-lg leading-none block"
+                />
+              </button>
+            </div>
             <span
               v-if="form.errors.password"
               class="text-xs text-red-500 mt-1 block"
@@ -135,13 +152,26 @@ const submit = () => {
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
-            <input
-              v-model="form.password_confirmation"
-              type="password"
-              required
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-              placeholder="••••••••••••"
-            >
+            <div class="relative">
+              <input
+                v-model="form.password_confirmation"
+                :type="showConfirmPassword ? 'text' : 'password'"
+                required
+                class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                placeholder="••••••••••••"
+              >
+              <button
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                :title="showConfirmPassword ? 'Hide password' : 'Show password'"
+                @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <i
+                  :class="showConfirmPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                  class="text-lg leading-none block"
+                />
+              </button>
+            </div>
           </div>
         </div>
 

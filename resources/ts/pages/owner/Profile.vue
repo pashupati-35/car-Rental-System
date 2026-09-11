@@ -46,6 +46,8 @@ const passwordForm = ref({
 const passwordLoading = ref(false)
 const passwordMsg = ref('')
 const passwordError = ref('')
+const showPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const updatePassword = async () => {
   if (passwordForm.value.password !== passwordForm.value.password_confirmation) {
@@ -271,26 +273,52 @@ const themeOptions: { value: OwnerThemeStyle; label: string; desc: string; icon:
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">New Password</label>
-              <input
-                v-model="passwordForm.password"
-                type="password"
-                required
-                minlength="8"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="••••••••••••"
-              >
+              <div class="relative">
+                <input
+                  v-model="passwordForm.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  required
+                  minlength="8"
+                  class="w-full px-3.5 py-2.5 pe-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="••••••••••••"
+                >
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                  :title="showPassword ? 'Hide password' : 'Show password'"
+                  @click="showPassword = !showPassword"
+                >
+                  <i
+                    :class="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                    class="text-base leading-none block"
+                  />
+                </button>
+              </div>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Confirm New Password</label>
-              <input
-                v-model="passwordForm.password_confirmation"
-                type="password"
-                required
-                minlength="8"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                placeholder="••••••••••••"
-              >
+              <div class="relative">
+                <input
+                  v-model="passwordForm.password_confirmation"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  required
+                  minlength="8"
+                  class="w-full px-3.5 py-2.5 pe-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="••••••••••••"
+                >
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                  :title="showConfirmPassword ? 'Hide password' : 'Show password'"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                >
+                  <i
+                    :class="showConfirmPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                    class="text-base leading-none block"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 

@@ -42,6 +42,18 @@ class AuthenticatedSessionController extends Controller
             return redirect()->intended(route('owner.dashboard'));
         }
 
+        if (\App\Models\Customer::where('email', $request->email)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => 'This account is registered as a Customer. Please sign in through the Customer Portal.',
+            ]);
+        }
+
+        if (\App\Models\Admin::where('email', $request->email)->exists()) {
+            throw ValidationException::withMessages([
+                'email' => 'This account is registered as an Admin. Please sign in through the Admin Portal.',
+            ]);
+        }
+
         throw ValidationException::withMessages([
             'email' => __('auth.failed'),
         ]);

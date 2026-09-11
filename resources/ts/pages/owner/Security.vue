@@ -17,6 +17,8 @@ const passwordForm = ref({
 const passwordLoading = ref(false)
 const passwordMsg = ref('')
 const passwordError = ref('')
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 const mfaEnabled = ref(Boolean(user.value?.is_mfa_enabled))
 const emailAuthEnabled = ref(Boolean(user.value?.is_email_authentication_enabled))
@@ -327,24 +329,50 @@ const disableMfa = async () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">New Password</label>
-              <input
-                v-model="passwordForm.password"
-                type="password"
-                required
-                placeholder="••••••••"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
+              <div class="relative">
+                <input
+                  v-model="passwordForm.password"
+                  :type="showNewPassword ? 'text' : 'password'"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-3.5 py-2.5 pe-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                  :title="showNewPassword ? 'Hide password' : 'Show password'"
+                  @click="showNewPassword = !showNewPassword"
+                >
+                  <i
+                    :class="showNewPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                    class="text-base leading-none block"
+                  />
+                </button>
+              </div>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Confirm New Password</label>
-              <input
-                v-model="passwordForm.password_confirmation"
-                type="password"
-                required
-                placeholder="••••••••"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              >
+              <div class="relative">
+                <input
+                  v-model="passwordForm.password_confirmation"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  required
+                  placeholder="••••••••"
+                  class="w-full px-3.5 py-2.5 pe-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                <button
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg focus:outline-none cursor-pointer transition-colors"
+                  :title="showConfirmPassword ? 'Hide password' : 'Show password'"
+                  @click="showConfirmPassword = !showConfirmPassword"
+                >
+                  <i
+                    :class="showConfirmPassword ? 'ri-eye-off-line' : 'ri-eye-line'"
+                    class="text-base leading-none block"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
