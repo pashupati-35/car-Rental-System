@@ -192,8 +192,9 @@ const maxTrendRevenue = Math.max(...(props.revenueTrends?.revenue || [100]), 100
               Monthly revenue breakdown from confirmed and completed reservations
             </p>
           </div>
-          <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
-            Performance Insights
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300">
+            <i class="ri-line-chart-line text-sm" />
+            <span>Performance Insights</span>
           </span>
         </div>
 

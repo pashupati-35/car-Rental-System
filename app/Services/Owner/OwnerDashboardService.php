@@ -19,9 +19,13 @@ class OwnerDashboardService
         $carIds = Car::where('owner_id', $ownerId)->pluck('id')->toArray();
 
         $totalCars = Car::where('owner_id', $ownerId)->count();
-        $verifiedCars = Car::where('owner_id', $ownerId)->where('status', 'approved')->count();
-        $pendingCars = Car::where('owner_id', $ownerId)->where('status', 'pending')->count();
-        $rejectedCars = Car::where('owner_id', $ownerId)->where('status', 'rejected')->count();
+        $verifiedCars = Car::where('owner_id', $ownerId)->whereIn('status', ['approved', 'verified', 'active'])->count();
+        $pendingCars = Car::where('owner_id', $ownerId)->where(function ($q) {
+            $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
+                ->orWhereNull('status')
+                ->orWhere('status', '');
+        })->count();
+        $rejectedCars = Car::where('owner_id', $ownerId)->whereIn('status', ['rejected', 'declined', 'disapproved'])->count();
 
         $totalDrivers = Driver::where('owner_id', $ownerId)->count();
         $activeDrivers = Driver::where('owner_id', $ownerId)->where('status', 'active')->count();

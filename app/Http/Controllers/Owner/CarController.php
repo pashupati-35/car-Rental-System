@@ -17,14 +17,34 @@ class CarController extends Controller
     public function index(Request $request)
     {
         $ownerId = Auth::guard('owner')->id();
-        $status = $request->input('status');
+        $status = $request->input('status', 'all');
         $search = $request->input('search');
+
+        // Status counts strictly scoped to this owner
+        $statusCounts = [
+            'all' => Car::where('owner_id', $ownerId)->count(),
+            'approved' => Car::where('owner_id', $ownerId)->whereIn('status', ['approved', 'verified', 'active'])->count(),
+            'pending' => Car::where('owner_id', $ownerId)->where(function ($q) {
+                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
+                    ->orWhereNull('status')
+                    ->orWhere('status', '');
+            })->count(),
+            'rejected' => Car::where('owner_id', $ownerId)->whereIn('status', ['rejected', 'declined', 'disapproved'])->count(),
+        ];
 
         $query = Car::with(['driver:id,name,phone,license_number,experience_years,status'])
             ->where('owner_id', $ownerId);
 
-        if (! empty($status) && $status !== 'all') {
-            $query->where('status', $status);
+        if ($status === 'approved') {
+            $query->whereIn('status', ['approved', 'verified', 'active']);
+        } elseif ($status === 'pending') {
+            $query->where(function ($q) {
+                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
+                    ->orWhereNull('status')
+                    ->orWhere('status', '');
+            });
+        } elseif ($status === 'rejected') {
+            $query->whereIn('status', ['rejected', 'declined', 'disapproved']);
         }
 
         if (! empty($search)) {
@@ -42,12 +62,14 @@ class CarController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $cars,
+                'status_counts' => $statusCounts,
             ]);
         }
 
         return Inertia::render('owner/Cars/Index', [
             'cars' => $cars,
             'drivers' => $availableDrivers,
+            'statusCounts' => $statusCounts,
             'filters' => [
                 'status' => $status ?? 'all',
                 'search' => $search ?? '',

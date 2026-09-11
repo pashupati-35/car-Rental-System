@@ -18,8 +18,17 @@ class BookingController extends Controller
     {
         $ownerId = Auth::guard('owner')->id();
         $carIds = Car::where('owner_id', $ownerId)->pluck('id')->toArray();
-        $status = $request->input('status');
+        $status = $request->input('status', 'all');
         $search = $request->input('search');
+
+        // Status counts for owner bookings
+        $statusCounts = [
+            'all' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->count(),
+            'pending' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'pending')->count(),
+            'confirmed' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'confirmed')->count(),
+            'completed' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'completed')->count(),
+            'cancelled' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'cancelled')->count(),
+        ];
 
         $query = BookingCar::with([
             'car:id,car_name,car_model,car_number,car_photo,car_price_per_day,owner_id',
@@ -41,7 +50,9 @@ class BookingController extends Controller
                             ->orWhere('car_number', 'like', "%{$search}%");
                     })
                     ->orWhereHas('customer', function ($cq) use ($search) {
-                        $cq->where('full_name', 'like', "%{$search}%")
+                        $cq->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('name', 'like', "%{$search}%")
                             ->orWhere('email', 'like', "%{$search}%");
                     });
             });
@@ -53,11 +64,13 @@ class BookingController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $bookings,
+                'status_counts' => $statusCounts,
             ]);
         }
 
         return Inertia::render('owner/Bookings/Index', [
             'bookings' => $bookings,
+            'statusCounts' => $statusCounts,
             'filters' => [
                 'status' => $status ?? 'all',
                 'search' => $search ?? '',

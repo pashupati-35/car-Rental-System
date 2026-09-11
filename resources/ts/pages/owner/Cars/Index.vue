@@ -12,6 +12,12 @@ const props = defineProps<{
     links: Array<{ url: string | null; label: string; active: boolean }>
   }
   drivers?: Array<any>
+  statusCounts?: {
+    all: number
+    approved: number
+    pending: number
+    rejected: number
+  }
   filters?: {
     status?: string
     search?: string
@@ -82,39 +88,63 @@ const deleteCar = (id: number, name: string) => {
 
       <!-- Filters & Search Toolbar -->
       <div class="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-        <!-- Status Tabs -->
+        <!-- Status Tabs with Counts -->
         <div class="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl">
           <button
             type="button"
             :class="currentStatus === 'all' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
-            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
             @click="setStatus('all')"
           >
-            All Cars
+            <span>All Cars</span>
+            <span
+              :class="currentStatus === 'all' ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono min-w-[18px] text-center"
+            >
+              {{ statusCounts?.all ?? cars.total }}
+            </span>
           </button>
           <button
             type="button"
             :class="currentStatus === 'approved' ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
-            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
             @click="setStatus('approved')"
           >
-            Approved
+            <span>Approved</span>
+            <span
+              :class="currentStatus === 'approved' ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono min-w-[18px] text-center"
+            >
+              {{ statusCounts?.approved ?? 0 }}
+            </span>
           </button>
           <button
             type="button"
             :class="currentStatus === 'pending' ? 'bg-white dark:bg-slate-900 text-amber-700 dark:text-amber-300 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
-            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
             @click="setStatus('pending')"
           >
-            Pending Verification
+            <span>Pending Verification</span>
+            <span
+              :class="currentStatus === 'pending' ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono min-w-[18px] text-center"
+            >
+              {{ statusCounts?.pending ?? 0 }}
+            </span>
           </button>
           <button
             type="button"
             :class="currentStatus === 'rejected' ? 'bg-white dark:bg-slate-900 text-rose-700 dark:text-rose-300 font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium'"
-            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer inline-flex items-center gap-1.5"
             @click="setStatus('rejected')"
           >
-            Rejected
+            <span>Rejected</span>
+            <span
+              :class="currentStatus === 'rejected' ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-200' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+              class="px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono min-w-[18px] text-center"
+            >
+              {{ statusCounts?.rejected ?? 0 }}
+            </span>
           </button>
         </div>
 
@@ -152,13 +182,13 @@ const deleteCar = (id: number, name: string) => {
             <!-- Status Badge -->
             <div class="absolute top-3 right-3">
               <span
-                v-if="car.status === 'approved' || car.status === 'active'"
+                v-if="car.status === 'approved' || car.status === 'verified' || car.status === 'active'"
                 class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/90 text-white backdrop-blur-md shadow-xs flex items-center gap-1"
               >
                 <i class="ri-checkbox-circle-fill text-xs" /> Approved
               </span>
               <span
-                v-else-if="car.status === 'rejected'"
+                v-else-if="car.status === 'rejected' || car.status === 'declined' || car.status === 'disapproved'"
                 class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-rose-500/90 text-white backdrop-blur-md shadow-xs flex items-center gap-1"
               >
                 <i class="ri-close-circle-fill text-xs" /> Rejected
