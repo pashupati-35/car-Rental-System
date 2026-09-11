@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
@@ -13,6 +13,7 @@ defineProps<{
 const isMfaStep = ref(false)
 const authType = ref<'totp' | 'email'>('totp')
 const errorMessage = ref('')
+const isChecking = ref(false)
 
 const form = useForm({
   email: '',
@@ -20,14 +21,17 @@ const form = useForm({
   remember: false,
 })
 
+const isProcessing = computed(() => form.processing || isChecking.value)
+
 const handleLogin = async () => {
   errorMessage.value = ''
   if (!form.email || !form.password) {
     errorMessage.value = 'Please enter both email and password.'
-    
+
     return
   }
 
+  isChecking.value = true
   try {
     const res = await axios.post('/owner/mfa/check-verification', {
       email: form.email,
@@ -37,16 +41,22 @@ const handleLogin = async () => {
     if (res.data.status === 'OK' && (res.data.data?.is_mfa_enabled || res.data.data?.is_email_authentication_enabled)) {
       authType.value = res.data.data?.auth_type || (res.data.data?.is_mfa_enabled ? 'totp' : 'email')
       isMfaStep.value = true
+      isChecking.value = false
     } else {
       form.post('/owner/login', {
-        onFinish: () => form.reset('password'),
+        onFinish: () => {
+          form.reset('password')
+          isChecking.value = false
+        },
         onError: errs => {
-          errorMessage.value = Object.values(errs)[0] as string || 'Login failed.'
+          errorMessage.value = (Object.values(errs)[0] as string) || 'Login failed.'
+          isChecking.value = false
         },
       })
     }
   } catch (err: any) {
     errorMessage.value = err.response?.data?.errors || err.response?.data?.message || 'Invalid credentials or connection error.'
+    isChecking.value = false
   }
 }
 </script>
@@ -136,10 +146,14 @@ const handleLogin = async () => {
 
         <button
           type="submit"
-          :disabled="form.processing"
-          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2"
+          :disabled="isProcessing"
+          class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
-          <span v-if="form.processing">Signing in...</span>
+          <i
+            v-if="isProcessing"
+            class="ri-loader-4-line animate-spin text-lg"
+          />
+          <span v-if="isProcessing">Signing in...</span>
           <span v-else>Sign In to Owner Portal</span>
         </button>
 

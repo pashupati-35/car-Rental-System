@@ -435,11 +435,15 @@ const disableMfa = async () => {
             </button>
             <button
               type="button"
-              class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs cursor-pointer"
+              class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs cursor-pointer flex items-center justify-center gap-1.5"
               :disabled="mfaLoading"
               @click="confirmMfaSetup"
             >
-              {{ mfaLoading ? 'Verifying...' : 'Activate MFA' }}
+              <i
+                v-if="mfaLoading"
+                class="ri-loader-4-line animate-spin text-sm"
+              />
+              <span>{{ mfaLoading ? 'Verifying...' : 'Activate MFA' }}</span>
             </button>
           </div>
         </div>

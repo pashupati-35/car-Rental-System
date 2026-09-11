@@ -148,8 +148,12 @@ const submit = () => {
         <button
           type="submit"
           :disabled="form.processing"
-          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2"
+          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
+          <i
+            v-if="form.processing"
+            class="ri-loader-4-line animate-spin text-lg"
+          />
           <span v-if="form.processing">Creating Customer Account...</span>
           <span v-else>Register as Customer</span>
         </button>
