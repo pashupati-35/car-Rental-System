@@ -40,6 +40,19 @@ class FleetController extends Controller
             });
         }
 
+        // Filter by category
+        if ($category = $request->input('category')) {
+            if ($category !== 'all') {
+                $query->where(function ($q) use ($category) {
+                    $q->where('car_name', 'like', "%{$category}%")
+                      ->orWhere('car_model', 'like', "%{$category}%")
+                      ->orWhere('brand', 'like', "%{$category}%")
+                      ->orWhere('model', 'like', "%{$category}%")
+                      ->orWhere('description', 'like', "%{$category}%");
+                });
+            }
+        }
+
         // Filter by min / max price
         if ($minPrice = $request->input('min_price')) {
             $query->where('car_price_per_day', '>=', (float)$minPrice);
@@ -53,19 +66,22 @@ class FleetController extends Controller
             $query->where('number_of_seats', '>=', (int)$seats);
         }
 
-        $cars = $query->orderByDesc('id')->get();
+        $perPage = (int) $request->input('per_page', 9);
+        $cars = $query->orderByDesc('id')->paginate($perPage)->withQueryString();
 
         return Inertia::render('customer/cars/Index', [
             'cars' => $cars,
             'filters' => [
                 'search' => $request->input('search', ''),
+                'category' => $request->input('category', 'all'),
                 'seats' => $request->input('seats', ''),
                 'min_price' => $request->input('min_price', ''),
                 'max_price' => $request->input('max_price', ''),
+                'per_page' => $perPage,
             ],
             'stats' => [
-                'totalAvailable' => $cars->count(),
-                'avgRate' => $cars->count() ? round($cars->avg('car_price_per_day')) : 65,
+                'totalAvailable' => $cars->total(),
+                'avgRate' => 85,
             ],
         ]);
     }

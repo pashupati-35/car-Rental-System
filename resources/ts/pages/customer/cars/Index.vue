@@ -4,16 +4,32 @@ import { Head, Link, router } from '@inertiajs/vue3'
 import CustomerLayout from '@/layouts/CustomerLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
+import Pagination from '@/components/Pagination.vue'
 import { resolveMediaUrl } from '@/utils/helpers'
 import axios from 'axios'
 
+interface CarPagination {
+  data: Array<any>
+  current_page: number
+  last_page: number
+  from: number
+  to: number
+  total: number
+  per_page: number
+  links: Array<{ url: string | null; label: string; active: boolean }>
+  prev_page_url: string | null
+  next_page_url: string | null
+}
+
 const props = defineProps<{
-  cars: Array<any>
+  cars: CarPagination | Array<any>
   filters?: {
     search?: string
+    category?: string
     seats?: string
     min_price?: string
     max_price?: string
+    per_page?: number
   }
   stats?: {
     totalAvailable?: number
@@ -23,13 +39,61 @@ const props = defineProps<{
 
 const searchQuery = ref(props.filters?.search || '')
 const selectedSeats = ref(props.filters?.seats || '')
-const selectedCategory = ref('all')
+const selectedCategory = ref(props.filters?.category || 'all')
 const maxPrice = ref(props.filters?.max_price || '')
 
 const flashSuccess = ref('')
 const flashError = ref('')
 const modalError = ref('')
 const modalSuccess = ref('')
+
+let filterTimer: any = null
+
+const applyBackendFilters = () => {
+  clearTimeout(filterTimer)
+  filterTimer = setTimeout(() => {
+    router.get(
+      '/customer/cars',
+      {
+        search: searchQuery.value || undefined,
+        category: selectedCategory.value !== 'all' ? selectedCategory.value : undefined,
+        seats: selectedSeats.value || undefined,
+        max_price: maxPrice.value || undefined,
+      },
+      {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+      },
+    )
+  }, 350)
+}
+
+const selectCategory = (catId: string) => {
+  selectedCategory.value = catId
+  router.get(
+    '/customer/cars',
+    {
+      search: searchQuery.value || undefined,
+      category: catId !== 'all' ? catId : undefined,
+      seats: selectedSeats.value || undefined,
+      max_price: maxPrice.value || undefined,
+    },
+    {
+      preserveState: true,
+      preserveScroll: true,
+      replace: true,
+    },
+  )
+}
+
+const resetAllFilters = () => {
+  searchQuery.value = ''
+  selectedSeats.value = ''
+  maxPrice.value = ''
+  selectedCategory.value = 'all'
+  router.get('/customer/cars', {}, { preserveState: true, replace: true })
+}
 
 // Modals
 const isBookingModalOpen = ref(false)
@@ -71,37 +135,7 @@ const getOwnerImage = (owner: any) => {
 }
 
 const filteredCars = computed(() => {
-  const list = Array.isArray(props.cars) ? props.cars : (props.cars as any)?.data || []
-
-  return list.filter((car: any) => {
-    // Search query
-    if (searchQuery.value.trim()) {
-      const q = searchQuery.value.toLowerCase()
-      const name = (car.car_name || car.brand || '').toLowerCase()
-      const model = (car.car_model || car.model || '').toLowerCase()
-      const plate = (car.car_number || '').toLowerCase()
-      if (!name.includes(q) && !model.includes(q) && !plate.includes(q)) return false
-    }
-
-    // Seats filter
-    if (selectedSeats.value) {
-      if (Number(car.number_of_seats) < Number(selectedSeats.value)) return false
-    }
-
-    // Price filter
-    if (maxPrice.value && Number(car.car_price_per_day) > Number(maxPrice.value)) {
-      return false
-    }
-
-    // Category filter
-    if (selectedCategory.value !== 'all') {
-      const cat = selectedCategory.value.toLowerCase()
-      const text = `${car.car_name || ''} ${car.car_model || ''} ${car.brand || ''} ${car.description || ''}`.toLowerCase()
-      if (!text.includes(cat)) return false
-    }
-
-    return true
-  })
+  return Array.isArray(props.cars) ? props.cars : (props.cars as any)?.data || []
 })
 
 const categories = [
@@ -323,6 +357,7 @@ const submitBooking = async () => {
                 type="text"
                 placeholder="Search Hyundai Creta, BYD, Toyota, Scorpio..."
                 class="w-full ps-10 pe-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                @input="applyBackendFilters"
               >
             </div>
           </div>
@@ -335,6 +370,7 @@ const submitBooking = async () => {
             <select
               v-model="selectedSeats"
               class="w-full px-3.5 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer"
+              @change="applyBackendFilters"
             >
               <option value="">
                 All Passenger Capacities
@@ -363,6 +399,7 @@ const submitBooking = async () => {
                 type="number"
                 placeholder="e.g. 150"
                 class="w-full ps-8 pe-4 py-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                @input="applyBackendFilters"
               >
             </div>
           </div>
@@ -376,7 +413,7 @@ const submitBooking = async () => {
             type="button"
             :class="selectedCategory === cat.id ? 'bg-blue-600 text-white font-bold shadow-md shadow-blue-500/20' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 font-semibold'"
             class="px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shrink-0 transition-all cursor-pointer"
-            @click="selectedCategory = cat.id"
+            @click="selectCategory(cat.id)"
           >
             <i :class="cat.icon" />
             <span>{{ cat.label }}</span>
@@ -388,107 +425,126 @@ const submitBooking = async () => {
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <p class="text-xs font-bold text-slate-500">
-            Showing <strong class="text-slate-900 dark:text-white">{{ filteredCars.length }}</strong> verified fleet vehicles
+            Showing <strong class="text-slate-900 dark:text-white">{{ !Array.isArray(props.cars) && props.cars?.total !== undefined ? props.cars.total : filteredCars.length }}</strong> verified fleet vehicles
           </p>
         </div>
 
         <div
           v-if="filteredCars.length > 0"
-          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          class="space-y-6"
         >
-          <div
-            v-for="car in filteredCars"
-            :key="car.id"
-            class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-900 transition-all group"
-          >
-            <div>
-              <!-- Car Image with Badges -->
-              <div class="relative overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-800 h-48">
-                <img
-                  :src="getCarImage(car)"
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  :alt="car.car_name"
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div
+              v-for="car in filteredCars"
+              :key="car.id"
+              class="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs flex flex-col justify-between space-y-4 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-900 transition-all group"
+            >
+              <div>
+                <!-- Car Image with Badges -->
+                <div class="relative overflow-hidden rounded-2xl mb-4 bg-slate-100 dark:bg-slate-800 h-48">
+                  <img
+                    :src="getCarImage(car)"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    :alt="car.car_name"
+                  >
+                  <span class="absolute top-3 start-3 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-slate-900/80 backdrop-blur-md text-white shadow-sm">
+                    {{ car.number_of_seats || 5 }} Seats
+                  </span>
+                  <span class="absolute top-3 end-3 px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-md shadow-blue-600/30">
+                    ${{ car.car_price_per_day || car.price_per_day || 65 }}/day
+                  </span>
+                </div>
+
+                <!-- Car Title & Spec Info -->
+                <div class="space-y-2">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
+                        {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
+                      </h4>
+                      <p class="text-xs font-mono text-slate-400">
+                        {{ car.car_number }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Driver & Owner Interactive Info Box -->
+                  <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs space-y-2">
+                    <!-- Driver Row (Clickable) -->
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400">Assigned Chauffeur:</span>
+                      <button
+                        type="button"
+                        class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                        title="Click to view full driver credentials"
+                        @click="openDriverModal(car.driver, car.driver_name)"
+                      >
+                        <i class="ri-user-star-line text-sm text-blue-500" />
+                        <span>{{ car.driver?.name || car.driver_name || 'Certified Driver' }}</span>
+                      </button>
+                    </div>
+
+                    <!-- Fleet Partner Row (Clickable) -->
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400">Fleet Partner:</span>
+                      <button
+                        type="button"
+                        class="font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                        title="Click to view fleet partner profile"
+                        @click="openOwnerModal(car.owner, 'Verified Fleet Partner')"
+                      >
+                        <i class="ri-building-line text-sm text-indigo-500" />
+                        <span>{{ car.owner?.full_name || 'Verified Fleet Partner' }}</span>
+                      </button>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-1.5 border-t border-slate-200/50 dark:border-slate-700/50 text-[11px] text-emerald-600 font-bold">
+                      <span class="flex items-center gap-1">
+                        <i class="ri-checkbox-circle-fill text-emerald-500" /> Free Cancellation
+                      </span>
+                      <span class="flex items-center gap-1">
+                        <i class="ri-shield-check-fill text-blue-500" /> GPS & Insurance
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex items-center gap-2 pt-1">
+                <Link
+                  :href="`/customer/cars/${car.id}`"
+                  class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors text-center"
                 >
-                <span class="absolute top-3 start-3 px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-slate-900/80 backdrop-blur-md text-white shadow-sm">
-                  {{ car.number_of_seats || 5 }} Seats
-                </span>
-                <span class="absolute top-3 end-3 px-3 py-1 rounded-full text-xs font-black bg-blue-600 text-white shadow-md shadow-blue-600/30">
-                  ${{ car.car_price_per_day || car.price_per_day || 65 }}/day
-                </span>
-              </div>
-
-              <!-- Car Title & Spec Info -->
-              <div class="space-y-2">
-                <div class="flex items-start justify-between">
-                  <div>
-                    <h4 class="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">
-                      {{ car.car_name || car.brand }} {{ car.car_model || car.model }}
-                    </h4>
-                    <p class="text-xs font-mono text-slate-400">
-                      {{ car.car_number }}
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Driver & Owner Interactive Info Box -->
-                <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-xs space-y-2">
-                  <!-- Driver Row (Clickable) -->
-                  <div class="flex justify-between items-center">
-                    <span class="text-slate-400">Assigned Chauffeur:</span>
-                    <button
-                      type="button"
-                      class="font-bold text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
-                      title="Click to view full driver credentials"
-                      @click="openDriverModal(car.driver, car.driver_name)"
-                    >
-                      <i class="ri-user-star-line text-sm text-blue-500" />
-                      <span>{{ car.driver?.name || car.driver_name || 'Certified Driver' }}</span>
-                    </button>
-                  </div>
-
-                  <!-- Fleet Partner Row (Clickable) -->
-                  <div class="flex justify-between items-center">
-                    <span class="text-slate-400">Fleet Partner:</span>
-                    <button
-                      type="button"
-                      class="font-semibold text-slate-800 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
-                      title="Click to view fleet partner profile"
-                      @click="openOwnerModal(car.owner, 'Verified Fleet Partner')"
-                    >
-                      <i class="ri-building-line text-sm text-indigo-500" />
-                      <span>{{ car.owner?.full_name || 'Verified Fleet Partner' }}</span>
-                    </button>
-                  </div>
-
-                  <div class="flex justify-between items-center pt-1.5 border-t border-slate-200/50 dark:border-slate-700/50 text-[11px] text-emerald-600 font-bold">
-                    <span class="flex items-center gap-1">
-                      <i class="ri-checkbox-circle-fill text-emerald-500" /> Free Cancellation
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <i class="ri-shield-check-fill text-blue-500" /> GPS & Insurance
-                    </span>
-                  </div>
-                </div>
+                  View Details
+                </Link>
+                <button
+                  type="button"
+                  class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  @click="openBookingModal(car)"
+                >
+                  <span>Reserve Now</span>
+                  <i class="ri-arrow-right-line" />
+                </button>
               </div>
             </div>
+          </div>
 
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-2 pt-1">
-              <Link
-                :href="`/customer/cars/${car.id}`"
-                class="px-3 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors text-center"
-              >
-                View Details
-              </Link>
-              <button
-                type="button"
-                class="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-md shadow-blue-600/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                @click="openBookingModal(car)"
-              >
-                <span>Reserve Now</span>
-                <i class="ri-arrow-right-line" />
-              </button>
-            </div>
+          <!-- Backend Pagination Component -->
+          <div
+            v-if="!Array.isArray(props.cars) && props.cars && props.cars.total > 0"
+            class="pt-6"
+          >
+            <Pagination
+              :links="props.cars.links"
+              :from="props.cars.from"
+              :to="props.cars.to"
+              :total="props.cars.total"
+              :current-page="props.cars.current_page"
+              :last-page="props.cars.last_page"
+              :per-page="props.cars.per_page"
+              :per-page-options="[6, 9, 12, 18, 24, 36]"
+            />
           </div>
         </div>
 
@@ -508,7 +564,7 @@ const submitBooking = async () => {
           <button
             type="button"
             class="mt-4 px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-md"
-            @click="searchQuery = ''; selectedSeats = ''; maxPrice = ''; selectedCategory = 'all'"
+            @click="resetAllFilters"
           >
             Reset Filters
           </button>

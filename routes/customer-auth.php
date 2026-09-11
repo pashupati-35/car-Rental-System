@@ -49,6 +49,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('/security', [ProfileController::class, 'security'])->name('security');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update.post');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
         Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
