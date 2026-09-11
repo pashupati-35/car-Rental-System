@@ -75,6 +75,50 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update the owner's preferred theme style.
+     */
+    public function updateThemeStyle(Request $request)
+    {
+        $request->validate([
+            'theme_style' => ['required', 'string', 'in:dark,midnight,light,system'],
+        ]);
+
+        $owner = Auth::guard('owner')->user();
+        if ($owner) {
+            $owner->theme_style = $request->input('theme_style');
+            $owner->save();
+        }
+
+        return response()->json([
+            'status' => 'OK',
+            'theme_style' => $owner ? $owner->theme_style : $request->input('theme_style'),
+        ]);
+    }
+
+    /**
+     * Update the owner's password.
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $owner = Auth::guard('owner')->user();
+        $owner->password = \Illuminate\Support\Facades\Hash::make($request->input('password'));
+        $owner->save();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Password updated successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
+    }
+
+    /**
      * Delete the owner's account.
      */
     public function destroy(Request $request)

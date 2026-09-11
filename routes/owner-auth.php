@@ -1,21 +1,19 @@
 <?php
 
-use App\Http\Controllers\Admin\OwnerController;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\CarController;
 use App\Http\Controllers\Owner\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Owner\Auth\LoginController;
 use App\Http\Controllers\Owner\Auth\MFAController;
 use App\Http\Controllers\Owner\Auth\NewPasswordController;
-use App\Http\Controllers\Owner\Auth\PasswordController;
 use App\Http\Controllers\Owner\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Owner\Auth\RegisteredOwnerController;
+use App\Http\Controllers\Owner\BookingController;
+use App\Http\Controllers\Owner\CarController;
 use App\Http\Controllers\Owner\DriverController;
 use App\Http\Controllers\Owner\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('owner')->name('owner.')->group(function () {
-    // API / Unified Auth endpoints matching Admin structure
+    // API / Unified Auth endpoints
     Route::post('check/verification-enabled', [MFAController::class, 'checkVerificationEnabled']);
     Route::post('reset/password', [LoginController::class, 'resetPassword']);
     Route::post('do-reset/password', [LoginController::class, 'doResetPassword']);
@@ -47,13 +45,15 @@ Route::prefix('owner')->name('owner.')->group(function () {
     // Authenticated Owner routes
     Route::middleware('auth:owner')->group(function () {
         Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
+        Route::post('/theme-style', [ProfileController::class, 'updateThemeStyle'])->name('theme-style');
 
+        // Profile & Security
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('/security', [ProfileController::class, 'security'])->name('security');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-        Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
-        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+        Route::match(['get', 'post'], 'logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
         // MFA Configuration (Authenticated)
         Route::post('mfa/generate', [MFAController::class, 'generate'])->name('mfa.generate');
@@ -71,15 +71,12 @@ Route::prefix('owner')->name('owner.')->group(function () {
         // Drivers management
         Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
         Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
-        Route::patch('/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+        Route::match(['put', 'patch', 'post'], '/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
         Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
 
         // Owner Bookings
         Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
-        Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm');
-        Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancelBooking'])->name('bookings.cancel');
-
-        Route::get('/auth/verified-cars', [OwnerController::class, 'VerifiedCars'])->name('cars.verified');
-        Route::post('/search', [OwnerController::class, 'search'])->name('search');
+        Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
+        Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
     });
 });

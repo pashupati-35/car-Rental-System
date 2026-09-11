@@ -12,7 +12,11 @@ const props = defineProps<{
 }>()
 
 const page = usePage()
-const authUser = computed(() => (page.props.auth as any)?.customer || (page.props.auth as any)?.user || null)
+const authUser = computed(() => {
+  const auth = (page.props.auth as any) || {}
+  return auth.customer || auth.user || auth.admin || auth.owner || null
+})
+const isLoggedIn = computed(() => Boolean(authUser.value))
 
 const carData = ref<any>(props.car)
 const disabledDatesList = ref<string[]>(props.disabledDates || [])
@@ -29,6 +33,9 @@ const rentalPurpose = ref('Vacation / Personal Trip')
 const checkingAvailability = ref(false)
 const availabilityResult = ref<any>(null)
 const availabilityError = ref('')
+
+// Login prompt modal state
+const showLoginPromptModal = ref(false)
 
 // Payment modal state
 const showPaymentModal = ref(false)
@@ -91,21 +98,19 @@ const checkCalendarAvailability = async () => {
   }
 }
 
-// Initiate Booking & open payment modal
+// Initiate Booking & open payment modal (requires authentication)
 const proceedToPayment = () => {
-  if (!authUser.value) {
-    router.visit('/customer/login')
-    
+  if (!isLoggedIn.value) {
+    showLoginPromptModal.value = true
     return
   }
 
   if (!availabilityResult.value?.available) {
     availabilityError.value = 'Please select available dates before booking.'
-    
     return
   }
 
-  paymentForm.value.cardholderName = authUser.value.name || ''
+  paymentForm.value.cardholderName = authUser.value.name || authUser.value.full_name || ''
   showPaymentModal.value = true
 }
 
@@ -113,7 +118,6 @@ const proceedToPayment = () => {
 const submitBookingAndPayment = async () => {
   if (!paymentForm.value.cardNumber || !paymentForm.value.expiryDate || !paymentForm.value.cvv) {
     alert('Please enter all payment information.')
-    
     return
   }
 
@@ -193,7 +197,7 @@ const submitBookingAndPayment = async () => {
               >
               <div class="absolute top-4 left-4 flex gap-2">
                 <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-emerald-500 text-white shadow-md">
-                  {{ carData.available === 'yes' ? 'Available' : 'Verified' }}
+                  {{ carData.available === 'yes' || carData.available === true ? 'Available' : 'Verified' }}
                 </span>
                 <span class="px-3 py-1 rounded-full text-xs font-bold uppercase bg-blue-600 text-white shadow-md">
                   Approved Fleet
@@ -337,17 +341,33 @@ const submitBookingAndPayment = async () => {
               </p>
             </div>
 
-            <!-- Login Prompt if guest -->
+            <!-- Login Prompt Banner when Guest -->
             <div
-              v-if="!authUser"
-              class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 text-amber-900 dark:text-amber-200 text-xs"
+              v-if="!isLoggedIn"
+              class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 text-xs space-y-2.5"
             >
-              Please <Link
-                href="/customer/login"
-                class="font-bold underline"
-              >
-                Sign in as Customer
-              </Link> to reserve this vehicle and complete payment.
+              <div class="flex items-center gap-2 font-bold text-amber-800 dark:text-amber-300">
+                <i class="ri-information-fill text-base text-amber-600 dark:text-amber-400" />
+                <span>Login Required to Book</span>
+              </div>
+              <p class="text-amber-700 dark:text-amber-400 leading-relaxed">
+                Please log in to your account before reserving this vehicle and completing payment.
+              </p>
+              <div class="flex items-center gap-2 pt-1">
+                <Link
+                  :href="`/customer/login?redirect=/cars/${carData.id}`"
+                  class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  <i class="ri-login-box-line text-xs" />
+                  <span>Login / Sign In</span>
+                </Link>
+                <Link
+                  href="/customer/register"
+                  class="px-3.5 py-1.5 rounded-xl bg-white dark:bg-gray-900 border border-amber-300 dark:border-amber-700/80 text-amber-900 dark:text-amber-200 font-bold text-xs hover:bg-amber-100/50 transition-all cursor-pointer"
+                >
+                  Register
+                </Link>
+              </div>
             </div>
 
             <!-- Unavailable dates indicator -->
@@ -447,12 +467,20 @@ const submitBookingAndPayment = async () => {
                 </div>
               </div>
 
+              <!-- Booking Submit Button -->
               <button
                 type="submit"
                 :disabled="checkingAvailability || (availabilityResult && !availabilityResult.available)"
-                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+                class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span v-if="checkingAvailability">Checking Calendar Overlaps...</span>
+                <span
+                  v-else-if="!isLoggedIn"
+                  class="flex items-center gap-1.5"
+                >
+                  <i class="ri-login-box-line" />
+                  <span>Login to Book & Pay (${{ availabilityResult?.total_price || carData.car_price_per_day }})</span>
+                </span>
                 <span v-else>Book Now & Pay (${{ availabilityResult?.total_price || carData.car_price_per_day }})</span>
               </button>
             </form>
@@ -461,14 +489,82 @@ const submitBookingAndPayment = async () => {
       </div>
     </div>
 
-    <!-- Integrated Payment & Checkout Modal -->
+    <!-- Login Required Before Booking Modal -->
+    <div
+      v-if="showLoginPromptModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
+    >
+      <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl max-w-md w-full p-6 sm:p-8 space-y-6 relative animate-in fade-in zoom-in-95 duration-200">
+        <button
+          class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold cursor-pointer"
+          @click="showLoginPromptModal = false"
+        >
+          &times;
+        </button>
+
+        <div class="text-center space-y-3">
+          <div class="w-16 h-16 rounded-3xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center text-3xl mx-auto shadow-xs">
+            <i class="ri-lock-line" />
+          </div>
+
+          <h3 class="text-2xl font-black text-gray-900 dark:text-white tracking-tight">
+            Please Login Before Booking
+          </h3>
+
+          <p class="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
+            You must be signed in to your customer account to reserve <strong>{{ carData.car_name }} {{ carData.car_model }}</strong> and complete payment.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/60 border border-gray-100 dark:border-gray-800 text-xs space-y-2">
+          <div class="flex items-center justify-between text-gray-600 dark:text-gray-300">
+            <span>Selected Vehicle:</span>
+            <span class="font-bold text-gray-900 dark:text-white">{{ carData.car_name }} {{ carData.car_model }}</span>
+          </div>
+          <div
+            v-if="availabilityResult?.total_price"
+            class="flex items-center justify-between text-gray-600 dark:text-gray-300"
+          >
+            <span>Total Estimate:</span>
+            <span class="font-black text-blue-600 dark:text-blue-400 text-sm">${{ availabilityResult.total_price }}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2.5 pt-2">
+          <Link
+            :href="`/customer/login?redirect=/cars/${carData.id}`"
+            class="w-full py-3.5 px-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm text-center shadow-lg shadow-blue-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <i class="ri-login-box-line" />
+            <span>Sign In to Continue Booking</span>
+          </Link>
+
+          <Link
+            href="/customer/register"
+            class="w-full py-3 px-4 rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-bold text-xs text-center transition-all cursor-pointer"
+          >
+            Don't have an account? Register
+          </Link>
+
+          <button
+            type="button"
+            class="w-full py-2 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+            @click="showLoginPromptModal = false"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Integrated Payment & Checkout Modal (Only opens if authenticated) -->
     <div
       v-if="showPaymentModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto"
     >
       <div class="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl max-w-md w-full p-6 sm:p-8 space-y-6 relative">
         <button
-          class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold"
+          class="absolute top-5 right-5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl font-bold cursor-pointer"
           @click="showPaymentModal = false"
         >
           &times;
@@ -507,13 +603,13 @@ const submitBookingAndPayment = async () => {
           <div class="flex flex-col gap-2 pt-2">
             <Link
               href="/customer/dashboard"
-              class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center"
+              class="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs text-center cursor-pointer"
             >
               Go to Customer Dashboard
             </Link>
             <button
               type="button"
-              class="w-full py-2 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              class="w-full py-2 text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
               @click="showPaymentModal = false"
             >
               Close
@@ -543,7 +639,7 @@ const submitBookingAndPayment = async () => {
             <button
               type="button"
               :class="paymentForm.paymentMethod === 'Credit Card' ? 'border-blue-600 bg-blue-50/50 text-blue-700' : 'border-gray-200 text-gray-600'"
-              class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center"
+              class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer"
               @click="paymentForm.paymentMethod = 'Credit Card'"
             >
               💳 Card / Stripe
@@ -551,7 +647,7 @@ const submitBookingAndPayment = async () => {
             <button
               type="button"
               :class="paymentForm.paymentMethod === 'Digital' ? 'border-blue-600 bg-blue-50/50 text-blue-700' : 'border-gray-200 text-gray-600'"
-              class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center"
+              class="py-2.5 px-3 rounded-xl border text-xs font-bold transition-all text-center cursor-pointer"
               @click="paymentForm.paymentMethod = 'Digital'"
             >
               📱 Digital Wallet
@@ -613,7 +709,7 @@ const submitBookingAndPayment = async () => {
             <button
               type="submit"
               :disabled="processingPayment"
-              class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-4"
+              class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-4 cursor-pointer"
             >
               <span v-if="processingPayment">Processing Secure Payment...</span>
               <span v-else>Pay ${{ availabilityResult?.total_price || carData.car_price_per_day }} & Lock Reservation</span>

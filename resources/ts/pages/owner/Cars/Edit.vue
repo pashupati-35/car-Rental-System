@@ -5,27 +5,29 @@ import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const props = defineProps<{
+  car: any
   drivers?: Array<{ id: number; name: string; phone: string }>
 }>()
 
 const form = useForm({
-  car_name: '',
-  car_model: '',
-  car_number: '',
-  number_of_seats: 5,
-  car_price_per_km: 15,
-  car_price_per_day: 65,
-  available: true,
-  description: '',
-  driver_id: '' as any,
-  driver_name: '',
-  driver_number: '',
+  _method: 'PUT',
+  car_name: props.car.car_name || '',
+  car_model: props.car.car_model || '',
+  car_number: props.car.car_number || '',
+  number_of_seats: props.car.number_of_seats || 5,
+  car_price_per_km: props.car.car_price_per_km || 0,
+  car_price_per_day: props.car.car_price_per_day || 0,
+  available: Boolean(props.car.available),
+  description: props.car.description || '',
+  driver_id: props.car.driver_id || ('' as any),
+  driver_name: props.car.driver_name || '',
+  driver_number: props.car.driver_number || '',
   car_photo: null as File | null,
   blue_book_photo: null as File | null,
 })
 
-const photoPreview = ref<string | null>(null)
-const bluebookPreview = ref<string | null>(null)
+const photoPreview = ref<string | null>(props.car.car_photo ? '/' + props.car.car_photo : null)
+const bluebookPreview = ref<string | null>(props.car.blue_book_photo ? '/' + props.car.blue_book_photo : null)
 
 const onPhotoChange = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -57,7 +59,7 @@ const onDriverSelected = () => {
 }
 
 const submit = () => {
-  form.post('/owner/cars', {
+  form.post(`/owner/cars/${props.car.id}`, {
     forceFormData: true,
   })
 }
@@ -65,17 +67,17 @@ const submit = () => {
 
 <template>
   <OwnerLayout>
-    <Head title="Owner - Register New Car" />
+    <Head :title="`Edit ${car.car_name} ${car.car_model}`" />
 
     <div class="max-w-4xl mx-auto space-y-6 py-4">
       <!-- Header -->
       <div class="flex items-center justify-between">
         <div>
           <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Register New Vehicle
+            Edit Vehicle Details
           </h1>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Add a car to your fleet, set day & km pricing, and assign a dedicated chauffeur.
+            Update pricing rates, photos, seating capacity, or assign a chauffeur.
           </p>
         </div>
         <Link
@@ -87,7 +89,7 @@ const submit = () => {
         </Link>
       </div>
 
-      <!-- Main Form -->
+      <!-- Form Box -->
       <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <form
           class="space-y-6"
@@ -97,7 +99,7 @@ const submit = () => {
           <div>
             <h3 class="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
               <i class="ri-information-line" />
-              <span>Vehicle Information</span>
+              <span>Vehicle Specifications</span>
             </h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -106,7 +108,6 @@ const submit = () => {
                   v-model="form.car_name"
                   type="text"
                   required
-                  placeholder="e.g. Hyundai, Toyota, Tesla"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
@@ -121,7 +122,6 @@ const submit = () => {
                   v-model="form.car_model"
                   type="text"
                   required
-                  placeholder="e.g. Creta SX, Fortuner 4x4, Model Y"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
@@ -132,7 +132,7 @@ const submit = () => {
             </div>
           </div>
 
-          <!-- Number Plate & Seat Capacity -->
+          <!-- License Plate & Seats -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">License Plate / Registration No *</label>
@@ -140,7 +140,6 @@ const submit = () => {
                 v-model="form.car_number"
                 type="text"
                 required
-                placeholder="e.g. BA 1 PA 1234 or NY-8823"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               >
               <span
@@ -180,7 +179,6 @@ const submit = () => {
                   type="number"
                   step="0.01"
                   required
-                  placeholder="65.00"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
@@ -190,12 +188,11 @@ const submit = () => {
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price Per Extra KM ($) (Optional)</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price Per KM ($)</label>
                 <input
                   v-model.number="form.car_price_per_km"
                   type="number"
                   step="0.01"
-                  placeholder="15.00"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
@@ -206,12 +203,12 @@ const submit = () => {
             </div>
           </div>
 
-          <!-- Description -->
+          <!-- Rich Text Description -->
           <div>
-            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Vehicle Description & Features (Rich Text)</label>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Vehicle Description</label>
             <RichTextEditor
               v-model="form.description"
-              placeholder="List vehicle features like Bluetooth, AC, Sunroof, safety ratings, luggage capacity..."
+              placeholder="Vehicle features, condition, safety amenities..."
               min-height="160px"
             />
           </div>
@@ -221,10 +218,10 @@ const submit = () => {
             <div class="flex items-center justify-between">
               <div>
                 <h4 class="text-xs font-black uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
-                  Assign Driver from Your Roster
+                  Assigned Chauffeur
                 </h4>
                 <p class="text-[11px] text-slate-500">
-                  Select a registered chauffeur from your driver team or assign later
+                  Select an active driver from your roster
                 </p>
               </div>
               <Link
@@ -244,7 +241,7 @@ const submit = () => {
                 @change="onDriverSelected"
               >
                 <option value="">
-                  -- No Driver Assigned (Self-Drive / Assign Later) --
+                  -- No Driver Assigned (Self-Drive) --
                 </option>
                 <option
                   v-for="d in drivers"
@@ -269,7 +266,7 @@ const submit = () => {
                 >
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Driver Phone Number</label>
+                <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Driver Phone</label>
                 <input
                   v-model="form.driver_number"
                   type="text"
@@ -282,12 +279,12 @@ const submit = () => {
           <!-- Document & Photo Uploads -->
           <div>
             <h3 class="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3 flex items-center gap-1.5">
-              <i class="ri-image-add-line" />
-              <span>Photos & Verification Documents</span>
+              <i class="ri-image-edit-line" />
+              <span>Update Photos & Documents</span>
             </h3>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Car Photo Upload -->
+              <!-- Photo Upload -->
               <div class="p-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-center space-y-2">
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Car Main Photo</label>
                 <img
@@ -309,7 +306,7 @@ const submit = () => {
 
               <!-- Blue Book Upload -->
               <div class="p-4 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 text-center space-y-2">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Blue Book / Registration Document</label>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Blue Book / Document</label>
                 <img
                   v-if="bluebookPreview"
                   :src="bluebookPreview"
@@ -328,7 +325,7 @@ const submit = () => {
             </div>
           </div>
 
-          <!-- Submit Button -->
+          <!-- Submit Actions -->
           <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-3">
             <Link
               href="/owner/cars"
@@ -345,7 +342,7 @@ const submit = () => {
                 v-if="form.processing"
                 class="ri-loader-4-line animate-spin text-sm"
               />
-              <span>{{ form.processing ? 'Registering Vehicle...' : 'Register & Submit for Approval' }}</span>
+              <span>{{ form.processing ? 'Saving Changes...' : 'Save Car Changes' }}</span>
             </button>
           </div>
         </form>

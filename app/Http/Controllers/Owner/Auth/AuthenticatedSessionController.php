@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Driver;
+use App\Services\Owner\OwnerDashboardService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -69,30 +70,25 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Owner Dashboard view.
+     * Owner Dashboard view with isolated analytics and recent activity.
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
         $owner = Auth::guard('owner')->user();
         if ($owner) {
-            $myCars = Car::with('driver')->where('owner_id', $owner->id)->get();
-            $myDrivers = Driver::where('owner_id', $owner->id)->get();
-            $carIds = $myCars->pluck('id');
-            $activeRentals = BookingCar::whereIn('car_id', $carIds)->where('status', 'confirm')->count();
-            $earnings = BookingCar::whereIn('car_id', $carIds)->where('status', 'confirm')->sum('total_price') ?: 0;
-            $pendingBookings = BookingCar::whereIn('car_id', $carIds)->where('status', 'pending')->count();
+            $stats = OwnerDashboardService::getDashboardStats($owner->id);
+            $recentCars = OwnerDashboardService::getRecentCars($owner->id, 6);
+            $recentBookings = OwnerDashboardService::getRecentBookings($owner->id, 6);
+            $recentDrivers = OwnerDashboardService::getRecentDrivers($owner->id, 6);
+            $revenueTrends = OwnerDashboardService::getRevenueTrends($owner->id);
 
             return Inertia::render('owner/Dashboard', [
                 'owner' => $owner,
-                'stats' => [
-                    'myCarsCount' => $myCars->count(),
-                    'myDriversCount' => $myDrivers->count(),
-                    'activeRentals' => $activeRentals,
-                    'pendingBookings' => $pendingBookings,
-                    'earnings' => $earnings,
-                ],
-                'recentCars' => $myCars->take(6),
-                'recentDrivers' => $myDrivers->take(6),
+                'stats' => $stats,
+                'recentCars' => $recentCars,
+                'recentBookings' => $recentBookings,
+                'recentDrivers' => $recentDrivers,
+                'revenueTrends' => $revenueTrends,
             ]);
         }
 

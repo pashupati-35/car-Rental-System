@@ -4,10 +4,12 @@ import { Head, Link, usePage } from '@inertiajs/vue3'
 import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
+import { useOwnerTheme, type OwnerThemeStyle } from '@/composable/useOwnerTheme'
 
 const page = usePage()
 const auth = ref(page.props.auth as any)
 const user = ref(auth.value?.owner || auth.value?.user)
+const { theme, setTheme } = useOwnerTheme()
 
 const profileForm = ref({
   full_name: user.value?.full_name || user.value?.name || '',
@@ -35,6 +37,44 @@ const updateProfile = async () => {
     profileLoading.value = false
   }
 }
+
+// Password Form
+const passwordForm = ref({
+  password: '',
+  password_confirmation: '',
+})
+const passwordLoading = ref(false)
+const passwordMsg = ref('')
+const passwordError = ref('')
+
+const updatePassword = async () => {
+  if (passwordForm.value.password !== passwordForm.value.password_confirmation) {
+    passwordError.value = 'Passwords do not match.'
+    return
+  }
+  passwordLoading.value = true
+  passwordMsg.value = ''
+  passwordError.value = ''
+  try {
+    const res = await axios.patch('/owner/password', passwordForm.value)
+    if (res.data?.status === 'OK' || res.status === 200) {
+      passwordMsg.value = 'Account password changed successfully.'
+      passwordForm.value.password = ''
+      passwordForm.value.password_confirmation = ''
+    }
+  } catch (err: any) {
+    passwordError.value = err.response?.data?.message || 'Failed to update password.'
+  } finally {
+    passwordLoading.value = false
+  }
+}
+
+const themeOptions: { value: OwnerThemeStyle; label: string; desc: string; icon: string }[] = [
+  { value: 'dark', label: 'Dark Slate', desc: 'Sleek dark interface with emerald accents', icon: 'ri-moon-clear-line' },
+  { value: 'midnight', label: 'Midnight Obsidian', desc: 'Ultra-deep dark palette with high contrast', icon: 'ri-sparkling-2-line' },
+  { value: 'light', label: 'Clean Light', desc: 'Bright, crisp white theme for daytime work', icon: 'ri-sun-line' },
+  { value: 'system', label: 'System Default', desc: 'Automatically match your OS color scheme', icon: 'ri-computer-line' },
+]
 </script>
 
 <template>
@@ -54,7 +94,7 @@ const updateProfile = async () => {
             </h1>
           </div>
           <p class="text-xs text-slate-500 mt-1">
-            Manage your fleet owner identity, contact details, and business coordinates.
+            Manage your fleet owner identity, theme styling, password, and business contact details.
           </p>
         </div>
 
@@ -64,7 +104,7 @@ const updateProfile = async () => {
             href="/owner/profile"
             class="px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs"
           >
-            Profile Details
+            Profile & Theme
           </Link>
           <Link
             href="/owner/security"
@@ -130,7 +170,7 @@ const updateProfile = async () => {
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Contact Number</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Contact Phone</label>
               <input
                 v-model="profileForm.contact_number"
                 type="text"
@@ -139,7 +179,7 @@ const updateProfile = async () => {
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Address / Headquarters</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Business Address</label>
               <input
                 v-model="profileForm.address"
                 type="text"
@@ -159,6 +199,112 @@ const updateProfile = async () => {
                 class="ri-loader-4-line animate-spin"
               />
               <span>{{ profileLoading ? 'Saving Profile...' : 'Save Profile Changes' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Theme Style Customization Card -->
+      <div class="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
+            Portal Appearance & Theme Style
+          </h3>
+          <p class="text-xs text-slate-500">
+            Personalize your Owner Portal workspace visual theme. Changes persist to your account.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <button
+            v-for="opt in themeOptions"
+            :key="opt.value"
+            type="button"
+            :class="theme === opt.value ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/30 ring-2 ring-emerald-500/20' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'"
+            class="p-4 rounded-2xl border text-left flex items-start gap-3.5 transition-all cursor-pointer"
+            @click="setTheme(opt.value)"
+          >
+            <div
+              :class="theme === opt.value ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'"
+              class="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0 transition-colors"
+            >
+              <i :class="opt.icon" />
+            </div>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 dark:text-white">{{ opt.label }}</span>
+                <i
+                  v-if="theme === opt.value"
+                  class="ri-checkbox-circle-fill text-emerald-600 dark:text-emerald-400 text-base"
+                />
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5 leading-tight">{{ opt.desc }}</p>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Password Update Card -->
+      <div class="p-6 sm:p-7 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-900 dark:text-white">
+            Change Account Password
+          </h3>
+          <p class="text-xs text-slate-500">
+            Ensure your account uses a secure password of at least 8 characters.
+          </p>
+        </div>
+
+        <MessageBox
+          v-model="passwordMsg"
+          type="success"
+        />
+        <MessageBox
+          v-model="passwordError"
+          type="error"
+        />
+
+        <form
+          class="space-y-4"
+          @submit.prevent="updatePassword"
+        >
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">New Password</label>
+              <input
+                v-model="passwordForm.password"
+                type="password"
+                required
+                minlength="8"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="••••••••••••"
+              >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Confirm New Password</label>
+              <input
+                v-model="passwordForm.password_confirmation"
+                type="password"
+                required
+                minlength="8"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                placeholder="••••••••••••"
+              >
+            </div>
+          </div>
+
+          <div class="pt-2 flex justify-end">
+            <button
+              type="submit"
+              class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer"
+              :disabled="passwordLoading"
+            >
+              <i
+                v-if="passwordLoading"
+                class="ri-loader-4-line animate-spin"
+              />
+              <span>{{ passwordLoading ? 'Updating Password...' : 'Update Password' }}</span>
             </button>
           </div>
         </form>

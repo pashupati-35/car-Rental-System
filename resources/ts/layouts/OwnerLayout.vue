@@ -2,10 +2,10 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 import MessageBox from '@/components/MessageBox.vue'
-import { useAdminTheme, type AdminThemeStyle } from '@/composable/useAdminTheme'
+import { useOwnerTheme, type OwnerThemeStyle } from '@/composable/useOwnerTheme'
 
 const page = usePage()
-const { theme, setTheme, initTheme } = useAdminTheme()
+const { theme, setTheme, initTheme } = useOwnerTheme()
 
 const isMobileDrawerOpen = ref(false)
 const showProfileMenu = ref(false)
@@ -111,7 +111,7 @@ const logout = () => {
   router.post('/owner/logout')
 }
 
-const themeOptions: { value: AdminThemeStyle; label: string; icon: string }[] = [
+const themeOptions: { value: OwnerThemeStyle; label: string; icon: string }[] = [
   { value: 'dark', label: 'Dark Mode', icon: 'ri-moon-clear-line' },
   { value: 'midnight', label: 'Midnight Obsidian', icon: 'ri-sparkling-2-line' },
   { value: 'light', label: 'Light Mode', icon: 'ri-sun-line' },

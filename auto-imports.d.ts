@@ -308,6 +308,7 @@ declare global {
   const useOffsetPagination: typeof import('@vueuse/core').useOffsetPagination
   const useOnline: typeof import('@vueuse/core').useOnline
   const useOtpVerification: typeof import('./resources/ts/composable/useOtpVerification').useOtpVerification
+  const useOwnerTheme: typeof import('./resources/ts/composable/useOwnerTheme').useOwnerTheme
   const usePage: typeof import('@inertiajs/vue3').usePage
   const usePageLeave: typeof import('@vueuse/core').usePageLeave
   const useParallax: typeof import('@vueuse/core').useParallax
@@ -421,6 +422,9 @@ declare global {
   // @ts-ignore
   export type { ValidationErrors } from './resources/ts/composable/useHelpers'
   import('./resources/ts/composable/useHelpers')
+  // @ts-ignore
+  export type { OwnerThemeStyle } from './resources/ts/composable/useOwnerTheme'
+  import('./resources/ts/composable/useOwnerTheme')
   // @ts-ignore
   export type { CalendarEvent, EventRange } from './resources/ts/utils/calendarEvents'
   import('./resources/ts/utils/calendarEvents')
@@ -722,6 +726,7 @@ declare module 'vue' {
     readonly useOffsetPagination: UnwrapRef<typeof import('@vueuse/core')['useOffsetPagination']>
     readonly useOnline: UnwrapRef<typeof import('@vueuse/core')['useOnline']>
     readonly useOtpVerification: UnwrapRef<typeof import('./resources/ts/composable/useOtpVerification')['useOtpVerification']>
+    readonly useOwnerTheme: UnwrapRef<typeof import('./resources/ts/composable/useOwnerTheme')['useOwnerTheme']>
     readonly usePage: UnwrapRef<typeof import('@inertiajs/vue3')['usePage']>
     readonly usePageLeave: UnwrapRef<typeof import('@vueuse/core')['usePageLeave']>
     readonly useParallax: UnwrapRef<typeof import('@vueuse/core')['useParallax']>

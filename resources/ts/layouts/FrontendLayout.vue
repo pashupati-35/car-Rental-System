@@ -242,13 +242,14 @@ onUnmounted(() => {
             </div>
           </template>
 
-          <!-- When Guest: Show Sign In and Register -->
+          <!-- When Guest: Show Login and Register -->
           <template v-else>
             <Link
               href="/customer/login"
-              class="px-3.5 py-2 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5"
             >
-              Sign In
+              <i class="ri-login-box-line text-sm text-blue-600" />
+              <span>Login</span>
             </Link>
 
             <Link
