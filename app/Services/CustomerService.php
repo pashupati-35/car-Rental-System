@@ -32,6 +32,15 @@ class CustomerService
         return $this->customerRepository->getRecentCustomers($limit);
     }
 
+    public function registerCustomer(array $data): Customer
+    {
+        $data['password'] = Hash::make($data['password']);
+        $customer = $this->customerRepository->createCustomer($data);
+        AdminCountCacheService::clear();
+
+        return $customer;
+    }
+
     public function createCustomerWithPasswordSetup(array $data, ?int $adminId = null, $image = null): array
     {
         $randomPassword = Str::random(16);
@@ -86,5 +95,51 @@ class CustomerService
     public function getTotalCustomersCount(): int
     {
         return $this->customerRepository->getTotalCustomersCount();
+    }
+
+    public function getCustomerProfile(int $customerId): Customer
+    {
+        return $this->customerRepository->getCustomerDetails($customerId);
+    }
+
+    public function updateCustomerProfile(int $customerId, array $data, $image = null, bool $removeImage = false): Customer
+    {
+        if ($image && $image->isValid()) {
+            $uploadDir = public_path('uploads/customer');
+            if (! file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $fileName = time().'_'.$image->getClientOriginalName();
+            $image->move($uploadDir, $fileName);
+            $data['image'] = 'uploads/customer/'.$fileName;
+        } elseif ($removeImage) {
+            $data['image'] = null;
+        }
+
+        if (! empty($data['first_name']) || ! empty($data['last_name'])) {
+            $data['name'] = trim(($data['first_name'] ?? '').' '.($data['middle_name'] ?? '').' '.($data['last_name'] ?? ''));
+        } elseif (! empty($data['name']) && empty($data['first_name'])) {
+            $parts = explode(' ', trim($data['name']));
+            $data['first_name'] = $parts[0] ?? '';
+            $data['last_name'] = count($parts) > 1 ? end($parts) : '';
+        }
+
+        $customer = $this->customerRepository->updateCustomer($customerId, $data);
+        AdminCountCacheService::clear();
+
+        return $customer;
+    }
+
+    public function updateCustomerPassword(int $customerId, string $password): bool
+    {
+        $customer = $this->customerRepository->getCustomerDetails($customerId);
+        $customer->password = Hash::make($password);
+
+        return $customer->save();
+    }
+
+    public function deleteCustomerAccount(int $customerId): bool
+    {
+        return $this->deleteCustomer($customerId);
     }
 }

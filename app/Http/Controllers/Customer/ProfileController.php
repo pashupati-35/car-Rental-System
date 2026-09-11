@@ -3,18 +3,26 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Customer\Profile\UpdateCustomerPasswordRequest;
+use App\Http\Requests\Customer\Profile\UpdateCustomerProfileRequest;
+use App\Services\CustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected CustomerService $customerService
+    ) {}
+
     /**
      * Display the customer's profile form.
      */
     public function edit(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customerId = Auth::guard('customer')->id();
+        $customer = $this->customerService->getCustomerProfile($customerId);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -33,7 +41,8 @@ class ProfileController extends Controller
      */
     public function security(Request $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customerId = Auth::guard('customer')->id();
+        $customer = $this->customerService->getCustomerProfile($customerId);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -50,68 +59,45 @@ class ProfileController extends Controller
     /**
      * Update the customer's profile information.
      */
-    public function update(Request $request)
+    public function update(UpdateCustomerProfileRequest $request)
     {
-        $customer = Auth::guard('customer')->user();
+        $customerId = Auth::guard('customer')->id();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'first_name' => 'nullable|string|max:255',
-            'middle_name' => 'nullable|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'name' => 'nullable|string|max:255',
-            'email' => 'required|email|max:255|unique:customers,email,'.$customer->id,
-            'phone_number' => 'nullable|string|max:25',
-            'mobile' => 'nullable|string|max:25',
-            'phone' => 'nullable|string|max:25',
-            'username' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'gender' => 'nullable|string|max:20',
-            'date_of_birth' => 'nullable|date',
-            'marital_status' => 'nullable|string|max:50',
-            'nationality' => 'nullable|string|max:100',
-            'citizenship_number' => 'nullable|string|max:100',
-            'passport_number' => 'nullable|string|max:100',
-            'position' => 'nullable|string|max:100',
-            'designation' => 'nullable|string|max:100',
-            'emergency_contact' => 'nullable|string|max:50',
-            'contact_person_name' => 'nullable|string|max:255',
-            'contact_relationship' => 'nullable|string|max:100',
-            'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,bmp,heic,heif,avif|max:5120',
-        ]);
-
-        if ($request->hasFile('image') && $request->file('image')->isValid()) {
-            $image = $request->file('image');
-            $uploadDir = public_path('uploads/customer');
-            if (! file_exists($uploadDir)) {
-                mkdir($uploadDir, 0755, true);
-            }
-            $fileName = time().'_'.$image->getClientOriginalName();
-            $image->move($uploadDir, $fileName);
-            $validated['image'] = 'uploads/customer/'.$fileName;
-        } elseif ($request->boolean('remove_image')) {
-            $validated['image'] = null;
-        }
-
-        // Sync display name if first/last name are provided
-        if (! empty($validated['first_name']) || ! empty($validated['last_name'])) {
-            $validated['name'] = trim(($validated['first_name'] ?? '').' '.($validated['middle_name'] ?? '').' '.($validated['last_name'] ?? ''));
-        } elseif (! empty($validated['name']) && empty($validated['first_name'])) {
-            $parts = explode(' ', trim($validated['name']));
-            $validated['first_name'] = $parts[0] ?? '';
-            $validated['last_name'] = count($parts) > 1 ? end($parts) : '';
-        }
-
-        $customer->update($validated);
+        $customer = $this->customerService->updateCustomerProfile(
+            $customerId,
+            $validated,
+            $request->file('image'),
+            $request->boolean('remove_image')
+        );
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
                 'message' => 'Profile updated successfully.',
-                'user' => $customer->fresh(),
+                'user' => $customer,
             ]);
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Update the customer's password.
+     */
+    public function updatePassword(UpdateCustomerPasswordRequest $request)
+    {
+        $customerId = Auth::guard('customer')->id();
+        $this->customerService->updateCustomerPassword($customerId, $request->validated('password'));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Password updated successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     /**
@@ -123,10 +109,10 @@ class ProfileController extends Controller
             'password' => ['required', 'current_password:customer'],
         ]);
 
-        $customer = Auth::guard('customer')->user();
-
+        $customerId = Auth::guard('customer')->id();
         Auth::guard('customer')->logout();
-        $customer->delete();
+
+        $this->customerService->deleteCustomerAccount($customerId);
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

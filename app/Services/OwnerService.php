@@ -87,6 +87,15 @@ class OwnerService
         ];
     }
 
+    public function registerOwner(array $data): Owner
+    {
+        $data['password'] = \Illuminate\Support\Facades\Hash::make($data['password']);
+        $owner = $this->ownerRepository->createOwner($data);
+        AdminCountCacheService::clear();
+
+        return $owner;
+    }
+
     public function createOwner(array $data, $image = null): Owner
     {
         if ($image && $image->isValid()) {
@@ -126,5 +135,58 @@ class OwnerService
     public function getTotalOwnersCount(): int
     {
         return $this->ownerRepository->getTotalOwnersCount();
+    }
+
+    public function getOwnerProfile(int $ownerId): Owner
+    {
+        return $this->ownerRepository->getOwnerById($ownerId);
+    }
+
+    public function updateOwnerProfile(int $ownerId, array $data, $image = null): Owner
+    {
+        if ($image && $image->isValid()) {
+            $fileName = time().'_owner_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/owner'), $fileName);
+            $data['image'] = 'uploads/owner/'.$fileName;
+        }
+
+        if (empty($data['full_name']) && (! empty($data['first_name']) || ! empty($data['last_name']))) {
+            $data['full_name'] = trim(($data['first_name'] ?? '').' '.($data['middle_name'] ?? '').' '.($data['last_name'] ?? ''));
+        }
+
+        if (empty($data['contact_number']) && ! empty($data['mobile'])) {
+            $data['contact_number'] = $data['mobile'];
+        }
+
+        if (empty($data['date_of_birth'])) {
+            $data['date_of_birth'] = null;
+        }
+
+        $owner = $this->ownerRepository->updateOwner($ownerId, $data);
+        AdminCountCacheService::clear();
+
+        return $owner;
+    }
+
+    public function updateOwnerThemeStyle(int $ownerId, string $themeStyle): string
+    {
+        $owner = $this->ownerRepository->getOwnerById($ownerId);
+        $owner->theme_style = $themeStyle;
+        $owner->save();
+
+        return $owner->theme_style;
+    }
+
+    public function updateOwnerPassword(int $ownerId, string $password): bool
+    {
+        $owner = $this->ownerRepository->getOwnerById($ownerId);
+        $owner->password = \Illuminate\Support\Facades\Hash::make($password);
+
+        return $owner->save();
+    }
+
+    public function deleteOwnerAccount(int $ownerId): bool
+    {
+        return $this->deleteOwner($ownerId);
     }
 }

@@ -384,4 +384,141 @@ class BookingService
     {
         return $this->bookingRepository->getBookingsByCarIds($carIds);
     }
+
+    public function getOwnerPaginatedBookings(int $ownerId, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    {
+        $carIds = \App\Models\Car::where('owner_id', $ownerId)->pluck('id')->toArray();
+        $status = $filters['status'] ?? 'all';
+        $search = $filters['search'] ?? null;
+
+        $query = BookingCar::with([
+            'car:id,car_name,car_model,car_number,car_photo,car_price_per_day,owner_id',
+            'customer:id,first_name,last_name,name,email,mobile,phone_number,address',
+            'payment',
+        ])->whereIn('car_id', $carIds);
+
+        if (! empty($status) && $status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('pickup_location', 'like', "%{$search}%")
+                    ->orWhere('drop_location', 'like', "%{$search}%")
+                    ->orWhereHas('car', function ($cq) use ($search) {
+                        $cq->where('car_name', 'like', "%{$search}%")
+                            ->orWhere('car_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return $query->latest()->paginate($perPage)->withQueryString();
+    }
+
+    public function getOwnerBookingStatusCounts(int $ownerId): array
+    {
+        $carIds = \App\Models\Car::where('owner_id', $ownerId)->pluck('id')->toArray();
+
+        return [
+            'all' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->count(),
+            'pending' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'pending')->count(),
+            'confirmed' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'confirmed')->count(),
+            'completed' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'completed')->count(),
+            'cancelled' => empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)->where('status', 'cancelled')->count(),
+        ];
+    }
+
+    public function confirmOwnerBooking(int $ownerId, int $bookingId): BookingCar
+    {
+        $carIds = \App\Models\Car::where('owner_id', $ownerId)->pluck('id')->toArray();
+        $booking = BookingCar::whereIn('car_id', $carIds)->findOrFail($bookingId);
+        $booking->status = 'confirmed';
+        $booking->save();
+        AdminCountCacheService::clear();
+
+        return $booking;
+    }
+
+    public function cancelOwnerBooking(int $ownerId, int $bookingId): BookingCar
+    {
+        $carIds = \App\Models\Car::where('owner_id', $ownerId)->pluck('id')->toArray();
+        $booking = BookingCar::whereIn('car_id', $carIds)->findOrFail($bookingId);
+        $booking->status = 'cancelled';
+        $booking->save();
+        AdminCountCacheService::clear();
+
+        return $booking;
+    }
+
+    public function getOwnerCalendarData(int $ownerId, ?int $carId = null): array
+    {
+        $cars = \App\Models\Car::where('owner_id', $ownerId)
+            ->select(['id', 'car_name', 'car_model', 'car_number', 'car_price_per_day', 'car_photo', 'status', 'available'])
+            ->get();
+
+        $carIds = $cars->pluck('id')->toArray();
+        $selectedCarId = null;
+        if ($carId && in_array((int) $carId, $carIds)) {
+            $selectedCarId = (int) $carId;
+        }
+
+        $bookingsQuery = BookingCar::with([
+            'car:id,car_name,car_model,car_number,car_photo,car_price_per_day,owner_id',
+            'customer:id,first_name,last_name,name,email,mobile,phone_number',
+        ])
+            ->whereIn('car_id', $carIds)
+            ->whereIn('status', ['confirmed', 'pending', 'completed']);
+
+        if ($selectedCarId) {
+            $bookingsQuery->where('car_id', $selectedCarId);
+        }
+
+        $bookings = $bookingsQuery->get();
+
+        $thisMonthBookings = empty($carIds) ? 0 : BookingCar::whereIn('car_id', $carIds)
+            ->whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->count();
+
+        $stats = [
+            'totalCars' => $cars->count(),
+            'thisMonthBookings' => $thisMonthBookings,
+            'activeBookings' => $bookings->count(),
+        ];
+
+        return [
+            'carId' => $selectedCarId,
+            'cars' => $cars,
+            'bookings' => $bookings,
+            'stats' => $stats,
+        ];
+    }
+
+    public function getCustomerCalendarBookings(): Collection
+    {
+        return BookingCar::with(['car.driver', 'car.owner'])
+            ->whereIn('status', ['confirm', 'booked', 'pending'])
+            ->orderBy('pick_up_date', 'asc')
+            ->get();
+    }
+
+    public function getBookedRangesForCar(int $carId): Collection
+    {
+        return BookingCar::where('car_id', $carId)
+            ->whereIn('status', ['confirm', 'booked', 'pending', 'reserved'])
+            ->get(['pick_up_date', 'last_date', 'status'])
+            ->map(function ($b) {
+                return [
+                    'start' => substr($b->pick_up_date, 0, 10),
+                    'end' => substr($b->last_date, 0, 10),
+                    'status' => $b->status,
+                ];
+            });
+    }
 }

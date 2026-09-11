@@ -296,4 +296,160 @@ class CarService
     {
         return $this->carRepository->carNumberExists($carNumber, $excludeId);
     }
+
+    public function getOwnerCars(int $ownerId, array $filters = [], int $perPage = 12): LengthAwarePaginator
+    {
+        $status = $filters['status'] ?? 'all';
+        $search = $filters['search'] ?? null;
+
+        $query = Car::with(['driver:id,name,phone,license_number,experience_years,status'])
+            ->where('owner_id', $ownerId);
+
+        if ($status === 'approved') {
+            $query->whereIn('status', ['approved', 'verified', 'active']);
+        } elseif ($status === 'pending') {
+            $query->where(function ($q) {
+                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
+                    ->orWhereNull('status')
+                    ->orWhere('status', '');
+            });
+        } elseif ($status === 'rejected') {
+            $query->whereIn('status', ['rejected', 'declined', 'disapproved']);
+        }
+
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('car_name', 'like', "%{$search}%")
+                    ->orWhere('car_model', 'like', "%{$search}%")
+                    ->orWhere('car_number', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->latest()->paginate($perPage)->withQueryString();
+    }
+
+    public function getOwnerCarStatusCounts(int $ownerId): array
+    {
+        return [
+            'all' => Car::where('owner_id', $ownerId)->count(),
+            'approved' => Car::where('owner_id', $ownerId)->whereIn('status', ['approved', 'verified', 'active'])->count(),
+            'pending' => Car::where('owner_id', $ownerId)->where(function ($q) {
+                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
+                    ->orWhereNull('status')
+                    ->orWhere('status', '');
+            })->count(),
+            'rejected' => Car::where('owner_id', $ownerId)->whereIn('status', ['rejected', 'declined', 'disapproved'])->count(),
+        ];
+    }
+
+    public function createOwnerCar(int $ownerId, array $data, $carPhoto = null, $blueBookPhoto = null): Car
+    {
+        return $this->createCarForOwner($ownerId, $data, $carPhoto, $blueBookPhoto);
+    }
+
+    public function getOwnerCar(int $ownerId, int $carId): Car
+    {
+        return Car::with(['driver', 'booking.customer'])
+            ->where('owner_id', $ownerId)
+            ->findOrFail($carId);
+    }
+
+    public function updateOwnerCar(int $ownerId, int $carId, array $data, $carPhoto = null, $blueBookPhoto = null): Car
+    {
+        $car = Car::where('owner_id', $ownerId)->findOrFail($carId);
+
+        if ($carPhoto && $carPhoto->isValid()) {
+            $fileName = time().'_car_'.$carPhoto->getClientOriginalName();
+            $carPhoto->move(public_path('uploads/cars'), $fileName);
+            $data['car_photo'] = 'uploads/cars/'.$fileName;
+        }
+
+        if ($blueBookPhoto && $blueBookPhoto->isValid()) {
+            $fileName = time().'_bluebook_'.$blueBookPhoto->getClientOriginalName();
+            $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
+            $data['blue_book_photo'] = 'uploads/bluebooks/'.$fileName;
+        }
+
+        $car->update($data);
+        AdminCountCacheService::clear();
+
+        return $car->fresh(['driver']);
+    }
+
+    public function deleteOwnerCar(int $ownerId, int $carId): bool
+    {
+        $car = Car::where('owner_id', $ownerId)->findOrFail($carId);
+        $res = (bool) $car->delete();
+        AdminCountCacheService::clear();
+
+        return $res;
+    }
+
+    public function getCustomerFleetCars(array $filters = [], int $perPage = 9): LengthAwarePaginator
+    {
+        $query = Car::with([
+            'owner',
+            'driver',
+            'booking' => function ($q) {
+                $q->whereIn('status', ['confirm', 'booked', 'pending', 'reserved'])
+                    ->select('id', 'car_id', 'pick_up_date', 'last_date', 'status');
+            },
+        ])
+            ->where(function ($q) {
+                $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
+                    ->orWhere('available', 'yes')
+                    ->orWhereNull('status');
+            });
+
+        if ($search = ($filters['search'] ?? null)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('car_name', 'like', "%{$search}%")
+                    ->orWhere('car_model', 'like', "%{$search}%")
+                    ->orWhere('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('car_number', 'like', "%{$search}%");
+            });
+        }
+
+        if ($category = ($filters['category'] ?? null)) {
+            if ($category !== 'all') {
+                $query->where(function ($q) use ($category) {
+                    $q->where('car_name', 'like', "%{$category}%")
+                        ->orWhere('car_model', 'like', "%{$category}%")
+                        ->orWhere('brand', 'like', "%{$category}%")
+                        ->orWhere('model', 'like', "%{$category}%")
+                        ->orWhere('description', 'like', "%{$category}%");
+                });
+            }
+        }
+
+        if ($minPrice = ($filters['min_price'] ?? null)) {
+            $query->where('car_price_per_day', '>=', (float) $minPrice);
+        }
+        if ($maxPrice = ($filters['max_price'] ?? null)) {
+            $query->where('car_price_per_day', '<=', (float) $maxPrice);
+        }
+
+        if ($seats = ($filters['seats'] ?? null)) {
+            $query->where('number_of_seats', '>=', (int) $seats);
+        }
+
+        return $query->orderByDesc('id')->paginate($perPage)->withQueryString();
+    }
+
+    public function getCustomerCarDetails(int $id): Car
+    {
+        return Car::with(['owner', 'driver'])->findOrFail($id);
+    }
+
+    public function getCustomerCalendarCars(): Collection
+    {
+        return Car::with(['owner', 'driver'])
+            ->where(function ($q) {
+                $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
+                    ->orWhere('available', 'yes')
+                    ->orWhereNull('status');
+            })
+            ->get();
+    }
 }

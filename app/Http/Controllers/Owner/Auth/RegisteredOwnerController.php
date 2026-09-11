@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Owner\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Owner;
+use App\Http\Requests\Owner\Auth\RegisterOwnerRequest;
+use App\Services\OwnerService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
-use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class RegisteredOwnerController extends Controller
 {
+    public function __construct(
+        protected OwnerService $ownerService
+    ) {}
+
     /**
      * Display the registration view.
      */
@@ -26,28 +27,10 @@ class RegisteredOwnerController extends Controller
 
     /**
      * Handle an incoming registration request.
-     *
-     * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterOwnerRequest $request): RedirectResponse
     {
-        $request->validate([
-            'full_name' => ['required', 'string', 'max:255'],
-            'contact_number' => ['required', 'string', 'max:20'],
-            'address' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'string'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.Owner::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $owner = Owner::create([
-            'full_name' => $request->full_name,
-            'contact_number' => $request->contact_number,
-            'address' => $request->address,
-            'gender' => $request->gender,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        $owner = $this->ownerService->registerOwner($request->validated());
 
         event(new Registered($owner));
 

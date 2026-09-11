@@ -3,14 +3,21 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
-use App\Models\Driver;
+use App\Http\Requests\Owner\Car\StoreCarRequest;
+use App\Http\Requests\Owner\Car\UpdateCarRequest;
+use App\Services\CarService;
+use App\Services\DriverService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CarController extends Controller
 {
+    public function __construct(
+        protected CarService $carService,
+        protected DriverService $driverService
+    ) {}
+
     /**
      * Display a listing of cars for the authenticated owner.
      */
@@ -20,43 +27,13 @@ class CarController extends Controller
         $status = $request->input('status', 'all');
         $search = $request->input('search');
 
-        // Status counts strictly scoped to this owner
-        $statusCounts = [
-            'all' => Car::where('owner_id', $ownerId)->count(),
-            'approved' => Car::where('owner_id', $ownerId)->whereIn('status', ['approved', 'verified', 'active'])->count(),
-            'pending' => Car::where('owner_id', $ownerId)->where(function ($q) {
-                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
-                    ->orWhereNull('status')
-                    ->orWhere('status', '');
-            })->count(),
-            'rejected' => Car::where('owner_id', $ownerId)->whereIn('status', ['rejected', 'declined', 'disapproved'])->count(),
-        ];
+        $statusCounts = $this->carService->getOwnerCarStatusCounts($ownerId);
+        $cars = $this->carService->getOwnerCars($ownerId, [
+            'status' => $status,
+            'search' => $search,
+        ], 12);
 
-        $query = Car::with(['driver:id,name,phone,license_number,experience_years,status'])
-            ->where('owner_id', $ownerId);
-
-        if ($status === 'approved') {
-            $query->whereIn('status', ['approved', 'verified', 'active']);
-        } elseif ($status === 'pending') {
-            $query->where(function ($q) {
-                $q->whereIn('status', ['pending', 'pending_verification', 'under_review'])
-                    ->orWhereNull('status')
-                    ->orWhere('status', '');
-            });
-        } elseif ($status === 'rejected') {
-            $query->whereIn('status', ['rejected', 'declined', 'disapproved']);
-        }
-
-        if (! empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('car_name', 'like', "%{$search}%")
-                    ->orWhere('car_model', 'like', "%{$search}%")
-                    ->orWhere('car_number', 'like', "%{$search}%");
-            });
-        }
-
-        $cars = $query->latest()->paginate(12)->withQueryString();
-        $availableDrivers = Driver::where('owner_id', $ownerId)->where('status', 'active')->get(['id', 'name', 'phone']);
+        $availableDrivers = $this->driverService->getAvailableDriversForOwner($ownerId);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -83,7 +60,7 @@ class CarController extends Controller
     public function create()
     {
         $ownerId = Auth::guard('owner')->id();
-        $drivers = Driver::where('owner_id', $ownerId)->where('status', 'active')->get(['id', 'name', 'phone']);
+        $drivers = $this->driverService->getAvailableDriversForOwner($ownerId);
 
         return Inertia::render('owner/Cars/Create', [
             'drivers' => $drivers,
@@ -93,60 +70,17 @@ class CarController extends Controller
     /**
      * Store a newly created car in storage.
      */
-    public function store(Request $request)
+    public function store(StoreCarRequest $request)
     {
         $ownerId = Auth::guard('owner')->id();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'car_name' => 'required|string|max:255',
-            'car_model' => 'required|string|max:255',
-            'car_number' => 'required|string|max:50|unique:cars,car_number',
-            'number_of_seats' => 'required|integer|min:1|max:100',
-            'car_price_per_day' => 'required|numeric|min:0',
-            'car_price_per_km' => 'nullable|numeric|min:0',
-            'driver_id' => 'nullable|exists:drivers,id',
-            'available' => 'nullable|boolean',
-            'car_photo' => 'nullable|image|max:3072',
-            'blue_book_photo' => 'nullable|file|max:5120',
-        ]);
-
-        $carPhotoPath = null;
-        if ($request->hasFile('car_photo')) {
-            $file = $request->file('car_photo');
-            $fileName = time().'_car_'.$file->getClientOriginalName();
-            $file->move(public_path('uploads/cars'), $fileName);
-            $carPhotoPath = 'uploads/cars/'.$fileName;
-        }
-
-        $blueBookPath = null;
-        if ($request->hasFile('blue_book_photo')) {
-            $file = $request->file('blue_book_photo');
-            $fileName = time().'_bluebook_'.$file->getClientOriginalName();
-            $file->move(public_path('uploads/bluebooks'), $fileName);
-            $blueBookPath = 'uploads/bluebooks/'.$fileName;
-        }
-
-        $driver = null;
-        if (! empty($validated['driver_id'])) {
-            $driver = Driver::where('owner_id', $ownerId)->find($validated['driver_id']);
-        }
-
-        $car = Car::create([
-            'owner_id' => $ownerId,
-            'driver_id' => $driver ? $driver->id : null,
-            'driver_name' => $driver ? $driver->name : null,
-            'driver_number' => $driver ? $driver->phone : null,
-            'car_name' => $validated['car_name'],
-            'car_model' => $validated['car_model'],
-            'car_number' => $validated['car_number'],
-            'number_of_seats' => $validated['number_of_seats'],
-            'car_price_per_day' => $validated['car_price_per_day'],
-            'car_price_per_km' => $validated['car_price_per_km'] ?? 0,
-            'available' => $validated['available'] ?? true,
-            'status' => 'pending', // Requires admin verification
-            'car_photo' => $carPhotoPath,
-            'blue_book_photo' => $blueBookPath,
-        ]);
+        $car = $this->carService->createOwnerCar(
+            $ownerId,
+            $validated,
+            $request->file('car_photo'),
+            $request->file('blue_book_photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -165,9 +99,7 @@ class CarController extends Controller
     public function show(Request $request, $id)
     {
         $ownerId = Auth::guard('owner')->id();
-        $car = Car::with(['driver', 'booking.customer'])
-            ->where('owner_id', $ownerId)
-            ->findOrFail($id);
+        $car = $this->carService->getOwnerCar($ownerId, (int) $id);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -187,8 +119,8 @@ class CarController extends Controller
     public function edit($id)
     {
         $ownerId = Auth::guard('owner')->id();
-        $car = Car::where('owner_id', $ownerId)->findOrFail($id);
-        $drivers = Driver::where('owner_id', $ownerId)->where('status', 'active')->get(['id', 'name', 'phone']);
+        $car = $this->carService->getOwnerCar($ownerId, (int) $id);
+        $drivers = $this->driverService->getAvailableDriversForOwner($ownerId);
 
         return Inertia::render('owner/Cars/Edit', [
             'car' => $car,
@@ -199,45 +131,18 @@ class CarController extends Controller
     /**
      * Update the specified car in storage.
      */
-    public function update(Request $request, $id)
+    public function update(UpdateCarRequest $request, $id)
     {
         $ownerId = Auth::guard('owner')->id();
-        $car = Car::where('owner_id', $ownerId)->findOrFail($id);
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'car_name' => 'required|string|max:255',
-            'car_model' => 'required|string|max:255',
-            'car_number' => 'required|string|max:50|unique:cars,car_number,'.$car->id,
-            'number_of_seats' => 'required|integer|min:1|max:100',
-            'car_price_per_day' => 'required|numeric|min:0',
-            'car_price_per_km' => 'nullable|numeric|min:0',
-            'driver_id' => 'nullable|exists:drivers,id',
-            'available' => 'nullable|boolean',
-            'car_photo' => 'nullable|image|max:3072',
-            'blue_book_photo' => 'nullable|file|max:5120',
-        ]);
-
-        if ($request->hasFile('car_photo')) {
-            $file = $request->file('car_photo');
-            $fileName = time().'_car_'.$file->getClientOriginalName();
-            $file->move(public_path('uploads/cars'), $fileName);
-            $validated['car_photo'] = 'uploads/cars/'.$fileName;
-        }
-
-        if ($request->hasFile('blue_book_photo')) {
-            $file = $request->file('blue_book_photo');
-            $fileName = time().'_bluebook_'.$file->getClientOriginalName();
-            $file->move(public_path('uploads/bluebooks'), $fileName);
-            $validated['blue_book_photo'] = 'uploads/bluebooks/'.$fileName;
-        }
-
-        if (! empty($validated['driver_id'])) {
-            $driver = Driver::where('owner_id', $ownerId)->find($validated['driver_id']);
-            $validated['driver_name'] = $driver ? $driver->name : null;
-            $validated['driver_number'] = $driver ? $driver->phone : null;
-        }
-
-        $car->update($validated);
+        $car = $this->carService->updateOwnerCar(
+            $ownerId,
+            (int) $id,
+            $validated,
+            $request->file('car_photo'),
+            $request->file('blue_book_photo')
+        );
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -256,8 +161,7 @@ class CarController extends Controller
     public function destroy(Request $request, $id)
     {
         $ownerId = Auth::guard('owner')->id();
-        $car = Car::where('owner_id', $ownerId)->findOrFail($id);
-        $car->delete();
+        $this->carService->deleteOwnerCar($ownerId, (int) $id);
 
         if ($request->wantsJson()) {
             return response()->json([
