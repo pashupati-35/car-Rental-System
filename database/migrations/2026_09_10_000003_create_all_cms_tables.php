@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // 1. FAQ Categories
-        if (!Schema::hasTable('faq_categories')) {
+        if (! Schema::hasTable('faq_categories')) {
             Schema::create('faq_categories', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->nullable();
@@ -28,7 +28,7 @@ return new class extends Migration
         }
 
         // 2. FAQs
-        if (!Schema::hasTable('faqs')) {
+        if (! Schema::hasTable('faqs')) {
             Schema::create('faqs', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable()->index();
@@ -46,7 +46,7 @@ return new class extends Migration
         }
 
         // 3. Blog Categories
-        if (!Schema::hasTable('blog_categories')) {
+        if (! Schema::hasTable('blog_categories')) {
             Schema::create('blog_categories', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -63,7 +63,7 @@ return new class extends Migration
         }
 
         // 4. Blogs
-        if (!Schema::hasTable('blogs')) {
+        if (! Schema::hasTable('blogs')) {
             Schema::create('blogs', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable()->index();
@@ -90,7 +90,7 @@ return new class extends Migration
         }
 
         // 5. Careers
-        if (!Schema::hasTable('careers')) {
+        if (! Schema::hasTable('careers')) {
             Schema::create('careers', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -113,7 +113,7 @@ return new class extends Migration
         }
 
         // 6. Career Applications
-        if (!Schema::hasTable('career_applications')) {
+        if (! Schema::hasTable('career_applications')) {
             Schema::create('career_applications', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('career_id')->nullable()->index();
@@ -131,7 +131,7 @@ return new class extends Migration
         }
 
         // 7. Notices
-        if (!Schema::hasTable('notices')) {
+        if (! Schema::hasTable('notices')) {
             Schema::create('notices', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -149,7 +149,7 @@ return new class extends Migration
         }
 
         // 8. Teams
-        if (!Schema::hasTable('teams')) {
+        if (! Schema::hasTable('teams')) {
             Schema::create('teams', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->nullable();
@@ -171,7 +171,7 @@ return new class extends Migration
         }
 
         // 9. Testimonials
-        if (!Schema::hasTable('testimonials')) {
+        if (! Schema::hasTable('testimonials')) {
             Schema::create('testimonials', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -190,7 +190,7 @@ return new class extends Migration
         }
 
         // 10. Services
-        if (!Schema::hasTable('services')) {
+        if (! Schema::hasTable('services')) {
             Schema::create('services', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -207,7 +207,7 @@ return new class extends Migration
         }
 
         // 11. Slider Types & Sliders
-        if (!Schema::hasTable('slider_types')) {
+        if (! Schema::hasTable('slider_types')) {
             Schema::create('slider_types', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -218,7 +218,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('sliders')) {
+        if (! Schema::hasTable('sliders')) {
             Schema::create('sliders', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -240,7 +240,7 @@ return new class extends Migration
         }
 
         // 12. Partners
-        if (!Schema::hasTable('partners')) {
+        if (! Schema::hasTable('partners')) {
             Schema::create('partners', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -255,7 +255,7 @@ return new class extends Migration
         }
 
         // 13. Popups
-        if (!Schema::hasTable('popups')) {
+        if (! Schema::hasTable('popups')) {
             Schema::create('popups', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -277,7 +277,7 @@ return new class extends Migration
         }
 
         // 14. Pages
-        if (!Schema::hasTable('pages')) {
+        if (! Schema::hasTable('pages')) {
             Schema::create('pages', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -296,7 +296,7 @@ return new class extends Migration
         }
 
         // 15. News & Updates
-        if (!Schema::hasTable('news_and_updates')) {
+        if (! Schema::hasTable('news_and_updates')) {
             Schema::create('news_and_updates', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable()->index();
@@ -312,7 +312,7 @@ return new class extends Migration
         }
 
         // 16. Menus & Menu Items
-        if (!Schema::hasTable('menus')) {
+        if (! Schema::hasTable('menus')) {
             Schema::create('menus', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -324,7 +324,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('menu_items')) {
+        if (! Schema::hasTable('menu_items')) {
             Schema::create('menu_items', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -345,7 +345,7 @@ return new class extends Migration
         }
 
         // 17. Albums & Album Values
-        if (!Schema::hasTable('albums')) {
+        if (! Schema::hasTable('albums')) {
             Schema::create('albums', function (Blueprint $table) {
                 $table->id();
                 $table->string('title')->nullable();
@@ -362,7 +362,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('album_values')) {
+        if (! Schema::hasTable('album_values')) {
             Schema::create('album_values', function (Blueprint $table) {
                 $table->id();
                 $table->unsignedBigInteger('album_id')->nullable()->index();
@@ -377,7 +377,7 @@ return new class extends Migration
         }
 
         // 18. Enquiries & Contact Us
-        if (!Schema::hasTable('enquiries')) {
+        if (! Schema::hasTable('enquiries')) {
             Schema::create('enquiries', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->nullable();
@@ -393,7 +393,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('contact_us')) {
+        if (! Schema::hasTable('contact_us')) {
             Schema::create('contact_us', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->nullable();
@@ -408,7 +408,7 @@ return new class extends Migration
         }
 
         // 19. Site Settings
-        if (!Schema::hasTable('site_settings')) {
+        if (! Schema::hasTable('site_settings')) {
             Schema::create('site_settings', function (Blueprint $table) {
                 $table->id();
                 $table->string('company_name')->nullable();

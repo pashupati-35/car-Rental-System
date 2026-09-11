@@ -16,15 +16,17 @@ class PartnerService extends Service
     public function paginate(PartnerFilterDTO $filter)
     {
         $partners = $this->partnerRepo->getFilteredPaginated($filter);
+
         return PartnerResource::collection($partners);
     }
 
     public function store(array $data)
     {
         try {
-            if (!empty($data['featured_photo'])) {
+            if (! empty($data['featured_photo'])) {
                 $data['featured_photo'] = $this->uploadFile($data['featured_photo'], $this->uploadPath);
             }
+
             return $this->partnerRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -34,6 +36,7 @@ class PartnerService extends Service
     public function find($id)
     {
         $partner = $this->partnerRepo->find($id);
+
         return $partner ? new PartnerResource($partner) : null;
     }
 
@@ -41,9 +44,11 @@ class PartnerService extends Service
     {
         try {
             $partner = $this->partnerRepo->find($id);
-            if (!$partner) return false;
+            if (! $partner) {
+                return false;
+            }
 
-            if (!empty($data['featured_photo'])) {
+            if (! empty($data['featured_photo'])) {
                 $data['featured_photo'] = $this->uploadFile($data['featured_photo'], $this->uploadPath);
             } else {
                 unset($data['featured_photo']);

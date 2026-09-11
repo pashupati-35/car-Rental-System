@@ -41,9 +41,9 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone_number', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
             });
         }
 
@@ -69,12 +69,14 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     {
         $customer = $this->model->findOrFail($id);
         $customer->update($data);
+
         return $customer;
     }
 
     public function deleteCustomer(int $id): bool
     {
         $customer = $this->model->findOrFail($id);
+
         return (bool) $customer->delete();
     }
 

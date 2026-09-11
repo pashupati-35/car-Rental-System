@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookingCar;
+use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -35,6 +36,7 @@ class AuthenticatedSessionController extends Controller
 
         if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('customer.dashboard'));
         }
 
@@ -77,11 +79,11 @@ class AuthenticatedSessionController extends Controller
                 ->orderByDesc('created_at')
                 ->get();
 
-            $featuredCars = \App\Models\Car::with(['owner', 'driver'])
+            $featuredCars = Car::with(['owner', 'driver'])
                 ->where(function ($q) {
                     $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
-                      ->orWhere('available', 'yes')
-                      ->orWhereNull('status');
+                        ->orWhere('available', 'yes')
+                        ->orWhereNull('status');
                 })
                 ->orderByDesc('id')
                 ->take(6)

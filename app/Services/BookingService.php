@@ -5,7 +5,6 @@ namespace App\Services;
 use App\DTOs\BookingDTO;
 use App\Mail\Admin\BookingStatusNotificationMail;
 use App\Models\BookingCar;
-use App\Models\Car;
 use App\Repositories\BookingRepositoryInterface;
 use App\Repositories\CarRepositoryInterface;
 use App\Services\Admin\AdminCountCacheService;
@@ -112,6 +111,7 @@ class BookingService
         ]);
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -137,6 +137,7 @@ class BookingService
         ]);
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -157,6 +158,7 @@ class BookingService
         $booking->save();
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -172,6 +174,7 @@ class BookingService
         $booking->save();
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -206,6 +209,7 @@ class BookingService
         $booking->save();
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -217,6 +221,7 @@ class BookingService
         $booking->save();
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -248,7 +253,7 @@ class BookingService
 
         $dates = [
             'booked' => [],
-            'reserved' => []
+            'reserved' => [],
         ];
 
         foreach ($bookings as $booking) {
@@ -259,7 +264,7 @@ class BookingService
                 } else {
                     $dates['reserved'][] = $currentDate;
                 }
-                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
+                $currentDate = date('Y-m-d', strtotime($currentDate.' +1 day'));
             }
         }
 
@@ -290,11 +295,12 @@ class BookingService
             try {
                 Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'confirm'));
             } catch (\Throwable $e) {
-                Log::warning('Failed to send booking confirmation email to customer: ' . $e->getMessage());
+                Log::warning('Failed to send booking confirmation email to customer: '.$e->getMessage());
             }
         }
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -307,11 +313,12 @@ class BookingService
             try {
                 Mail::to($recipientEmail)->send(new BookingStatusNotificationMail($booking, 'cancel'));
             } catch (\Throwable $e) {
-                Log::warning('Failed to send booking cancellation email to customer: ' . $e->getMessage());
+                Log::warning('Failed to send booking cancellation email to customer: '.$e->getMessage());
             }
         }
 
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -319,6 +326,7 @@ class BookingService
     {
         $result = $this->bookingRepository->deleteBooking($id);
         AdminCountCacheService::clear();
+
         return $result;
     }
 
@@ -327,6 +335,7 @@ class BookingService
         $data['customer_id'] = $customerId;
         $booking = $this->bookingRepository->createBooking($data);
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -334,6 +343,7 @@ class BookingService
     {
         $booking = $this->bookingRepository->updateBooking($bookingId, $data);
         AdminCountCacheService::clear();
+
         return $booking;
     }
 
@@ -341,6 +351,7 @@ class BookingService
     {
         $result = $this->bookingRepository->deleteBooking($bookingId);
         AdminCountCacheService::clear();
+
         return $result;
     }
 

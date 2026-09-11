@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface PopupRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(PopupFilterDTO $filter): LengthAwarePaginator;
+
     public function updatePositions(array $sortedIds): bool;
 }

@@ -20,7 +20,7 @@ class UpdateCustomerRequest extends FormRequest
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
             'name' => 'nullable|string|max:255',
-            'email' => 'nullable|email|max:255|unique:customers,email,' . $id,
+            'email' => 'nullable|email|max:255|unique:customers,email,'.$id,
             'phone_number' => 'nullable|string|max:25',
             'phone' => 'nullable|string|max:25',
             'mobile' => 'nullable|string|max:25',

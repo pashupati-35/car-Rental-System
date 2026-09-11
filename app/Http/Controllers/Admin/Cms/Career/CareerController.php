@@ -15,6 +15,7 @@ class CareerController extends Controller
     public function index(Request $request)
     {
         $filter = CareerFilterDTO::fromArray($request->all());
+
         return $this->careerService->paginate($filter);
     }
 

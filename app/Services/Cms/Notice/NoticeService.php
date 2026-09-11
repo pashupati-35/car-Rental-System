@@ -14,6 +14,7 @@ class NoticeService extends Service
     public function paginate(NoticeFilterDTO $filter)
     {
         $notices = $this->noticeRepo->getFilteredPaginated($filter);
+
         return NoticeResource::collection($notices);
     }
 
@@ -28,6 +29,7 @@ class NoticeService extends Service
             if (isset($data['user_type']) && is_array($data['user_type'])) {
                 $data['user_type'] = implode(',', $data['user_type']);
             }
+
             return $this->noticeRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -37,6 +39,7 @@ class NoticeService extends Service
     public function find($id)
     {
         $notice = $this->noticeRepo->find($id);
+
         return $notice ? new NoticeResource($notice) : null;
     }
 
@@ -46,6 +49,7 @@ class NoticeService extends Service
             if (isset($data['user_type']) && is_array($data['user_type'])) {
                 $data['user_type'] = implode(',', $data['user_type']);
             }
+
             return $this->noticeRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

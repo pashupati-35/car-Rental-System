@@ -44,17 +44,19 @@ class EmailLog extends Model
     public function getSenderNameAttribute(): ?string
     {
         if ($this->sender) {
-            return $this->sender->full_name ?? $this->sender->name ?? $this->sender->email ?? 'User #' . $this->sender_id;
+            return $this->sender->full_name ?? $this->sender->name ?? $this->sender->email ?? 'User #'.$this->sender_id;
         }
+
         return 'System Automated';
     }
 
     public function getSenderRoleAttribute(): string
     {
-        if (!$this->sender_type) {
+        if (! $this->sender_type) {
             return 'System';
         }
         $base = class_basename($this->sender_type);
+
         return match ($base) {
             'Admin', 'AdminUser' => 'Admin',
             'Owner' => 'Fleet Owner',

@@ -35,13 +35,13 @@ class CustomerService
     public function createCustomerWithPasswordSetup(array $data, ?int $adminId = null, $image = null): array
     {
         $randomPassword = Str::random(16);
-        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : Hash::make($randomPassword);
+        $data['password'] = ! empty($data['password']) ? Hash::make($data['password']) : Hash::make($randomPassword);
         $data['admin_id'] = $adminId;
 
         if ($image && $image->isValid()) {
-            $fileName = time() . '_' . $image->getClientOriginalName();
+            $fileName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/customer'), $fileName);
-            $data['image'] = 'uploads/customer/' . $fileName;
+            $data['image'] = 'uploads/customer/'.$fileName;
         }
 
         $customer = $this->customerRepository->createCustomer($data);
@@ -58,12 +58,12 @@ class CustomerService
     public function updateCustomer(int $id, array $data, $image = null): Customer
     {
         if ($image && $image->isValid()) {
-            $fileName = time() . '_' . $image->getClientOriginalName();
+            $fileName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/customer'), $fileName);
-            $data['image'] = 'uploads/customer/' . $fileName;
+            $data['image'] = 'uploads/customer/'.$fileName;
         }
 
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);
@@ -71,6 +71,7 @@ class CustomerService
 
         $customer = $this->customerRepository->updateCustomer($id, $data);
         AdminCountCacheService::clear();
+
         return $customer;
     }
 
@@ -78,6 +79,7 @@ class CustomerService
     {
         $result = $this->customerRepository->deleteCustomer($id);
         AdminCountCacheService::clear();
+
         return $result;
     }
 

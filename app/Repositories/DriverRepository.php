@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Driver;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class DriverRepository extends BaseRepository implements DriverRepositoryInterface
 {
@@ -31,13 +32,13 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('license_number', 'like', "%{$search}%")
-                  ->orWhereHas('owner', function ($oq) use ($search) {
-                      $oq->where('full_name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  });
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%")
+                    ->orWhere('license_number', 'like', "%{$search}%")
+                    ->orWhereHas('owner', function ($oq) use ($search) {
+                        $oq->where('full_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -62,12 +63,14 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
     {
         $driver = $this->model->findOrFail($id);
         $driver->update($data);
+
         return $driver;
     }
 
     public function deleteDriver(int $id): bool
     {
         $driver = $this->model->findOrFail($id);
+
         return (bool) $driver->delete();
     }
 
@@ -76,7 +79,7 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
         return $this->model->count();
     }
 
-    public function getDriversByOwner(int $ownerId): \Illuminate\Support\Collection
+    public function getDriversByOwner(int $ownerId): Collection
     {
         return $this->model->withCount('cars')
             ->where('owner_id', $ownerId)
@@ -84,14 +87,14 @@ class DriverRepository extends BaseRepository implements DriverRepositoryInterfa
             ->get();
     }
 
-    public function getAvailableDriversForOwner(int $ownerId): \Illuminate\Support\Collection
+    public function getAvailableDriversForOwner(int $ownerId): Collection
     {
         return $this->model->where(function ($q) use ($ownerId) {
             $q->where('owner_id', $ownerId)->orWhereNull('owner_id');
         })->where('status', 'active')->get();
     }
 
-    public function getAllDrivers(): \Illuminate\Support\Collection
+    public function getAllDrivers(): Collection
     {
         return $this->model->select('id', 'name', 'phone', 'owner_id', 'status')
             ->orderBy('name')

@@ -19,23 +19,23 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->title)) {
-            $query->where('title', 'like', '%' . $filter->title . '%');
+        if (! empty($filter->title)) {
+            $query->where('title', 'like', '%'.$filter->title.'%');
         }
 
-        if (!empty($filter->type)) {
+        if (! empty($filter->type)) {
             $query->where('type', $filter->type);
         }
 
-        if (!empty($filter->category_id)) {
+        if (! empty($filter->category_id)) {
             $query->where('category_id', $filter->category_id);
         }
 
-        if (!empty($filter->publish_date_from)) {
+        if (! empty($filter->publish_date_from)) {
             $query->whereDate('publish_date', '>=', Carbon::parse($filter->publish_date_from));
         }
 
-        if (!empty($filter->publish_date_to)) {
+        if (! empty($filter->publish_date_to)) {
             $query->whereDate('publish_date', '<=', Carbon::parse($filter->publish_date_to));
         }
 
@@ -43,7 +43,7 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
             $query->where('is_active', $filter->is_active);
         }
 
-        if ($filter->type === 'event' && !empty($filter->filter_by)) {
+        if ($filter->type === 'event' && ! empty($filter->filter_by)) {
             if ($filter->filter_by === 'upcomming' || $filter->filter_by === 'upcoming') {
                 $query->whereDate('event_date', '>=', Carbon::now());
             } else {

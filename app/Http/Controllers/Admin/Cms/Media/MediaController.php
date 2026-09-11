@@ -15,6 +15,7 @@ class MediaController extends Controller
     public function index(Request $request)
     {
         $filter = MediaFilterDTO::fromArray($request->all());
+
         return $this->mediaService->paginate($filter);
     }
 

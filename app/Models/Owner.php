@@ -12,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 class Owner extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, UploadPathTrait;
-    
+
     protected $guard = 'owner';
 
     protected $uploadPath = 'owner';
@@ -87,21 +87,25 @@ class Owner extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        if (!empty($this->first_name) || !empty($this->last_name)) {
-            if (!empty($this->middle_name)) {
-                return ucfirst(trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name));
+        if (! empty($this->first_name) || ! empty($this->last_name)) {
+            if (! empty($this->middle_name)) {
+                return ucfirst(trim($this->first_name.' '.$this->middle_name.' '.$this->last_name));
             }
-            return ucfirst(trim($this->first_name . ' ' . $this->last_name));
+
+            return ucfirst(trim($this->first_name.' '.$this->last_name));
         }
+
         return $this->attributes['full_name'] ?? null;
     }
 
     public function getImagePathAttribute()
     {
-        if (!empty($this->image)) {
+        if (! empty($this->image)) {
             $uploadPath = $this->getUploadPath($this->uploadPath);
+
             return getImagePath($uploadPath, $this->image);
         }
+
         return null;
     }
 
@@ -114,7 +118,7 @@ class Owner extends Authenticatable
     {
         static::creating(function (Owner $owner) {
             if (empty($owner->unique_identifier)) {
-                $owner->unique_identifier = 'OWN-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+                $owner->unique_identifier = 'OWN-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
             }
         });
     }

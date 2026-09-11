@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\BookingCar;
 use App\Models\Car;
+use App\Models\Customer;
 use App\Models\Payment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -24,7 +25,7 @@ class BookingApiController extends Controller
             'last_date' => 'required|date|after_or_equal:pick_up_date',
         ]);
 
-        $carId = (int)$request->input('car_id');
+        $carId = (int) $request->input('car_id');
         $startDate = Carbon::parse($request->input('pick_up_date'))->startOfDay();
         $endDate = Carbon::parse($request->input('last_date'))->startOfDay();
 
@@ -32,18 +33,18 @@ class BookingApiController extends Controller
             ->whereIn('status', ['confirm', 'booked', 'reserved', 'pending'])
             ->where(function ($query) use ($startDate, $endDate) {
                 $query->where('pick_up_date', '<=', $endDate->format('Y-m-d'))
-                      ->where('last_date', '>=', $startDate->format('Y-m-d'));
+                    ->where('last_date', '>=', $startDate->format('Y-m-d'));
             })
             ->exists();
 
         $car = Car::find($carId);
-        $days = (int)$startDate->diffInDays($endDate) + 1;
-        $pricePerDay = (float)($car->car_price_per_day ?? 0);
+        $days = (int) $startDate->diffInDays($endDate) + 1;
+        $pricePerDay = (float) ($car->car_price_per_day ?? 0);
         $totalPrice = $days * $pricePerDay;
 
         return response()->json([
             'status' => 'success',
-            'available' => !$overlap,
+            'available' => ! $overlap,
             'days' => $days,
             'price_per_day' => $pricePerDay,
             'total_price' => $totalPrice,
@@ -59,11 +60,11 @@ class BookingApiController extends Controller
     public function store(Request $request)
     {
         $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
-        if (!$customer && $request->has('customer_id')) {
-            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        if (! $customer && $request->has('customer_id')) {
+            $customer = Customer::find($request->input('customer_id'));
         }
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Please sign in to your customer account to complete the booking.',
@@ -79,7 +80,7 @@ class BookingApiController extends Controller
             'purpose' => 'nullable|string|max:255',
         ]);
 
-        $carId = (int)$validated['car_id'];
+        $carId = (int) $validated['car_id'];
         $startDate = Carbon::parse($validated['pick_up_date'])->startOfDay();
         $endDate = Carbon::parse($validated['last_date'])->startOfDay();
 
@@ -89,7 +90,7 @@ class BookingApiController extends Controller
                 ->whereIn('status', ['confirm', 'booked', 'reserved'])
                 ->where(function ($query) use ($startDate, $endDate) {
                     $query->where('pick_up_date', '<=', $endDate->format('Y-m-d'))
-                          ->where('last_date', '>=', $startDate->format('Y-m-d'));
+                        ->where('last_date', '>=', $startDate->format('Y-m-d'));
                 })
                 ->lockForUpdate()
                 ->exists();
@@ -102,8 +103,8 @@ class BookingApiController extends Controller
             }
 
             $car = Car::findOrFail($carId);
-            $days = (int)$startDate->diffInDays($endDate) + 1;
-            $totalPrice = $days * (float)($car->car_price_per_day ?? 100);
+            $days = (int) $startDate->diffInDays($endDate) + 1;
+            $totalPrice = $days * (float) ($car->car_price_per_day ?? 100);
 
             $booking = BookingCar::create([
                 'car_id' => $carId,
@@ -135,11 +136,11 @@ class BookingApiController extends Controller
     public function processPayment(Request $request)
     {
         $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
-        if (!$customer && $request->has('customer_id')) {
-            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        if (! $customer && $request->has('customer_id')) {
+            $customer = Customer::find($request->input('customer_id'));
         }
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized.'], 401);
         }
 
@@ -154,7 +155,7 @@ class BookingApiController extends Controller
         $booking = BookingCar::where('customer_id', $customer->id)->findOrFail($validated['booking_id']);
 
         // Mask card number for PCI compliance
-        $maskedCard = '****-****-****-' . substr(preg_replace('/\D/', '', $validated['card_number']), -4);
+        $maskedCard = '****-****-****-'.substr(preg_replace('/\D/', '', $validated['card_number']), -4);
 
         $payment = Payment::create([
             'customer_id' => $customer->id,
@@ -186,11 +187,11 @@ class BookingApiController extends Controller
     public function myBookings(Request $request)
     {
         $customer = Auth::guard('customer')->user() ?: Auth::guard('web')->user() ?: Auth::user();
-        if (!$customer && $request->has('customer_id')) {
-            $customer = \App\Models\Customer::find($request->input('customer_id'));
+        if (! $customer && $request->has('customer_id')) {
+            $customer = Customer::find($request->input('customer_id'));
         }
 
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized.'], 401);
         }
 

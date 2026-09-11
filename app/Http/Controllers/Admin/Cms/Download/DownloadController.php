@@ -15,6 +15,7 @@ class DownloadController extends Controller
     public function index(Request $request)
     {
         $filter = DownloadFilterDTO::fromArray($request->all());
+
         return $this->downloadService->paginate($filter);
     }
 

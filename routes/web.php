@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AI\AIController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthController;
+use App\Http\Controllers\AI\AIController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\DashboardController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -13,6 +14,7 @@ Route::domain('portal.{domain}')->group(function () {
         if (auth()->guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
+
         return redirect()->route('admin.login');
     });
 
@@ -21,22 +23,22 @@ Route::domain('portal.{domain}')->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     });
-    Route::get('/cms', function (\Illuminate\Http\Request $request) {
-        return redirect('/admin/cms' . ($request->getQueryString() ? '?' . $request->getQueryString() : ''));
+    Route::get('/cms', function (Request $request) {
+        return redirect('/admin/cms'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
     });
 });
 
-Route::get('/cms', function (\Illuminate\Http\Request $request) {
-    return redirect('/admin/cms' . ($request->getQueryString() ? '?' . $request->getQueryString() : ''));
+Route::get('/cms', function (Request $request) {
+    return redirect('/admin/cms'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
 });
 
 // Admin Inertia Vue Page routes
-require __DIR__ . '/admin-vue.php';
+require __DIR__.'/admin-vue.php';
 
 // Authentication routes
-require __DIR__ . '/admin-auth.php';
-require __DIR__ . '/owner-auth.php';
-require __DIR__ . '/customer-auth.php';
+require __DIR__.'/admin-auth.php';
+require __DIR__.'/owner-auth.php';
+require __DIR__.'/customer-auth.php';
 
 // Social Auth routes
 Route::get('login/google', [SocialAuthController::class, 'redirectToGoogle'])->name('login.google');
@@ -51,8 +53,10 @@ Route::get('/', function () {
         if (auth()->guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
+
         return redirect()->route('admin.login');
     }
+
     return app(DashboardController::class)->index();
 })->name('home');
 
@@ -69,6 +73,7 @@ Route::get('/login', function () {
     if (str_starts_with($host, 'portal.')) {
         return redirect()->route('admin.login');
     }
+
     return redirect()->route('customer.login');
 })->name('login');
 

@@ -14,6 +14,7 @@ class MenuController extends Controller
     public function index(Request $request)
     {
         $filter = MenuFilterDTO::fromArray($request->all());
+
         return $this->menuService->paginate($filter);
     }
 

@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Admin\EmailVerificationJob;
 use App\Models\Admin;
 use App\Services\Authenticator\Authenticator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class MFAController extends Controller
 {
@@ -26,21 +28,21 @@ class MFAController extends Controller
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
-            $isMfa = (bool)$admin->is_mfa_enabled;
-            $isEmailAuth = (bool)$admin->is_email_authentication_enabled;
+            $isMfa = (bool) $admin->is_mfa_enabled;
+            $isEmailAuth = (bool) $admin->is_email_authentication_enabled;
             $codeSent = false;
 
-            if ($isEmailAuth && !$isMfa) {
+            if ($isEmailAuth && ! $isMfa) {
                 // Generate 6-digit OTP code for email verification
                 $code = sprintf('%06d', random_int(100000, 999999));
                 $admin->mfa_secret_code = $code;
                 $admin->save();
 
                 try {
-                    \App\Jobs\Admin\EmailVerificationJob::dispatchSync($admin, $code);
+                    EmailVerificationJob::dispatchSync($admin, $code);
                     $codeSent = true;
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Email verification send failed: ' . $e->getMessage());
+                    Log::warning('Email verification send failed: '.$e->getMessage());
                     // Fallback log sending
                     $codeSent = true;
                 }
@@ -84,9 +86,9 @@ class MFAController extends Controller
             $admin->save();
 
             try {
-                \App\Jobs\Admin\EmailVerificationJob::dispatchSync($admin, $code);
+                EmailVerificationJob::dispatchSync($admin, $code);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Resend email verification failed: ' . $e->getMessage());
+                Log::warning('Resend email verification failed: '.$e->getMessage());
             }
 
             return response()->json([
@@ -115,15 +117,15 @@ class MFAController extends Controller
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
-            $inputCode = trim((string)$request->input('verification_code'));
+            $inputCode = trim((string) $request->input('verification_code'));
             $verified = false;
 
             // Email authentication verification
-            if ($admin->is_email_authentication_enabled && !$admin->is_mfa_enabled) {
-                if ($admin->mfa_secret_code && (string)$admin->mfa_secret_code === $inputCode) {
+            if ($admin->is_email_authentication_enabled && ! $admin->is_mfa_enabled) {
+                if ($admin->mfa_secret_code && (string) $admin->mfa_secret_code === $inputCode) {
                     $verified = true;
                 }
-            } 
+            }
             // Authenticator app (TOTP) verification
             elseif ($admin->is_mfa_enabled && $admin->mfa_secret_code) {
                 if ($this->authenticator->verifyCode($admin->mfa_secret_code, $inputCode, 2)) {
@@ -131,7 +133,7 @@ class MFAController extends Controller
                 }
             }
             // If both or fallback
-            elseif ($admin->mfa_secret_code && ((string)$admin->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($admin->mfa_secret_code, $inputCode, 2))) {
+            elseif ($admin->mfa_secret_code && ((string) $admin->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($admin->mfa_secret_code, $inputCode, 2))) {
                 $verified = true;
             }
 
@@ -164,13 +166,13 @@ class MFAController extends Controller
     public function generate(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $secret = $this->authenticator->createSecret();
         $appName = config('app.name', 'Car Rental System');
-        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($admin->email, $secret, $appName . ' Admin');
+        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($admin->email, $secret, $appName.' Admin');
 
         return response()->json([
             'status' => 'OK',
@@ -197,7 +199,7 @@ class MFAController extends Controller
         ]);
 
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -235,12 +237,12 @@ class MFAController extends Controller
     public function deactivate(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $admin->is_mfa_enabled = false;
-        if (!$admin->is_email_authentication_enabled) {
+        if (! $admin->is_email_authentication_enabled) {
             $admin->mfa_secret_code = null;
         }
         $admin->mfa_authentication_image = null;
@@ -260,7 +262,7 @@ class MFAController extends Controller
     public function activateEmailAuthenticator()
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $admin->is_email_authentication_enabled = true;
@@ -272,7 +274,7 @@ class MFAController extends Controller
     public function deactivateEmailAuthenticator()
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $admin->is_email_authentication_enabled = false;

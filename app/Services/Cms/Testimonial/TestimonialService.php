@@ -16,6 +16,7 @@ class TestimonialService extends Service
     public function paginate(TestimonialFilterDTO $filter)
     {
         $testimonials = $this->testimonialRepo->getFilteredPaginated($filter);
+
         return TestimonialResource::collection($testimonials);
     }
 
@@ -27,9 +28,10 @@ class TestimonialService extends Service
     public function store(array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
+
             return $this->testimonialRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -39,17 +41,19 @@ class TestimonialService extends Service
     public function find($id)
     {
         $testimonial = $this->testimonialRepo->find($id);
+
         return $testimonial ? new TestimonialResource($testimonial) : null;
     }
 
     public function update($id, array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             } else {
                 unset($data['image']);
             }
+
             return $this->testimonialRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

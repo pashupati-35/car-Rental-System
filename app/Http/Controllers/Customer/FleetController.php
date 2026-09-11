@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
 use App\Models\BookingCar;
+use App\Models\Car;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,23 +20,23 @@ class FleetController extends Controller
             'driver',
             'booking' => function ($q) {
                 $q->whereIn('status', ['confirm', 'booked', 'pending', 'reserved'])
-                  ->select('id', 'car_id', 'pick_up_date', 'last_date', 'status');
+                    ->select('id', 'car_id', 'pick_up_date', 'last_date', 'status');
             },
         ])
-        ->where(function ($q) {
-            $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
-              ->orWhere('available', 'yes')
-              ->orWhereNull('status');
-        });
+            ->where(function ($q) {
+                $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
+                    ->orWhere('available', 'yes')
+                    ->orWhereNull('status');
+            });
 
         // Search query
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('car_name', 'like', "%{$search}%")
-                  ->orWhere('car_model', 'like', "%{$search}%")
-                  ->orWhere('brand', 'like', "%{$search}%")
-                  ->orWhere('model', 'like', "%{$search}%")
-                  ->orWhere('car_number', 'like', "%{$search}%");
+                    ->orWhere('car_model', 'like', "%{$search}%")
+                    ->orWhere('brand', 'like', "%{$search}%")
+                    ->orWhere('model', 'like', "%{$search}%")
+                    ->orWhere('car_number', 'like', "%{$search}%");
             });
         }
 
@@ -45,25 +45,25 @@ class FleetController extends Controller
             if ($category !== 'all') {
                 $query->where(function ($q) use ($category) {
                     $q->where('car_name', 'like', "%{$category}%")
-                      ->orWhere('car_model', 'like', "%{$category}%")
-                      ->orWhere('brand', 'like', "%{$category}%")
-                      ->orWhere('model', 'like', "%{$category}%")
-                      ->orWhere('description', 'like', "%{$category}%");
+                        ->orWhere('car_model', 'like', "%{$category}%")
+                        ->orWhere('brand', 'like', "%{$category}%")
+                        ->orWhere('model', 'like', "%{$category}%")
+                        ->orWhere('description', 'like', "%{$category}%");
                 });
             }
         }
 
         // Filter by min / max price
         if ($minPrice = $request->input('min_price')) {
-            $query->where('car_price_per_day', '>=', (float)$minPrice);
+            $query->where('car_price_per_day', '>=', (float) $minPrice);
         }
         if ($maxPrice = $request->input('max_price')) {
-            $query->where('car_price_per_day', '<=', (float)$maxPrice);
+            $query->where('car_price_per_day', '<=', (float) $maxPrice);
         }
 
         // Filter by seats
         if ($seats = $request->input('seats')) {
-            $query->where('number_of_seats', '>=', (int)$seats);
+            $query->where('number_of_seats', '>=', (int) $seats);
         }
 
         $perPage = (int) $request->input('per_page', 9);
@@ -118,8 +118,8 @@ class FleetController extends Controller
         $cars = Car::with(['owner', 'driver'])
             ->where(function ($q) {
                 $q->whereIn('status', ['verified', 'available', 'active', 'approved', 'pending'])
-                  ->orWhere('available', 'yes')
-                  ->orWhereNull('status');
+                    ->orWhere('available', 'yes')
+                    ->orWhereNull('status');
             })
             ->get();
 

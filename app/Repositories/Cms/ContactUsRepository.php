@@ -18,13 +18,13 @@ class ContactUsRepository extends BaseRepository implements ContactUsRepositoryI
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('first_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('email', 'like', '%' . $filter->search . '%')
-                  ->orWhere('subject', 'like', '%' . $filter->search . '%')
-                  ->orWhere('message', 'like', '%' . $filter->search . '%');
+                $q->where('first_name', 'like', '%'.$filter->search.'%')
+                    ->orWhere('last_name', 'like', '%'.$filter->search.'%')
+                    ->orWhere('email', 'like', '%'.$filter->search.'%')
+                    ->orWhere('subject', 'like', '%'.$filter->search.'%')
+                    ->orWhere('message', 'like', '%'.$filter->search.'%');
             });
         }
 

@@ -18,15 +18,15 @@ class SliderRepository extends BaseRepository implements SliderRepositoryInterfa
     {
         $query = $this->model->newQuery()->with('type');
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('heading_text', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('heading_text', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->slider_type_id)) {
+        if (! empty($filter->slider_type_id)) {
             $query->where('slider_type_id', $filter->slider_type_id);
         }
 
@@ -45,6 +45,7 @@ class SliderRepository extends BaseRepository implements SliderRepositoryInterfa
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

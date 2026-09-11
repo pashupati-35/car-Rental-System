@@ -39,6 +39,7 @@ class PaymentService
         $booking->save();
 
         AdminCountCacheService::clear();
+
         return $payment;
     }
 
@@ -66,6 +67,7 @@ class PaymentService
 
         $payment = $this->paymentRepository->createPayment($data);
         AdminCountCacheService::clear();
+
         return $payment;
     }
 
@@ -73,6 +75,7 @@ class PaymentService
     {
         $result = $this->paymentRepository->deleteCustomerPayment($customerId, $paymentId);
         AdminCountCacheService::clear();
+
         return $result;
     }
 }

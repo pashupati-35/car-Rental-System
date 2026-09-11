@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Admin\AdminCountCacheService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -43,9 +44,9 @@ class HandleInertiaRequests extends Middleware
         $host = $request->getHost();
         $scheme = $request->getScheme();
         $port = $request->getPort();
-        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $portalHost = str_starts_with($host, 'portal.') ? $host : 'portal.' . $host;
-        $adminPortalBaseUrl = $scheme . '://' . $portalHost . $portSuffix;
+        $portSuffix = ($port && ! in_array($port, [80, 443])) ? ':'.$port : '';
+        $portalHost = str_starts_with($host, 'portal.') ? $host : 'portal.'.$host;
+        $adminPortalBaseUrl = $scheme.'://'.$portalHost.$portSuffix;
 
         return array_merge(parent::share($request), [
             'auth' => [
@@ -62,7 +63,7 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
             ],
             'appName' => config('app.name', 'Car Rental System'),
-            'adminCounts' => fn () => $request->user('admin') ? \App\Services\Admin\AdminCountCacheService::getSharedCounts() : null,
+            'adminCounts' => fn () => $request->user('admin') ? AdminCountCacheService::getSharedCounts() : null,
         ]);
     }
 }

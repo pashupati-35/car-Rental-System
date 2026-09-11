@@ -16,6 +16,7 @@ class TeamController extends Controller
     public function index(Request $request)
     {
         $filter = TeamFilterDTO::fromArray($request->all());
+
         return $this->teamService->paginate($filter);
     }
 

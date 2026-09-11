@@ -20,28 +20,28 @@ class EmailLogRepository extends BaseRepository implements EmailLogRepositoryInt
     {
         $query = $this->model->newQuery()->with('sender');
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('to', 'like', '%' . $filter->search . '%')
-                  ->orWhere('from', 'like', '%' . $filter->search . '%')
-                  ->orWhere('subject', 'like', '%' . $filter->search . '%')
-                  ->orWhere('mailable_class', 'like', '%' . $filter->search . '%');
+                $q->where('to', 'like', '%'.$filter->search.'%')
+                    ->orWhere('from', 'like', '%'.$filter->search.'%')
+                    ->orWhere('subject', 'like', '%'.$filter->search.'%')
+                    ->orWhere('mailable_class', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->to)) {
-            $query->where('to', 'like', '%' . $filter->to . '%');
+        if (! empty($filter->to)) {
+            $query->where('to', 'like', '%'.$filter->to.'%');
         }
 
-        if (!empty($filter->status)) {
+        if (! empty($filter->status)) {
             $query->where('status', $filter->status);
         }
 
-        if (!empty($filter->sender_type)) {
-            $query->where('sender_type', 'like', '%' . $filter->sender_type . '%');
+        if (! empty($filter->sender_type)) {
+            $query->where('sender_type', 'like', '%'.$filter->sender_type.'%');
         }
 
-        if (!empty($filter->owner_id)) {
+        if (! empty($filter->owner_id)) {
             $owner = Owner::find($filter->owner_id);
             $ownerEmail = $owner?->email;
 
@@ -51,10 +51,10 @@ class EmailLogRepository extends BaseRepository implements EmailLogRepositoryInt
                         ->where('sender_type', 'like', '%Owner%');
                 });
                 if ($ownerEmail) {
-                    $q->orWhere('to', 'like', '%' . $ownerEmail . '%');
+                    $q->orWhere('to', 'like', '%'.$ownerEmail.'%');
                 }
             });
-        } elseif (!empty($filter->customer_id)) {
+        } elseif (! empty($filter->customer_id)) {
             $customer = Customer::find($filter->customer_id);
             $customerEmail = $customer?->email;
 
@@ -64,12 +64,12 @@ class EmailLogRepository extends BaseRepository implements EmailLogRepositoryInt
                         ->where('sender_type', 'like', '%Customer%');
                 });
                 if ($customerEmail) {
-                    $q->orWhere('to', 'like', '%' . $customerEmail . '%');
+                    $q->orWhere('to', 'like', '%'.$customerEmail.'%');
                 }
             });
-        } elseif (!empty($filter->sender_id)) {
+        } elseif (! empty($filter->sender_id)) {
             $query->where('sender_id', $filter->sender_id);
-        } elseif (!empty($filter->employee_id)) {
+        } elseif (! empty($filter->employee_id)) {
             $query->where('sender_id', $filter->employee_id);
         }
 
@@ -92,7 +92,7 @@ class EmailLogRepository extends BaseRepository implements EmailLogRepositoryInt
                         ->where('sender_type', 'like', '%Owner%');
                 });
                 if ($ownerEmail) {
-                    $q->orWhere('to', 'like', '%' . $ownerEmail . '%');
+                    $q->orWhere('to', 'like', '%'.$ownerEmail.'%');
                 }
             })
             ->orderBy('id', 'DESC')
@@ -112,7 +112,7 @@ class EmailLogRepository extends BaseRepository implements EmailLogRepositoryInt
                         ->where('sender_type', 'like', '%Customer%');
                 });
                 if ($customerEmail) {
-                    $q->orWhere('to', 'like', '%' . $customerEmail . '%');
+                    $q->orWhere('to', 'like', '%'.$customerEmail.'%');
                 }
             })
             ->orderBy('id', 'DESC')

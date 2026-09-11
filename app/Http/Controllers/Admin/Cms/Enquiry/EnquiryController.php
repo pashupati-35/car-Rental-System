@@ -15,6 +15,7 @@ class EnquiryController extends Controller
     public function index(Request $request)
     {
         $filter = EnquiryFilterDTO::fromArray($request->all());
+
         return $this->enquiryService->paginate($filter);
     }
 

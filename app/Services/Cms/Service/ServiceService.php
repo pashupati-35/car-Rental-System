@@ -16,17 +16,18 @@ class ServiceService extends Service
     public function paginate(ServiceFilterDTO $filter)
     {
         $services = $this->serviceRepo->getFilteredPaginated($filter);
+
         return ServiceResource::collection($services);
     }
 
     public function store(array $data)
     {
         try {
-            if (isset($data['image']) && !empty($data['image'])) {
+            if (isset($data['image']) && ! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
 
-            if (isset($data['social_share_image']) && !empty($data['social_share_image'])) {
+            if (isset($data['social_share_image']) && ! empty($data['social_share_image'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
             }
 
@@ -45,15 +46,15 @@ class ServiceService extends Service
     {
         try {
             $service = $this->serviceRepo->findOrFail($id);
-            if (!empty($data['image'])) {
-                if (!empty($service->image)) {
+            if (! empty($data['image'])) {
+                if (! empty($service->image)) {
                     $this->deleteFile($this->uploadPath, $service->image);
                 }
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
 
-            if (!empty($data['social_share_image'])) {
-                if (!empty($service->social_share_image)) {
+            if (! empty($data['social_share_image'])) {
+                if (! empty($service->social_share_image)) {
                     $this->deleteFile($this->uploadPath, $service->social_share_image);
                 }
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
@@ -69,7 +70,7 @@ class ServiceService extends Service
     {
         try {
             $service = $this->serviceRepo->find($id);
-            if ($service && !empty($service->image)) {
+            if ($service && ! empty($service->image)) {
                 $this->deleteFile($this->uploadPath, $service->image);
             }
 

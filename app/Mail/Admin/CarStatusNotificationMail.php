@@ -12,7 +12,9 @@ class CarStatusNotificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public Car $car;
+
     public string $status;
+
     public ?string $remarks;
 
     public function __construct(Car $car, string $status, ?string $remarks = null)

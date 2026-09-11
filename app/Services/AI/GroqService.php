@@ -8,14 +8,16 @@ use Throwable;
 class GroqService
 {
     private Client $client;
+
     private string $apiKey;
+
     private string $model;
 
     public function __construct()
     {
         $this->apiKey = config('services.groq.api_key');
         $this->model = config('services.groq.model', 'llama-3.3-70b-versatile');
-        $this->client = new Client();
+        $this->client = new Client;
     }
 
     /**
@@ -61,7 +63,7 @@ class GroqService
         $systemPrompt .= 'Do not make up information. Keep responses short (1-3 sentences).';
 
         if (trim($databaseContext) !== '') {
-            $systemPrompt .= "\n\nDatabase summary:\n" . $databaseContext;
+            $systemPrompt .= "\n\nDatabase summary:\n".$databaseContext;
         }
 
         $messages[] = [

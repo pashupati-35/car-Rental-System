@@ -18,11 +18,11 @@ class TestimonialRepository extends BaseRepository implements TestimonialReposit
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('name', 'like', '%'.$filter->search.'%')
+                    ->orWhere('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
@@ -41,6 +41,7 @@ class TestimonialRepository extends BaseRepository implements TestimonialReposit
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

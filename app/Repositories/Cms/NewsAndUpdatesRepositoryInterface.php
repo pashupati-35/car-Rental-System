@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface NewsAndUpdatesRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(NewsAndUpdatesFilterDTO $filter): LengthAwarePaginator;
+
     public function findBySlug(string $slug);
 }

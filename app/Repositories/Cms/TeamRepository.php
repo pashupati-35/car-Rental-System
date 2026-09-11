@@ -18,11 +18,11 @@ class TeamRepository extends BaseRepository implements TeamRepositoryInterface
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('job_title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('job_title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
@@ -41,6 +41,7 @@ class TeamRepository extends BaseRepository implements TeamRepositoryInterface
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

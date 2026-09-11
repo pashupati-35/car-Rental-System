@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\BookingCar;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -66,7 +67,7 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
         $query = $this->model
             ->with([
                 'car:id,car_name,car_model,car_number,car_photo',
-                'customer:id,name,email,phone_number'
+                'customer:id,name,email,phone_number',
             ])
             ->whereIn('status', ['confirm', 'confirmed', 'booked', 'reserved', 'pending']);
 
@@ -106,15 +107,15 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function ($cq) use ($search) {
-                      $cq->where('name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('car', function ($carq) use ($search) {
-                      $carq->where('car_name', 'like', "%{$search}%")
-                           ->orWhere('car_model', 'like', "%{$search}%")
-                           ->orWhere('car_number', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('customer', function ($cq) use ($search) {
+                        $cq->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('car', function ($carq) use ($search) {
+                        $carq->where('car_name', 'like', "%{$search}%")
+                            ->orWhere('car_model', 'like', "%{$search}%")
+                            ->orWhere('car_number', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -135,6 +136,7 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
     {
         $booking = $this->model->with(['car', 'customer'])->findOrFail($id);
         $booking->update(['status' => 'confirm']);
+
         return $booking;
     }
 
@@ -142,6 +144,7 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
     {
         $booking = $this->model->with(['car', 'customer'])->findOrFail($id);
         $booking->update(['status' => 'cancel']);
+
         return $booking;
     }
 
@@ -162,12 +165,14 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
     {
         $booking = $this->model->findOrFail($id);
         $booking->update($data);
+
         return $booking;
     }
 
     public function deleteBooking(int $id): bool
     {
         $booking = $this->model->findOrFail($id);
+
         return (bool) $booking->delete();
     }
 
@@ -182,9 +187,9 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
             ->orderBy('id', 'asc')
             ->get()
             ->map(function ($b) {
-                $pickup = $b->pick_up_date ? \Carbon\Carbon::parse($b->pick_up_date) : null;
-                $created = $b->created_at ? \Carbon\Carbon::parse($b->created_at) : null;
-                $dateObj = $pickup ?: $created ?: \Carbon\Carbon::now();
+                $pickup = $b->pick_up_date ? Carbon::parse($b->pick_up_date) : null;
+                $created = $b->created_at ? Carbon::parse($b->created_at) : null;
+                $dateObj = $pickup ?: $created ?: Carbon::now();
 
                 return [
                     'id' => $b->id,
@@ -193,8 +198,8 @@ class BookingRepository extends BaseRepository implements BookingRepositoryInter
                     'day_name' => $dateObj->format('D'),
                     'amount' => (float) ($b->total_price ?: 0),
                     'status' => $b->status ?: 'pending',
-                    'customer_name' => $b->customer->name ?? $b->name ?? ('Customer #' . $b->id),
-                    'car_name' => trim(($b->car->car_name ?? $b->car->brand ?? 'Car') . ' ' . ($b->car->car_model ?? $b->car->model ?? '')),
+                    'customer_name' => $b->customer->name ?? $b->name ?? ('Customer #'.$b->id),
+                    'car_name' => trim(($b->car->car_name ?? $b->car->brand ?? 'Car').' '.($b->car->car_model ?? $b->car->model ?? '')),
                     'car_number' => $b->car->car_number ?? '',
                 ];
             })

@@ -19,14 +19,14 @@ class AIController extends Controller
         $messages = $this->aiService->getHistory($sessionId, $userId);
 
         return response()->json([
-            'messages' => $messages
+            'messages' => $messages,
         ]);
     }
 
     public function ask(Request $request)
     {
         $request->validate([
-            'prompt' => 'required|string|max:2000'
+            'prompt' => 'required|string|max:2000',
         ]);
 
         $prompt = $request->string('prompt')->toString();
@@ -34,7 +34,7 @@ class AIController extends Controller
 
         try {
             $response = $this->aiService->ask($prompt, $sessionId);
-            
+
             try {
                 $this->aiService->storeChat($sessionId, $prompt, $response);
             } catch (\Throwable $e) {
@@ -44,12 +44,12 @@ class AIController extends Controller
             report($e);
 
             return response()->json([
-                'message' => 'Unable to get AI response right now. Please try again.'
+                'message' => 'Unable to get AI response right now. Please try again.',
             ], 500);
         }
 
         return response()->json([
-            'response' => $response
+            'response' => $response,
         ]);
     }
 }

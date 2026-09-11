@@ -16,6 +16,7 @@ class PageService extends Service
     public function paginate(PageFilterDTO $filter)
     {
         $pages = $this->pageRepo->getFilteredPaginated($filter);
+
         return PageResource::collection($pages);
     }
 
@@ -25,6 +26,7 @@ class PageService extends Service
             if (isset($data['seo_keyword']) && is_array($data['seo_keyword'])) {
                 $data['seo_keyword'] = implode(',', $data['seo_keyword']);
             }
+
             return $this->pageRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -34,12 +36,14 @@ class PageService extends Service
     public function getById($id)
     {
         $page = $this->pageRepo->find($id);
+
         return $page ? new PageResource($page) : null;
     }
 
     public function findBySlug(string $slug)
     {
         $page = $this->pageRepo->findBySlug($slug);
+
         return $page ? new PageResource($page) : null;
     }
 
@@ -49,6 +53,7 @@ class PageService extends Service
             if (isset($data['seo_keyword']) && is_array($data['seo_keyword'])) {
                 $data['seo_keyword'] = implode(',', $data['seo_keyword']);
             }
+
             return $this->pageRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

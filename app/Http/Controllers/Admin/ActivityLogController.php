@@ -18,7 +18,7 @@ class ActivityLogController extends Controller
         $filter = ActivityLogFilterDTO::fromArray($request->all());
         $logs = $this->activityLogRepo->getFilteredPaginated($filter);
 
-        if ($request->is('*/list') || ($request->wantsJson() && !$request->header('X-Inertia') && !$request->hasHeader('X-Inertia'))) {
+        if ($request->is('*/list') || ($request->wantsJson() && ! $request->header('X-Inertia') && ! $request->hasHeader('X-Inertia'))) {
             return response()->json($logs);
         }
 
@@ -43,6 +43,7 @@ class ActivityLogController extends Controller
     public function data(Request $request)
     {
         $filter = ActivityLogFilterDTO::fromArray($request->all());
+
         return response()->json($this->activityLogRepo->getFilteredPaginated($filter));
     }
 
@@ -50,6 +51,7 @@ class ActivityLogController extends Controller
     {
         $perPage = (int) $request->input('per_page', 20);
         $logs = $this->activityLogRepo->getByOwner((int) $ownerId, $perPage);
+
         return response()->json($logs);
     }
 
@@ -57,12 +59,14 @@ class ActivityLogController extends Controller
     {
         $perPage = (int) $request->input('per_page', 20);
         $logs = $this->activityLogRepo->getByCustomer((int) $customerId, $perPage);
+
         return response()->json($logs);
     }
 
     public function getByEmployee($employeeId, Request $request)
     {
         $perPage = (int) $request->input('per_page', 20);
+
         return response()->json($this->activityLogRepo->getByEmployee((int) $employeeId, $perPage));
     }
 }

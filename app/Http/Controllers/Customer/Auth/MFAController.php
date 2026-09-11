@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Customer\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Admin\EmailVerificationJob;
 use App\Models\Customer;
 use App\Services\Authenticator\Authenticator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class MFAController extends Controller
 {
@@ -16,146 +18,146 @@ class MFAController extends Controller
     /**
      * Check if Customer has MFA or Email Authentication enabled before logging in.
      */
-     public function checkVerification(Request $request)
-     {
-         $request->validate([
-             'email' => 'required|email',
-             'password' => 'required|string',
-         ]);
+    public function checkVerification(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-         $customer = Customer::where('email', $request->input('email'))->first();
+        $customer = Customer::where('email', $request->input('email'))->first();
 
-         if ($customer && Hash::check($request->input('password'), $customer->password)) {
-             $isMfa = (bool)$customer->is_mfa_enabled;
-             $isEmailAuth = (bool)$customer->is_email_authentication_enabled;
-             $codeSent = false;
+        if ($customer && Hash::check($request->input('password'), $customer->password)) {
+            $isMfa = (bool) $customer->is_mfa_enabled;
+            $isEmailAuth = (bool) $customer->is_email_authentication_enabled;
+            $codeSent = false;
 
-             if ($isEmailAuth && !$isMfa) {
-                 // Generate 6-digit OTP code for email verification
-                 $code = sprintf('%06d', random_int(100000, 999999));
-                 $customer->mfa_secret_code = $code;
-                 $customer->save();
+            if ($isEmailAuth && ! $isMfa) {
+                // Generate 6-digit OTP code for email verification
+                $code = sprintf('%06d', random_int(100000, 999999));
+                $customer->mfa_secret_code = $code;
+                $customer->save();
 
-                 try {
-                     \App\Jobs\Admin\EmailVerificationJob::dispatchSync($customer, $code);
-                     $codeSent = true;
-                 } catch (\Throwable $e) {
-                     \Illuminate\Support\Facades\Log::warning('Customer email verification send failed: ' . $e->getMessage());
-                     $codeSent = true;
-                 }
-             }
+                try {
+                    EmailVerificationJob::dispatchSync($customer, $code);
+                    $codeSent = true;
+                } catch (\Throwable $e) {
+                    Log::warning('Customer email verification send failed: '.$e->getMessage());
+                    $codeSent = true;
+                }
+            }
 
-             return response()->json([
-                 'status' => 'OK',
-                 'data' => [
-                     'id' => $customer->id,
-                     'email' => $customer->email,
-                     'name' => $customer->name,
-                     'is_mfa_enabled' => $isMfa,
-                     'is_email_authentication_enabled' => $isEmailAuth,
-                     'auth_type' => $isMfa ? 'totp' : ($isEmailAuth ? 'email' : 'none'),
-                     'code_sent' => $codeSent,
-                 ],
-             ]);
-         }
+            return response()->json([
+                'status' => 'OK',
+                'data' => [
+                    'id' => $customer->id,
+                    'email' => $customer->email,
+                    'name' => $customer->name,
+                    'is_mfa_enabled' => $isMfa,
+                    'is_email_authentication_enabled' => $isEmailAuth,
+                    'auth_type' => $isMfa ? 'totp' : ($isEmailAuth ? 'email' : 'none'),
+                    'code_sent' => $codeSent,
+                ],
+            ]);
+        }
 
-         return response()->json([
-             'status' => 'ERROR',
-             'errors' => 'Invalid email or password.',
-         ], 401);
-     }
+        return response()->json([
+            'status' => 'ERROR',
+            'errors' => 'Invalid email or password.',
+        ], 401);
+    }
 
-     /**
-      * Resend verification email code for Customer.
-      */
-     public function resendCode(Request $request)
-     {
-         $request->validate([
-             'email' => 'required|email',
-             'password' => 'required|string',
-         ]);
+    /**
+     * Resend verification email code for Customer.
+     */
+    public function resendCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-         $customer = Customer::where('email', $request->input('email'))->first();
+        $customer = Customer::where('email', $request->input('email'))->first();
 
-         if ($customer && Hash::check($request->input('password'), $customer->password) && $customer->is_email_authentication_enabled) {
-             $code = sprintf('%06d', random_int(100000, 999999));
-             $customer->mfa_secret_code = $code;
-             $customer->save();
+        if ($customer && Hash::check($request->input('password'), $customer->password) && $customer->is_email_authentication_enabled) {
+            $code = sprintf('%06d', random_int(100000, 999999));
+            $customer->mfa_secret_code = $code;
+            $customer->save();
 
-             try {
-                 \App\Jobs\Admin\EmailVerificationJob::dispatchSync($customer, $code);
-             } catch (\Throwable $e) {
-                 \Illuminate\Support\Facades\Log::warning('Resend customer email verification failed: ' . $e->getMessage());
-             }
+            try {
+                EmailVerificationJob::dispatchSync($customer, $code);
+            } catch (\Throwable $e) {
+                Log::warning('Resend customer email verification failed: '.$e->getMessage());
+            }
 
-             return response()->json([
-                 'status' => 'OK',
-                 'message' => 'A new 6-digit verification code has been sent to your email.',
-             ]);
-         }
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'A new 6-digit verification code has been sent to your email.',
+            ]);
+        }
 
-         return response()->json([
-             'status' => 'ERROR',
-             'errors' => 'Unable to resend verification code.',
-         ], 422);
-     }
+        return response()->json([
+            'status' => 'ERROR',
+            'errors' => 'Unable to resend verification code.',
+        ], 422);
+    }
 
-     /**
-      * Verify Customer MFA / Email OTP code and login.
-      */
-     public function verifyCode(Request $request)
-     {
-         $request->validate([
-             'email' => 'required|email',
-             'password' => 'required|string',
-             'verification_code' => 'required|string',
-         ]);
+    /**
+     * Verify Customer MFA / Email OTP code and login.
+     */
+    public function verifyCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+            'verification_code' => 'required|string',
+        ]);
 
-         $customer = Customer::where('email', $request->input('email'))->first();
+        $customer = Customer::where('email', $request->input('email'))->first();
 
-         if ($customer && Hash::check($request->input('password'), $customer->password)) {
-             $inputCode = trim((string)$request->input('verification_code'));
-             $verified = false;
+        if ($customer && Hash::check($request->input('password'), $customer->password)) {
+            $inputCode = trim((string) $request->input('verification_code'));
+            $verified = false;
 
-             // Email authentication verification
-             if ($customer->is_email_authentication_enabled && !$customer->is_mfa_enabled) {
-                 if ($customer->mfa_secret_code && (string)$customer->mfa_secret_code === $inputCode) {
-                     $verified = true;
-                 }
-             }
-             // Authenticator app (TOTP) verification
-             elseif ($customer->is_mfa_enabled && $customer->mfa_secret_code) {
-                 if ($this->authenticator->verifyCode($customer->mfa_secret_code, $inputCode, 2)) {
-                     $verified = true;
-                 }
-             }
-             // Fallback
-             elseif ($customer->mfa_secret_code && ((string)$customer->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($customer->mfa_secret_code, $inputCode, 2))) {
-                 $verified = true;
-             }
+            // Email authentication verification
+            if ($customer->is_email_authentication_enabled && ! $customer->is_mfa_enabled) {
+                if ($customer->mfa_secret_code && (string) $customer->mfa_secret_code === $inputCode) {
+                    $verified = true;
+                }
+            }
+            // Authenticator app (TOTP) verification
+            elseif ($customer->is_mfa_enabled && $customer->mfa_secret_code) {
+                if ($this->authenticator->verifyCode($customer->mfa_secret_code, $inputCode, 2)) {
+                    $verified = true;
+                }
+            }
+            // Fallback
+            elseif ($customer->mfa_secret_code && ((string) $customer->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($customer->mfa_secret_code, $inputCode, 2))) {
+                $verified = true;
+            }
 
-             if ($verified) {
-                 Auth::guard('customer')->login($customer, $request->boolean('remember'));
-                 $request->session()->regenerate();
+            if ($verified) {
+                Auth::guard('customer')->login($customer, $request->boolean('remember'));
+                $request->session()->regenerate();
 
-                 return response()->json([
-                     'status' => 'OK',
-                     'message' => 'Authentication successful.',
-                     'redirect' => route('customer.dashboard'),
-                 ]);
-             }
+                return response()->json([
+                    'status' => 'OK',
+                    'message' => 'Authentication successful.',
+                    'redirect' => route('customer.dashboard'),
+                ]);
+            }
 
-             return response()->json([
-                 'status' => 'ERROR',
-                 'errors' => 'The verification code entered is invalid or has expired.',
-             ], 422);
-         }
+            return response()->json([
+                'status' => 'ERROR',
+                'errors' => 'The verification code entered is invalid or has expired.',
+            ], 422);
+        }
 
-         return response()->json([
-             'status' => 'ERROR',
-             'errors' => 'Invalid credentials.',
-         ], 401);
-     }
+        return response()->json([
+            'status' => 'ERROR',
+            'errors' => 'Invalid credentials.',
+        ], 401);
+    }
 
     /**
      * Generate Customer MFA Setup QR code.
@@ -163,13 +165,13 @@ class MFAController extends Controller
     public function generate(Request $request)
     {
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $secret = $this->authenticator->createSecret();
         $appName = config('app.name', 'Car Rental System');
-        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($customer->email, $secret, $appName . ' Customer');
+        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($customer->email, $secret, $appName.' Customer');
 
         return response()->json([
             'status' => 'OK',
@@ -196,7 +198,7 @@ class MFAController extends Controller
         ]);
 
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -234,12 +236,12 @@ class MFAController extends Controller
     public function deactivate(Request $request)
     {
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $customer->is_mfa_enabled = false;
-        if (!$customer->is_email_authentication_enabled) {
+        if (! $customer->is_email_authentication_enabled) {
             $customer->mfa_secret_code = null;
         }
         $customer->mfa_authentication_image = null;
@@ -259,7 +261,7 @@ class MFAController extends Controller
     public function activateEmailAuthenticator()
     {
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $customer->is_email_authentication_enabled = true;
@@ -271,7 +273,7 @@ class MFAController extends Controller
     public function deactivateEmailAuthenticator()
     {
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $customer->is_email_authentication_enabled = false;

@@ -14,6 +14,7 @@ class ContactUsService extends Service
     public function paginate(ContactUsFilterDTO $filter)
     {
         $contacts = $this->contactRepo->getFilteredPaginated($filter);
+
         return ContactUsResource::collection($contacts);
     }
 
@@ -29,6 +30,7 @@ class ContactUsService extends Service
     public function getById($id)
     {
         $contact = $this->contactRepo->find($id);
+
         return $contact ? new ContactUsResource($contact) : null;
     }
 

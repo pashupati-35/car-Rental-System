@@ -87,22 +87,26 @@ class Admin extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        if (!empty($this->first_name) || !empty($this->last_name)) {
-            if (!empty($this->middle_name)) {
-                return ucfirst(trim($this->first_name . ' ' . $this->middle_name . ' ' . $this->last_name));
+        if (! empty($this->first_name) || ! empty($this->last_name)) {
+            if (! empty($this->middle_name)) {
+                return ucfirst(trim($this->first_name.' '.$this->middle_name.' '.$this->last_name));
             }
-            return ucfirst(trim($this->first_name . ' ' . $this->last_name));
+
+            return ucfirst(trim($this->first_name.' '.$this->last_name));
         }
+
         return $this->attributes['name'] ?? null;
     }
 
     public function getImagePathAttribute()
     {
         $img = $this->image ?? $this->avatar ?? null;
-        if (!empty($img)) {
+        if (! empty($img)) {
             $uploadPath = $this->getUploadPath($this->uploadPath);
+
             return getImagePath($uploadPath, $img);
         }
+
         return null;
     }
 
@@ -115,7 +119,7 @@ class Admin extends Authenticatable
     {
         static::creating(function (Admin $admin) {
             if (empty($admin->unique_identifier)) {
-                $admin->unique_identifier = 'ADM-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+                $admin->unique_identifier = 'ADM-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
             }
         });
     }

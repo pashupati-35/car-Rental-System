@@ -15,6 +15,7 @@ class PageController extends Controller
     public function index(Request $request)
     {
         $filter = PageFilterDTO::fromArray($request->all());
+
         return $this->pageService->paginate($filter);
     }
 

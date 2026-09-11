@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Owner\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Car;
 use App\Models\BookingCar;
+use App\Models\Car;
 use App\Models\Driver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -37,6 +37,7 @@ class AuthenticatedSessionController extends Controller
 
         if (Auth::guard('owner')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('owner.dashboard'));
         }
 

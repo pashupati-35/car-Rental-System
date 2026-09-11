@@ -15,6 +15,7 @@ class NewsAndUpdatesController extends Controller
     public function index(Request $request)
     {
         $filter = NewsAndUpdatesFilterDTO::fromArray($request->all());
+
         return $this->newsService->paginate($filter);
     }
 

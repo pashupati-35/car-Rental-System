@@ -49,19 +49,20 @@ class CarService
         $data['available'] = $data['available'] ?? 'no';
 
         if ($carPhoto && $carPhoto->isValid()) {
-            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $fileName = time().'_'.$carPhoto->getClientOriginalName();
             $carPhoto->move(public_path('uploads/cars'), $fileName);
-            $data['car_photo'] = 'uploads/cars/' . $fileName;
+            $data['car_photo'] = 'uploads/cars/'.$fileName;
         }
 
         if ($blueBookPhoto && $blueBookPhoto->isValid()) {
-            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $fileName = 'bluebook_'.time().'_'.$blueBookPhoto->getClientOriginalName();
             $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
-            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+            $data['blue_book_photo'] = 'uploads/bluebooks/'.$fileName;
         }
 
         $car = $this->carRepository->create($data);
         AdminCountCacheService::clear();
+
         return $car;
     }
 
@@ -70,19 +71,20 @@ class CarService
         $car = $this->carRepository->findOrFail($id);
 
         if ($carPhoto && $carPhoto->isValid()) {
-            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $fileName = time().'_'.$carPhoto->getClientOriginalName();
             $carPhoto->move(public_path('uploads/cars'), $fileName);
-            $data['car_photo'] = 'uploads/cars/' . $fileName;
+            $data['car_photo'] = 'uploads/cars/'.$fileName;
         }
 
         if ($blueBookPhoto && $blueBookPhoto->isValid()) {
-            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $fileName = 'bluebook_'.time().'_'.$blueBookPhoto->getClientOriginalName();
             $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
-            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+            $data['blue_book_photo'] = 'uploads/bluebooks/'.$fileName;
         }
 
         $car->update($data);
         AdminCountCacheService::clear();
+
         return $car->fresh(['owner', 'driver']);
     }
 
@@ -91,19 +93,20 @@ class CarService
         $car = $this->carRepository->getOwnerCar($ownerId, $carId);
 
         if ($carPhoto && $carPhoto->isValid()) {
-            $fileName = time() . '_' . $carPhoto->getClientOriginalName();
+            $fileName = time().'_'.$carPhoto->getClientOriginalName();
             $carPhoto->move(public_path('uploads/cars'), $fileName);
-            $data['car_photo'] = 'uploads/cars/' . $fileName;
+            $data['car_photo'] = 'uploads/cars/'.$fileName;
         }
 
         if ($blueBookPhoto && $blueBookPhoto->isValid()) {
-            $fileName = 'bluebook_' . time() . '_' . $blueBookPhoto->getClientOriginalName();
+            $fileName = 'bluebook_'.time().'_'.$blueBookPhoto->getClientOriginalName();
             $blueBookPhoto->move(public_path('uploads/bluebooks'), $fileName);
-            $data['blue_book_photo'] = 'uploads/bluebooks/' . $fileName;
+            $data['blue_book_photo'] = 'uploads/bluebooks/'.$fileName;
         }
 
         $car->update($data);
         AdminCountCacheService::clear();
+
         return $car;
     }
 
@@ -112,6 +115,7 @@ class CarService
         $car = $this->carRepository->getOwnerCar($ownerId, $carId);
         $result = (bool) $car->delete();
         AdminCountCacheService::clear();
+
         return $result;
     }
 
@@ -136,6 +140,7 @@ class CarService
     {
         $car = $this->carRepository->create($carDTO->toArray());
         AdminCountCacheService::clear();
+
         return $car;
     }
 
@@ -143,6 +148,7 @@ class CarService
     {
         $this->carRepository->update($id, $carDTO->toArray());
         AdminCountCacheService::clear();
+
         return $this->carRepository->findOrFail($id);
     }
 
@@ -150,6 +156,7 @@ class CarService
     {
         $result = $this->carRepository->delete($id);
         AdminCountCacheService::clear();
+
         return $result;
     }
 
@@ -244,11 +251,12 @@ class CarService
             try {
                 Mail::to($car->owner->email)->send(new CarStatusNotificationMail($car, 'verified'));
             } catch (\Throwable $e) {
-                Log::warning('Failed to send car verification email to owner: ' . $e->getMessage());
+                Log::warning('Failed to send car verification email to owner: '.$e->getMessage());
             }
         }
 
         AdminCountCacheService::clear();
+
         return $car;
     }
 
@@ -260,11 +268,12 @@ class CarService
             try {
                 Mail::to($car->owner->email)->send(new CarStatusNotificationMail($car, 'rejected'));
             } catch (\Throwable $e) {
-                Log::warning('Failed to send car rejection email to owner: ' . $e->getMessage());
+                Log::warning('Failed to send car rejection email to owner: '.$e->getMessage());
             }
         }
 
         AdminCountCacheService::clear();
+
         return $car;
     }
 
@@ -288,4 +297,3 @@ class CarService
         return $this->carRepository->carNumberExists($carNumber, $excludeId);
     }
 }
-

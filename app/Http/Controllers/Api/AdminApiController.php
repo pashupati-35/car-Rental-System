@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Customer;
 use App\Models\Driver;
 use App\Models\Owner;
-use App\Models\Payment;
-use Illuminate\Http\Request;
 
 class AdminApiController extends Controller
 {
@@ -39,6 +36,7 @@ class AdminApiController extends Controller
     public function cars()
     {
         $cars = Car::with(['owner', 'driver'])->latest()->get();
+
         return response()->json(['status' => 'success', 'data' => $cars]);
     }
 
@@ -48,6 +46,7 @@ class AdminApiController extends Controller
     public function drivers()
     {
         $drivers = Driver::with(['owner', 'cars'])->latest()->get();
+
         return response()->json(['status' => 'success', 'data' => $drivers]);
     }
 
@@ -57,6 +56,7 @@ class AdminApiController extends Controller
     public function owners()
     {
         $owners = Owner::withCount(['cars', 'drivers'])->latest()->get();
+
         return response()->json(['status' => 'success', 'data' => $owners]);
     }
 
@@ -66,6 +66,7 @@ class AdminApiController extends Controller
     public function customers()
     {
         $customers = Customer::withCount('bookings')->latest()->get();
+
         return response()->json(['status' => 'success', 'data' => $customers]);
     }
 
@@ -75,6 +76,7 @@ class AdminApiController extends Controller
     public function bookings()
     {
         $bookings = BookingCar::with(['car.owner', 'customer', 'payment'])->latest()->get();
+
         return response()->json(['status' => 'success', 'data' => $bookings]);
     }
 }

@@ -15,6 +15,7 @@ class SliderController extends Controller
     public function index(Request $request)
     {
         $filter = SliderFilterDTO::fromArray($request->all());
+
         return $this->sliderService->paginate($filter);
     }
 

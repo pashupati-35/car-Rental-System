@@ -26,6 +26,7 @@ class SiteSettingRepository extends BaseRepository implements SiteSettingReposit
     {
         $setting = $this->getSettings();
         $setting->update($data);
+
         return $setting->fresh();
     }
 }

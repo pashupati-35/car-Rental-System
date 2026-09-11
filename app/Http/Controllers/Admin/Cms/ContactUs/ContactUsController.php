@@ -15,6 +15,7 @@ class ContactUsController extends Controller
     public function index(Request $request)
     {
         $filter = ContactUsFilterDTO::fromArray($request->all());
+
         return $this->contactService->paginate($filter);
     }
 

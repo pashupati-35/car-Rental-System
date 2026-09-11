@@ -46,9 +46,9 @@ class LogSeeder extends Seeder
         for ($i = 0; $i < 20; $i++) {
             $emailLogs[] = [
                 'from' => 'noreply@carrental.com',
-                'to' => 'client' . ($i + 1) . '@example.com',
+                'to' => 'client'.($i + 1).'@example.com',
                 'subject' => $emailSubjects[$i],
-                'body' => '<p>Dear Customer / Partner,</p><p>This is an automated notification regarding: ' . $emailSubjects[$i] . '.</p><p>Thank you for choosing our fleet.</p>',
+                'body' => '<p>Dear Customer / Partner,</p><p>This is an automated notification regarding: '.$emailSubjects[$i].'.</p><p>Thank you for choosing our fleet.</p>',
                 'status' => 'sent',
                 'transport' => 'smtp',
                 'ip_address' => '127.0.0.1',
@@ -91,7 +91,7 @@ class LogSeeder extends Seeder
                 'table_name' => $actions[$i]['table'],
                 'causer_type' => 'App\\Models\\Admin',
                 'causer_id' => $adminId,
-                'ip_address' => '192.168.1.' . (10 + $i),
+                'ip_address' => '192.168.1.'.(10 + $i),
                 'properties' => json_encode(['source' => 'system_seeder', 'event_id' => $i + 1]),
                 'created_at' => Carbon::now()->subHours($i * 2),
                 'updated_at' => Carbon::now()->subHours($i * 2),
@@ -103,7 +103,7 @@ class LogSeeder extends Seeder
         $logs = [];
         for ($i = 0; $i < 20; $i++) {
             $logs[] = [
-                'title' => 'System Audit Log #' . ($i + 1) . ' - ' . $actions[$i]['desc'],
+                'title' => 'System Audit Log #'.($i + 1).' - '.$actions[$i]['desc'],
                 'user_id' => $adminId,
                 'admin_user_id' => $adminId,
                 'log_date' => Carbon::now()->subHours($i * 4),
@@ -147,9 +147,9 @@ class LogSeeder extends Seeder
             AiChat::create([
                 'user_id' => $adminId,
                 'user_name' => 'Demo Customer / Admin',
-                'session_id' => 'session_ai_' . str_pad($i + 1, 3, '0', STR_PAD_LEFT),
+                'session_id' => 'session_ai_'.str_pad($i + 1, 3, '0', STR_PAD_LEFT),
                 'prompt' => $aiPrompts[$i],
-                'response' => 'Based on your inquiry regarding "' . $aiPrompts[$i] . '", our fleet provides verified vehicles, certified drivers, and instant booking with 24/7 customer assistance.',
+                'response' => 'Based on your inquiry regarding "'.$aiPrompts[$i].'", our fleet provides verified vehicles, certified drivers, and instant booking with 24/7 customer assistance.',
             ]);
         }
     }

@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface AlbumRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(AlbumFilterDTO $filter): LengthAwarePaginator;
+
     public function updatePositions(array $sortedIds): bool;
 }

@@ -25,17 +25,18 @@ class AdminUserController extends Controller
     public function updateProfile(Request $request)
     {
         $admin = Auth::guard('admin')->user();
-        if (!$admin) {
+        if (! $admin) {
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 401);
         }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
+            'email' => 'required|email|max:255|unique:admins,email,'.$admin->id,
             'phone' => 'nullable|string|max:50',
         ]);
 
         $this->adminUserRepo->update($admin->id, $validated);
+
         return response()->json(['status' => 'OK', 'message' => 'Profile updated successfully.']);
     }
 
@@ -51,6 +52,7 @@ class AdminUserController extends Controller
         ]);
 
         $this->adminUserRepo->update($id, ['password' => Hash::make($request->password)]);
+
         return response()->json(['status' => 'OK', 'message' => 'Password updated.']);
     }
 
@@ -65,6 +67,7 @@ class AdminUserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
         $user = $this->adminUserRepo->create($validated);
+
         return response()->json(['status' => 'OK', 'data' => $user]);
     }
 
@@ -77,17 +80,19 @@ class AdminUserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|email|unique:admins,email,' . $id,
+            'email' => 'sometimes|required|email|unique:admins,email,'.$id,
             'role' => 'nullable|string',
         ]);
 
         $user = $this->adminUserRepo->update($id, $validated);
+
         return response()->json(['status' => 'OK', 'data' => $user]);
     }
 
     public function destroy($id)
     {
         $this->adminUserRepo->delete($id);
+
         return response()->json(['status' => 'OK', 'message' => 'User deleted.']);
     }
 }

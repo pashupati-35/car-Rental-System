@@ -27,6 +27,7 @@ class LoginController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'OK', 'user' => Auth::guard('customer')->user()]);
             }
+
             return redirect()->intended(route('customer.dashboard'));
         }
 
@@ -45,6 +46,7 @@ class LoginController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
+
         return response()->json(['status' => 'OK', 'message' => 'Reset link sent if account exists.']);
     }
 

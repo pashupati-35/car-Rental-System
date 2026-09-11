@@ -18,7 +18,7 @@ class EmailLogController extends Controller
         $filter = EmailLogFilterDTO::fromArray($request->all());
         $logs = $this->emailLogRepo->getFilteredPaginated($filter);
 
-        if ($request->is('*/list') || ($request->wantsJson() && !$request->header('X-Inertia') && !$request->hasHeader('X-Inertia'))) {
+        if ($request->is('*/list') || ($request->wantsJson() && ! $request->header('X-Inertia') && ! $request->hasHeader('X-Inertia'))) {
             return response()->json($logs);
         }
 
@@ -43,6 +43,7 @@ class EmailLogController extends Controller
     public function data(Request $request)
     {
         $filter = EmailLogFilterDTO::fromArray($request->all());
+
         return response()->json($this->emailLogRepo->getFilteredPaginated($filter));
     }
 
@@ -50,6 +51,7 @@ class EmailLogController extends Controller
     {
         $perPage = (int) $request->input('per_page', 20);
         $logs = $this->emailLogRepo->getByOwner((int) $ownerId, $perPage);
+
         return response()->json($logs);
     }
 
@@ -57,24 +59,28 @@ class EmailLogController extends Controller
     {
         $perPage = (int) $request->input('per_page', 20);
         $logs = $this->emailLogRepo->getByCustomer((int) $customerId, $perPage);
+
         return response()->json($logs);
     }
 
     public function getByEmployee($employeeId, Request $request)
     {
         $perPage = (int) $request->input('per_page', 20);
+
         return response()->json($this->emailLogRepo->getByEmployee((int) $employeeId, $perPage));
     }
 
     public function show($id)
     {
         $log = $this->emailLogRepo->find($id);
+
         return response()->json(['status' => 'OK', 'data' => $log]);
     }
 
     public function preview($id)
     {
         $log = $this->emailLogRepo->findOrFail($id);
+
         return response()->json([
             'status' => 'OK',
             'preview' => $log->body ?? $log->content ?? '',

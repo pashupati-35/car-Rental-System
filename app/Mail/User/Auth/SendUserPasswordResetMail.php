@@ -2,6 +2,8 @@
 
 namespace App\Mail\User\Auth;
 
+use App\Models\Admin;
+use App\Models\Owner;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -31,9 +33,9 @@ class SendUserPasswordResetMail extends Mailable
     public function build()
     {
         $role = 'customer';
-        if ($this->user instanceof \App\Models\Admin) {
+        if ($this->user instanceof Admin) {
             $role = 'admin';
-        } elseif ($this->user instanceof \App\Models\Owner) {
+        } elseif ($this->user instanceof Owner) {
             $role = 'owner';
         }
 

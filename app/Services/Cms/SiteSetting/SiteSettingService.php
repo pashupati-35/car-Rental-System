@@ -6,6 +6,7 @@ use App\Http\Resources\Cms\SiteSetting\ColorSettingResource;
 use App\Http\Resources\Cms\SiteSetting\SiteSettingResource;
 use App\Mail\SiteSetting\SMTPTestEmail;
 use App\Repositories\Cms\SiteSettingRepositoryInterface;
+use App\Services\Admin\AdminCountCacheService;
 use App\Services\Service;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -66,7 +67,7 @@ class SiteSettingService extends Service
     private function save(array $data, ?int $id = null)
     {
         $setting = $id ? $this->settingRepo->find($id) : $this->settingRepo->getSettings();
-        if (!$setting) {
+        if (! $setting) {
             $setting = $this->settingRepo->getSettings();
         }
 
@@ -83,7 +84,7 @@ class SiteSettingService extends Service
         $safeData = array_intersect_key($data, array_flip($fillable));
 
         $result = $this->settingRepo->update($setting->id, $safeData);
-        \App\Services\Admin\AdminCountCacheService::clear();
+        AdminCountCacheService::clear();
 
         return $result;
     }
@@ -107,12 +108,13 @@ class SiteSettingService extends Service
 
             unset($data["remove_$column"]);
 
-            if (!$isRemoval && !$file instanceof UploadedFile) {
+            if (! $isRemoval && ! $file instanceof UploadedFile) {
                 unset($data[$column]);
+
                 continue;
             }
 
-            if (!empty($setting->{$column})) {
+            if (! empty($setting->{$column})) {
                 $this->deleteFile($this->uploadPath, $setting->{$column});
             }
 
@@ -125,18 +127,21 @@ class SiteSettingService extends Service
     public function all()
     {
         $setting = $this->settingRepo->all();
+
         return SiteSettingResource::collection($setting);
     }
 
     public function getSiteSetting()
     {
         $setting = $this->settingRepo->getSettings();
+
         return $setting ? new SiteSettingResource($setting) : null;
     }
 
     public function getSettingColors()
     {
         $setting = $this->settingRepo->getSettings();
+
         return $setting ? new ColorSettingResource($setting) : null;
     }
 
@@ -144,6 +149,7 @@ class SiteSettingService extends Service
     {
         try {
             Mail::to($email)->send(new SMTPTestEmail);
+
             return true;
         } catch (\Exception $e) {
             return false;

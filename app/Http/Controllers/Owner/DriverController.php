@@ -54,17 +54,17 @@ class DriverController extends Controller
         $photoPath = null;
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
-            $fileName = time() . '_driver_' . $file->getClientOriginalName();
+            $fileName = time().'_driver_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/drivers'), $fileName);
-            $photoPath = 'uploads/drivers/' . $fileName;
+            $photoPath = 'uploads/drivers/'.$fileName;
         }
 
         $licensePhotoPath = null;
         if ($request->hasFile('license_photo')) {
             $file = $request->file('license_photo');
-            $fileName = time() . '_license_' . $file->getClientOriginalName();
+            $fileName = time().'_license_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/drivers'), $fileName);
-            $licensePhotoPath = 'uploads/drivers/' . $fileName;
+            $licensePhotoPath = 'uploads/drivers/'.$fileName;
         }
 
         $driver = Driver::create([
@@ -111,16 +111,16 @@ class DriverController extends Controller
 
         if ($request->hasFile('photo')) {
             $file = $request->file('photo');
-            $fileName = time() . '_driver_' . $file->getClientOriginalName();
+            $fileName = time().'_driver_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/drivers'), $fileName);
-            $validated['photo'] = 'uploads/drivers/' . $fileName;
+            $validated['photo'] = 'uploads/drivers/'.$fileName;
         }
 
         if ($request->hasFile('license_photo')) {
             $file = $request->file('license_photo');
-            $fileName = time() . '_license_' . $file->getClientOriginalName();
+            $fileName = time().'_license_'.$file->getClientOriginalName();
             $file->move(public_path('uploads/drivers'), $fileName);
-            $validated['license_photo'] = 'uploads/drivers/' . $fileName;
+            $validated['license_photo'] = 'uploads/drivers/'.$fileName;
         }
 
         $driver->update($validated);

@@ -16,6 +16,7 @@ class TeamService extends Service
     public function paginate(TeamFilterDTO $filter)
     {
         $teams = $this->teamRepo->getFilteredPaginated($filter);
+
         return TeamResource::collection($teams);
     }
 
@@ -32,10 +33,11 @@ class TeamService extends Service
     public function store(array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
             $team = $this->teamRepo->create($data);
+
             return new TeamResource($team);
         } catch (\Exception $ex) {
             return false;
@@ -51,8 +53,8 @@ class TeamService extends Service
     {
         try {
             $team = $this->teamRepo->findOrFail($id);
-            if (!empty($data['image'])) {
-                if (!empty($team->image)) {
+            if (! empty($data['image'])) {
+                if (! empty($team->image)) {
                     $this->deleteFile($this->uploadPath, $team->image);
                 }
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
@@ -68,9 +70,10 @@ class TeamService extends Service
     {
         try {
             $team = $this->teamRepo->find($id);
-            if ($team && !empty($team->image)) {
+            if ($team && ! empty($team->image)) {
                 $this->deleteFile($this->uploadPath, $team->image);
             }
+
             return $this->teamRepo->delete($id);
         } catch (\Exception $ex) {
             return false;

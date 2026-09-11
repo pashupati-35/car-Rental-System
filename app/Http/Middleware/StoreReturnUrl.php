@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -10,15 +11,13 @@ class StoreReturnUrl
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-//        if (!Auth::check()) {
-//            session(['url.intended' => $request->fullUrl()]);
-//        }
+        //        if (!Auth::check()) {
+        //            session(['url.intended' => $request->fullUrl()]);
+        //        }
 
         return $next($request);
     }

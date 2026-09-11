@@ -27,7 +27,7 @@ Route::prefix('owner')->name('owner.')->group(function () {
     Route::middleware('guest:owner')->group(function () {
         Route::get('register', [RegisteredOwnerController::class, 'create'])->name('register');
         Route::post('register', [RegisteredOwnerController::class, 'store']);
-        
+
         Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('login', [AuthenticatedSessionController::class, 'store']);
 

@@ -28,7 +28,7 @@ class LoginListener
 
             $user = $event->user;
             $guard = $event->guard ?? 'web';
-            $title = ucfirst($guard) . ' login successful.';
+            $title = ucfirst($guard).' login successful.';
 
             if (Schema::hasTable('activity_logs')) {
                 ActivityLog::create([
@@ -51,4 +51,3 @@ class LoginListener
         }
     }
 }
-

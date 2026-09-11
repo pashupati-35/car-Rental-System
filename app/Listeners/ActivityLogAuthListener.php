@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
-use App\Models\ActivityLog\ActivityLog;
 use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Events\Logout as LogoutEvent;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class ActivityLogAuthListener
@@ -21,7 +21,7 @@ class ActivityLogAuthListener
     public function handleLogin(LoginEvent $event): void
     {
         $user = $event->user;
-        if (! $user instanceof \Illuminate\Database\Eloquent\Model) {
+        if (! $user instanceof Model) {
             return;
         }
 
@@ -57,7 +57,7 @@ class ActivityLogAuthListener
     public function handleLogout(LogoutEvent $event): void
     {
         $user = $event->user;
-        if (! $user instanceof \Illuminate\Database\Eloquent\Model) {
+        if (! $user instanceof Model) {
             return;
         }
 

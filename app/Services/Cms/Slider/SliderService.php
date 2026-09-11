@@ -16,6 +16,7 @@ class SliderService extends Service
     public function paginate(SliderFilterDTO $filter)
     {
         $sliders = $this->sliderRepo->getFilteredPaginated($filter);
+
         return SliderResource::collection($sliders);
     }
 
@@ -27,9 +28,10 @@ class SliderService extends Service
     public function store(array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
+
             return $this->sliderRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -39,17 +41,19 @@ class SliderService extends Service
     public function find($id)
     {
         $slider = $this->sliderRepo->find($id);
+
         return $slider ? new SliderResource($slider) : null;
     }
 
     public function update($id, array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             } else {
                 unset($data['image']);
             }
+
             return $this->sliderRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

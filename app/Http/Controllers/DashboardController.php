@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\BookingService;
 use App\Services\CarService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -21,7 +22,7 @@ class DashboardController extends Controller
         $perPage = (int) $request->input('per_page', 12);
 
         $cacheKey = "homepage_featured_cars_page_{$page}_per_{$perPage}";
-        $cars = \Illuminate\Support\Facades\Cache::remember($cacheKey, 300, function () use ($perPage) {
+        $cars = Cache::remember($cacheKey, 300, function () use ($perPage) {
             return $this->carService->paginateCars([], $perPage);
         });
 

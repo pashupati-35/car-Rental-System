@@ -16,6 +16,7 @@ class PopupService extends Service
     public function paginate(PopupFilterDTO $filter)
     {
         $popups = $this->popupRepo->getFilteredPaginated($filter);
+
         return PopupResource::collection($popups);
     }
 
@@ -27,9 +28,10 @@ class PopupService extends Service
     public function store(array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
+
             return $this->popupRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -39,17 +41,19 @@ class PopupService extends Service
     public function getById($id)
     {
         $popup = $this->popupRepo->find($id);
+
         return $popup ? new PopupResource($popup) : null;
     }
 
     public function update($id, array $data)
     {
         try {
-            if (!empty($data['image'])) {
+            if (! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             } else {
                 unset($data['image']);
             }
+
             return $this->popupRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

@@ -58,7 +58,7 @@ class CustomerSeeder extends Seeder
                     'password' => Hash::make('password'),
                     'admin_id' => $adminId,
                     'owner_id' => $ownerId,
-                    'unique_identifier' => 'CUS-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT),
+                    'unique_identifier' => 'CUS-'.str_pad($index + 1, 4, '0', STR_PAD_LEFT),
                     'user_type' => 'customer',
                     'approval_status' => 'approved',
                     'is_submitted' => true,

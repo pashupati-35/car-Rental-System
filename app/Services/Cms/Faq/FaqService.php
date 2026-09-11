@@ -16,6 +16,7 @@ class FaqService extends Service
     public function paginate(FaqFilterDTO $filter)
     {
         $faqs = $this->faqRepo->getFilteredPaginated($filter);
+
         return FaqResource::collection($faqs);
     }
 
@@ -36,6 +37,7 @@ class FaqService extends Service
     public function getById($id)
     {
         $faq = $this->faqRepo->find($id);
+
         return $faq ? new FaqResource($faq) : null;
     }
 

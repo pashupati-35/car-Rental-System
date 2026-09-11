@@ -15,6 +15,7 @@ class PopupController extends Controller
     public function index(Request $request)
     {
         $filter = PopupFilterDTO::fromArray($request->all());
+
         return $this->popupService->paginate($filter);
     }
 

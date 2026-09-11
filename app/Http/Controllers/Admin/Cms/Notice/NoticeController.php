@@ -15,6 +15,7 @@ class NoticeController extends Controller
     public function index(Request $request)
     {
         $filter = NoticeFilterDTO::fromArray($request->all());
+
         return $this->noticeService->paginate($filter);
     }
 

@@ -18,14 +18,14 @@ class ServiceRepository extends BaseRepository implements ServiceRepositoryInter
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->type)) {
+        if (! empty($filter->type)) {
             $query->where('type', $filter->type);
         }
 
@@ -44,6 +44,7 @@ class ServiceRepository extends BaseRepository implements ServiceRepositoryInter
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

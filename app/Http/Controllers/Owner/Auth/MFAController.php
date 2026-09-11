@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Owner\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\Admin\EmailVerificationJob;
 use App\Models\Owner;
 use App\Services\Authenticator\Authenticator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class MFAController extends Controller
 {
@@ -26,21 +28,21 @@ class MFAController extends Controller
         $owner = Owner::where('email', $request->input('email'))->first();
 
         if ($owner && Hash::check($request->input('password'), $owner->password)) {
-            $isMfa = (bool)$owner->is_mfa_enabled;
-            $isEmailAuth = (bool)$owner->is_email_authentication_enabled;
+            $isMfa = (bool) $owner->is_mfa_enabled;
+            $isEmailAuth = (bool) $owner->is_email_authentication_enabled;
             $codeSent = false;
 
-            if ($isEmailAuth && !$isMfa) {
+            if ($isEmailAuth && ! $isMfa) {
                 // Generate 6-digit OTP code for email verification
                 $code = sprintf('%06d', random_int(100000, 999999));
                 $owner->mfa_secret_code = $code;
                 $owner->save();
 
                 try {
-                    \App\Jobs\Admin\EmailVerificationJob::dispatchSync($owner, $code);
+                    EmailVerificationJob::dispatchSync($owner, $code);
                     $codeSent = true;
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning('Owner email verification send failed: ' . $e->getMessage());
+                    Log::warning('Owner email verification send failed: '.$e->getMessage());
                     $codeSent = true;
                 }
             }
@@ -83,9 +85,9 @@ class MFAController extends Controller
             $owner->save();
 
             try {
-                \App\Jobs\Admin\EmailVerificationJob::dispatchSync($owner, $code);
+                EmailVerificationJob::dispatchSync($owner, $code);
             } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Resend owner email verification failed: ' . $e->getMessage());
+                Log::warning('Resend owner email verification failed: '.$e->getMessage());
             }
 
             return response()->json([
@@ -114,12 +116,12 @@ class MFAController extends Controller
         $owner = Owner::where('email', $request->input('email'))->first();
 
         if ($owner && Hash::check($request->input('password'), $owner->password)) {
-            $inputCode = trim((string)$request->input('verification_code'));
+            $inputCode = trim((string) $request->input('verification_code'));
             $verified = false;
 
             // Email authentication verification
-            if ($owner->is_email_authentication_enabled && !$owner->is_mfa_enabled) {
-                if ($owner->mfa_secret_code && (string)$owner->mfa_secret_code === $inputCode) {
+            if ($owner->is_email_authentication_enabled && ! $owner->is_mfa_enabled) {
+                if ($owner->mfa_secret_code && (string) $owner->mfa_secret_code === $inputCode) {
                     $verified = true;
                 }
             }
@@ -130,7 +132,7 @@ class MFAController extends Controller
                 }
             }
             // Fallback
-            elseif ($owner->mfa_secret_code && ((string)$owner->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($owner->mfa_secret_code, $inputCode, 2))) {
+            elseif ($owner->mfa_secret_code && ((string) $owner->mfa_secret_code === $inputCode || $this->authenticator->verifyCode($owner->mfa_secret_code, $inputCode, 2))) {
                 $verified = true;
             }
 
@@ -163,13 +165,13 @@ class MFAController extends Controller
     public function generate(Request $request)
     {
         $owner = Auth::guard('owner')->user();
-        if (!$owner) {
+        if (! $owner) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $secret = $this->authenticator->createSecret();
         $appName = config('app.name', 'Car Rental System');
-        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($owner->email, $secret, $appName . ' Owner');
+        $qrCodeUrl = $this->authenticator->getQRCodeGoogleUrl($owner->email, $secret, $appName.' Owner');
 
         return response()->json([
             'status' => 'OK',
@@ -196,7 +198,7 @@ class MFAController extends Controller
         ]);
 
         $owner = Auth::guard('owner')->user();
-        if (!$owner) {
+        if (! $owner) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -234,12 +236,12 @@ class MFAController extends Controller
     public function deactivate(Request $request)
     {
         $owner = Auth::guard('owner')->user();
-        if (!$owner) {
+        if (! $owner) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
         $owner->is_mfa_enabled = false;
-        if (!$owner->is_email_authentication_enabled) {
+        if (! $owner->is_email_authentication_enabled) {
             $owner->mfa_secret_code = null;
         }
         $owner->mfa_authentication_image = null;
@@ -259,7 +261,7 @@ class MFAController extends Controller
     public function activateEmailAuthenticator()
     {
         $owner = Auth::guard('owner')->user();
-        if (!$owner) {
+        if (! $owner) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $owner->is_email_authentication_enabled = true;
@@ -271,7 +273,7 @@ class MFAController extends Controller
     public function deactivateEmailAuthenticator()
     {
         $owner = Auth::guard('owner')->user();
-        if (!$owner) {
+        if (! $owner) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
         $owner->is_email_authentication_enabled = false;

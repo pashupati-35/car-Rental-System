@@ -13,12 +13,14 @@ class SiteSettingController extends Controller
     public function index()
     {
         $siteSetting = $this->settingService->getSiteSetting();
+
         return response()->json(['data' => $siteSetting], 200);
     }
 
     public function all()
     {
         $siteSetting = $this->settingService->getSiteSetting();
+
         return response()->json(['data' => $siteSetting], 200);
     }
 
@@ -45,6 +47,7 @@ class SiteSettingController extends Controller
     public function getSettingColors()
     {
         $colors = $this->settingService->getSettingColors();
+
         return response()->json(['data' => $colors], 200);
     }
 

@@ -15,6 +15,7 @@ class AlbumController extends Controller
     public function index(Request $request)
     {
         $filter = AlbumFilterDTO::fromArray($request->all());
+
         return $this->albumService->paginate($filter);
     }
 

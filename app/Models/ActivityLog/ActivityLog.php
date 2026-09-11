@@ -34,17 +34,19 @@ class ActivityLog extends Model
     public function getCauserNameAttribute(): ?string
     {
         if ($this->causer) {
-            return $this->causer->full_name ?? $this->causer->name ?? $this->causer->email ?? 'User #' . $this->causer_id;
+            return $this->causer->full_name ?? $this->causer->name ?? $this->causer->email ?? 'User #'.$this->causer_id;
         }
+
         return 'System / Guest';
     }
 
     public function getCauserRoleAttribute(): string
     {
-        if (!$this->causer_type) {
+        if (! $this->causer_type) {
             return 'System';
         }
         $base = class_basename($this->causer_type);
+
         return match ($base) {
             'Admin', 'AdminUser' => 'Admin',
             'Owner' => 'Fleet Owner',

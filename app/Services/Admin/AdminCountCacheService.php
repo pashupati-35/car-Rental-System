@@ -4,10 +4,26 @@ namespace App\Services\Admin;
 
 use App\Models\BookingCar;
 use App\Models\Car;
+use App\Models\Cms\Album\Album;
+use App\Models\Cms\Blog\Blog;
+use App\Models\Cms\Career\Career;
+use App\Models\Cms\ContactUs\ContactUs;
+use App\Models\Cms\Enquiry\Enquiry;
+use App\Models\Cms\Faq\Faq;
+use App\Models\Cms\Menu\Menu;
+use App\Models\Cms\NewsAndUpdates\NewsAndUpdates;
+use App\Models\Cms\Notice\Notice;
+use App\Models\Cms\Page\Page;
+use App\Models\Cms\Partner\Partner;
+use App\Models\Cms\Popup\Popup;
+use App\Models\Cms\Service\Services;
+use App\Models\Cms\Slider\Slider;
+use App\Models\Cms\Team\Team;
+use App\Models\Cms\Testimonial\Testimonial;
 use App\Models\Customer;
 use App\Models\Driver;
-use App\Models\Owner;
 use App\Models\EmailTemplate\EmailTemplate;
+use App\Models\Owner;
 use Illuminate\Support\Facades\Cache;
 
 class AdminCountCacheService
@@ -15,7 +31,9 @@ class AdminCountCacheService
     public const CACHE_TTL_SECONDS = 300; // 5 minutes
 
     public const KEY_DASHBOARD_STATS = 'admin_dashboard_counts';
+
     public const KEY_SHARED_COUNTS = 'admin_shared_counts';
+
     public const KEY_CMS_STATS = 'admin_cms_stats_counts';
 
     /**
@@ -67,22 +85,22 @@ class AdminCountCacheService
     {
         return Cache::remember(self::KEY_CMS_STATS, self::CACHE_TTL_SECONDS, function () {
             return [
-                'faqs' => \App\Models\Cms\Faq\Faq::count(),
-                'blogs' => \App\Models\Cms\Blog\Blog::count(),
-                'services' => \App\Models\Cms\Service\Services::count(),
-                'teams' => \App\Models\Cms\Team\Team::count(),
-                'testimonials' => \App\Models\Cms\Testimonial\Testimonial::count(),
-                'notices' => \App\Models\Cms\Notice\Notice::count(),
-                'sliders' => \App\Models\Cms\Slider\Slider::count(),
-                'popups' => \App\Models\Cms\Popup\Popup::count(),
-                'pages' => \App\Models\Cms\Page\Page::count(),
-                'partners' => \App\Models\Cms\Partner\Partner::count(),
-                'careers' => \App\Models\Cms\Career\Career::count(),
-                'enquiries' => \App\Models\Cms\Enquiry\Enquiry::count(),
-                'contacts' => \App\Models\Cms\ContactUs\ContactUs::count(),
-                'albums' => \App\Models\Cms\Album\Album::count(),
-                'menus' => \App\Models\Cms\Menu\Menu::count(),
-                'news' => \App\Models\Cms\NewsAndUpdates\NewsAndUpdates::count(),
+                'faqs' => Faq::count(),
+                'blogs' => Blog::count(),
+                'services' => Services::count(),
+                'teams' => Team::count(),
+                'testimonials' => Testimonial::count(),
+                'notices' => Notice::count(),
+                'sliders' => Slider::count(),
+                'popups' => Popup::count(),
+                'pages' => Page::count(),
+                'partners' => Partner::count(),
+                'careers' => Career::count(),
+                'enquiries' => Enquiry::count(),
+                'contacts' => ContactUs::count(),
+                'albums' => Album::count(),
+                'menus' => Menu::count(),
+                'news' => NewsAndUpdates::count(),
             ];
         });
     }

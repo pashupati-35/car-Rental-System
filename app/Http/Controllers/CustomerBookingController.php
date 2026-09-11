@@ -16,7 +16,7 @@ class CustomerBookingController extends Controller
     public function index()
     {
         $customer = Auth::guard('customer')->user() ?: Auth::user();
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.login');
         }
 
@@ -31,12 +31,12 @@ class CustomerBookingController extends Controller
     public function show($id)
     {
         $customer = Auth::guard('customer')->user() ?: Auth::user();
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.login');
         }
 
         $booking = $this->bookingService->getBookingById((int) $id);
-        if (!$booking || $booking->customer_id !== $customer->id) {
+        if (! $booking || $booking->customer_id !== $customer->id) {
             abort(404);
         }
 
@@ -50,7 +50,7 @@ class CustomerBookingController extends Controller
     public function cancelBooking(Request $request, $id)
     {
         $customer = Auth::guard('customer')->user() ?: Auth::user();
-        if (!$customer) {
+        if (! $customer) {
             return redirect()->route('customer.login');
         }
 

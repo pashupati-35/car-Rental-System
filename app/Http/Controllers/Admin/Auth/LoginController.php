@@ -3,13 +3,9 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
 
 class LoginController extends Controller
 {
@@ -27,6 +23,7 @@ class LoginController extends Controller
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'OK', 'user' => Auth::guard('admin')->user()]);
             }
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -42,6 +39,7 @@ class LoginController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate(['email' => 'required|email']);
+
         return response()->json(['status' => 'OK', 'message' => 'Reset link sent if account exists.']);
     }
 

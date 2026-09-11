@@ -25,13 +25,13 @@ class CmsSeeder extends Seeder
             'Driver Verification & Conduct', 'Payment Gateways & Invoicing', 'Long-term & Corporate Leasing',
             'Airport Transfers & Schedules', 'Cross-Border & Permit Regulations', 'EV Fleet & Charging Network',
             'Vehicle Maintenance Standards', 'GPS & Real-Time Tracking', 'Accidents & Emergency Assistance',
-            'Child Seats & Extra Add-ons', 'Mobile App & Account Management'
+            'Child Seats & Extra Add-ons', 'Mobile App & Account Management',
         ];
         foreach ($faqCatNames as $i => $name) {
             $faqCats[] = [
                 'name' => $name,
                 'slug' => Str::slug($name),
-                'description' => 'Comprehensive guidance and questions regarding ' . $name . '.',
+                'description' => 'Comprehensive guidance and questions regarding '.$name.'.',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -62,14 +62,14 @@ class CmsSeeder extends Seeder
             'Can foreign tourists drive with an International Driving Permit (IDP)?' => 'Yes, tourists holding a valid IDP and passport are fully eligible to rent and drive.',
             'How do I view my rental invoices and tax receipts?' => 'All invoices are downloadable in PDF format directly from your customer dashboard.',
             'What safety measures are taken between rentals?' => 'Every vehicle undergoes a 30-point mechanical inspection and complete sanitization before handover.',
-            'Is 24/7 customer support available during holidays?' => 'Our dedicated concierge and dispatch support operates 24/7/365 without exception.'
+            'Is 24/7 customer support available during holidays?' => 'Our dedicated concierge and dispatch support operates 24/7/365 without exception.',
         ];
         $faqIndex = 0;
         foreach ($faqQuestions as $q => $a) {
             $faqs[] = [
                 'title' => $q,
                 'short_description' => Str::limit($a, 80),
-                'description' => '<p>' . $a . '</p>',
+                'description' => '<p>'.$a.'</p>',
                 'faq_category_id' => ($faqIndex % 20) + 1,
                 'position' => $faqIndex + 1,
                 'is_active' => 1,
@@ -89,13 +89,13 @@ class CmsSeeder extends Seeder
             'Rental Tips for Beginners', 'Corporate Mobility Solutions', 'Chauffeur Etiquette & Standards',
             'Seasonal Driving Tips', 'Budget Travel Hacks', 'Nepal Highway Guides',
             'Customer Stories & Testimonials', 'Industry News & Mobility Trends', 'Car Tech & In-Cabin Gadgets',
-            'Scenic Mountain Drives', 'Platform Updates & Feature Highlights'
+            'Scenic Mountain Drives', 'Platform Updates & Feature Highlights',
         ];
         foreach ($blogCatNames as $i => $name) {
             $blogCats[] = [
                 'title' => $name,
                 'slug' => Str::slug($name),
-                'description' => 'Articles and in-depth guides covering ' . $name . '.',
+                'description' => 'Articles and in-depth guides covering '.$name.'.',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -126,7 +126,7 @@ class CmsSeeder extends Seeder
             'A Complete Highway Route Guide: Kathmandu to Pokhara Expressway',
             'How Our 24/7 Roadside Assistance Keeps You Safe Anywhere, Anytime',
             'Choosing the Right Vehicle: Hatchback, Sedan, SUV, or Van?',
-            'Behind the Scenes: How We Maintain Pristine Fleet Cleanliness'
+            'Behind the Scenes: How We Maintain Pristine Fleet Cleanliness',
         ];
         foreach ($blogTitles as $i => $title) {
             $blogs[] = [
@@ -134,7 +134,7 @@ class CmsSeeder extends Seeder
                 'slug' => Str::slug($title),
                 'author_name' => 'Editorial Fleet Team',
                 'publish_date' => $now->copy()->subDays($i * 2),
-                'content' => '<h2>' . $title . '</h2><p>Planning your next road excursion requires reliable transportation, pristine safety records, and clear itinerary planning. In this article, our fleet experts explore key insights, safety guidelines, and scenic highlights for an unforgettable journey.</p><p>Whether traveling for leisure, corporate assignments, or family vacations, our modern fleet ensures optimum comfort, reliability, and peace of mind.</p>',
+                'content' => '<h2>'.$title.'</h2><p>Planning your next road excursion requires reliable transportation, pristine safety records, and clear itinerary planning. In this article, our fleet experts explore key insights, safety guidelines, and scenic highlights for an unforgettable journey.</p><p>Whether traveling for leisure, corporate assignments, or family vacations, our modern fleet ensures optimum comfort, reliability, and peace of mind.</p>',
                 'category_id' => ($i % 20) + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -152,7 +152,7 @@ class CmsSeeder extends Seeder
             'Corporate Sales & Partnerships Lead', 'Mobile App UX/UI Designer', 'Regional Depot Supervisor - Pokhara',
             'Automotive Technician / Mechanic', 'Social Media & Content Creator', 'Legal & Regulatory Compliance Officer',
             'Data Analyst - Telematics & Fleet AI', 'Night Dispatch & Emergency Officer', 'Talent Acquisition & HR Officer',
-            'Procurement & Inventory Specialist', 'Customer Success Associate'
+            'Procurement & Inventory Specialist', 'Customer Success Associate',
         ];
         foreach ($careerTitles as $i => $title) {
             $careers[] = [
@@ -164,7 +164,7 @@ class CmsSeeder extends Seeder
                 'no_of_vacancies' => ($i % 3) + 1,
                 'offered_salary' => 'Competitive + Performance Bonuses',
                 'apply_before' => $now->copy()->addDays(30 + $i)->format('Y-m-d'),
-                'description' => '<p>We are seeking a talented ' . $title . ' to join our fast-growing mobility and fleet enterprise. Enjoy dynamic team culture, comprehensive healthcare, and clear career growth.</p>',
+                'description' => '<p>We are seeking a talented '.$title.' to join our fast-growing mobility and fleet enterprise. Enjoy dynamic team culture, comprehensive healthcare, and clear career growth.</p>',
                 'is_active' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -178,9 +178,9 @@ class CmsSeeder extends Seeder
             $apps[] = [
                 'career_id' => ($i % 20) + 1,
                 'first_name' => 'Candidate',
-                'last_name' => 'Applicant #' . ($i + 1),
-                'email' => 'candidate' . ($i + 1) . '@example.com',
-                'phone' => '+977-9841' . str_pad($i + 100, 6, '0', STR_PAD_LEFT),
+                'last_name' => 'Applicant #'.($i + 1),
+                'email' => 'candidate'.($i + 1).'@example.com',
+                'phone' => '+977-9841'.str_pad($i + 100, 6, '0', STR_PAD_LEFT),
                 'received_at' => $now->copy()->subDays($i)->format('Y-m-d H:i:s'),
                 'is_read' => ($i % 2 == 0) ? '1' : '0',
                 'is_shortlisted' => ($i % 3 == 0) ? '1' : '0',
@@ -212,7 +212,7 @@ class CmsSeeder extends Seeder
             'Launch of 24/7 Multi-lingual Concierge Assistance',
             'Safety Recall & Routine Brake Inspection Campaign',
             'New Corporate Billing & Invoicing Features Released',
-            'Customer Appreciation Month: 15% Bonus Rental Credits'
+            'Customer Appreciation Month: 15% Bonus Rental Credits',
         ];
         foreach ($noticeTitles as $i => $title) {
             $notices[] = [
@@ -220,7 +220,7 @@ class CmsSeeder extends Seeder
                 'slug' => Str::slug($title),
                 'start_date' => $now->copy()->subDays($i)->format('Y-m-d'),
                 'end_date' => $now->copy()->addDays(30 + $i)->format('Y-m-d'),
-                'description' => '<p>' . $title . ' - All customers, fleet owners, and certified drivers are requested to take note of the operational updates.</p>',
+                'description' => '<p>'.$title.' - All customers, fleet owners, and certified drivers are requested to take note of the operational updates.</p>',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -259,8 +259,8 @@ class CmsSeeder extends Seeder
                 'slug' => Str::slug($m['name']),
                 'designation' => $m['role'],
                 'email' => $m['email'],
-                'phone' => '+977-9841' . str_pad($i + 500, 6, '0', STR_PAD_LEFT),
-                'description' => $m['name'] . ' brings over 10 years of automotive and mobility leadership experience.',
+                'phone' => '+977-9841'.str_pad($i + 500, 6, '0', STR_PAD_LEFT),
+                'description' => $m['name'].' brings over 10 years of automotive and mobility leadership experience.',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -291,7 +291,7 @@ class CmsSeeder extends Seeder
             ['name' => 'Kabita Basnet', 'title' => 'Child Seat and Emergency First-Aid Included', 'rating' => 4.9, 'job' => 'Medical Researcher'],
             ['name' => 'Suman Koirala', 'title' => 'Quick Return Inspection and Deposit Release', 'rating' => 5.0, 'job' => 'Civil Engineer'],
             ['name' => 'Rhea Sharma', 'title' => 'Impeccable Interiors and Great AC Performance', 'rating' => 4.8, 'job' => 'Creative Director'],
-            ['name' => 'Manoj Tamang', 'title' => 'Our Go-To Rental Service for Every Road Trip', 'rating' => 5.0, 'job' => 'Tourism Entrepreneur']
+            ['name' => 'Manoj Tamang', 'title' => 'Our Go-To Rental Service for Every Road Trip', 'rating' => 5.0, 'job' => 'Tourism Entrepreneur'],
         ];
         foreach ($clientReviews as $i => $r) {
             $testimonials[] = [
@@ -299,7 +299,7 @@ class CmsSeeder extends Seeder
                 'title' => $r['title'],
                 'job_title' => $r['job'],
                 'rating' => $r['rating'],
-                'description' => '"' . $r['title'] . '. ' . $r['name'] . ' rated our fleet service ' . $r['rating'] . ' stars for exemplary vehicle maintenance, prompt customer service, and smooth logistics."',
+                'description' => '"'.$r['title'].'. '.$r['name'].' rated our fleet service '.$r['rating'].' stars for exemplary vehicle maintenance, prompt customer service, and smooth logistics."',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -330,14 +330,14 @@ class CmsSeeder extends Seeder
             ['title' => 'Luxury Camper & Road Trip Vans', 'price' => 230.00],
             ['title' => 'Cross-District Logistics Vehicles', 'price' => 130.00],
             ['title' => 'GPS & Safety Add-on Equipments', 'price' => 25.00],
-            ['title' => 'Fleet Owner Management & Listing', 'price' => 0.00]
+            ['title' => 'Fleet Owner Management & Listing', 'price' => 0.00],
         ];
         foreach ($serviceList as $i => $s) {
             $services[] = [
                 'title' => $s['title'],
                 'slug' => Str::slug($s['title']),
                 'price' => $s['price'],
-                'description' => '<p>Professional ' . $s['title'] . ' offering unmatched reliability, full comprehensive insurance, and 24/7 dispatch support.</p>',
+                'description' => '<p>Professional '.$s['title'].' offering unmatched reliability, full comprehensive insurance, and 24/7 dispatch support.</p>',
                 'position' => $i + 1,
                 'is_active' => 1,
                 'created_at' => $now,
@@ -350,8 +350,8 @@ class CmsSeeder extends Seeder
         $sliderTypes = [];
         for ($i = 1; $i <= 20; $i++) {
             $sliderTypes[] = [
-                'title' => 'Slider Section Category #' . $i,
-                'slug' => 'slider-type-' . $i,
+                'title' => 'Slider Section Category #'.$i,
+                'slug' => 'slider-type-'.$i,
                 'is_active' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -380,7 +380,7 @@ class CmsSeeder extends Seeder
             'Seamless Inter-City One-Way Transfers',
             'VIP Wedding & Event Motorcade Packages',
             'Download Our App for Instant Road Access',
-            'Your Journey, Your Choice — Drive Premium'
+            'Your Journey, Your Choice — Drive Premium',
         ];
         foreach ($sliderHeadings as $i => $h) {
             $sliders[] = [
@@ -408,14 +408,14 @@ class CmsSeeder extends Seeder
             'Annapurna Trekking Association', 'Pokhara Tourism Council', 'Chitwan Eco-Lodge Alliance',
             'Kathmandu Marriott VIP Lounge', 'Patan Heritage Council', 'Nepal Road Safety Alliance',
             'Everest Air Logistics', 'Lumbini Heritage Trust', 'Nepal Automobile Association (NASA)',
-            'BYD Electric Mobility Nepal', 'Castrol Lubricants Official'
+            'BYD Electric Mobility Nepal', 'Castrol Lubricants Official',
         ];
         foreach ($partnerNames as $i => $p) {
             $partners[] = [
                 'title' => $p,
                 'slug' => Str::slug($p),
-                'url' => 'https://example.com/' . Str::slug($p),
-                'description' => 'Official strategic alliance partner: ' . $p,
+                'url' => 'https://example.com/'.Str::slug($p),
+                'description' => 'Official strategic alliance partner: '.$p,
                 'is_active' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -427,10 +427,10 @@ class CmsSeeder extends Seeder
         $popups = [];
         for ($i = 1; $i <= 20; $i++) {
             $popups[] = [
-                'title' => 'Promotional Popup Campaign #' . $i . ': Festive 20% Discount',
-                'slug' => 'popup-promo-' . $i,
+                'title' => 'Promotional Popup Campaign #'.$i.': Festive 20% Discount',
+                'slug' => 'popup-promo-'.$i,
                 'type' => 'promotional',
-                'description' => '<p>Use promo code <strong>FESTIVE' . $i . '</strong> to claim special rental discounts on all SUV bookings this week!</p>',
+                'description' => '<p>Use promo code <strong>FESTIVE'.$i.'</strong> to claim special rental discounts on all SUV bookings this week!</p>',
                 'link' => '/cars',
                 'position' => $i,
                 'is_active' => 1,
@@ -451,14 +451,14 @@ class CmsSeeder extends Seeder
             'Cancellation & Refund Regulations', 'Highway Toll & Permit Guide', 'Electric Vehicle Charging Network',
             'Roadside Emergency & Towing Procedures', 'Airport Meet & Greet Service Guide', 'Customer Loyalty & Reward Points',
             'Driving in Nepal: International Tourist Guide', 'Sustainability & Green Travel Commitment', 'Careers & Work Culture',
-            'Press Releases & Media Kit', 'Contact Us & Depot Locations'
+            'Press Releases & Media Kit', 'Contact Us & Depot Locations',
         ];
         foreach ($pageTitles as $i => $title) {
             $pages[] = [
                 'title' => $title,
                 'slug' => Str::slug($title),
                 'custom_slug' => Str::slug($title),
-                'content' => '<h1>' . $title . '</h1><p>Welcome to our comprehensive information portal regarding ' . $title . '. Our platform is built on principles of safety, transparency, premium hospitality, and technological innovation in vehicle mobility.</p>',
+                'content' => '<h1>'.$title.'</h1><p>Welcome to our comprehensive information portal regarding '.$title.'. Our platform is built on principles of safety, transparency, premium hospitality, and technological innovation in vehicle mobility.</p>',
                 'position' => $i + 1,
                 'views' => 100 * ($i + 1),
                 'is_active' => 1,
@@ -472,9 +472,9 @@ class CmsSeeder extends Seeder
         $news = [];
         for ($i = 1; $i <= 20; $i++) {
             $news[] = [
-                'title' => 'Latest Industry News #' . $i . ': Fleet System Expands Across New Provinces',
-                'slug' => 'news-update-' . $i,
-                'url' => 'https://news.carrental.com/update-' . $i,
+                'title' => 'Latest Industry News #'.$i.': Fleet System Expands Across New Provinces',
+                'slug' => 'news-update-'.$i,
+                'url' => 'https://news.carrental.com/update-'.$i,
                 'published_by' => 'Corporate Communications Desk',
                 'publish_date' => $now->copy()->subDays($i),
                 'is_active' => 1,
@@ -488,9 +488,9 @@ class CmsSeeder extends Seeder
         $menus = [];
         for ($i = 1; $i <= 20; $i++) {
             $menus[] = [
-                'title' => 'Navigation Menu Set #' . $i,
-                'slug' => 'nav-menu-' . $i,
-                'location' => ($i == 1) ? 'header' : (($i == 2) ? 'footer' : 'sidebar_' . $i),
+                'title' => 'Navigation Menu Set #'.$i,
+                'slug' => 'nav-menu-'.$i,
+                'location' => ($i == 1) ? 'header' : (($i == 2) ? 'footer' : 'sidebar_'.$i),
                 'is_active' => 1,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -503,14 +503,14 @@ class CmsSeeder extends Seeder
             'Home', 'Explore Fleet', 'Luxury SUVs', 'Economy Sedans', 'Electric Cars (EV)',
             'Chauffeur Services', 'About Us', 'Services', 'Pricing & Rates', 'Travel Blog',
             'Driver Directory', 'Owner Partnership', 'Careers', 'Notices', 'FAQs',
-            'Customer Reviews', 'Photo Albums', 'Terms & Conditions', 'Help Center', 'Contact Us'
+            'Customer Reviews', 'Photo Albums', 'Terms & Conditions', 'Help Center', 'Contact Us',
         ];
         foreach ($menuItemLabels as $i => $label) {
             $menuItems[] = [
                 'title' => $label,
                 'slug' => Str::slug($label),
                 'type' => 'custom',
-                'value' => '/' . Str::slug($label),
+                'value' => '/'.Str::slug($label),
                 'menu_id' => ($i % 20) + 1,
                 'position' => $i + 1,
                 'is_active' => 1,
@@ -524,8 +524,8 @@ class CmsSeeder extends Seeder
         $albums = [];
         for ($i = 1; $i <= 20; $i++) {
             $albums[] = [
-                'title' => 'Fleet Showcase Album #' . $i . ': Scenic Himalayan Expeditions',
-                'slug' => 'album-' . $i,
+                'title' => 'Fleet Showcase Album #'.$i.': Scenic Himalayan Expeditions',
+                'slug' => 'album-'.$i,
                 'description' => 'Visual gallery documenting our luxury vehicles on mountain terrains.',
                 'event_date' => $now->copy()->subDays($i * 5)->format('Y-m-d'),
                 'position' => $i,
@@ -540,9 +540,9 @@ class CmsSeeder extends Seeder
         for ($i = 1; $i <= 20; $i++) {
             $albumValues[] = [
                 'album_id' => ($i % 20) + 1,
-                'title' => 'High-Resolution Vehicle Photo #' . $i,
-                'slug' => 'photo-' . $i,
-                'path' => 'albums/gallery_' . $i . '.jpg',
+                'title' => 'High-Resolution Vehicle Photo #'.$i,
+                'slug' => 'photo-'.$i,
+                'path' => 'albums/gallery_'.$i.'.jpg',
                 'is_featured' => ($i % 2 == 0) ? 1 : 0,
                 'position' => $i,
                 'created_at' => $now,
@@ -555,11 +555,11 @@ class CmsSeeder extends Seeder
         $enquiries = [];
         for ($i = 1; $i <= 20; $i++) {
             $enquiries[] = [
-                'name' => 'Prospective Client #' . $i,
-                'slug' => 'enquiry-client-' . $i,
-                'email' => 'client' . $i . '@inquiry.com',
-                'phone' => '+977-9801' . str_pad($i + 200, 6, '0', STR_PAD_LEFT),
-                'subject' => 'Inquiry Regarding SUV Booking #' . (1000 + $i),
+                'name' => 'Prospective Client #'.$i,
+                'slug' => 'enquiry-client-'.$i,
+                'email' => 'client'.$i.'@inquiry.com',
+                'phone' => '+977-9801'.str_pad($i + 200, 6, '0', STR_PAD_LEFT),
+                'subject' => 'Inquiry Regarding SUV Booking #'.(1000 + $i),
                 'message' => 'Hello, I would like to inquire about availability and corporate discount rates for a 5-day rental.',
                 'token' => Str::random(16),
                 'mark_as_read' => ($i % 2 == 0) ? 1 : 0,
@@ -573,10 +573,10 @@ class CmsSeeder extends Seeder
         $contacts = [];
         for ($i = 1; $i <= 20; $i++) {
             $contacts[] = [
-                'name' => 'Inquirer Contact #' . $i,
-                'email' => 'contact' . $i . '@visitor.com',
-                'phone' => '+977-9811' . str_pad($i + 300, 6, '0', STR_PAD_LEFT),
-                'subject' => 'Feedback on Rental Experience #' . (2000 + $i),
+                'name' => 'Inquirer Contact #'.$i,
+                'email' => 'contact'.$i.'@visitor.com',
+                'phone' => '+977-9811'.str_pad($i + 300, 6, '0', STR_PAD_LEFT),
+                'subject' => 'Feedback on Rental Experience #'.(2000 + $i),
                 'message' => 'Thank you for providing exceptional customer service and vehicle condition on our recent trip.',
                 'is_read' => ($i % 2 == 0) ? 1 : 0,
                 'created_at' => $now->copy()->subHours($i * 4),
@@ -589,7 +589,7 @@ class CmsSeeder extends Seeder
         $settings = [];
         for ($i = 1; $i <= 20; $i++) {
             $settings[] = [
-                'company_name' => ($i == 1) ? 'Fleet Master Car Rental & Mobility System' : 'Fleet Depot Branch #' . $i,
+                'company_name' => ($i == 1) ? 'Fleet Master Car Rental & Mobility System' : 'Fleet Depot Branch #'.$i,
                 'description' => 'Premier car rental and fleet management platform connecting verified owners, certified drivers, and travelers worldwide.',
                 'mobile' => '+977-9841234567',
                 'phone' => '+977-1-4455667',
@@ -604,7 +604,7 @@ class CmsSeeder extends Seeder
                 'slogan' => 'Your Journey, Your Freedom',
                 'tagline' => 'Luxury Fleet, Certified Drivers & Instant Booking',
                 'website' => 'https://carrental.com',
-                'copy_right_text' => '© ' . date('Y') . ' Car Rental System. All Rights Reserved.',
+                'copy_right_text' => '© '.date('Y').' Car Rental System. All Rights Reserved.',
                 'seo_title' => 'Car Rental System - Premier Car & SUV Hire in Nepal',
                 'seo_keyword' => 'car rental, rent car kathmandu, hire driver nepal, 4x4 suv hire pokhara',
                 'seo_description' => 'Book luxury sedans, 4x4 SUVs, and certified drivers online with 24/7 assistance and best rates.',

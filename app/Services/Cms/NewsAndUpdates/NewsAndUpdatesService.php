@@ -16,15 +16,17 @@ class NewsAndUpdatesService extends Service
     public function paginate(NewsAndUpdatesFilterDTO $filter)
     {
         $news = $this->newsRepo->getFilteredPaginated($filter);
+
         return NewsAndUpdatesResource::collection($news);
     }
 
     public function store(array $data)
     {
         try {
-            if (!empty($data['social_share_image'])) {
+            if (! empty($data['social_share_image'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
             }
+
             return $this->newsRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -34,17 +36,19 @@ class NewsAndUpdatesService extends Service
     public function find($id)
     {
         $news = $this->newsRepo->find($id);
+
         return $news ? new NewsAndUpdatesResource($news) : null;
     }
 
     public function update($id, array $data)
     {
         try {
-            if (!empty($data['social_share_image'])) {
+            if (! empty($data['social_share_image'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
             } else {
                 unset($data['social_share_image']);
             }
+
             return $this->newsRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

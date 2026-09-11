@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\AdminApiController;
 use App\Http\Controllers\Api\BookingApiController;
 use App\Http\Controllers\Api\CarApiController;
 use App\Http\Controllers\Owner\DriverController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*

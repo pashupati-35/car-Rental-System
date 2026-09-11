@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface CareerRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(CareerFilterDTO $filter): LengthAwarePaginator;
+
     public function updatePositions(array $sortedIds): bool;
 }

@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface FaqRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(FaqFilterDTO $filter): LengthAwarePaginator;
+
     public function updatePositions(array $sortedIds): bool;
 }

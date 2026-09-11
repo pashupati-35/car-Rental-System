@@ -35,7 +35,7 @@ return new class extends Migration
                 'cta_url',
                 'cta_text',
                 'secondary_cta_url',
-                'secondary_cta_text'
+                'secondary_cta_text',
             ]);
         });
     }

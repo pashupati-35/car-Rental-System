@@ -18,11 +18,11 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
     {
         $query = $this->model->newQuery()->with('items');
 
-        if (!empty($filter->search)) {
-            $query->where('title', 'like', '%' . $filter->search . '%');
+        if (! empty($filter->search)) {
+            $query->where('title', 'like', '%'.$filter->search.'%');
         }
 
-        if (!empty($filter->menu_type)) {
+        if (! empty($filter->menu_type)) {
             $query->where('menu_type', $filter->menu_type);
         }
 
@@ -41,6 +41,7 @@ class MenuRepository extends BaseRepository implements MenuRepositoryInterface
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

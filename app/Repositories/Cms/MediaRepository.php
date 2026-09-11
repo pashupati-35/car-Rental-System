@@ -18,10 +18,10 @@ class MediaRepository extends BaseRepository implements MediaRepositoryInterface
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('original_name', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('original_name', 'like', '%'.$filter->search.'%');
             });
         }
 

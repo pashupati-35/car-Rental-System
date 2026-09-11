@@ -62,7 +62,7 @@ class OwnerService
             : collect();
 
         $carIds = $cars->pluck('id')->toArray();
-        $bookings = ($this->bookingRepository && !empty($carIds))
+        $bookings = ($this->bookingRepository && ! empty($carIds))
             ? $this->bookingRepository->getBookingsByCarIds($carIds)
             : collect();
 
@@ -90,26 +90,28 @@ class OwnerService
     public function createOwner(array $data, $image = null): Owner
     {
         if ($image && $image->isValid()) {
-            $fileName = time() . '_' . $image->getClientOriginalName();
+            $fileName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/owner'), $fileName);
-            $data['image'] = 'uploads/owner/' . $fileName;
+            $data['image'] = 'uploads/owner/'.$fileName;
         }
 
         $owner = $this->ownerRepository->createOwner($data);
         AdminCountCacheService::clear();
+
         return $owner;
     }
 
     public function updateOwner(int $id, array $data, $image = null): Owner
     {
         if ($image && $image->isValid()) {
-            $fileName = time() . '_' . $image->getClientOriginalName();
+            $fileName = time().'_'.$image->getClientOriginalName();
             $image->move(public_path('uploads/owner'), $fileName);
-            $data['image'] = 'uploads/owner/' . $fileName;
+            $data['image'] = 'uploads/owner/'.$fileName;
         }
 
         $owner = $this->ownerRepository->updateOwner($id, $data);
         AdminCountCacheService::clear();
+
         return $owner;
     }
 
@@ -117,6 +119,7 @@ class OwnerService
     {
         $result = $this->ownerRepository->deleteOwner($id);
         AdminCountCacheService::clear();
+
         return $result;
     }
 

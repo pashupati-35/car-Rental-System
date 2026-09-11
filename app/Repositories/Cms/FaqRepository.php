@@ -18,14 +18,14 @@ class FaqRepository extends BaseRepository implements FaqRepositoryInterface
     {
         $query = $this->model->newQuery()->with('category');
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->faq_category_id)) {
+        if (! empty($filter->faq_category_id)) {
             $query->where('faq_category_id', $filter->faq_category_id);
         }
 
@@ -44,6 +44,7 @@ class FaqRepository extends BaseRepository implements FaqRepositoryInterface
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

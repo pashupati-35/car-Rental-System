@@ -16,6 +16,7 @@ class DownloadService extends Service
     public function paginate(DownloadFilterDTO $filter)
     {
         $downloads = $this->downloadRepo->getFilteredPaginated($filter);
+
         return DownloadResource::collection($downloads);
     }
 
@@ -33,6 +34,7 @@ class DownloadService extends Service
             if (isset($data['preview_image'])) {
                 $data['preview_image'] = $this->uploadFile($data['preview_image'], $this->uploadPath);
             }
+
             return $this->downloadRepo->create($data);
         } catch (\Exception $ex) {
             return false;
@@ -42,6 +44,7 @@ class DownloadService extends Service
     public function find($id)
     {
         $download = $this->downloadRepo->find($id);
+
         return $download ? new DownloadResource($download) : null;
     }
 
@@ -58,6 +61,7 @@ class DownloadService extends Service
             } else {
                 unset($data['preview_image']);
             }
+
             return $this->downloadRepo->update($id, $data);
         } catch (\Exception $ex) {
             return false;

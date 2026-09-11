@@ -58,7 +58,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:admins,email,' . $admin->id,
+            'email' => 'required|email|max:255|unique:admins,email,'.$admin->id,
             'contact_number' => 'nullable|string|max:25',
             'address' => 'nullable|string|max:255',
             'designation' => 'nullable|string|max:100',
@@ -144,4 +144,3 @@ class ProfileController extends Controller
         return redirect()->to('/admin/login');
     }
 }
-

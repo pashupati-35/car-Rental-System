@@ -20,24 +20,24 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
     {
         $query = $this->model->newQuery()->with(['causer', 'subject']);
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('description', 'like', '%' . $filter->search . '%')
-                  ->orWhere('log_type', 'like', '%' . $filter->search . '%')
-                  ->orWhere('table_name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('ip_address', 'like', '%' . $filter->search . '%');
+                $q->where('description', 'like', '%'.$filter->search.'%')
+                    ->orWhere('log_type', 'like', '%'.$filter->search.'%')
+                    ->orWhere('table_name', 'like', '%'.$filter->search.'%')
+                    ->orWhere('ip_address', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->log_type)) {
+        if (! empty($filter->log_type)) {
             $query->where('log_type', $filter->log_type);
         }
 
-        if (!empty($filter->causer_type)) {
-            $query->where('causer_type', 'like', '%' . $filter->causer_type . '%');
+        if (! empty($filter->causer_type)) {
+            $query->where('causer_type', 'like', '%'.$filter->causer_type.'%');
         }
 
-        if (!empty($filter->owner_id)) {
+        if (! empty($filter->owner_id)) {
             $owner = Owner::find($filter->owner_id);
             $ownerName = $owner?->full_name ?? $owner?->first_name;
             $ownerEmail = $owner?->email;
@@ -52,13 +52,13 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
                 });
 
                 if ($ownerName) {
-                    $q->orWhere('description', 'like', '%' . $ownerName . '%');
+                    $q->orWhere('description', 'like', '%'.$ownerName.'%');
                 }
                 if ($ownerEmail) {
-                    $q->orWhere('description', 'like', '%' . $ownerEmail . '%');
+                    $q->orWhere('description', 'like', '%'.$ownerEmail.'%');
                 }
             });
-        } elseif (!empty($filter->customer_id)) {
+        } elseif (! empty($filter->customer_id)) {
             $customer = Customer::find($filter->customer_id);
             $customerName = $customer?->name ?? $customer?->first_name;
             $customerEmail = $customer?->email;
@@ -73,13 +73,13 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
                 });
 
                 if ($customerName) {
-                    $q->orWhere('description', 'like', '%' . $customerName . '%');
+                    $q->orWhere('description', 'like', '%'.$customerName.'%');
                 }
                 if ($customerEmail) {
-                    $q->orWhere('description', 'like', '%' . $customerEmail . '%');
+                    $q->orWhere('description', 'like', '%'.$customerEmail.'%');
                 }
             });
-        } elseif (!empty($filter->user_id)) {
+        } elseif (! empty($filter->user_id)) {
             $query->where('causer_id', $filter->user_id);
         }
 
@@ -107,10 +107,10 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
                 });
 
                 if ($ownerName) {
-                    $q->orWhere('description', 'like', '%' . $ownerName . '%');
+                    $q->orWhere('description', 'like', '%'.$ownerName.'%');
                 }
                 if ($ownerEmail) {
-                    $q->orWhere('description', 'like', '%' . $ownerEmail . '%');
+                    $q->orWhere('description', 'like', '%'.$ownerEmail.'%');
                 }
             })
             ->orderBy('id', 'DESC')
@@ -135,10 +135,10 @@ class ActivityLogRepository extends BaseRepository implements ActivityLogReposit
                 });
 
                 if ($customerName) {
-                    $q->orWhere('description', 'like', '%' . $customerName . '%');
+                    $q->orWhere('description', 'like', '%'.$customerName.'%');
                 }
                 if ($customerEmail) {
-                    $q->orWhere('description', 'like', '%' . $customerEmail . '%');
+                    $q->orWhere('description', 'like', '%'.$customerEmail.'%');
                 }
             })
             ->orderBy('id', 'DESC')

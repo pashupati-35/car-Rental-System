@@ -18,12 +18,12 @@ class EnquiryRepository extends BaseRepository implements EnquiryRepositoryInter
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('name', 'like', '%' . $filter->search . '%')
-                  ->orWhere('email', 'like', '%' . $filter->search . '%')
-                  ->orWhere('subject', 'like', '%' . $filter->search . '%')
-                  ->orWhere('message', 'like', '%' . $filter->search . '%');
+                $q->where('name', 'like', '%'.$filter->search.'%')
+                    ->orWhere('email', 'like', '%'.$filter->search.'%')
+                    ->orWhere('subject', 'like', '%'.$filter->search.'%')
+                    ->orWhere('message', 'like', '%'.$filter->search.'%');
             });
         }
 

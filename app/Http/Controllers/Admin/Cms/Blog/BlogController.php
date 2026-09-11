@@ -15,6 +15,7 @@ class BlogController extends Controller
     public function index(Request $request)
     {
         $filter = BlogFilterDTO::fromArray($request->all());
+
         return $this->blogService->paginate($filter);
     }
 

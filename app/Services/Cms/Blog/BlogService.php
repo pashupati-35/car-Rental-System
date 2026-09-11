@@ -2,7 +2,6 @@
 
 namespace App\Services\Cms\Blog;
 
-use App\DTOs\Cms\BlogDTO;
 use App\DTOs\Filters\BlogFilterDTO;
 use App\Http\Resources\Cms\Blog\BlogResource;
 use App\Repositories\Cms\BlogRepositoryInterface;
@@ -18,25 +17,26 @@ class BlogService extends Service
     public function paginate(BlogFilterDTO $filter)
     {
         $blogs = $this->blogRepo->getFilteredPaginated($filter);
+
         return BlogResource::collection($blogs);
     }
 
     public function store(array $data)
     {
         try {
-            if (isset($data['social_share_image_file']) && !empty($data['social_share_image_file'])) {
+            if (isset($data['social_share_image_file']) && ! empty($data['social_share_image_file'])) {
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image_file'], $this->uploadPath);
             }
-            if (isset($data['image']) && !empty($data['image'])) {
+            if (isset($data['image']) && ! empty($data['image'])) {
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
-            if (isset($data['author_image']) && !empty($data['author_image'])) {
+            if (isset($data['author_image']) && ! empty($data['author_image'])) {
                 $data['author_image'] = $this->uploadFile($data['author_image'], $this->uploadPath);
             }
-            if (!empty($data['publish_date'])) {
+            if (! empty($data['publish_date'])) {
                 $data['publish_date'] = Carbon::create($data['publish_date'])->toDateTimeString();
             }
-            if (!empty($data['event_end'])) {
+            if (! empty($data['event_end'])) {
                 $data['event_end'] = Carbon::create($data['event_end'])->toDateTimeString();
             }
 
@@ -49,6 +49,7 @@ class BlogService extends Service
     public function getById($id)
     {
         $blog = $this->blogRepo->find($id);
+
         return $blog ? new BlogResource($blog) : null;
     }
 
@@ -56,27 +57,27 @@ class BlogService extends Service
     {
         try {
             $blog = $this->blogRepo->findOrFail($id);
-            if (!empty($data['social_share_image'])) {
-                if (!empty($blog->social_share_image)) {
+            if (! empty($data['social_share_image'])) {
+                if (! empty($blog->social_share_image)) {
                     $this->deleteFile($this->uploadPath, $blog->social_share_image);
                 }
                 $data['social_share_image'] = $this->uploadFile($data['social_share_image'], $this->uploadPath);
             }
 
-            if (!empty($data['image'])) {
-                if (!empty($blog->image)) {
+            if (! empty($data['image'])) {
+                if (! empty($blog->image)) {
                     $this->deleteFile($this->uploadPath, $blog->image);
                 }
                 $data['image'] = $this->uploadFile($data['image'], $this->uploadPath);
             }
-            if (!empty($data['author_image'])) {
-                if (!empty($blog->author_image)) {
+            if (! empty($data['author_image'])) {
+                if (! empty($blog->author_image)) {
                     $this->deleteFile($this->uploadPath, $blog->author_image);
                 }
                 $data['author_image'] = $this->uploadFile($data['author_image'], $this->uploadPath);
             }
 
-            if (!empty($data['publish_date'])) {
+            if (! empty($data['publish_date'])) {
                 $data['publish_date'] = Carbon::create($data['publish_date'])->toDateTimeString();
             }
 
@@ -90,7 +91,7 @@ class BlogService extends Service
     {
         try {
             $blog = $this->blogRepo->find($id);
-            if ($blog && !empty($blog->image)) {
+            if ($blog && ! empty($blog->image)) {
                 $this->deleteFile($this->uploadPath, $blog->image);
             }
 
@@ -103,6 +104,7 @@ class BlogService extends Service
     public function getAllActive()
     {
         $blogs = $this->blogRepo->getActive();
+
         return BlogResource::collection($blogs);
     }
 }

@@ -9,5 +9,6 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 interface DownloadRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredPaginated(DownloadFilterDTO $filter): LengthAwarePaginator;
+
     public function updatePositions(array $sortedIds): bool;
 }

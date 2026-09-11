@@ -105,10 +105,11 @@ class CustomerController extends Controller
     {
         $customer = $this->customerService->getCustomerDetails((int) $id);
 
-        if (!$customer) {
+        if (! $customer) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'error', 'message' => 'Customer not found.'], 404);
             }
+
             return redirect()->back()->with('error', 'Customer not found.');
         }
 
@@ -121,13 +122,13 @@ class CustomerController extends Controller
         $mainHost = preg_replace('/^portal\./i', '', $host);
         $scheme = $request->getScheme();
         $port = $request->getPort();
-        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $redirectUrl = $scheme . '://' . $mainHost . $portSuffix . '/customer/dashboard';
+        $portSuffix = ($port && ! in_array($port, [80, 443])) ? ':'.$port : '';
+        $redirectUrl = $scheme.'://'.$mainHost.$portSuffix.'/customer/dashboard';
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Logged in as customer ' . ($customer->name ?? $customer->email),
+                'message' => 'Logged in as customer '.($customer->name ?? $customer->email),
                 'redirect_url' => $redirectUrl,
             ]);
         }

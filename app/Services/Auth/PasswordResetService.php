@@ -25,7 +25,7 @@ class PasswordResetService
             default => Customer::where('email', $email)->first(),
         };
 
-        if (!$user) {
+        if (! $user) {
             return ['status' => 'error', 'message' => 'We could not find an account with that email address.'];
         }
 
@@ -41,9 +41,9 @@ class PasswordResetService
         );
 
         $resetUrl = match ($guard) {
-            'admin' => url("/admin/reset-password/{$token}?email=" . urlencode($email)),
-            'owner' => url("/owner/reset-password/{$token}?email=" . urlencode($email)),
-            default => url("/customer/reset-password/{$token}?email=" . urlencode($email)),
+            'admin' => url("/admin/reset-password/{$token}?email=".urlencode($email)),
+            'owner' => url("/owner/reset-password/{$token}?email=".urlencode($email)),
+            default => url("/customer/reset-password/{$token}?email=".urlencode($email)),
         };
 
         $roleName = match ($guard) {
@@ -74,18 +74,19 @@ class PasswordResetService
     {
         $record = DB::table('password_reset_tokens')->where('email', $email)->first();
 
-        if (!$record) {
+        if (! $record) {
             return ['status' => 'error', 'message' => 'Invalid or expired password reset token.'];
         }
 
         // Check if token expired (60 minutes)
         if (Carbon::parse($record->created_at)->addMinutes(60)->isPast()) {
             DB::table('password_reset_tokens')->where('email', $email)->delete();
+
             return ['status' => 'error', 'message' => 'This password reset link has expired. Please request a new one.'];
         }
 
         // Verify token hash
-        if (!Hash::check($token, $record->token)) {
+        if (! Hash::check($token, $record->token)) {
             return ['status' => 'error', 'message' => 'Invalid password reset token.'];
         }
 
@@ -95,7 +96,7 @@ class PasswordResetService
             default => Customer::where('email', $email)->first(),
         };
 
-        if (!$user) {
+        if (! $user) {
             return ['status' => 'error', 'message' => 'User account not found.'];
         }
 

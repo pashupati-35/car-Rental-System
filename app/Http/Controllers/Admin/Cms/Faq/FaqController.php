@@ -14,6 +14,7 @@ class FaqController extends Controller
     public function index(Request $request)
     {
         $filter = FaqFilterDTO::fromArray($request->all());
+
         return $this->faqService->paginate($filter);
     }
 

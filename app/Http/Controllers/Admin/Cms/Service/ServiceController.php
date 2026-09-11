@@ -16,6 +16,7 @@ class ServiceController extends Controller
     public function index(Request $request)
     {
         $filter = ServiceFilterDTO::fromArray($request->all());
+
         return $this->serviceService->paginate($filter);
     }
 

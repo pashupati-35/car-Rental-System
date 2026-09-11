@@ -21,11 +21,11 @@ trait Loggable
 
             if ($logType == 'create') {
                 $originalData = $model->toArray();
-                $title = $tableName . ' created.';
+                $title = $tableName.' created.';
             } else {
                 $originalData = $model->getOriginal();
                 $updatedData = $model->getChanges();
-                $title = $tableName . ' updated.';
+                $title = $tableName.' updated.';
             }
 
             $user = auth()->user();
@@ -73,4 +73,3 @@ trait Loggable
         }
     }
 }
-

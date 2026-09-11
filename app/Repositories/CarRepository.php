@@ -65,8 +65,8 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('car_name', 'like', "%{$search}%")
-                  ->orWhere('car_model', 'like', "%{$search}%")
-                  ->orWhere('car_number', 'like', "%{$search}%");
+                    ->orWhere('car_model', 'like', "%{$search}%")
+                    ->orWhere('car_number', 'like', "%{$search}%");
             });
         }
 
@@ -102,7 +102,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         return $this->model
             ->with([
                 'owner:id,full_name,contact_number,email,address',
-                'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status'
+                'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status',
             ])
             ->findOrFail($id);
     }
@@ -129,18 +129,18 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('car_name', 'like', "%{$search}%")
-                  ->orWhere('car_model', 'like', "%{$search}%")
-                  ->orWhere('car_number', 'like', "%{$search}%")
-                  ->orWhere('driver_name', 'like', "%{$search}%")
-                  ->orWhereHas('owner', function ($oq) use ($search) {
-                      $oq->where('full_name', 'like', "%{$search}%")
-                         ->orWhere('email', 'like', "%{$search}%")
-                         ->orWhere('contact_number', 'like', "%{$search}%");
-                  })
-                  ->orWhereHas('driver', function ($dq) use ($search) {
-                      $dq->where('name', 'like', "%{$search}%")
-                         ->orWhere('phone', 'like', "%{$search}%");
-                  });
+                    ->orWhere('car_model', 'like', "%{$search}%")
+                    ->orWhere('car_number', 'like', "%{$search}%")
+                    ->orWhere('driver_name', 'like', "%{$search}%")
+                    ->orWhereHas('owner', function ($oq) use ($search) {
+                        $oq->where('full_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('contact_number', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('driver', function ($dq) use ($search) {
+                        $dq->where('name', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -166,6 +166,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             'status' => 'verified',
             'available' => 'yes',
         ]);
+
         return $car;
     }
 
@@ -176,6 +177,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
             'status' => 'rejected',
             'available' => 'no',
         ]);
+
         return $car;
     }
 
@@ -206,6 +208,7 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         if ($excludeId) {
             $query->where('id', '!=', $excludeId);
         }
+
         return $query->exists();
     }
 
@@ -222,4 +225,3 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
         return $this->model->where('owner_id', $ownerId)->findOrFail($carId);
     }
 }
-

@@ -3,6 +3,8 @@
 namespace App\Jobs\Admin;
 
 use App\Mail\Admin\WelcomeEmailMail;
+use App\Models\Customer;
+use App\Models\Owner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -33,9 +35,9 @@ class EmailVerificationJob implements ShouldQueue
         }
 
         $role = 'admin';
-        if ($this->user instanceof \App\Models\Owner) {
+        if ($this->user instanceof Owner) {
             $role = 'owner';
-        } elseif ($this->user instanceof \App\Models\Customer) {
+        } elseif ($this->user instanceof Customer) {
             $role = 'customer';
         }
 

@@ -18,10 +18,10 @@ class NewsAndUpdatesRepository extends BaseRepository implements NewsAndUpdatesR
     {
         $query = $this->model->newQuery();
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('published_by', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('published_by', 'like', '%'.$filter->search.'%');
             });
         }
 

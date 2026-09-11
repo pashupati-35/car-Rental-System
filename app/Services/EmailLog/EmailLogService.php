@@ -56,7 +56,7 @@ class EmailLogService
                 'ip_address' => Request::ip(),
                 'user_agent' => mb_substr((string) Request::userAgent(), 0, 65535),
                 'attachments' => $attachments ?: null,
-                'headers' => !empty($event->data) ? ['data_keys' => array_keys($event->data)] : null,
+                'headers' => ! empty($event->data) ? ['data_keys' => array_keys($event->data)] : null,
                 'sent_at' => now(),
             ]);
         } catch (\Throwable $e) {

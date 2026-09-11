@@ -23,16 +23,16 @@ class CarApiController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('car_name', 'like', "%{$search}%")
-                  ->orWhere('car_model', 'like', "%{$search}%");
+                    ->orWhere('car_model', 'like', "%{$search}%");
             });
         }
 
         if ($request->filled('seats')) {
-            $query->where('number_of_seats', '>=', (int)$request->input('seats'));
+            $query->where('number_of_seats', '>=', (int) $request->input('seats'));
         }
 
         if ($request->filled('max_price')) {
-            $query->where('car_price_per_day', '<=', (float)$request->input('max_price'));
+            $query->where('car_price_per_day', '<=', (float) $request->input('max_price'));
         }
 
         $cars = $query->latest()->get();
@@ -50,7 +50,7 @@ class CarApiController extends Controller
     {
         $car = Car::with([
             'owner:id,full_name,contact_number,email,address',
-            'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status'
+            'driver:id,name,phone,email,license_number,experience_years,photo,license_photo,status',
         ])->findOrFail($id);
 
         $bookings = BookingCar::where('car_id', $id)

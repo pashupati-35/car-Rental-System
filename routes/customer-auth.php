@@ -8,6 +8,7 @@ use App\Http\Controllers\Customer\Auth\NewPasswordController;
 use App\Http\Controllers\Customer\Auth\PasswordController;
 use App\Http\Controllers\Customer\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Customer\Auth\RegisteredCustomerController;
+use App\Http\Controllers\Customer\FleetController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\CustomerBookingController;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +26,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     Route::middleware('guest:customer')->group(function () {
         Route::get('register', [RegisteredCustomerController::class, 'create'])->name('register');
         Route::post('register', [RegisteredCustomerController::class, 'store']);
-        
+
         Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
         Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
@@ -65,9 +66,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('mfa/email/deactivate', [MFAController::class, 'deactivateEmailAuthenticator'])->name('mfa.email.deactivate');
 
         // Fleet Showroom & Availability within Customer Portal
-        Route::get('/cars', [\App\Http\Controllers\Customer\FleetController::class, 'index'])->name('cars');
-        Route::get('/cars/{id}', [\App\Http\Controllers\Customer\FleetController::class, 'show'])->name('cars.show');
-        Route::get('/calendar', [\App\Http\Controllers\Customer\FleetController::class, 'calendar'])->name('calendar');
+        Route::get('/cars', [FleetController::class, 'index'])->name('cars');
+        Route::get('/cars/{id}', [FleetController::class, 'show'])->name('cars.show');
+        Route::get('/calendar', [FleetController::class, 'calendar'])->name('calendar');
 
         // Bookings
         Route::get('/bookings', [CustomerBookingController::class, 'index'])->name('bookings');

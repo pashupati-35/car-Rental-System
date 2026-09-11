@@ -43,6 +43,7 @@ class PaymentRepository extends BaseRepository implements PaymentRepositoryInter
     public function deleteCustomerPayment(int $customerId, int $paymentId): bool
     {
         $payment = $this->model->where('customer_id', $customerId)->findOrFail($paymentId);
+
         return (bool) $payment->delete();
     }
 }

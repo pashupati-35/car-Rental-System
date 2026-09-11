@@ -14,6 +14,7 @@ class EnquiryService extends Service
     public function paginate(EnquiryFilterDTO $filter)
     {
         $enquiries = $this->enquiryRepo->getFilteredPaginated($filter);
+
         return EnquiryResource::collection($enquiries);
     }
 
@@ -29,6 +30,7 @@ class EnquiryService extends Service
     public function show(string|int $id)
     {
         $enquiry = $this->enquiryRepo->find($id);
+
         return $enquiry ? new EnquiryResource($enquiry) : null;
     }
 

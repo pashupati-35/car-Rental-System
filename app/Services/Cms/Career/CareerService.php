@@ -5,7 +5,6 @@ namespace App\Services\Cms\Career;
 use App\DTOs\Filters\CareerFilterDTO;
 use App\Http\Resources\Cms\Career\CareerResource;
 use App\Repositories\Cms\CareerRepositoryInterface;
-use Carbon\Carbon;
 
 class CareerService
 {
@@ -16,6 +15,7 @@ class CareerService
     public function paginate(CareerFilterDTO $filter)
     {
         $careers = $this->careerRepo->getFilteredPaginated($filter);
+
         return CareerResource::collection($careers);
     }
 
@@ -47,6 +47,7 @@ class CareerService
     public function getById($id)
     {
         $career = $this->careerRepo->find($id);
+
         return $career ? new CareerResource($career) : null;
     }
 

@@ -306,7 +306,7 @@ class OwnerSeeder extends Seeder
         foreach ($owners as $index => $data) {
             $data['admin_id'] = $adminId;
             $data['password'] = Hash::make('password');
-            $data['unique_identifier'] = 'OWN-' . str_pad($index + 1, 4, '0', STR_PAD_LEFT);
+            $data['unique_identifier'] = 'OWN-'.str_pad($index + 1, 4, '0', STR_PAD_LEFT);
             $data['theme_style'] = 'light';
             $data['approval_status'] = 'approved';
             $data['is_submitted'] = true;

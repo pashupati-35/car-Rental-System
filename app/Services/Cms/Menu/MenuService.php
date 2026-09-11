@@ -14,6 +14,7 @@ class MenuService extends Service
     public function paginate(MenuFilterDTO $filter)
     {
         $menus = $this->menuRepo->getFilteredPaginated($filter);
+
         return MenuResource::collection($menus);
     }
 
@@ -34,6 +35,7 @@ class MenuService extends Service
     public function find($id)
     {
         $menu = $this->menuRepo->find($id);
+
         return $menu ? new MenuResource($menu) : null;
     }
 

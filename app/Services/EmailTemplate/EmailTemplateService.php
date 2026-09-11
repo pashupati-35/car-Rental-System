@@ -159,4 +159,3 @@ class EmailTemplateService
         return $this->emailTemplate->findOrFail($id);
     }
 }
-

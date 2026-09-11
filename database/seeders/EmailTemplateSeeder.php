@@ -53,8 +53,8 @@ class EmailTemplateSeeder extends Seeder
 
         foreach ($extraTemplates as $extra) {
             $extra['is_active'] = 1;
-            $extra['description'] = '<p>Notification regarding ' . $extra['title'] . ' for registered users.</p>';
-            $extra['message_content'] = 'Notification: ' . $extra['title'] . '.';
+            $extra['description'] = '<p>Notification regarding '.$extra['title'].' for registered users.</p>';
+            $extra['message_content'] = 'Notification: '.$extra['title'].'.';
             EmailTemplate::updateOrCreate(['identifier' => $extra['identifier']], $extra);
         }
     }

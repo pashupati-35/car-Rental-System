@@ -18,14 +18,14 @@ class DownloadRepository extends BaseRepository implements DownloadRepositoryInt
     {
         $query = $this->model->newQuery()->with('type');
 
-        if (!empty($filter->search)) {
+        if (! empty($filter->search)) {
             $query->where(function ($q) use ($filter) {
-                $q->where('title', 'like', '%' . $filter->search . '%')
-                  ->orWhere('description', 'like', '%' . $filter->search . '%');
+                $q->where('title', 'like', '%'.$filter->search.'%')
+                    ->orWhere('description', 'like', '%'.$filter->search.'%');
             });
         }
 
-        if (!empty($filter->download_type_id)) {
+        if (! empty($filter->download_type_id)) {
             $query->where('download_type_id', $filter->download_type_id);
         }
 
@@ -44,6 +44,7 @@ class DownloadRepository extends BaseRepository implements DownloadRepositoryInt
         foreach ($sortedIds as $index => $id) {
             $this->model->where('id', $id)->update(['position' => $index + 1]);
         }
+
         return true;
     }
 }

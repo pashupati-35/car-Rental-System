@@ -12,7 +12,9 @@ class BookingStatusNotificationMail extends Mailable
     use Queueable, SerializesModels;
 
     public BookingCar $booking;
+
     public string $status;
+
     public ?string $remarks;
 
     public function __construct(BookingCar $booking, string $status, ?string $remarks = null)

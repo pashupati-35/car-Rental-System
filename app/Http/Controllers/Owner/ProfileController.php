@@ -56,7 +56,7 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:owners,email,' . $owner->id,
+            'email' => 'required|email|max:255|unique:owners,email,'.$owner->id,
             'contact_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
         ]);
@@ -94,4 +94,3 @@ class ProfileController extends Controller
         return redirect()->to('/owner/login');
     }
 }
-

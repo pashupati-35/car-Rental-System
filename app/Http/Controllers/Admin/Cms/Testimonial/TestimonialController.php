@@ -15,6 +15,7 @@ class TestimonialController extends Controller
     public function index(Request $request)
     {
         $filter = TestimonialFilterDTO::fromArray($request->all());
+
         return $this->testimonialService->paginate($filter);
     }
 

@@ -71,7 +71,7 @@ class Blog extends Model
 
     public function getShareLinkAttribute()
     {
-        return url('/blog/' . ($this->slug ?? $this->id));
+        return url('/blog/'.($this->slug ?? $this->id));
     }
 
     public function getCategoriesAttribute()

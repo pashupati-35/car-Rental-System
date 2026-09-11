@@ -15,6 +15,7 @@ class PartnerController extends Controller
     public function index(Request $request)
     {
         $filter = PartnerFilterDTO::fromArray($request->all());
+
         return $this->partnerService->paginate($filter);
     }
 

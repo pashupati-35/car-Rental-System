@@ -96,10 +96,11 @@ class OwnerController extends Controller
     {
         $owner = $this->ownerService->getOwnerById((int) $id);
 
-        if (!$owner) {
+        if (! $owner) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'error', 'message' => 'Fleet owner not found.'], 404);
             }
+
             return redirect()->back()->with('error', 'Fleet owner not found.');
         }
 
@@ -112,13 +113,13 @@ class OwnerController extends Controller
         $mainHost = preg_replace('/^portal\./i', '', $host);
         $scheme = $request->getScheme();
         $port = $request->getPort();
-        $portSuffix = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
-        $redirectUrl = $scheme . '://' . $mainHost . $portSuffix . '/owner/dashboard';
+        $portSuffix = ($port && ! in_array($port, [80, 443])) ? ':'.$port : '';
+        $redirectUrl = $scheme.'://'.$mainHost.$portSuffix.'/owner/dashboard';
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'success',
-                'message' => 'Logged in as fleet owner ' . ($owner->full_name ?? $owner->email),
+                'message' => 'Logged in as fleet owner '.($owner->full_name ?? $owner->email),
                 'redirect_url' => $redirectUrl,
             ]);
         }
@@ -133,7 +134,7 @@ class OwnerController extends Controller
     {
         $validated = $request->validated();
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);

@@ -21,9 +21,9 @@ class OwnerRepository extends BaseRepository implements OwnerRepositoryInterface
         if (filled($search)) {
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('contact_number', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
             });
         }
 
@@ -59,12 +59,14 @@ class OwnerRepository extends BaseRepository implements OwnerRepositoryInterface
     {
         $owner = $this->model->findOrFail($id);
         $owner->update($data);
+
         return $owner;
     }
 
     public function deleteOwner(int $id): bool
     {
         $owner = $this->model->findOrFail($id);
+
         return (bool) $owner->delete();
     }
 
