@@ -7,6 +7,7 @@ use App\Http\Controllers\Owner\Auth\NewPasswordController;
 use App\Http\Controllers\Owner\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Owner\Auth\RegisteredOwnerController;
 use App\Http\Controllers\Owner\BookingController;
+use App\Http\Controllers\Owner\CalendarController;
 use App\Http\Controllers\Owner\CarController;
 use App\Http\Controllers\Owner\DriverController;
 use App\Http\Controllers\Owner\ProfileController;
@@ -78,5 +79,9 @@ Route::prefix('owner')->name('owner.')->group(function () {
         Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
         Route::post('/bookings/{id}/confirm', [BookingController::class, 'confirm'])->name('bookings.confirm');
         Route::post('/bookings/{id}/cancel', [BookingController::class, 'cancel'])->name('bookings.cancel');
+
+        // Owner Calendar Schedule
+        Route::get('/calendar/{carId?}', [CalendarController::class, 'index'])->name('calendar');
+        Route::get('/car-calendar/{carId?}', [CalendarController::class, 'index'])->name('car-calendar');
     });
 });

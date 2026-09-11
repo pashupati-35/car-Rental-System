@@ -68,8 +68,7 @@ const ownerNav = computed(() => [
   { title: 'Driver Roster', icon: 'ri-user-star-line', href: '/owner/drivers' },
   { title: 'Add New Car', icon: 'ri-add-circle-line', href: '/owner/cars/create' },
   { title: 'Rental Bookings', icon: 'ri-calendar-check-line', href: '/owner/bookings' },
-  { title: 'Calendar Schedule', icon: 'ri-calendar-line', href: '/car-calendar' },
-  { title: 'Public Showroom', icon: 'ri-store-2-line', href: '/cars' },
+  { title: 'Availability Calendar', icon: 'ri-calendar-line', href: '/owner/calendar' },
   { title: 'Owner Profile', icon: 'ri-user-settings-line', href: '/owner/profile' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/owner/security' },
 ])
@@ -97,11 +96,8 @@ const isActive = (href: string) => {
   if (href === '/owner/bookings') {
     return current.startsWith('/owner/bookings')
   }
-  if (href === '/cars') {
-    return current === '/cars'
-  }
-  if (href === '/car-calendar') {
-    return current.startsWith('/car-calendar')
+  if (href === '/owner/calendar') {
+    return current.startsWith('/owner/calendar') || current.startsWith('/owner/car-calendar')
   }
   
   return current.startsWith(href)
@@ -232,8 +228,8 @@ onUnmounted(() => {
             Bookings
           </Link>
           <Link
-            href="/car-calendar"
-            :class="isActive('/car-calendar') ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
+            href="/owner/calendar"
+            :class="isActive('/owner/calendar') ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 font-bold' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-semibold'"
             class="px-3.5 py-2 rounded-xl text-xs sm:text-[13px] transition-colors font-sans"
           >
             Calendar
@@ -437,7 +433,7 @@ onUnmounted(() => {
               <i class="ri-add-circle-line text-sm" /> Add Car
             </Link>
             <Link
-              href="/car-calendar"
+              href="/owner/calendar"
               class="text-center py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs sm:text-[13px] font-bold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 hover:text-emerald-600 transition-colors flex items-center justify-center gap-1.5"
               @click="isMobileDrawerOpen = false"
             >
