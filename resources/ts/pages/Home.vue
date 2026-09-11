@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { Head, Link } from '@inertiajs/vue3'
+import { Head, Link, usePage } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import Pagination from '@/components/Pagination.vue'
 import { resolveMediaUrl } from '@/utils/helpers'
@@ -8,6 +8,28 @@ import { resolveMediaUrl } from '@/utils/helpers'
 const props = defineProps<{
   featuredCars?: any
 }>()
+
+const page = usePage()
+const auth = computed(() => page.props.auth as any)
+const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
+
+const portalName = computed(() => {
+  if (auth.value?.admin) return 'Admin'
+  if (auth.value?.owner) return 'Fleet Owner'
+  if (auth.value?.customer) return 'Customer'
+  return 'User'
+})
+
+const portalDashboardUrl = computed(() => {
+  if (auth.value?.admin) {
+    const base = auth.value?.adminPortalUrl || ''
+    return base ? `${base}/admin/dashboard` : '/admin/dashboard'
+  }
+  if (auth.value?.owner) {
+    return '/owner/dashboard'
+  }
+  return '/customer/dashboard'
+})
 
 const carsList = computed<Array<any>>(() => {
   if (props.featuredCars && Array.isArray(props.featuredCars.data)) {
@@ -48,19 +70,48 @@ const getCarImage = (car: any) => {
         <p class="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed">
           Explore inspected fleet vehicles with certified drivers and direct owner transparency. Reserve dates seamlessly with zero double-booking overlap.
         </p>
-        <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div class="pt-4 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/cars"
-            class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 transition-all"
+            class="w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-xl shadow-blue-500/25 transition-all inline-flex items-center justify-center gap-2"
           >
-            Explore Available Cars &rarr;
+            <span>Explore Available Cars</span>
+            <i class="ri-arrow-right-line text-base" />
           </Link>
-          <Link
+
+          <a
             href="/customer/login"
-            class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white font-bold text-sm transition-all"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 font-bold text-sm shadow-sm hover:shadow-md transition-all inline-flex items-center justify-center gap-2"
           >
-            Customer Sign In
-          </Link>
+            <i class="ri-user-smile-line text-blue-600 dark:text-blue-400 text-base" />
+            <span>Customer Sign In</span>
+            <i class="ri-external-link-line text-xs opacity-60" />
+          </a>
+
+          <a
+            href="/owner/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold text-sm shadow-sm hover:shadow-md transition-all inline-flex items-center justify-center gap-2"
+          >
+            <i class="ri-car-line text-emerald-600 dark:text-emerald-400 text-base" />
+            <span>Fleet Owner Sign In</span>
+            <i class="ri-external-link-line text-xs opacity-60" />
+          </a>
+
+          <a
+            v-if="user"
+            :href="portalDashboardUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <i class="ri-dashboard-line text-base" />
+            <span>Active Dashboard ({{ portalName }})</span>
+            <i class="ri-external-link-line text-xs opacity-80" />
+          </a>
         </div>
       </div>
     </section>

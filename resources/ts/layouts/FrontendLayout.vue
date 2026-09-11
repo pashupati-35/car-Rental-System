@@ -36,6 +36,25 @@ const role = computed(() => {
   return 'User'
 })
 
+const portalName = computed(() => {
+  if (auth.value?.admin) return 'Admin'
+  if (auth.value?.owner) return 'Fleet Owner'
+  if (auth.value?.customer) return 'Customer'
+  
+  return 'User'
+})
+
+const portalDashboardUrl = computed(() => {
+  if (auth.value?.admin) {
+    const base = auth.value?.adminPortalUrl || ''
+    return base ? `${base}/admin/dashboard` : '/admin/dashboard'
+  }
+  if (auth.value?.owner) {
+    return '/owner/dashboard'
+  }
+  return '/customer/dashboard'
+})
+
 const rolePrefix = computed(() => {
   if (role.value === 'Admin') return 'admin'
   if (role.value === 'Owner') return 'owner'
@@ -61,10 +80,26 @@ const logout = () => {
   router.post(logoutRoute)
 }
 
+const showLoginMenu = ref(false)
+const showRegisterMenu = ref(false)
+
+const toggleLoginMenu = () => {
+  showLoginMenu.value = !showLoginMenu.value
+  if (showLoginMenu.value) showRegisterMenu.value = false
+}
+
+const toggleRegisterMenu = () => {
+  showRegisterMenu.value = !showRegisterMenu.value
+  if (showRegisterMenu.value) showLoginMenu.value = false
+}
+
 const handleClickOutside = (e: MouseEvent) => {
   const target = e.target as HTMLElement
-  if (!target.closest('#front-profile-dropdown')) {
-    showProfileMenu.value = false
+  if (!target.closest('#front-login-dropdown')) {
+    showLoginMenu.value = false
+  }
+  if (!target.closest('#front-register-dropdown')) {
+    showRegisterMenu.value = false
   }
 }
 
@@ -159,122 +194,165 @@ onUnmounted(() => {
               class="ri-moon-line text-slate-700 text-base"
             />
           </button>
-          <!-- When Logged In: Show Profile Dropdown & Dashboard link -->
-          <template v-if="user">
-            <Link
-              :href="'/' + rolePrefix + '/dashboard'"
-              class="hidden sm:inline-flex px-3.5 py-2 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 transition-colors"
+          <!-- Login / Sign In Choice Dropdown -->
+          <div
+            id="front-login-dropdown"
+            class="relative"
+          >
+            <button
+              type="button"
+              class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              @click="toggleLoginMenu"
             >
-              Dashboard &rarr;
-            </Link>
+              <i class="ri-login-box-line text-sm text-blue-600 dark:text-blue-400" />
+              <span>Sign In</span>
+              <i
+                class="ri-arrow-down-s-line text-xs transition-transform duration-200"
+                :class="{ 'rotate-180': showLoginMenu }"
+              />
+            </button>
 
-            <!-- Profile Dropdown Menu on Right Side -->
+            <!-- Dropdown Menu -->
             <div
-              id="front-profile-dropdown"
-              class="relative"
+              v-if="showLoginMenu"
+              class="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
             >
-              <button
-                type="button"
-                class="flex items-center gap-2 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:shadow-md transition-all"
-                style="padding-right: 0.75rem"
-                @click="showProfileMenu = !showProfileMenu"
-              >
-                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                  {{ displayName.charAt(0).toUpperCase() }}
-                </div>
-                <span class="text-xs font-bold text-gray-800 dark:text-white hidden sm:inline">{{ displayName }}</span>
-                <span class="w-2 h-2 rounded-full bg-emerald-500" />
-                <i
-                  class="ri-arrow-down-s-line text-gray-400 text-xs transition-transform"
-                  :class="showProfileMenu ? 'rotate-180' : ''"
-                />
-              </button>
-
-              <!-- Dropdown Card -->
-              <div
-                v-if="showProfileMenu"
-                class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl p-3 z-50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150"
-              >
-                <div class="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/60 text-center">
-                  <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center mx-auto mb-1.5 shadow-sm">
-                    {{ displayName.charAt(0).toUpperCase() }}
-                  </div>
-                  <div class="flex items-center justify-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span class="text-xs font-bold text-gray-900 dark:text-white">{{ displayName }}</span>
-                  </div>
-                  <span class="text-[11px] text-gray-500 block truncate">{{ userEmail }}</span>
-                  <span class="mt-1 inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                    {{ role }}
-                  </span>
-                </div>
-
-                <div class="space-y-1">
-                  <Link
-                    :href="'/' + rolePrefix + '/profile'"
-                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    @click="showProfileMenu = false"
-                  >
-                    <i class="ri-user-3-line text-sm text-gray-500" />
-                    <span>Manage profile</span>
-                  </Link>
-
-                  <Link
-                    :href="'/' + rolePrefix + '/profile'"
-                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    @click="showProfileMenu = false"
-                  >
-                    <i class="ri-shield-keyhole-line text-sm text-blue-600" />
-                    <span>Account security</span>
-                  </Link>
-
-                  <Link
-                    :href="'/' + rolePrefix + '/dashboard'"
-                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    @click="showProfileMenu = false"
-                  >
-                    <i class="ri-dashboard-line text-sm text-indigo-600" />
-                    <span>Dashboard</span>
-                  </Link>
-                </div>
-
-                <div class="pt-2 border-t border-gray-100 dark:border-gray-800">
-                  <button
-                    type="button"
-                    class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-rose-600 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 font-semibold text-xs transition-colors"
-                    @click="logout"
-                  >
-                    <span>Logout</span>
-                    <i class="ri-logout-box-r-line" />
-                  </button>
-                </div>
+              <div class="px-3.5 py-2 border-b border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                Choose Sign In Portal
               </div>
+
+              <!-- Customer Login -->
+              <a
+                href="/customer/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-start gap-3 px-3.5 py-2.5 hover:bg-blue-50/60 dark:hover:bg-blue-950/30 transition-colors group cursor-pointer"
+                @click="showLoginMenu = false"
+              >
+                <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <i class="ri-user-line text-base" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 flex items-center justify-between">
+                    <span>Customer Login</span>
+                    <i class="ri-external-link-line text-xs opacity-60" />
+                  </div>
+                  <div class="text-[11px] text-gray-500 truncate">Book vehicles & view bookings</div>
+                </div>
+              </a>
+
+              <!-- Owner Login -->
+              <a
+                href="/owner/login"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-start gap-3 px-3.5 py-2.5 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 transition-colors group cursor-pointer"
+                @click="showLoginMenu = false"
+              >
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <i class="ri-car-line text-base" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center justify-between">
+                    <span>Fleet Owner Partner</span>
+                    <i class="ri-external-link-line text-xs opacity-60" />
+                  </div>
+                  <div class="text-[11px] text-gray-500 truncate">Manage fleet cars & earnings</div>
+                </div>
+              </a>            
             </div>
-          </template>
+          </div>
 
-          <!-- When Guest: Show Login and Register -->
-          <template v-else>
-            <Link
-              href="/customer/login"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5"
+          <!-- Register Choice Dropdown -->
+          <div
+            id="front-register-dropdown"
+            class="relative"
+          >
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              @click="toggleRegisterMenu"
             >
-              <i class="ri-login-box-line text-sm text-blue-600" />
-              <span>Login</span>
-            </Link>
+              <span>Register</span>
+              <i
+                class="ri-arrow-down-s-line text-xs transition-transform duration-200"
+                :class="{ 'rotate-180': showRegisterMenu }"
+              />
+            </button>
 
-            <Link
-              href="/customer/register"
-              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all inline-block"
+            <!-- Dropdown Menu -->
+            <div
+              v-if="showRegisterMenu"
+              class="absolute right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
             >
-              Register
-            </Link>
+              <div class="px-3.5 py-2 border-b border-gray-100 dark:border-gray-800 text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                Create An Account
+              </div>
 
-            <Link
-              href="/owner/login"
-              class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-bold hover:bg-emerald-100 transition-colors"
+              <!-- Customer Register -->
+              <a
+                href="/customer/register"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-start gap-3 px-3.5 py-2.5 hover:bg-blue-50/60 dark:hover:bg-blue-950/30 transition-colors group cursor-pointer"
+                @click="showRegisterMenu = false"
+              >
+                <div class="w-8 h-8 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <i class="ri-user-add-line text-base" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 flex items-center justify-between">
+                    <span>Customer Account</span>
+                    <i class="ri-external-link-line text-xs opacity-60" />
+                  </div>
+                  <div class="text-[11px] text-gray-500 truncate">Book vehicles & special discounts</div>
+                </div>
+              </a>
+
+              <!-- Owner Register -->
+              <a
+                href="/owner/register"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex items-start gap-3 px-3.5 py-2.5 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 transition-colors group cursor-pointer border-t border-gray-50 dark:border-gray-800"
+                @click="showRegisterMenu = false"
+              >
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <i class="ri-car-add-line text-base" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 flex items-center justify-between">
+                    <span>Fleet Owner Partner</span>
+                    <i class="ri-external-link-line text-xs opacity-60" />
+                  </div>
+                  <div class="text-[11px] text-gray-500 truncate">Earn revenue listing your vehicles</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- Active Portal Shortcut & Logout (if user is logged in) -->
+          <template v-if="user">
+            <a
+              :href="portalDashboardUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hidden sm:inline-flex px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-bold hover:bg-blue-100 transition-colors items-center gap-1.5"
+              :title="'Go to ' + portalName + ' Dashboard'"
             >
-              Fleet Owner Portal
-            </Link>
+              <i class="ri-dashboard-line text-xs" />
+              <span>{{ portalName }}</span>
+              <i class="ri-external-link-line text-[10px] opacity-70" />
+            </a>
+
+            <button
+              type="button"
+              class="p-2 rounded-xl text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-semibold transition-colors cursor-pointer"
+              title="Sign Out"
+              @click="logout"
+            >
+              <i class="ri-logout-box-r-line text-base" />
+            </button>
           </template>
         </div>
       </div>
