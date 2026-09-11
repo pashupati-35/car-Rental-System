@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Owner\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Owner\Profile\UpdateProfileRequest;
 use App\Http\Requests\Owner\Profile\UpdateThemeStyleRequest;
+use App\Http\Resources\OwnerResource;
 use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,16 +25,17 @@ class ProfileController extends Controller
     {
         $ownerId = Auth::guard('owner')->id();
         $owner = $this->ownerService->getOwnerProfile($ownerId);
+        $ownerResource = $owner ? (new OwnerResource($owner))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $owner,
+                'user' => $ownerResource,
             ]);
         }
 
         return Inertia::render('owner/Profile', [
-            'user' => $owner,
+            'user' => $ownerResource,
         ]);
     }
 
@@ -44,16 +46,17 @@ class ProfileController extends Controller
     {
         $ownerId = Auth::guard('owner')->id();
         $owner = $this->ownerService->getOwnerProfile($ownerId);
+        $ownerResource = $owner ? (new OwnerResource($owner))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $owner,
+                'user' => $ownerResource,
             ]);
         }
 
         return Inertia::render('owner/Security', [
-            'user' => $owner,
+            'user' => $ownerResource,
         ]);
     }
 
@@ -66,12 +69,13 @@ class ProfileController extends Controller
         $validated = $request->validated();
 
         $owner = $this->ownerService->updateOwnerProfile($ownerId, $validated, $request->file('image'));
+        $ownerResource = (new OwnerResource($owner))->resolve();
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
                 'message' => 'Fleet Owner profile updated successfully.',
-                'user' => $owner,
+                'user' => $ownerResource,
             ]);
         }
 

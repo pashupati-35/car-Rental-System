@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Profile\UpdateCustomerPasswordRequest;
 use App\Http\Requests\Customer\Profile\UpdateCustomerProfileRequest;
+use App\Http\Resources\CustomerResource;
 use App\Services\CustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,16 +24,17 @@ class ProfileController extends Controller
     {
         $customerId = Auth::guard('customer')->id();
         $customer = $this->customerService->getCustomerProfile($customerId);
+        $customerResource = $customer ? (new CustomerResource($customer))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $customer,
+                'user' => $customerResource,
             ]);
         }
 
         return Inertia::render('customer/Profile', [
-            'user' => $customer,
+            'user' => $customerResource,
         ]);
     }
 
@@ -43,16 +45,17 @@ class ProfileController extends Controller
     {
         $customerId = Auth::guard('customer')->id();
         $customer = $this->customerService->getCustomerProfile($customerId);
+        $customerResource = $customer ? (new CustomerResource($customer))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $customer,
+                'user' => $customerResource,
             ]);
         }
 
         return Inertia::render('customer/Security', [
-            'user' => $customer,
+            'user' => $customerResource,
         ]);
     }
 
@@ -70,16 +73,35 @@ class ProfileController extends Controller
             $request->file('image'),
             $request->boolean('remove_image')
         );
+        $customerResource = (new CustomerResource($customer))->resolve();
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
                 'message' => 'Profile updated successfully.',
-                'user' => $customer,
+                'user' => $customerResource,
             ]);
         }
 
         return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Update the customer's preferred theme style.
+     */
+    public function updateThemeStyle(Request $request)
+    {
+        $request->validate([
+            'theme_style' => 'required|string|in:light,dark,midnight,system',
+        ]);
+
+        $customerId = Auth::guard('customer')->id();
+        $themeStyle = $this->customerService->updateCustomerThemeStyle($customerId, $request->input('theme_style'));
+
+        return response()->json([
+            'status' => 'OK',
+            'theme_style' => $themeStyle,
+        ]);
     }
 
     /**

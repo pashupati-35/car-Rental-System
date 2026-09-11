@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Link, usePage } from '@inertiajs/vue3'
+import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
+const { logoUrl, companyName } = useSiteSettings()
 const isPortal = computed(() => Boolean(page.props.isPortal))
 const mainAppUrl = computed(() => {
   const url = (page.props.mainAppUrl as string) || ''
@@ -114,7 +116,16 @@ const browseUrl = computed(() => isPortal.value ? `${mainAppUrl.value}/cars` : '
         :href="homeUrl"
         class="inline-flex items-center gap-3 group"
       >
-        <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform">
+        <img
+          v-if="logoUrl"
+          :src="logoUrl"
+          :alt="companyName"
+          class="h-12 max-w-[200px] object-contain group-hover:scale-105 transition-transform"
+        />
+        <div
+          v-else
+          class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform"
+        >
           CR
         </div>
       </a>
@@ -123,7 +134,16 @@ const browseUrl = computed(() => isPortal.value ? `${mainAppUrl.value}/cars` : '
         href="/"
         class="inline-flex items-center gap-3 group"
       >
-        <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform">
+        <img
+          v-if="logoUrl"
+          :src="logoUrl"
+          :alt="companyName"
+          class="h-12 max-w-[200px] object-contain group-hover:scale-105 transition-transform"
+        />
+        <div
+          v-else
+          class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-blue-500/30 group-hover:scale-105 transition-transform"
+        >
           CR
         </div>
       </Link>
@@ -134,7 +154,7 @@ const browseUrl = computed(() => isPortal.value ? `${mainAppUrl.value}/cars` : '
       </h2>
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
         <slot name="subtitle">
-          Car Rental & Fleet Management System
+          {{ companyName }} Fleet Management System
         </slot>
       </p>
     </div>

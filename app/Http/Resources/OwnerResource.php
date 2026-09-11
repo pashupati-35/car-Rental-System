@@ -49,6 +49,7 @@ class OwnerResource extends JsonResource
             'admin_id' => $this->admin_id,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'image_url' => is_array($this->image_path) ? ($this->image_path['original'] ?? null) : (is_string($this->image_path) ? $this->image_path : ($this->image ? (str_starts_with($this->image, 'http') ? $this->image : asset($this->image)) : null)),
             'file_path' => $this->file_path ?? $this->image_path,
             'cars_count' => $this->cars_count,
             'drivers_count' => $this->drivers_count,

@@ -199,13 +199,23 @@ if (! function_exists('siteAssetFromSetting')) {
 if (! function_exists('getFavIcon')) {
     function getFavIcon(): string
     {
-        return siteAssetFromSetting('fav_icon', 'fav_icon_path', 'front/img/fav.png');
+        $setting = getSiteSetting();
+        if ($setting?->fav_icon && ! empty($setting->fav_icon_path['original'])) {
+            return $setting->fav_icon_path['original'];
+        }
+
+        return asset('favicon.ico');
     }
 }
 
 if (! function_exists('getLogo')) {
     function getLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->logo && ! empty($setting->logo_path['original'])) {
+            return $setting->logo_path['original'];
+        }
+
         return siteAssetFromSetting('logo', 'logo_path', 'front/img/logo.png');
     }
 }
@@ -213,6 +223,11 @@ if (! function_exists('getLogo')) {
 if (! function_exists('getFooterLogo')) {
     function getFooterLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->footer_logo && ! empty($setting->footer_logo_path['original'])) {
+            return $setting->footer_logo_path['original'];
+        }
+
         return siteAssetFromSetting('footer_logo', 'footer_logo_path', 'front/img/logo_footer.png');
     }
 }
@@ -220,6 +235,11 @@ if (! function_exists('getFooterLogo')) {
 if (! function_exists('getAppLogo')) {
     function getAppLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->app_logo && ! empty($setting->app_logo_path['original'])) {
+            return $setting->app_logo_path['original'];
+        }
+
         return siteAssetFromSetting('app_logo', 'app_logo_path', 'front/img/logo.png');
     }
 }
@@ -256,29 +276,58 @@ if (! function_exists('getLoginBackground')) {
 if (! function_exists('getSiteSettingLogos')) {
     /**
      * @return array{
-     *     logo:string,
-     *     favicon:string,
-     *     app_logo:string,
-     *     footer_logo:string,
+     *     logo:string|null,
+     *     favicon:string|null,
+     *     app_logo:string|null,
+     *     footer_logo:string|null,
      *     login_bg_image:string|null,
-     *     company_name:string|null,
-     *     slogan:string|null
+     *     company_name:string,
+     *     slogan:string|null,
+     *     tagline:string|null,
+     *     primary_color:string|null,
+     *     secondary_color:string|null
      * }
      */
     function getSiteSettingLogos(): array
     {
         $setting = getSiteSetting();
 
+        $logo = null;
+        if ($setting?->logo && ! empty($setting->logo_path['original'])) {
+            $logo = $setting->logo_path['original'];
+        }
+
+        $favicon = null;
+        if ($setting?->fav_icon && ! empty($setting->fav_icon_path['original'])) {
+            $favicon = $setting->fav_icon_path['original'];
+        }
+
+        $appLogo = null;
+        if ($setting?->app_logo && ! empty($setting->app_logo_path['original'])) {
+            $appLogo = $setting->app_logo_path['original'];
+        }
+
+        $footerLogo = null;
+        if ($setting?->footer_logo && ! empty($setting->footer_logo_path['original'])) {
+            $footerLogo = $setting->footer_logo_path['original'];
+        }
+
+        $loginBgImage = null;
+        if ($setting?->login_bg_image && ! empty($setting->login_bg_path['original'])) {
+            $loginBgImage = $setting->login_bg_path['original'];
+        }
+
         return [
-            'logo' => $setting?->logo_path['original'] ?? asset('front/img/logo.png'),
-            'favicon' => $setting?->fav_icon_path['original'] ?? asset('front/img/fav.png'),
-            'app_logo' => $setting?->app_logo_path['original'] ?? asset('front/img/logo.png'),
-            'footer_logo' => $setting?->footer_logo_path['original'] ?? asset('front/img/logo_footer.png'),
-            'login_bg_image' => filled($setting?->login_bg_image)
-                ? siteAssetFromSetting('login_bg_image', 'login_bg_image_path', '')
-                : null,
-            'company_name' => $setting?->company_name,
+            'logo' => $logo,
+            'favicon' => $favicon,
+            'app_logo' => $appLogo,
+            'footer_logo' => $footerLogo,
+            'login_bg_image' => $loginBgImage,
+            'company_name' => $setting?->company_name ?: config('app.name', 'Car Rental System'),
             'slogan' => $setting?->slogan,
+            'tagline' => $setting?->tagline,
+            'primary_color' => $setting?->primary_color,
+            'secondary_color' => $setting?->secondary_color,
         ];
     }
 }

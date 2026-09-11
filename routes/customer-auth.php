@@ -46,6 +46,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // Authenticated Customer routes
     Route::middleware('auth:customer')->group(function () {
         Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
+        Route::post('/theme-style', [ProfileController::class, 'updateThemeStyle'])->name('theme-style');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('/security', [ProfileController::class, 'security'])->name('security');

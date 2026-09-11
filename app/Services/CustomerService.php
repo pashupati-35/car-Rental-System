@@ -138,6 +138,15 @@ class CustomerService
         return $customer->save();
     }
 
+    public function updateCustomerThemeStyle(int $customerId, string $themeStyle): string
+    {
+        $customer = $this->customerRepository->getCustomerDetails($customerId);
+        $customer->theme_style = $themeStyle;
+        $customer->save();
+
+        return $customer->theme_style;
+    }
+
     public function deleteCustomerAccount(int $customerId): bool
     {
         return $this->deleteCustomer($customerId);

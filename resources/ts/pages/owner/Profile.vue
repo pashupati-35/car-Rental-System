@@ -39,10 +39,26 @@ const profileForm = ref({
   contact_relationship: authUser.value?.contact_relationship || '',
 })
 
-const currentImage = ref(authUser.value?.image ? (authUser.value.image.startsWith('http') ? authUser.value.image : '/' + authUser.value.image) : (authUser.value?.image_path || ''))
+const resolveImageUrl = (userObj: any) => {
+  if (!userObj) return ''
+  if (userObj.image_url) return userObj.image_url
+  if (typeof userObj.image_path === 'string') return userObj.image_path
+  if (userObj.image_path?.original) return userObj.image_path.original
+  if (userObj.image) {
+    return userObj.image.startsWith('http') ? userObj.image : '/' + userObj.image.replace(/^\/+/, '')
+  }
+  return ''
+}
+
+const currentImage = ref(resolveImageUrl(authUser.value))
 const imageFile = ref<File | null>(null)
 const imagePreview = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+const imageLoadError = ref(false)
+
+const onImageError = () => {
+  imageLoadError.value = true
+}
 
 const handleImageChange = (e: Event) => {
   const target = e.target as HTMLInputElement
@@ -50,6 +66,7 @@ const handleImageChange = (e: Event) => {
     const file = target.files[0]
     imageFile.value = file
     imagePreview.value = URL.createObjectURL(file)
+    imageLoadError.value = false
   }
 }
 
@@ -86,12 +103,14 @@ const updateProfile = async () => {
 
     if (res.data?.status === 'OK' || res.status === 200) {
       profileMsg.value = 'Fleet Owner profile updated successfully.'
-      if (res.data?.user?.image) {
-        currentImage.value = '/' + res.data.user.image
+      if (res.data?.user) {
+        currentImage.value = resolveImageUrl(res.data.user)
         imagePreview.value = null
-      }
-      if (res.data?.user?.full_name) {
-        profileForm.value.full_name = res.data.user.full_name
+        imageFile.value = null
+        imageLoadError.value = false
+        if (res.data.user.full_name) {
+          profileForm.value.full_name = res.data.user.full_name
+        }
       }
     }
   } catch (err: any) {
@@ -202,10 +221,11 @@ const themeOptions: { value: OwnerThemeStyle; label: string; desc: string; icon:
             <div class="relative group shrink-0">
               <div class="w-24 h-24 rounded-3xl overflow-hidden bg-gradient-to-tr from-emerald-600 to-teal-600 text-white font-black text-3xl flex items-center justify-center shadow-lg shadow-emerald-600/20 border-2 border-emerald-500/30">
                 <img
-                  v-if="imagePreview || currentImage"
+                  v-if="(imagePreview || currentImage) && !imageLoadError"
                   :src="imagePreview || currentImage"
                   alt="Owner Avatar"
                   class="w-full h-full object-cover"
+                  @error="onImageError"
                 >
                 <span v-else>
                   {{ (profileForm.full_name || profileForm.first_name || 'O')[0].toUpperCase() }}

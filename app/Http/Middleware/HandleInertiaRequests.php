@@ -56,10 +56,16 @@ class HandleInertiaRequests extends Middleware
             'adminPortalUrl' => $adminPortalBaseUrl,
             'mainAppUrl' => $mainAppBaseUrl,
             'auth' => [
-                'admin' => fn () => $request->user('admin'),
-                'owner' => fn () => $request->user('owner'),
-                'customer' => fn () => $request->user('customer'),
-                'user' => fn () => $request->user('admin') ?? $request->user('owner') ?? $request->user('customer'),
+                'admin' => fn () => $request->user('admin') ? (new \App\Http\Resources\AdminResource($request->user('admin')))->resolve() : null,
+                'owner' => fn () => $request->user('owner') ? (new \App\Http\Resources\OwnerResource($request->user('owner')))->resolve() : null,
+                'customer' => fn () => $request->user('customer') ? (new \App\Http\Resources\CustomerResource($request->user('customer')))->resolve() : null,
+                'user' => fn () => $request->user('admin')
+                    ? (new \App\Http\Resources\AdminResource($request->user('admin')))->resolve()
+                    : ($request->user('owner')
+                        ? (new \App\Http\Resources\OwnerResource($request->user('owner')))->resolve()
+                        : ($request->user('customer')
+                            ? (new \App\Http\Resources\CustomerResource($request->user('customer')))->resolve()
+                            : null)),
                 'isImpersonating' => fn () => (bool) ($request->session()->get('admin_impersonating') || ($request->user('admin') && ($request->user('owner') || $request->user('customer')))),
                 'adminPortalUrl' => $adminPortalBaseUrl,
                 'mainAppUrl' => $mainAppBaseUrl,
@@ -69,7 +75,8 @@ class HandleInertiaRequests extends Middleware
                 'error' => fn () => $request->session()->get('error'),
                 'message' => fn () => $request->session()->get('message'),
             ],
-            'appName' => config('app.name', 'Car Rental System'),
+            'appName' => fn () => getSiteSetting()?->company_name ?: config('app.name', 'Car Rental System'),
+            'siteSettings' => fn () => getSiteSettingLogos(),
             'adminCounts' => fn () => $request->user('admin') ? AdminCountCacheService::getSharedCounts() : null,
         ]);
     }

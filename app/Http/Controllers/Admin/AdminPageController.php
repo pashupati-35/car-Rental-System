@@ -274,7 +274,7 @@ class AdminPageController extends Controller
         $admin = Auth::guard('admin')->user();
 
         return Inertia::render('admin/Profile', [
-            'user' => $admin,
+            'user' => $admin ? (new \App\Http\Resources\AdminResource($admin))->resolve() : null,
         ]);
     }
 
@@ -283,7 +283,7 @@ class AdminPageController extends Controller
         $admin = Auth::guard('admin')->user();
 
         return Inertia::render('admin/Security', [
-            'user' => $admin,
+            'user' => $admin ? (new \App\Http\Resources\AdminResource($admin))->resolve() : null,
         ]);
     }
 

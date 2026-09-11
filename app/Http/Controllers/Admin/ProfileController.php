@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Requests\Admin\Profile\UpdateProfileRequest;
+use App\Http\Resources\AdminResource;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,16 +19,17 @@ class ProfileController extends Controller
     public function edit(Request $request)
     {
         $admin = Auth::guard('admin')->user();
+        $adminResource = $admin ? (new AdminResource($admin))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $admin,
+                'user' => $adminResource,
             ]);
         }
 
         return Inertia::render('admin/Profile', [
-            'user' => $admin,
+            'user' => $adminResource,
         ]);
     }
 
@@ -36,43 +39,57 @@ class ProfileController extends Controller
     public function security(Request $request)
     {
         $admin = Auth::guard('admin')->user();
+        $adminResource = $admin ? (new AdminResource($admin))->resolve() : null;
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'user' => $admin,
+                'user' => $adminResource,
             ]);
         }
 
         return Inertia::render('admin/Security', [
-            'user' => $admin,
+            'user' => $adminResource,
         ]);
     }
 
     /**
      * Update the admin's profile information.
      */
-    public function update(Request $request)
+    public function update(UpdateProfileRequest $request)
     {
         $admin = Auth::guard('admin')->user();
+        $data = $request->validated();
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:admins,email,'.$admin->id,
-            'contact_number' => 'nullable|string|max:25',
-            'address' => 'nullable|string|max:255',
-            'designation' => 'nullable|string|max:100',
-            'avatar' => 'nullable|string',
-            'theme_style' => 'nullable|string|in:light,dark,midnight,system',
-        ]);
+        if ($request->hasFile('image') && $request->file('image')->isValid()) {
+            $image = $request->file('image');
+            $fileName = time().'_admin_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/admin'), $fileName);
+            $data['image'] = 'uploads/admin/'.$fileName;
+            $data['avatar'] = 'uploads/admin/'.$fileName;
+        }
 
-        $admin->update($validated);
+        if (empty($data['name']) && (! empty($data['first_name']) || ! empty($data['last_name']))) {
+            $data['name'] = trim(($data['first_name'] ?? '').' '.($data['middle_name'] ?? '').' '.($data['last_name'] ?? ''));
+        }
+
+        if (empty($data['contact_number']) && ! empty($data['mobile'])) {
+            $data['contact_number'] = $data['mobile'];
+        }
+
+        if (empty($data['date_of_birth'])) {
+            $data['date_of_birth'] = null;
+        }
+
+        $admin->update($data);
+        $admin = $admin->fresh();
+        $adminResource = (new AdminResource($admin))->resolve();
 
         if ($request->wantsJson()) {
             return response()->json([
                 'status' => 'OK',
-                'message' => 'Profile details updated successfully.',
-                'user' => $admin,
+                'message' => 'Admin profile details updated successfully.',
+                'user' => $adminResource,
             ]);
         }
 

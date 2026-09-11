@@ -233,6 +233,7 @@ declare global {
   const useCssVar: typeof import('@vueuse/core').useCssVar
   const useCssVars: typeof import('vue').useCssVars
   const useCurrentElement: typeof import('@vueuse/core').useCurrentElement
+  const useCustomerTheme: typeof import('./resources/ts/composable/useCustomerTheme').useCustomerTheme
   const useCycleList: typeof import('@vueuse/core').useCycleList
   const useDark: typeof import('@vueuse/core').useDark
   const useDashboardTheme: typeof import('./resources/ts/composable/useDashboardTheme').useDashboardTheme
@@ -339,6 +340,7 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core').useScrollLock
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
   const useShare: typeof import('@vueuse/core').useShare
+  const useSiteSettings: typeof import('./resources/ts/composable/useSiteSettings').useSiteSettings
   const useSlots: typeof import('vue').useSlots
   const useSorted: typeof import('@vueuse/core').useSorted
   const useSpeechRecognition: typeof import('@vueuse/core').useSpeechRecognition
@@ -414,6 +416,9 @@ declare global {
   export type { CookieOptions, CookieRef } from './resources/ts/composable/useCookie'
   import('./resources/ts/composable/useCookie')
   // @ts-ignore
+  export type { CustomerThemeStyle } from './resources/ts/composable/useCustomerTheme'
+  import('./resources/ts/composable/useCustomerTheme')
+  // @ts-ignore
   export type { ThemeMode } from './resources/ts/composable/useDashboardTheme'
   import('./resources/ts/composable/useDashboardTheme')
   // @ts-ignore
@@ -425,6 +430,9 @@ declare global {
   // @ts-ignore
   export type { OwnerThemeStyle } from './resources/ts/composable/useOwnerTheme'
   import('./resources/ts/composable/useOwnerTheme')
+  // @ts-ignore
+  export type { SiteSettings } from './resources/ts/composable/useSiteSettings'
+  import('./resources/ts/composable/useSiteSettings')
   // @ts-ignore
   export type { CalendarEvent, EventRange } from './resources/ts/utils/calendarEvents'
   import('./resources/ts/utils/calendarEvents')
@@ -655,6 +663,7 @@ declare module 'vue' {
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useCurrentElement: UnwrapRef<typeof import('@vueuse/core')['useCurrentElement']>
+    readonly useCustomerTheme: UnwrapRef<typeof import('./resources/ts/composable/useCustomerTheme')['useCustomerTheme']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
     readonly useDashboardTheme: UnwrapRef<typeof import('./resources/ts/composable/useDashboardTheme')['useDashboardTheme']>
@@ -754,6 +763,7 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
+    readonly useSiteSettings: UnwrapRef<typeof import('./resources/ts/composable/useSiteSettings')['useSiteSettings']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>

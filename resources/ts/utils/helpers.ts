@@ -43,6 +43,16 @@ export const cookieRef = <T>(key: string, defaultValue: T) => {
  * Handles objects { original, thumb }, relative paths, uploads, storage, and full URLs.
  */
 export const resolveMediaUrl = (image?: any, imagePath?: any, defaultFolder = ''): string => {
+  if (!image && !imagePath) return ''
+
+  // If passed an entire model / resource object as first argument
+  if (image && typeof image === 'object' && ('image_url' in image || 'image_path' in image || 'avatar_url' in image)) {
+    const candidate = image.image_url || image.avatar_url || image.image_path || image.image || image.avatar
+    if (candidate && candidate !== image) {
+      return resolveMediaUrl(candidate, null, defaultFolder)
+    }
+  }
+
   // 1. Check imagePath object
   if (imagePath && typeof imagePath === 'object') {
     if (typeof imagePath.original === 'string' && imagePath.original.trim()) {
@@ -50,6 +60,9 @@ export const resolveMediaUrl = (image?: any, imagePath?: any, defaultFolder = ''
     }
     if (typeof imagePath.thumb === 'string' && imagePath.thumb.trim()) {
       return resolveMediaUrl(imagePath.thumb, null, defaultFolder)
+    }
+    if (typeof imagePath.image_url === 'string' && imagePath.image_url.trim()) {
+      return resolveMediaUrl(imagePath.image_url, null, defaultFolder)
     }
   }
 
@@ -74,6 +87,9 @@ export const resolveMediaUrl = (image?: any, imagePath?: any, defaultFolder = ''
     }
     if (typeof image.thumb === 'string' && image.thumb.trim()) {
       return resolveMediaUrl(image.thumb, null, defaultFolder)
+    }
+    if (typeof image.image_url === 'string' && image.image_url.trim()) {
+      return resolveMediaUrl(image.image_url, null, defaultFolder)
     }
   }
 

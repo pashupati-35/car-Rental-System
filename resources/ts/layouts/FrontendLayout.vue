@@ -3,9 +3,11 @@ import { Link, usePage, router } from '@inertiajs/vue3'
 import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
 import MessageBox from '@/components/MessageBox.vue'
 import { useFrontendTheme } from '@/composable/useFrontendTheme'
+import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
 const { theme, toggleTheme, initTheme } = useFrontendTheme()
+const { logoUrl, footerLogoUrl, companyName } = useSiteSettings()
 const auth = computed(() => page.props.auth as any)
 const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
 const showProfileMenu = ref(false)
@@ -95,10 +97,18 @@ onUnmounted(() => {
           href="/"
           class="flex items-center gap-2.5"
         >
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
-            CR
-          </div>
-          <span class="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">Car Rental</span>
+          <img
+            v-if="logoUrl"
+            :src="logoUrl"
+            :alt="companyName"
+            class="h-9 max-w-[150px] object-contain"
+          />
+          <template v-else>
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
+              CR
+            </div>
+            <span class="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">{{ companyName }}</span>
+          </template>
         </Link>
 
         <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -296,10 +306,18 @@ onUnmounted(() => {
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-gray-800">
           <div class="space-y-3">
             <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                CR
-              </div>
-              <span class="font-extrabold text-lg text-white">Car Rental Fleet</span>
+              <img
+                v-if="footerLogoUrl"
+                :src="footerLogoUrl"
+                :alt="companyName"
+                class="h-8 max-w-[140px] object-contain"
+              />
+              <template v-else>
+                <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                  CR
+                </div>
+                <span class="font-extrabold text-lg text-white">{{ companyName }}</span>
+              </template>
             </div>
             <p class="text-xs text-gray-400 leading-relaxed">
               Premium car rental marketplace with zero-overlap calendar booking, dedicated chauffeur rosters, and instant verification.

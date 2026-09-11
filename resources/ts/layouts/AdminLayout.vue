@@ -3,9 +3,11 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
 import MessageBox from '@/components/MessageBox.vue'
 import { useAdminTheme, type AdminThemeStyle } from '@/composable/useAdminTheme'
+import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
 const { theme, setTheme, initTheme } = useAdminTheme()
+const { logoUrl, companyName } = useSiteSettings()
 
 const isMobileDrawerOpen = ref(false)
 const showProfileMenu = ref(false)
@@ -215,12 +217,20 @@ onUnmounted(() => {
             href="/admin/dashboard"
             class="flex items-center gap-2.5 group"
           >
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-              CR
-            </div>
-            <span class="font-black text-lg tracking-tight text-slate-900 dark:text-white hidden sm:inline font-sans">
-              Car Rental
-            </span>
+            <img
+              v-if="logoUrl"
+              :src="logoUrl"
+              :alt="companyName"
+              class="h-9 max-w-[140px] sm:max-w-[180px] object-contain group-hover:scale-105 transition-transform"
+            />
+            <template v-else>
+              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                CR
+              </div>
+              <span class="font-black text-lg tracking-tight text-slate-900 dark:text-white hidden sm:inline font-sans">
+                {{ companyName }}
+              </span>
+            </template>
           </Link>
 
           <span class="bg-indigo-50 text-indigo-700 border border-indigo-200/80 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800 text-[11px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider shrink-0 font-sans">
@@ -371,8 +381,15 @@ onUnmounted(() => {
               class="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer"
               @click="showProfileMenu = !showProfileMenu; showCmsMenu = false; showThemeMenu = false"
             >
-              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-indigo-800 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                {{ (displayName || 'A')[0].toUpperCase() }}
+              <div class="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-indigo-800 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                <img
+                  v-if="admin?.image_url || admin?.image_path?.original || (typeof admin?.image_path === 'string' && admin?.image_path)"
+                  :src="admin?.image_url || admin?.image_path?.original || admin?.image_path"
+                  class="w-full h-full object-cover"
+                  alt="Admin"
+                  @error="(e: any) => (e.target.style.display = 'none')"
+                >
+                <span>{{ (displayName || 'A')[0].toUpperCase() }}</span>
               </div>
               <div
                 class="text-left hidden lg:block"
@@ -466,13 +483,21 @@ onUnmounted(() => {
           <!-- Drawer Header -->
           <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 text-white font-black flex items-center justify-center text-base shadow-md">
-                CR
-              </div>
-              <div>
-                <span class="font-black text-base text-slate-900 dark:text-white block">Car Rental</span>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Admin Control Hub</span>
-              </div>
+              <img
+                v-if="logoUrl"
+                :src="logoUrl"
+                :alt="companyName"
+                class="h-9 max-w-[140px] object-contain"
+              />
+              <template v-else>
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 text-white font-black flex items-center justify-center text-base shadow-md">
+                  CR
+                </div>
+                <div>
+                  <span class="font-black text-base text-slate-900 dark:text-white block">{{ companyName }}</span>
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Admin Control Hub</span>
+                </div>
+              </template>
             </div>
             <button
               class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
@@ -603,17 +628,25 @@ onUnmounted(() => {
         <div class="space-y-4 flex-1 flex flex-col min-h-0">
           <!-- Sidebar Brand Header (Image reference: Icon + Bold Title) -->
           <div class="flex items-center gap-3 px-1 py-1 pb-3 border-b border-slate-200/80 dark:border-slate-800/80">
-            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 shrink-0">
-              <i class="ri-steering-2-line text-xl" />
-            </div>
-            <div class="flex flex-col min-w-0">
-              <span class="font-black text-base tracking-wider text-slate-900 dark:text-white uppercase truncate font-sans">
-                Car Rental
-              </span>
-              <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
-                Admin Panel
-              </span>
-            </div>
+            <img
+              v-if="logoUrl"
+              :src="logoUrl"
+              :alt="companyName"
+              class="h-9 max-w-[140px] object-contain"
+            />
+            <template v-else>
+              <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 shrink-0">
+                <i class="ri-steering-2-line text-xl" />
+              </div>
+              <div class="flex flex-col min-w-0">
+                <span class="font-black text-base tracking-wider text-slate-900 dark:text-white uppercase truncate font-sans">
+                  {{ companyName }}
+                </span>
+                <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">
+                  Admin Panel
+                </span>
+              </div>
+            </template>
           </div>
 
           <!-- Main Nav List (Matching screenshot pill items) -->
@@ -693,8 +726,15 @@ onUnmounted(() => {
           >
             <div class="flex items-center gap-3 min-w-0">
               <div class="relative shrink-0">
-                <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-slate-800">
-                  {{ (displayName || 'A')[0].toUpperCase() }}
+                <div class="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-tr from-indigo-600 via-blue-600 to-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-slate-800">
+                  <img
+                    v-if="admin?.image_url || admin?.image_path?.original || (typeof admin?.image_path === 'string' && admin?.image_path)"
+                    :src="admin?.image_url || admin?.image_path?.original || admin?.image_path"
+                    class="w-full h-full object-cover"
+                    alt="Admin"
+                    @error="(e: any) => (e.target.style.display = 'none')"
+                  >
+                  <span>{{ (displayName || 'A')[0].toUpperCase() }}</span>
                 </div>
                 <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-slate-100 dark:ring-slate-900" />
               </div>

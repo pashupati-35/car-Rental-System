@@ -84,6 +84,7 @@ class SiteSettingService extends Service
         $safeData = array_intersect_key($data, array_flip($fillable));
 
         $result = $this->settingRepo->update($setting->id, $safeData);
+        \Illuminate\Support\Facades\Cache::forget('site-setting:model');
         AdminCountCacheService::clear();
 
         return $result;

@@ -209,6 +209,7 @@ const updateProfile = async () => {
                   :src="imagePreviewUrl"
                   class="w-full h-full object-cover"
                   alt="Customer Avatar"
+                  @error="imagePreviewUrl = ''"
                 >
                 <span v-else>{{ (profileForm.first_name || profileForm.name || 'C')[0].toUpperCase() }}</span>
               </div>
