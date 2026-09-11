@@ -78,7 +78,6 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Auth::guard('owner')->logout();
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         if ($request->wantsJson()) {

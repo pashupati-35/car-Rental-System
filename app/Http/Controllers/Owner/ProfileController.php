@@ -124,7 +124,6 @@ class ProfileController extends Controller
 
         $this->ownerService->deleteOwnerAccount($ownerId);
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->to('/owner/login');

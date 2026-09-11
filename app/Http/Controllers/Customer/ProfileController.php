@@ -114,7 +114,6 @@ class ProfileController extends Controller
 
         $this->customerService->deleteCustomerAccount($customerId);
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->to('/customer/login');

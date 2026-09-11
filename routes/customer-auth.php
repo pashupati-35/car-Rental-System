@@ -53,7 +53,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update.post');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
         Route::patch('/password', [PasswordController::class, 'update'])->name('password.update');
-        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+        Route::match(['get', 'post'], 'logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
         // MFA Configuration (Authenticated)
         Route::post('mfa/generate', [MFAController::class, 'generate'])->name('mfa.generate');

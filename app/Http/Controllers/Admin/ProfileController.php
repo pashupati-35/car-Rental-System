@@ -138,7 +138,7 @@ class ProfileController extends Controller
         Auth::guard('admin')->logout();
         $admin->delete();
 
-        $request->session()->invalidate();
+        $request->session()->forget('admin_impersonating');
         $request->session()->regenerateToken();
 
         return redirect()->to('/admin/login');

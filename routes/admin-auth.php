@@ -63,13 +63,16 @@ Route::group(['prefix' => 'admin'], function ($route) {
     $route->post('login', [AuthenticatedSessionController::class, 'store']);
 
     // Web views for Auth
-    $route->get('register', [RegisteredAdminController::class, 'create'])->name('admin.register');
-    $route->post('register', [RegisteredAdminController::class, 'store']);
-    $route->get('login', [AuthenticatedSessionController::class, 'create'])->name('admin.login');
-    $route->get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('admin.password.request');
-    $route->post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('admin.password.email');
-    $route->get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('admin.password.reset');
-    $route->post('reset-password', [NewPasswordController::class, 'store'])->name('admin.password.update.reset');
+    $route->middleware('guest:admin')->group(function () use ($route) {
+        $route->get('register', [RegisteredAdminController::class, 'create'])->name('admin.register');
+        $route->post('register', [RegisteredAdminController::class, 'store']);
+        $route->get('login', [AuthenticatedSessionController::class, 'create'])->name('admin.login');
+        $route->get('forgot-password', [PasswordResetLinkController::class, 'create'])->name('admin.password.request');
+        $route->post('forgot-password', [PasswordResetLinkController::class, 'store'])->name('admin.password.email');
+        $route->get('reset-password/{token}', [NewPasswordController::class, 'create'])->name('admin.password.reset');
+        $route->post('reset-password', [NewPasswordController::class, 'store'])->name('admin.password.update.reset');
+    });
+
     $route->get('mfa/verify', [AuthenticatedSessionController::class, 'showMfa'])->name('admin.mfa.verify');
     $route->post('mfa/check-verification', [MFAController::class, 'checkVerification'])->name('admin.mfa.check');
     $route->post('mfa/verify-code', [MFAController::class, 'verifyCode'])->name('admin.mfa.verify-code');

@@ -5,6 +5,7 @@ use App\Http\Middleware\CustomerMiddleware;
 use App\Http\Middleware\EnsureDomainAccess;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\OwnerMiddleware;
+use App\Http\Middleware\RedirectIfAuthenticated;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Application;
@@ -26,7 +27,20 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class,
             'owner' => OwnerMiddleware::class,
             'customer' => CustomerMiddleware::class,
+            'guest' => RedirectIfAuthenticated::class,
         ]);
+        $middleware->redirectTo(
+            guests: function (Request $request) {
+                if ($request->is('admin', 'admin/*') || str_starts_with($request->getHost(), 'portal.')) {
+                    return route('admin.login');
+                }
+                if ($request->is('owner', 'owner/*')) {
+                    return route('owner.login');
+                }
+
+                return route('customer.login');
+            }
+        );
         $middleware->web(append: [
             EnsureDomainAccess::class,
             HandleInertiaRequests::class,
