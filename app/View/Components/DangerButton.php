@@ -1,13 +1,14 @@
 <?php
+
 //
-//namespace App\View\Components;
+// namespace App\View\Components;
 //
-//use Closure;
-//use Illuminate\Contracts\View\View;
-//use Illuminate\View\Component;
+// use Closure;
+// use Illuminate\Contracts\View\View;
+// use Illuminate\View\Component;
 //
-//class DangerButton extends Component
-//{
+// class DangerButton extends Component
+// {
 //    /**
 //     * Create a new component instance.
 //     */
@@ -23,11 +24,11 @@
 //    {
 //        return view('components.danger-button');
 //    }
-//}
-
+// }
 
 namespace App\View\Components;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
 class DangerButton extends Component
@@ -45,7 +46,7 @@ class DangerButton extends Component
     /**
      * Get the view / contents that represent the component.
      *
-     * @return \Illuminate\Contracts\View\View|\Closure|string
+     * @return View|\Closure|string
      */
     public function render()
     {

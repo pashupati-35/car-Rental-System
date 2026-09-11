@@ -16,8 +16,14 @@ const props = withDefaults(
 // ── Expose so parent can gate form submission ─────────────────────────────
 defineExpose({ isValid: computed(() => passedCount.value === RULES.length) })
 
+interface RuleItem {
+  key: string
+  label: string
+  test: (v: string) => boolean
+}
+
 // ── Rules ─────────────────────────────────────────────────────────────────
-const RULES = [
+const RULES: RuleItem[] = [
   {
     key: "len",
     label: "At least 8 characters",
@@ -42,7 +48,7 @@ const RULES = [
 
 // ── Computed ──────────────────────────────────────────────────────────────
 const results = computed(() =>
-  RULES.map(r => ({
+  RULES.map((r: RuleItem) => ({
     ...r,
     state:
             props.password.length === 0
@@ -54,7 +60,7 @@ const results = computed(() =>
 )
 
 const passedCount = computed(
-  () => results.value.filter(r => r.state === "pass").length,
+  () => results.value.filter((r: { state: string }) => r.state === "pass").length,
 )
 
 const strength = computed(() => {

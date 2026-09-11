@@ -3,61 +3,133 @@
 namespace App\Http\Controllers\Owner;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\OwnerLoginRequest;
-use App\Http\Requests\ProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Owner\Profile\UpdatePasswordRequest;
+use App\Http\Requests\Owner\Profile\UpdateProfileRequest;
+use App\Http\Requests\Owner\Profile\UpdateThemeStyleRequest;
+use App\Http\Resources\OwnerResource;
+use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected OwnerService $ownerService
+    ) {}
+
     /**
      * Display the owner's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('owner.profile.edit', [
-            'user' => $request->user('owner'),
+        $ownerId = Auth::guard('owner')->id();
+        $owner = $this->ownerService->getOwnerProfile($ownerId);
+        $ownerResource = $owner ? (new OwnerResource($owner))->resolve() : null;
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $ownerResource,
+            ]);
+        }
+
+        return Inertia::render('owner/Profile', [
+            'user' => $ownerResource,
+        ]);
+    }
+
+    /**
+     * Display the owner's security & MFA form.
+     */
+    public function security(Request $request)
+    {
+        $ownerId = Auth::guard('owner')->id();
+        $owner = $this->ownerService->getOwnerProfile($ownerId);
+        $ownerResource = $owner ? (new OwnerResource($owner))->resolve() : null;
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $ownerResource,
+            ]);
+        }
+
+        return Inertia::render('owner/Security', [
+            'user' => $ownerResource,
         ]);
     }
 
     /**
      * Update the owner's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(UpdateProfileRequest $request)
     {
-        $request->user('owner')->fill($request->validated());
+        $ownerId = Auth::guard('owner')->id();
+        $validated = $request->validated();
 
-        if ($request->user('owner')->isDirty('email')) {
-            $request->user('owner')->email_verified_at = null;
+        $owner = $this->ownerService->updateOwnerProfile($ownerId, $validated, $request->file('image'));
+        $ownerResource = (new OwnerResource($owner))->resolve();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Fleet Owner profile updated successfully.',
+                'user' => $ownerResource,
+            ]);
         }
 
-        $request->user('owner')->save();
+        return redirect()->back()->with('success', 'Fleet Owner profile updated successfully.');
+    }
 
-        return Redirect::route('owner.profile.edit')->with('status', 'profile-updated');
+    /**
+     * Update the owner's preferred theme style.
+     */
+    public function updateThemeStyle(UpdateThemeStyleRequest $request)
+    {
+        $ownerId = Auth::guard('owner')->id();
+        $themeStyle = $this->ownerService->updateOwnerThemeStyle($ownerId, $request->validated('theme_style'));
+
+        return response()->json([
+            'status' => 'OK',
+            'theme_style' => $themeStyle,
+        ]);
+    }
+
+    /**
+     * Update the owner's password.
+     */
+    public function updatePassword(UpdatePasswordRequest $request)
+    {
+        $ownerId = Auth::guard('owner')->id();
+        $this->ownerService->updateOwnerPassword($ownerId, $request->validated('password'));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Password updated successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     /**
      * Delete the owner's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => ['required', 'current_password:owner'],
         ]);
 
-        $owner = $request->user('owner');
-
+        $ownerId = Auth::guard('owner')->id();
         Auth::guard('owner')->logout();
 
-        $owner->delete();
+        $this->ownerService->deleteOwnerAccount($ownerId);
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect()->to('/owner/login');
     }
-
 }

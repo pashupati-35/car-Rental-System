@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { CalendarEvent } from '@/types/employee/calendar/CalendarType'
-import type { EventRange } from '@/utils/calendarEvents'
+import type { CalendarEvent, EventRange } from '@/utils/calendarEvents'
 import {
   MONTHS,
   WEEKDAYS,
@@ -56,7 +55,7 @@ const monthEventCount = computed(() => {
   const from = dayKey(new Date(year, month, 1))
   const to = dayKey(new Date(year, month + 1, 0))
 
-  return ranges.value.filter(range => range.endKey >= from && range.startKey <= to).length
+  return ranges.value.filter((range: EventRange) => range.endKey >= from && range.startKey <= to).length
 })
 
 /**

@@ -2,9 +2,10 @@
 
 namespace App\Listeners;
 
+use App\Models\ActivityLog\ActivityLog;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class LoginListener
 {
@@ -17,46 +18,36 @@ class LoginListener
 
     public function handle(Login $event)
     {
-        if (
-            ! config('user-activity.log_events.on_login', false)
-            || ! config('user-activity.activated', true)
-        ) {
-            return;
+        try {
+            if (
+                ! config('user-activity.log_events.on_login', true)
+                || ! config('user-activity.activated', true)
+            ) {
+                return;
+            }
+
+            $user = $event->user;
+            $guard = $event->guard ?? 'web';
+            $title = ucfirst($guard).' login successful.';
+
+            if (Schema::hasTable('activity_logs')) {
+                ActivityLog::create([
+                    'log_type' => 'login',
+                    'description' => $title,
+                    'causer_type' => $user ? get_class($user) : null,
+                    'causer_id' => $user ? $user->id : null,
+                    'ip_address' => $this->request->ip(),
+                    'user_agent' => $this->request->userAgent(),
+                    'table_name' => $user ? $user->getTable() : '',
+                    'properties' => [
+                        'guard' => $guard,
+                        'email' => $user->email ?? null,
+                    ],
+                ]);
+            }
+        } catch (\Throwable $e) {
+            // Log failure should never block or abort authentication
+            report($e);
         }
-
-        $user = $event->user;
-        $userId = $adminUserId = null;
-
-        if ($event->guard == 'web') {
-            $userId = $user->id;
-            $title = 'User login successful.';
-        }
-
-        if ($event->guard == 'admin') {
-            $adminUserId = $user->id;
-            $title = 'Admin login successful.';
-        }
-
-        if ($event->guard == 'employee') {
-            $adminUserId = $user->id;
-            $title = 'Employee login successful.';
-        }
-
-        $dateTime = date('Y-m-d H:i:s');
-
-        $data = [
-            'ip' => $this->request->ip(),
-            'user_agent' => $this->request->userAgent(),
-        ];
-
-        DB::table('logs')->insert([
-            'title' => $title,
-            'user_id' => $userId,
-            'admin_user_id' => $adminUserId,
-            'log_date' => $dateTime,
-            'table_name' => '',
-            'log_type' => 'login',
-            'data' => json_encode($data),
-        ]);
     }
 }

@@ -21,7 +21,7 @@
                                 </td>
                                 <td valign="middle" style="padding:13px 16px 13px 12px;">
                                     <div style="color:#0f6d67; font-size:11px; line-height:1.35; font-weight:750; text-transform:uppercase; letter-spacing:0.8px;">
-                                        Futech Solution
+                                        {{ config('app.name', 'AutoRent') }}
                                     </div>
                                     <div style="padding-top:3px; color:#475467; font-size:12px; line-height:1.45;">
                                         Secure account &amp; service notification

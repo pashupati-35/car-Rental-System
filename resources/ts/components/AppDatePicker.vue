@@ -1,400 +1,621 @@
 <script setup lang="ts">
-import { useTheme } from 'vuetify'
+import { ref, computed } from 'vue'
 import FlatPickr from 'vue-flatpickr-component'
 
-const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
-  type: 'date',
-  label: '',
-  disabled: false,
-  readonly: false,
-  clearable: false,
-  errorMessages: () => [],
-  config: () => ({}),
-})
-
-const emit = defineEmits<{
-    'update:modelValue': [value: string]
-    'blur': []
-}>()
-
-defineOptions({
-  inheritAttrs: false,
-})
-
-interface Props {
-    modelValue?: string
-
-    type?: 'date' | 'datetime-local'
+const props = withDefaults(
+  defineProps<{
+    modelValue?: string | null
+    type?: 'date' | 'datetime-local' | 'time'
     label?: string
     placeholder?: string
     disabled?: boolean
     readonly?: boolean
     clearable?: boolean
-    errorMessages?: string[]
+    minDate?: string | Date
+    maxDate?: string | Date
+    disabledDates?: Array<string | Date | { from: string; to: string }>
+    bookedDates?: Array<string | Date | { from: string; to: string }>
+    showLegend?: boolean
+    required?: boolean
+    error?: string
     config?: Record<string, any>
-}
+  }>(),
+  {
+    modelValue: '',
+    type: 'date',
+    label: '',
+    placeholder: 'Select date...',
+    disabled: false,
+    readonly: false,
+    clearable: true,
+    minDate: 'today',
+    maxDate: undefined,
+    disabledDates: () => [],
+    bookedDates: () => [],
+    showLegend: true,
+    required: false,
+    error: '',
+    config: () => ({}),
+  },
+)
 
-const vuetifyTheme = useTheme()
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+  (e: 'change', value: string): void
+  (e: 'blur'): void
+}>()
 
-const refFlatPicker = ref()
-const refTextField = ref()
-const isCalendarOpen = ref(false)
+const inputContainerRef = ref<HTMLElement | null>(null)
+const flatpickrRef = ref<any>(null)
+const isOpen = ref(false)
 
-const hasTime = computed(() => props.type === 'datetime-local')
+const hasTime = computed(() => props.type === 'datetime-local' || props.type === 'time')
 
-// flatpickr's own input is hidden, so the visible Vuetify field is what the
-// calendar has to line up with
-const getAnchorElement = (): HTMLElement | null => {
-  const root = refTextField.value?.$el as HTMLElement | undefined
+const isRequired = computed(() => props.required || (props.label ? props.label.includes('*') : false))
 
-  return (root?.querySelector('.v-field') as HTMLElement | null) ?? root ?? null
-}
+const cleanLabelText = computed(() => {
+  if (!props.label) {
+    return ''
+  }
 
-// The calendar lives on <body> and is positioned in document coordinates.
-// Vuetify pins <html> with `position: fixed` while a dialog is open, which both
-// zeroes `pageYOffset` and turns <html> into the containing block — flatpickr's
-// own math then drops the calendar near the top of the screen. Measuring
-// against the document element covers the pinned and the normal case alike.
-const positionCalendar = (fp: any) => {
-  const anchor = getAnchorElement()
-  const calendar = fp?.calendarContainer as HTMLElement | undefined
+  return props.label.replace(/\s*\*\s*$/, '').trim()
+})
 
-  if (!anchor || !calendar) return
+const combinedDisabledDates = computed(() => {
+  const list: Array<string | Date | { from: string; to: string }> = [
+    ...(props.disabledDates || []),
+    ...(props.bookedDates || []),
+    ...((props.config?.disable as any) || []),
+  ]
 
-  const anchorRect = anchor.getBoundingClientRect()
-  const origin = document.documentElement.getBoundingClientRect()
-  const calendarHeight = calendar.offsetHeight
-  const calendarWidth = calendar.offsetWidth
-  const gap = 2
-
-  // Flip above the field when there is not enough room underneath it
-  const showOnTop = window.innerHeight - anchorRect.bottom < calendarHeight
-    && anchorRect.top > calendarHeight
-
-  const top = showOnTop
-    ? anchorRect.top - calendarHeight - gap
-    : anchorRect.bottom + gap
-
-  // Keep the calendar on screen when the field sits close to the right edge
-  const left = Math.max(8, Math.min(anchorRect.left, window.innerWidth - calendarWidth - 8))
-
-  calendar.style.top = `${top - origin.top}px`
-  calendar.style.left = `${left - origin.left}px`
-  calendar.style.right = 'auto'
-}
-
-const repositionCalendar = () => {
-  if (refFlatPicker.value?.fp)
-    positionCalendar(refFlatPicker.value.fp)
-}
+  return list
+})
 
 const flatpickrConfig = computed(() => ({
   enableTime: hasTime.value,
-
-  // Escaped "T" keeps the emitted value in the same shape as a native
-  // datetime-local input, e.g. "2025-06-26T09:30"
-  dateFormat: hasTime.value ? 'Y-m-d\\TH:i' : 'Y-m-d',
+  noCalendar: props.type === 'time',
+  dateFormat: props.type === 'datetime-local' ? 'Y-m-d H:i' : props.type === 'time' ? 'H:i' : 'Y-m-d',
   altInput: true,
-  altFormat: hasTime.value ? 'F j, Y h:i K' : 'F j, Y',
-  position: positionCalendar,
+  altFormat: props.type === 'datetime-local' ? 'M j, Y h:i K' : props.type === 'time' ? 'h:i K' : 'M j, Y',
+  altInputClass: 'app-date-input-styled w-full bg-transparent text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none py-3 pe-3 cursor-pointer min-w-0 truncate',
+  minDate: props.minDate ?? 'today',
+  maxDate: props.maxDate,
+  disable: combinedDisabledDates.value,
+  prevArrow: '<svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>',
+  nextArrow: '<svg class="w-4 h-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>',
+  onDayCreate: (_dObj: any, _dStr: any, _fp: any, dayElem: HTMLElement) => {
+    const dateObj = (dayElem as any).dateObj
+    if (!dateObj) return
+
+    const year = dateObj.getFullYear()
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0')
+    const day = String(dateObj.getDate()).padStart(2, '0')
+    const ymd = `${year}-${month}-${day}`
+
+    const isBooked = combinedDisabledDates.value.some((d: any) => {
+      if (typeof d === 'string') {
+        return d.startsWith(ymd)
+      }
+      if (d && typeof d === 'object' && d.from && d.to) {
+        const fromStr = typeof d.from === 'string' ? d.from.split('T')[0] : ''
+        const toStr = typeof d.to === 'string' ? d.to.split('T')[0] : ''
+
+        return ymd >= fromStr && ymd <= toStr
+      }
+
+      return false
+    })
+
+    if (isBooked) {
+      dayElem.classList.add('is-booked-date')
+      dayElem.setAttribute('data-booked', 'true')
+      dayElem.title = '🔒 Already Booked / Reserved'
+    }
+  },
+  onReady: (_selectedDates: any, _dateStr: any, instance: any) => {
+    const calendarContainer = instance.calendarContainer
+    if (calendarContainer && !calendarContainer.querySelector('.app-calendar-legend')) {
+      const legend = document.createElement('div')
+
+      legend.className = 'app-calendar-legend'
+      legend.innerHTML = `
+        <div class="legend-item"><span class="legend-dot dot-booked"></span><span>Booked</span></div>
+        <div class="legend-item"><span class="legend-dot dot-today"></span><span>Today</span></div>
+        <div class="legend-item"><span class="legend-dot dot-available"></span><span>Available</span></div>
+      `
+      calendarContainer.appendChild(legend)
+    }
+  },
   ...props.config,
 }))
 
-// vue-flatpickr applies config changes through fp.set(), which cannot add or
-// remove the time inputs on an existing instance, so rebuild it on type change
-const pickerKey = computed(() => (hasTime.value ? 'datetime' : 'date'))
-
-// The text field mirrors the raw model value; hide the "T" separator from it
-const displayValue = computed(() => (props.modelValue ?? '').replace('T', ' '))
-
-// The calendar is appended to <body>, outside Vuetify's app root, so it carries
-// its own theme class for the --v-theme-* variables to resolve
-const updateThemeClassInCalendar = () => {
-  if (!refFlatPicker.value?.fp?.calendarContainer) return
-
-  const themeName = vuetifyTheme.global.name.value
-
-  refFlatPicker.value.fp.calendarContainer.classList.add(`v-theme--${themeName}`)
-}
-
-onMounted(() => {
-  updateThemeClassInCalendar()
-})
-
-const onCalendarOpen = () => {
-  isCalendarOpen.value = true
-
-  // The container is recreated whenever the picker is rebuilt (type change)
-  updateThemeClassInCalendar()
-
-  // Capture phase so scrolling inside a dialog moves the calendar along too
-  window.addEventListener('scroll', repositionCalendar, true)
-}
-
-const onCalendarClose = () => {
-  isCalendarOpen.value = false
-  window.removeEventListener('scroll', repositionCalendar, true)
-}
-
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', repositionCalendar, true)
-})
-
 const handleInput = (val: string) => {
-  // vue-flatpickr v12 calls setDate(value, true) on programmatic prop changes,
-  // which makes flatpickr echo update:modelValue back even when the user didn't
-  // interact. Ignore echoes that match the current value so they don't mark the
-  // field dirty / trigger validation.
-  if ((val ?? '') === (props.modelValue ?? ''))
-    return
-
   emit('update:modelValue', val)
+  emit('change', val)
 }
 
-const handleBlur = () => {
-  emit('blur')
-}
-
-const handleClear = () => {
+const clearValue = () => {
   emit('update:modelValue', '')
-}
-
-const openCalendar = () => {
-  if (!props.disabled && !props.readonly && refFlatPicker.value) {
-    refFlatPicker.value.fp.open()
-  }
+  emit('change', '')
 }
 </script>
 
 <template>
-  <div class="app-date-picker-wrapper">
-    <VTextField
-      ref="refTextField"
-      :model-value="displayValue"
-      :label="label"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      readonly
-      :clearable="clearable"
-      :error-messages="errorMessages"
-      prepend-inner-icon="ri-calendar-line"
-      @click="openCalendar"
-      @click:clear="handleClear"
-      @blur="handleBlur"
+  <div
+    ref="inputContainerRef"
+    class="app-date-picker-container w-full min-w-0"
+  >
+    <!-- Label -->
+    <label
+      v-if="label"
+      class="block text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1.5 flex items-center justify-between tracking-tight"
     >
-      <template #label>
-        <slot name="label">
-          {{ label }}
-        </slot>
-      </template>
-    </VTextField>
+      <span class="flex items-center gap-1">
+        <span>{{ cleanLabelText }}</span>
+        <span
+          v-if="isRequired"
+          class="text-rose-500 font-extrabold text-sm leading-none"
+          title="Required field"
+        >*</span>
+      </span>
+      <button
+        v-if="clearable && modelValue && !disabled && !readonly"
+        type="button"
+        class="text-xs text-slate-400 hover:text-rose-500 transition-colors font-medium cursor-pointer px-1.5 py-0.5 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40"
+        @click.stop="clearValue"
+      >
+        Clear
+      </button>
+    </label>
 
-    <FlatPickr
-      :key="pickerKey"
-      ref="refFlatPicker"
-      :model-value="modelValue"
-      :config="flatpickrConfig"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      class="flat-picker-hidden"
-      @update:model-value="handleInput"
-      @on-open="onCalendarOpen"
-      @on-close="onCalendarClose"
-    />
+    <!-- Input Wrapper -->
+    <div
+      class="relative flex items-center rounded-xl border transition-all duration-200 shadow-xs min-w-0 overflow-hidden"
+      :class="[
+        error
+          ? 'border-rose-400 dark:border-rose-600 bg-rose-50/40 ring-2 ring-rose-500/20'
+          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 focus-within:border-blue-600 dark:focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/25',
+        disabled ? 'opacity-60 cursor-not-allowed bg-slate-100 dark:bg-slate-900' : ''
+      ]"
+    >
+      <!-- Calendar Icon Prefix -->
+      <div class="text-blue-600 dark:text-blue-400 pointer-events-none flex items-center shrink-0 ps-3.5 pe-2">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+          />
+        </svg>
+      </div>
+
+      <!-- Flatpickr Core Component -->
+      <FlatPickr
+        ref="flatpickrRef"
+        :model-value="modelValue || ''"
+        :config="flatpickrConfig"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        class="w-full bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none py-3 pe-3 font-semibold cursor-pointer min-w-0 truncate"
+        @update:model-value="handleInput"
+        @on-open="isOpen = true"
+        @on-close="isOpen = false"
+      />
+    </div>
+
+    <!-- Error message if any -->
+    <p
+      v-if="error"
+      class="text-[11px] text-rose-500 mt-1 font-semibold flex items-center gap-1"
+    >
+      <svg
+        class="w-3.5 h-3.5 shrink-0"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      {{ error }}
+    </p>
   </div>
 </template>
 
-<style lang="scss">
-@use "flatpickr/dist/flatpickr.css";
+<style>
+@import "flatpickr/dist/flatpickr.css";
 
-.app-date-picker-wrapper {
-    position: relative;
+/* Style generated altInput from flatpickr */
+.app-date-input-styled {
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-inline-end: 0.75rem !important;
 }
 
-.flat-picker-hidden {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
+.dark .app-date-input-styled {
+  color: #f8fafc !important;
 }
 
+.app-date-input-styled::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+.dark .app-date-input-styled::placeholder {
+  color: #64748b !important;
+}
+
+/* Modern Dropdown & Calendar Styling */
 .flatpickr-calendar {
-    border-radius: 8px;
-    background-color: rgb(var(--v-theme-surface));
-    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.15);
-    border: 1px solid rgba(var(--v-border-color), 0.12);
-    padding: 8px;
-    width: 320px;
+  background: #ffffff !important;
+  border-radius: 1.25rem !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;
+  border: none !important;
+  padding: 1rem !important;
+  width: 320px !important;
+  font-family: inherit !important;
+  z-index: 99999 !important;
+  animation: fpDropdownSlide 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
 
-    .flatpickr-months {
-        padding: 8px 0 12px;
+@keyframes fpDropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-        .flatpickr-month {
-            height: 36px;
-        }
+.dark .flatpickr-calendar {
+  background: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
 
-        .flatpickr-current-month {
-            font-size: 1rem;
-            font-weight: 600;
-            color: rgba(var(--v-theme-on-surface), 0.87);
+.flatpickr-calendar::before,
+.flatpickr-calendar::after {
+  display: none !important;
+}
 
-            .flatpickr-monthDropdown-months {
-                font-weight: 600;
-                appearance: none;
-                background: transparent;
-                border: none;
-                color: rgba(var(--v-theme-on-surface), 0.87);
-            }
+/* Calendar Header / Months */
+.flatpickr-months {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+}
 
-            .numInputWrapper {
-                input.cur-year {
-                    font-weight: 600;
-                    color: rgba(var(--v-theme-on-surface), 0.87);
-                }
-            }
-        }
+.dark .flatpickr-months {
+  border-bottom-color: #1e293b !important;
+}
 
-        .flatpickr-prev-month,
-        .flatpickr-next-month {
-            fill: rgba(var(--v-theme-on-surface), 0.6);
-            padding: 8px;
-            border-radius: 4px;
-            transition: all 0.2s;
+.flatpickr-months .flatpickr-month {
+  height: 38px !important;
+  color: #0f172a !important;
+}
 
-            &:hover {
-                background: rgba(var(--v-theme-on-surface), 0.08);
+.dark .flatpickr-months .flatpickr-month {
+  color: #f8fafc !important;
+}
 
-                svg {
-                    fill: rgba(var(--v-theme-on-surface), 0.87);
-                }
-            }
+.flatpickr-current-month {
+  font-size: 0.9375rem !important;
+  font-weight: 800 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
 
-            svg {
-                width: 14px;
-                height: 14px;
-                fill: rgba(var(--v-theme-on-surface), 0.6);
-                stroke: none;
-            }
-        }
-    }
+.flatpickr-current-month .flatpickr-monthDropdown-months {
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  appearance: none !important;
+  cursor: pointer !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+}
 
-    .flatpickr-weekdays {
-        margin: 8px 0;
+.flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+  background: #f1f5f9 !important;
+}
 
-        .flatpickr-weekday {
-            color: rgba(var(--v-theme-on-surface), 0.6);
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-    }
+.dark .flatpickr-current-month .flatpickr-monthDropdown-months {
+  color: #f1f5f9 !important;
+  background: #0f172a !important;
+}
 
-    .flatpickr-days {
-        width: 100%;
+.dark .flatpickr-current-month .flatpickr-monthDropdown-months:hover {
+  background: #1e293b !important;
+}
 
-        .dayContainer {
-            width: 100%;
-            min-width: 100%;
-            max-width: 100%;
-        }
-    }
+.flatpickr-current-month input.cur-year {
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  padding: 2px 4px !important;
+}
 
-    .flatpickr-day {
-        color: rgba(var(--v-theme-on-background), 0.87);
-        border-radius: 6px;
-        font-weight: 500;
-        height: 40px;
-        line-height: 40px;
-        max-width: 40px;
-        transition: all 0.2s ease;
-        border: none;
+.dark .flatpickr-current-month input.cur-year {
+  color: #f1f5f9 !important;
+}
 
-        &.today {
-            border: 2px solid rgb(var(--v-theme-primary));
-            background-color: transparent;
-            color: rgb(var(--v-theme-primary));
-            font-weight: 600;
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  padding: 8px !important;
+  border-radius: 0.75rem !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.15s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
 
-            &:hover {
-                background-color: rgba(var(--v-theme-primary), 0.08);
-            }
-        }
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  background: #e2e8f0 !important;
+  transform: scale(1.05) !important;
+}
 
-        &.selected,
-        &.selected:hover {
-            background: rgb(var(--v-theme-primary));
-            color: rgb(var(--v-theme-on-primary));
-            font-weight: 600;
-            box-shadow: 0px 2px 4px rgba(var(--v-theme-primary), 0.3);
-            border: none;
-        }
+.dark .flatpickr-prev-month,
+.dark .flatpickr-next-month {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
 
-        &.inRange {
-            background: rgba(var(--v-theme-primary), 0.12) !important;
-            color: rgb(var(--v-theme-primary));
-            box-shadow: none !important;
-            border: none;
-        }
+.dark .flatpickr-prev-month:hover,
+.dark .flatpickr-next-month:hover {
+  background: #334155 !important;
+}
 
-        &.startRange,
-        &.endRange {
-            background: rgb(var(--v-theme-primary)) !important;
-            color: rgb(var(--v-theme-on-primary));
-            font-weight: 600;
-            box-shadow: 0px 2px 4px rgba(var(--v-theme-primary), 0.3);
-        }
+/* Weekday header */
+.flatpickr-weekdays {
+  margin: 0.625rem 0 0.375rem 0 !important;
+}
 
-        &.prevMonthDay,
-        &.nextMonthDay {
-            color: rgba(var(--v-theme-on-background), 0.38);
-        }
+span.flatpickr-weekday {
+  color: #64748b !important;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
 
-        &.flatpickr-disabled {
-            color: rgba(var(--v-theme-on-background), 0.26);
-            cursor: not-allowed;
-        }
+.dark span.flatpickr-weekday {
+  color: #94a3b8 !important;
+}
 
-        &:hover:not(.selected):not(.startRange):not(.endRange):not(.flatpickr-disabled) {
-            background: rgba(var(--v-theme-on-surface), 0.08);
-            color: rgba(var(--v-theme-on-surface), 0.87);
-            border: none;
-        }
-    }
+.flatpickr-days {
+  width: 100% !important;
+}
 
-    &.open {
-        z-index: 2401;
-    }
+.dayContainer {
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  justify-content: space-around !important;
+}
 
-    &::before,
-    &::after {
-        display: none;
-    }
+/* Day items base */
+.flatpickr-day {
+  border-radius: 0.625rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  max-width: 38px !important;
+  border: 1px solid transparent !important;
+  margin: 2px 0 !important;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
 
-    // Time picker styles (if enabled)
-    &.hasTime {
-        .flatpickr-time {
-            border-top: 1px solid rgba(var(--v-border-color), 0.12);
-            margin-top: 8px;
-            padding-top: 12px;
+/* AVAILABLE DATES - Clear, attractive emerald-green highlight */
+.flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):not(.is-booked-date):not(.selected) {
+  color: #065f46 !important;
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  font-weight: 800 !important;
+}
 
-            input,
-            .flatpickr-am-pm {
-                color: rgba(var(--v-theme-on-surface), 0.87);
-                font-weight: 500;
+.flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):not(.is-booked-date):not(.selected):hover {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  border-color: #6ee7b7 !important;
+  transform: scale(1.06) !important;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.25) !important;
+}
 
-                &:hover,
-                &:focus {
-                    background: rgba(var(--v-theme-on-surface), 0.04);
-                }
-            }
+.dark .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):not(.is-booked-date):not(.selected) {
+  color: #a7f3d0 !important;
+  background: rgba(6, 78, 59, 0.35) !important;
+  border-color: #065f46 !important;
+}
 
-            .flatpickr-time-separator {
-                color: rgba(var(--v-theme-on-surface), 0.6);
-            }
-        }
-    }
+.dark .flatpickr-day:not(.flatpickr-disabled):not(.prevMonthDay):not(.nextMonthDay):not(.is-booked-date):not(.selected):hover {
+  background: rgba(6, 95, 70, 0.6) !important;
+  color: #6ee7b7 !important;
+  border-color: #059669 !important;
+}
+
+/* Today styling */
+.flatpickr-day.today {
+  border: 2px solid #2563eb !important;
+  border-radius: 0.625rem !important;
+  background: #eff6ff !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+
+.dark .flatpickr-day.today {
+  border-color: #60a5fa !important;
+  background: rgba(37, 99, 235, 0.2) !important;
+  color: #93c5fd !important;
+}
+
+/* Selected Day styling */
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+
+.dark .flatpickr-day.selected {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #2563eb !important;
+}
+
+/* In Range Styling */
+.flatpickr-day.inRange {
+  background: #dbeafe !important;
+  border-color: transparent !important;
+  color: #1e40af !important;
+}
+
+.dark .flatpickr-day.inRange {
+  background: #1e3a8a !important;
+  color: #bfdbfe !important;
+}
+
+/* Month boundary days */
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: #cbd5e1 !important;
+  opacity: 0.5 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.dark .flatpickr-day.prevMonthDay,
+.dark .flatpickr-day.nextMonthDay {
+  color: #475569 !important;
+}
+
+/* Disabled Past Dates (Before Today) */
+.flatpickr-day.flatpickr-disabled:not(.is-booked-date) {
+  color: #cbd5e1 !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  text-decoration: none !important;
+}
+
+.dark .flatpickr-day.flatpickr-disabled:not(.is-booked-date) {
+  color: #475569 !important;
+  opacity: 0.3 !important;
+}
+
+/* BOOKED / RESERVED DATES - High visibility distinct badge */
+.flatpickr-day.is-booked-date,
+.flatpickr-day.flatpickr-disabled.is-booked-date {
+  background: #ffe4e6 !important;
+  color: #e11d48 !important;
+  border-color: #fecdd3 !important;
+  text-decoration: line-through !important;
+  cursor: not-allowed !important;
+  font-weight: 800 !important;
+  position: relative !important;
+  opacity: 0.95 !important;
+}
+
+.flatpickr-day.is-booked-date::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: #e11d48;
+}
+
+.dark .flatpickr-day.is-booked-date,
+.dark .flatpickr-day.flatpickr-disabled.is-booked-date {
+  background: #4c0519 !important;
+  color: #fda4af !important;
+  border-color: #881337 !important;
+  opacity: 0.95 !important;
+}
+
+.dark .flatpickr-day.is-booked-date::after {
+  background: #fb7185;
+}
+
+/* Calendar Legend at bottom of Dropdown */
+.app-calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding-top: 0.75rem;
+  margin-top: 0.625rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.dark .app-calendar-legend {
+  border-top-color: #1e293b;
+  color: #94a3b8;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+}
+
+.dot-booked {
+  background: #e11d48;
+  box-shadow: 0 0 0 2px #ffe4e6;
+}
+
+.dot-today {
+  background: #2563eb;
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+
+.dot-available {
+  background: #10b981;
+  box-shadow: 0 0 0 2px #d1fae5;
 }
 </style>

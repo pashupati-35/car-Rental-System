@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title inertia>{{ config('app.name', 'Car Rental System') }}</title>
+    <title inertia>{{ getSiteSetting()?->company_name ?: config('app.name', 'Car Rental System') }}</title>
+    <link id="app-favicon" rel="icon" type="image/x-icon" href="{{ getFavIcon() }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

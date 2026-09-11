@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Owner\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,34 +11,25 @@ use Illuminate\Validation\Rules\Password;
 class PasswordController extends Controller
 {
     /**
-     * Update the user's password.
+     * Update the owner's password.
      */
-//    public function update(Request $request): RedirectResponse
-//    {
-//        $validated = $request->validateWithBag('updatePassword', [
-//            'current_password' => ['required', 'current_password'],
-//            'password' => ['required', Password::defaults(), 'confirmed'],
-//        ]);
-//
-//        $request->user()->update([
-//            'password' => Hash::make($validated['password']),
-//        ]);
-//
-//        return back()->with('status', 'password-updated');
-//    }
-
     public function update(Request $request)
     {
         $request->validate([
-            'current_password' => 'required|current_password',
-            'password' => 'required|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        $user = Auth::guard('owner')->user();
+        $owner = Auth::guard('owner')->user();
+        $owner->password = Hash::make($request->input('password'));
+        $owner->save();
 
-        $user->password = Hash::make($request->password);
-        $user->save();
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Password updated successfully.',
+            ]);
+        }
 
-        return back()->with('status', 'password-updated');
+        return back()->with('success', 'Password updated successfully.');
     }
 }

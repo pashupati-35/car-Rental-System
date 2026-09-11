@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\BookingCar;
-use App\Models\Car;
-use App\Models\Customer;
+use App\Services\Admin\AdminCountCacheService;
+use App\Services\BookingService;
+use App\Services\CarService;
+use App\Services\CustomerService;
+use App\Services\OwnerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -13,18 +15,25 @@ use Inertia\Inertia;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(
+        protected ?CarService $carService = null,
+        protected ?BookingService $bookingService = null,
+        protected ?OwnerService $ownerService = null,
+        protected ?CustomerService $customerService = null,
+    ) {}
+
     /**
-     * Display the login view.
+     * Display the admin login view.
      */
     public function create()
     {
-        return Inertia::render('auth/Login', [
-            'guard' => 'admin',
+        return Inertia::render('admin/auth/Login', [
+            'status' => session('status'),
         ]);
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle an incoming admin authentication request.
      */
     public function store(Request $request)
     {
@@ -37,6 +46,7 @@ class AuthenticatedSessionController extends Controller
 
         if (Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('admin.dashboard'));
         }
 
@@ -46,25 +56,44 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Destroy an authenticated session.
+     * Destroy an authenticated admin session.
      */
     public function destroy(Request $request)
     {
         Auth::guard('admin')->logout();
-        $request->session()->invalidate();
+        $request->session()->forget('admin_impersonating');
         $request->session()->regenerateToken();
 
-        return redirect(route('home'));
+        return redirect(route('admin.login'));
     }
 
-    public function dashboard()
+    /**
+     * Admin Dashboard view with rich data.
+     */
+    public function dashboard(Request $request)
     {
         if (Auth::guard('admin')->check()) {
+            AdminCountCacheService::clear();
+            $stats = AdminCountCacheService::getDashboardStats();
+            $cmsStats = AdminCountCacheService::getCmsStats();
+
+            $pendingCars = $this->carService ? $this->carService->getPendingCars(6) : collect();
+            $recentCars = $this->carService ? $this->carService->getRecentCars(5) : collect();
+            $perPage = (int) $request->input('per_page', 8);
+            $recentBookings = $this->bookingService ? $this->bookingService->getRecentBookings($perPage) : [];
+            $bookingTrends = $this->bookingService ? $this->bookingService->getBookingTrends() : [];
+            $recentOwners = $this->ownerService ? $this->ownerService->getRecentOwners(5) : collect();
+            $recentCustomers = $this->customerService ? $this->customerService->getRecentCustomers(5) : collect();
+
             return Inertia::render('admin/Dashboard', [
-                'totalCars' => Car::count(),
-                'totalCustomers' => Customer::count(),
-                'totalBookings' => BookingCar::count(),
-                'totalRevenue' => BookingCar::sum('total_price') ?: 0,
+                'stats' => $stats,
+                'pendingCars' => $pendingCars,
+                'recentCars' => $recentCars,
+                'recentBookings' => $recentBookings,
+                'bookingTrends' => $bookingTrends,
+                'recentOwners' => $recentOwners,
+                'recentCustomers' => $recentCustomers,
+                'cmsStats' => $cmsStats,
             ]);
         }
 

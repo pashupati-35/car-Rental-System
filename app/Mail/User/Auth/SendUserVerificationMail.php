@@ -2,6 +2,8 @@
 
 namespace App\Mail\User\Auth;
 
+use App\Models\Admin;
+use App\Models\Owner;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +27,14 @@ class SendUserVerificationMail extends Mailable
 
     public function build()
     {
-        $emailTemplate = getEmailTemplate('employee', 'verification_email')
+        $role = 'customer';
+        if ($this->user instanceof Admin) {
+            $role = 'admin';
+        } elseif ($this->user instanceof Owner) {
+            $role = 'owner';
+        }
+
+        $emailTemplate = getEmailTemplate($role, 'verification_email')
             ?? getEmailTemplate('admin', 'verification_email');
 
         $verificationCode = $this->userVerification?->verification_code;

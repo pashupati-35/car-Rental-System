@@ -2,10 +2,7 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Owner;
-use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class CustomerProfileUpdateRequest extends FormRequest
 {
@@ -26,8 +23,7 @@ class CustomerProfileUpdateRequest extends FormRequest
             'phone_number' => 'required|string|max:15',
             'address' => 'required|string|max:255',
             'gender' => 'required|string|in:Male,Female,Other',
-            'email' => 'required|string|email|max:255|unique:Customers,email,' . $this->user('customer')->id,
+            'email' => 'required|string|email|max:255|unique:Customers,email,'.$this->user('customer')->id,
         ];
     }
-
 }

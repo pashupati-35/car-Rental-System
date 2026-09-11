@@ -3,61 +3,141 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\CustomerLoginRequest;
-use App\Http\Requests\CustomerProfileUpdateRequest;
-use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Customer\Profile\UpdateCustomerPasswordRequest;
+use App\Http\Requests\Customer\Profile\UpdateCustomerProfileRequest;
+use App\Http\Resources\CustomerResource;
+use App\Services\CustomerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected CustomerService $customerService
+    ) {}
+
     /**
      * Display the customer's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request)
     {
-        return view('customer.profile.edit', [
-            'user' => $request->user('customer'),
+        $customerId = Auth::guard('customer')->id();
+        $customer = $this->customerService->getCustomerProfile($customerId);
+        $customerResource = $customer ? (new CustomerResource($customer))->resolve() : null;
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $customerResource,
+            ]);
+        }
+
+        return Inertia::render('customer/Profile', [
+            'user' => $customerResource,
+        ]);
+    }
+
+    /**
+     * Display the customer's security & MFA form.
+     */
+    public function security(Request $request)
+    {
+        $customerId = Auth::guard('customer')->id();
+        $customer = $this->customerService->getCustomerProfile($customerId);
+        $customerResource = $customer ? (new CustomerResource($customer))->resolve() : null;
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'user' => $customerResource,
+            ]);
+        }
+
+        return Inertia::render('customer/Security', [
+            'user' => $customerResource,
         ]);
     }
 
     /**
      * Update the customer's profile information.
      */
-    public function update(CustomerProfileUpdateRequest $request): RedirectResponse
+    public function update(UpdateCustomerProfileRequest $request)
     {
-        $request->user('customer')->fill($request->validated());
+        $customerId = Auth::guard('customer')->id();
+        $validated = $request->validated();
 
-        if ($request->user('customer')->isDirty('email')) {
-            $request->user('customer')->email_verified_at = null;
+        $customer = $this->customerService->updateCustomerProfile(
+            $customerId,
+            $validated,
+            $request->file('image'),
+            $request->boolean('remove_image')
+        );
+        $customerResource = (new CustomerResource($customer))->resolve();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Profile updated successfully.',
+                'user' => $customerResource,
+            ]);
         }
 
-        $request->user('customer')->save();
+        return redirect()->back()->with('success', 'Profile updated successfully.');
+    }
 
-        return Redirect::route('customer.profile.edit')->with('status', 'profile-updated');
+    /**
+     * Update the customer's preferred theme style.
+     */
+    public function updateThemeStyle(Request $request)
+    {
+        $request->validate([
+            'theme_style' => 'required|string|in:light,dark,midnight,system',
+        ]);
+
+        $customerId = Auth::guard('customer')->id();
+        $themeStyle = $this->customerService->updateCustomerThemeStyle($customerId, $request->input('theme_style'));
+
+        return response()->json([
+            'status' => 'OK',
+            'theme_style' => $themeStyle,
+        ]);
+    }
+
+    /**
+     * Update the customer's password.
+     */
+    public function updatePassword(UpdateCustomerPasswordRequest $request)
+    {
+        $customerId = Auth::guard('customer')->id();
+        $this->customerService->updateCustomerPassword($customerId, $request->validated('password'));
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'OK',
+                'message' => 'Password updated successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Password updated successfully.');
     }
 
     /**
      * Delete the customer's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request)
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $request->validate([
+            'password' => ['required', 'current_password:customer'],
         ]);
 
-        $customer = $request->user('customer');
-
+        $customerId = Auth::guard('customer')->id();
         Auth::guard('customer')->logout();
 
-        $customer->delete();
+        $this->customerService->deleteCustomerAccount($customerId);
 
-        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return Redirect::to('/');
+        return redirect()->to('/customer/login');
     }
-
 }

@@ -15,9 +15,6 @@ class GeocodingService
 
     /**
      * Get geocoding data for a given address.
-     *
-     * @param string $address
-     * @return array
      */
     public function geocodeAddress(string $address): array
     {
@@ -31,10 +28,6 @@ class GeocodingService
 
     /**
      * Get address details for given latitude and longitude.
-     *
-     * @param float $latitude
-     * @param float $longitude
-     * @return array
      */
     public function reverseGeocode(float $latitude, float $longitude): array
     {

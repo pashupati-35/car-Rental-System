@@ -71,6 +71,7 @@ export default defineConfig([
       semi: ['error', 'never'],
       'arrow-parens': ['error', 'as-needed'],
       'newline-before-return': 'error',
+      'no-console': 'off',
 
       'lines-around-comment': [
         'error',

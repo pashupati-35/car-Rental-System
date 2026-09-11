@@ -151,6 +151,8 @@ declare global {
   const requiredSubmittedCount: typeof import('./resources/ts/utils/documents').requiredSubmittedCount
   const requiredValidator: typeof import('./resources/ts/utils/validators').requiredValidator
   const resolveComponent: typeof import('vue').resolveComponent
+  const resolveImageUrl: typeof import('./resources/ts/utils/utils').resolveImageUrl
+  const resolveMediaUrl: typeof import('./resources/ts/utils/utils').resolveMediaUrl
   const resolveRef: typeof import('@vueuse/core')['resolveRef']
   const resolveUnref: typeof import('@vueuse/core')['resolveUnref']
   const resolveVuetifyTheme: typeof import('./resources/ts/utils/vuetify').resolveVuetifyTheme
@@ -189,6 +191,7 @@ declare global {
   const urlValidator: typeof import('./resources/ts/utils/validators').urlValidator
   const useAbs: typeof import('@vueuse/math')['useAbs']
   const useActiveElement: typeof import('@vueuse/core').useActiveElement
+  const useAdminTheme: typeof import('./resources/ts/composable/useAdminTheme').useAdminTheme
   const useAnimate: typeof import('@vueuse/core').useAnimate
   const useArrayDifference: typeof import('@vueuse/core').useArrayDifference
   const useArrayEvery: typeof import('@vueuse/core').useArrayEvery
@@ -230,6 +233,7 @@ declare global {
   const useCssVar: typeof import('@vueuse/core').useCssVar
   const useCssVars: typeof import('vue').useCssVars
   const useCurrentElement: typeof import('@vueuse/core').useCurrentElement
+  const useCustomerTheme: typeof import('./resources/ts/composable/useCustomerTheme').useCustomerTheme
   const useCycleList: typeof import('@vueuse/core').useCycleList
   const useDark: typeof import('@vueuse/core').useDark
   const useDashboardTheme: typeof import('./resources/ts/composable/useDashboardTheme').useDashboardTheme
@@ -268,6 +272,7 @@ declare global {
   const useForm: typeof import('@inertiajs/vue3').useForm
   const useFormValidation: typeof import('./resources/ts/utils/useFormValidation').useFormValidation
   const useFps: typeof import('@vueuse/core').useFps
+  const useFrontendTheme: typeof import('./resources/ts/composable/useFrontendTheme').useFrontendTheme
   const useFullscreen: typeof import('@vueuse/core').useFullscreen
   const useGamepad: typeof import('@vueuse/core').useGamepad
   const useGeolocation: typeof import('@vueuse/core').useGeolocation
@@ -304,6 +309,7 @@ declare global {
   const useOffsetPagination: typeof import('@vueuse/core').useOffsetPagination
   const useOnline: typeof import('@vueuse/core').useOnline
   const useOtpVerification: typeof import('./resources/ts/composable/useOtpVerification').useOtpVerification
+  const useOwnerTheme: typeof import('./resources/ts/composable/useOwnerTheme').useOwnerTheme
   const usePage: typeof import('@inertiajs/vue3').usePage
   const usePageLeave: typeof import('@vueuse/core').usePageLeave
   const useParallax: typeof import('@vueuse/core').useParallax
@@ -334,6 +340,7 @@ declare global {
   const useScrollLock: typeof import('@vueuse/core').useScrollLock
   const useSessionStorage: typeof import('@vueuse/core').useSessionStorage
   const useShare: typeof import('@vueuse/core').useShare
+  const useSiteSettings: typeof import('./resources/ts/composable/useSiteSettings').useSiteSettings
   const useSlots: typeof import('vue').useSlots
   const useSorted: typeof import('@vueuse/core').useSorted
   const useSpeechRecognition: typeof import('@vueuse/core').useSpeechRecognition
@@ -403,16 +410,31 @@ declare global {
   export type { Component, Slot, Slots, ComponentPublicInstance, ComputedRef, DirectiveBinding, ExtractDefaultPropTypes, ExtractPropTypes, ExtractPublicPropTypes, InjectionKey, PropType, Ref, ShallowRef, MaybeRef, MaybeRefOrGetter, VNode, WritableComputedRef } from 'vue'
   import('vue')
   // @ts-ignore
+  export type { AdminThemeStyle } from './resources/ts/composable/useAdminTheme'
+  import('./resources/ts/composable/useAdminTheme')
+  // @ts-ignore
   export type { CookieOptions, CookieRef } from './resources/ts/composable/useCookie'
   import('./resources/ts/composable/useCookie')
+  // @ts-ignore
+  export type { CustomerThemeStyle } from './resources/ts/composable/useCustomerTheme'
+  import('./resources/ts/composable/useCustomerTheme')
   // @ts-ignore
   export type { ThemeMode } from './resources/ts/composable/useDashboardTheme'
   import('./resources/ts/composable/useDashboardTheme')
   // @ts-ignore
+  export type { FrontendTheme } from './resources/ts/composable/useFrontendTheme'
+  import('./resources/ts/composable/useFrontendTheme')
+  // @ts-ignore
   export type { ValidationErrors } from './resources/ts/composable/useHelpers'
   import('./resources/ts/composable/useHelpers')
   // @ts-ignore
-  export type { EventRange } from './resources/ts/utils/calendarEvents'
+  export type { OwnerThemeStyle } from './resources/ts/composable/useOwnerTheme'
+  import('./resources/ts/composable/useOwnerTheme')
+  // @ts-ignore
+  export type { SiteSettings } from './resources/ts/composable/useSiteSettings'
+  import('./resources/ts/composable/useSiteSettings')
+  // @ts-ignore
+  export type { CalendarEvent, EventRange } from './resources/ts/utils/calendarEvents'
   import('./resources/ts/utils/calendarEvents')
   // @ts-ignore
   export type { FileCheck } from './resources/ts/utils/chatAttachments'
@@ -565,6 +587,8 @@ declare module 'vue' {
     readonly requiredSubmittedCount: UnwrapRef<typeof import('./resources/ts/utils/documents')['requiredSubmittedCount']>
     readonly requiredValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['requiredValidator']>
     readonly resolveComponent: UnwrapRef<typeof import('vue')['resolveComponent']>
+    readonly resolveImageUrl: UnwrapRef<typeof import('./resources/ts/utils/utils')['resolveImageUrl']>
+    readonly resolveMediaUrl: UnwrapRef<typeof import('./resources/ts/utils/utils')['resolveMediaUrl']>
     readonly resolveVuetifyTheme: UnwrapRef<typeof import('./resources/ts/utils/vuetify')['resolveVuetifyTheme']>
     readonly route: UnwrapRef<typeof import('ziggy-js')['route']>
     readonly router: UnwrapRef<typeof import('@inertiajs/vue3')['router']>
@@ -600,6 +624,7 @@ declare module 'vue' {
     readonly until: UnwrapRef<typeof import('@vueuse/core')['until']>
     readonly urlValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['urlValidator']>
     readonly useActiveElement: UnwrapRef<typeof import('@vueuse/core')['useActiveElement']>
+    readonly useAdminTheme: UnwrapRef<typeof import('./resources/ts/composable/useAdminTheme')['useAdminTheme']>
     readonly useAnimate: UnwrapRef<typeof import('@vueuse/core')['useAnimate']>
     readonly useArrayDifference: UnwrapRef<typeof import('@vueuse/core')['useArrayDifference']>
     readonly useArrayEvery: UnwrapRef<typeof import('@vueuse/core')['useArrayEvery']>
@@ -638,6 +663,7 @@ declare module 'vue' {
     readonly useCssVar: UnwrapRef<typeof import('@vueuse/core')['useCssVar']>
     readonly useCssVars: UnwrapRef<typeof import('vue')['useCssVars']>
     readonly useCurrentElement: UnwrapRef<typeof import('@vueuse/core')['useCurrentElement']>
+    readonly useCustomerTheme: UnwrapRef<typeof import('./resources/ts/composable/useCustomerTheme')['useCustomerTheme']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
     readonly useDashboardTheme: UnwrapRef<typeof import('./resources/ts/composable/useDashboardTheme')['useDashboardTheme']>
@@ -675,6 +701,7 @@ declare module 'vue' {
     readonly useForm: UnwrapRef<typeof import('@inertiajs/vue3')['useForm']>
     readonly useFormValidation: UnwrapRef<typeof import('./resources/ts/utils/useFormValidation')['useFormValidation']>
     readonly useFps: UnwrapRef<typeof import('@vueuse/core')['useFps']>
+    readonly useFrontendTheme: UnwrapRef<typeof import('./resources/ts/composable/useFrontendTheme')['useFrontendTheme']>
     readonly useFullscreen: UnwrapRef<typeof import('@vueuse/core')['useFullscreen']>
     readonly useGamepad: UnwrapRef<typeof import('@vueuse/core')['useGamepad']>
     readonly useGeolocation: UnwrapRef<typeof import('@vueuse/core')['useGeolocation']>
@@ -708,6 +735,7 @@ declare module 'vue' {
     readonly useOffsetPagination: UnwrapRef<typeof import('@vueuse/core')['useOffsetPagination']>
     readonly useOnline: UnwrapRef<typeof import('@vueuse/core')['useOnline']>
     readonly useOtpVerification: UnwrapRef<typeof import('./resources/ts/composable/useOtpVerification')['useOtpVerification']>
+    readonly useOwnerTheme: UnwrapRef<typeof import('./resources/ts/composable/useOwnerTheme')['useOwnerTheme']>
     readonly usePage: UnwrapRef<typeof import('@inertiajs/vue3')['usePage']>
     readonly usePageLeave: UnwrapRef<typeof import('@vueuse/core')['usePageLeave']>
     readonly useParallax: UnwrapRef<typeof import('@vueuse/core')['useParallax']>
@@ -735,6 +763,7 @@ declare module 'vue' {
     readonly useScrollLock: UnwrapRef<typeof import('@vueuse/core')['useScrollLock']>
     readonly useSessionStorage: UnwrapRef<typeof import('@vueuse/core')['useSessionStorage']>
     readonly useShare: UnwrapRef<typeof import('@vueuse/core')['useShare']>
+    readonly useSiteSettings: UnwrapRef<typeof import('./resources/ts/composable/useSiteSettings')['useSiteSettings']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>
     readonly useSorted: UnwrapRef<typeof import('@vueuse/core')['useSorted']>
     readonly useSpeechRecognition: UnwrapRef<typeof import('@vueuse/core')['useSpeechRecognition']>

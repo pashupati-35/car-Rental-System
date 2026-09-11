@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite'
 import svgLoader from 'vite-svg-loader'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
-import vuetify from 'vite-plugin-vuetify'
+// import vuetify from 'vite-plugin-vuetify'
 import { fileURLToPath, URL } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -30,7 +30,7 @@ export default defineConfig({
         },
       },
     }),
-    vuetify(),
+    // vuetify({ autoImport: false }),
     Components({
       globs: [
         'resources/ts/components/*.vue',

@@ -18,3 +18,8 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/public/uploads
+/public/customer-assets
+/public/owner-assets
+/public/frontend
+/public/owner

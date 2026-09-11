@@ -65,9 +65,8 @@ return [
     |
     */
 
-//    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    //    'timezone' => env('APP_TIMEZONE', 'UTC'),
     'timezone' => 'Asia/Kathmandu',
-
 
     /*
     |--------------------------------------------------------------------------
@@ -134,25 +133,25 @@ return [
     |
     */
 
-//    'providers' => [
+    //    'providers' => [
 
-        /*
+    /*
          * Laravel Framework Service Providers...
          */
-//        Illuminate\Filesystem\FilesystemServiceProvider::class,
-        // Other Laravel framework providers...
+    //        Illuminate\Filesystem\FilesystemServiceProvider::class,
+    // Other Laravel framework providers...
 
-        /*
+    /*
          * Package Service Providers...
          */
-//        Laravel\Socialite\SocialiteServiceProvider::class,
+    //        Laravel\Socialite\SocialiteServiceProvider::class,
 
-        /*
+    /*
          * Application Service Providers...
          */
-        // Add your application's service providers here
+    // Add your application's service providers here
 
-//    ],
+    //    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -165,18 +164,18 @@ return [
     |
     */
 
-//    'aliases' => [
-//
-//        /*
-//         * Laravel Framework Aliases...
-//         */
-//        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
-//
-//        /*
-//         * Application Aliases...
-//         */
-//        // Add your application's aliases here
-//
-//    ],
+    //    'aliases' => [
+    //
+    //        /*
+    //         * Laravel Framework Aliases...
+    //         */
+    //        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+    //
+    //        /*
+    //         * Application Aliases...
+    //         */
+    //        // Add your application's aliases here
+    //
+    //    ],
 
 ];

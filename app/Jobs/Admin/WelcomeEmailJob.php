@@ -3,6 +3,8 @@
 namespace App\Jobs\Admin;
 
 use App\Mail\Admin\WelcomeEmailMail;
+use App\Models\Customer;
+use App\Models\Owner;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Foundation\Queue\Queueable;
@@ -14,23 +16,39 @@ class WelcomeEmailJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $employee;
+    protected $user;
 
     protected $password;
 
-    public function __construct($employee, $password)
+    public function __construct($user, $password)
     {
-        $this->employee = $employee;
+        $this->user = $user;
         $this->password = $password;
     }
 
     public function handle(): void
     {
-        setSMTP();
-        $emailTemplate = getEmailTemplate('admin', 'welcome_email');
+        try {
+            setSMTP();
+        } catch (\Throwable $e) {
+            //
+        }
+
+        $role = 'admin';
+        if ($this->user instanceof Owner) {
+            $role = 'owner';
+        } elseif ($this->user instanceof Customer) {
+            $role = 'customer';
+        }
+
+        $emailTemplate = getEmailTemplate($role, 'welcome_email') ?? getEmailTemplate('admin', 'welcome_email');
+        if (! $emailTemplate) {
+            return;
+        }
+
         $acceptedData = [
-            'first_name' => $this->employee->first_name ?? null,
-            'email' => $this->employee->email ?? null,
+            'first_name' => $this->user->first_name ?? $this->user->name ?? $this->user->full_name,
+            'email' => $this->user->email ?? null,
             'password' => $this->password ?? null,
         ];
 
@@ -40,6 +58,6 @@ class WelcomeEmailJob implements ShouldQueue
         $content = renderEmailHTML($emailTemplate->description, $acceptedTag);
         $content = renderEmailData($content, $acceptedInputs, $acceptedData);
 
-        Mail::to($this->employee->email)->send(new WelcomeEmailMail($content, $emailTemplate));
+        Mail::to($this->user->email)->send(new WelcomeEmailMail($content, $emailTemplate));
     }
 }
