@@ -20,6 +20,7 @@ Route::domain('portal.{domain}')->group(function () {
 
     Route::get('/login', [AdminAuthController::class, 'create'])->name('portal.admin.login');
     Route::post('/login', [AdminAuthController::class, 'store']);
+    Route::match(['get', 'post'], '/logout', [AdminAuthController::class, 'destroy'])->name('portal.admin.logout');
     Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     });
