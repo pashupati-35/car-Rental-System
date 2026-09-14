@@ -1,6 +1,6 @@
 import { createApp, h, DefineComponent } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
-import { createHead, useHead } from '@vueuse/head'
+import { createHead, useHead } from '@unhead/vue/legacy'
 import { registerPlugins } from './utils/plugins'
 import './styles/tailwind.css'
 

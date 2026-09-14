@@ -27,6 +27,8 @@ const form = useForm({
 const submit = () => {
   form.put(`/admin/email-templates/${props.template.id}`)
 }
+
+const formatPlaceholder = (tag: string) => `{{$${tag.trim()}}}`
 </script>
 
 <template>
@@ -77,7 +79,7 @@ const submit = () => {
             <span class="font-semibold text-blue-800 dark:text-blue-300">Available Placeholders:</span>
             <div class="flex flex-wrap gap-2 mt-1.5">
               <span v-for="tag in template.accepted_inputs.split(',')" :key="tag" class="px-2 py-0.5 rounded bg-white dark:bg-gray-800 font-mono text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                {{ '{{$' + tag.trim() + '}}' }}
+                {{ formatPlaceholder(tag) }}
               </span>
             </div>
           </div>
