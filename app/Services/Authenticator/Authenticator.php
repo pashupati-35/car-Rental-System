@@ -80,7 +80,7 @@ class Authenticator
     }
 
     /**
-     * Get QR-Code URL for image, from google charts.
+     * Get QR-Code URL for image, from google charts or qrserver.
      *
      * @param  string  $name
      * @param  string  $secret
@@ -99,7 +99,21 @@ class Authenticator
             $urlencoded .= urlencode('&issuer='.urlencode($title));
         }
 
-        return "https://api.qrserver.com/v1/create-qr-code/?data=$urlencoded&size=${width}x${height}&ecc=$level";
+        return "https://api.qrserver.com/v1/create-qr-code/?data=$urlencoded&size={$width}x{$height}&ecc=$level";
+    }
+
+    /**
+     * Alias for getQRCodeUrl for compatibility.
+     *
+     * @param  string  $name
+     * @param  string  $secret
+     * @param  string  $title
+     * @param  array  $params
+     * @return string
+     */
+    public function getQRCodeGoogleUrl($name, $secret, $title = null, $params = [])
+    {
+        return $this->getQRCodeUrl($name, $secret, $title, $params);
     }
 
     /**

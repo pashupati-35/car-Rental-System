@@ -2,31 +2,28 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin;
-use App\Models\Customer;
-use App\Models\Owner;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed the application's database with 20 records per table.
      */
     public function run(): void
     {
         $this->call([
+            UserSeeder::class,
+            AdminSeeder::class,
+            OwnerSeeder::class,
+            DriverSeeder::class,
+            CarSeeder::class,
+            CustomerSeeder::class,
+            BookingSeeder::class,
+            PaymentSeeder::class,
+            CarCalendarSeeder::class,
             EmailTemplateSeeder::class,
+            LogSeeder::class,
+            CmsSeeder::class,
         ]);
-
-        if (!Admin::where('email', 'pashupatisah@gmail.com')->exists()) {
-            Admin::create([
-                'name' => 'Pashupati Sah',
-                'email' => 'pashupatisah@gmail.com',
-                'password' => Hash::make('password'),
-                'is_active' => 1,
-                'is_login_verified' => 1,
-            ]);
-        }
     }
 }

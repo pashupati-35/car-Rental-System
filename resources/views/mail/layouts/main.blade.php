@@ -1,6 +1,6 @@
 @php
 
-    $brandName = data_get($setting ?? [], 'display_name') ?: 'Futech Solutions';
+    $brandName = data_get($setting ?? [], 'display_name') ?: data_get($setting ?? [], 'company_name') ?: config('app.name', 'AutoRent');
     $tagline = data_get($setting ?? [], 'tagline') ?: data_get($setting ?? [], 'slogan');
 
     $logoUrl = data_get($setting ?? [], 'logo_path');
@@ -341,7 +341,17 @@
                                 </h2>
                             @endif
 
-                            @if (!empty($message))
+                            @if (!empty($bodyMessage) && is_string($bodyMessage))
+                                <div
+                                    style="
+                                        margin:0;
+                                        color:#5F6B75;
+                                        font-size:15px;
+                                        line-height:1.75;
+                                    ">
+                                    {!! $bodyMessage !!}
+                                </div>
+                            @elseif (isset($message) && is_string($message) && filled($message))
                                 <div
                                     style="
                                         margin:0;

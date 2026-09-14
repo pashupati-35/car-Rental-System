@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
-use App\Models\ActivityLog\ActivityLog;
 use App\Services\ActivityLog\ActivityLogService;
 use Illuminate\Auth\Events\Login as LoginEvent;
 use Illuminate\Auth\Events\Logout as LogoutEvent;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 
 class ActivityLogAuthListener
@@ -21,7 +21,7 @@ class ActivityLogAuthListener
     public function handleLogin(LoginEvent $event): void
     {
         $user = $event->user;
-        if (! $user instanceof \Illuminate\Database\Eloquent\Model) {
+        if (! $user instanceof Model) {
             return;
         }
 
@@ -32,7 +32,8 @@ class ActivityLogAuthListener
 
         $title = match ($guard) {
             'admin' => 'Admin login successful.',
-            'employee' => 'Employee login successful.',
+            'owner' => 'Owner login successful.',
+            'customer' => 'Customer login successful.',
             default => 'User login successful.',
         };
 
@@ -56,18 +57,19 @@ class ActivityLogAuthListener
     public function handleLogout(LogoutEvent $event): void
     {
         $user = $event->user;
-        if (! $user instanceof \Illuminate\Database\Eloquent\Model) {
+        if (! $user instanceof Model) {
             return;
         }
 
-        $guard = property_exists($event, 'guard') ? $event->guard : 'web';
+        $guard = property_exists($event, 'guard') ? $event->guard : 'customer';
         if ($this->wasHandled('logout', $user, $guard)) {
             return;
         }
 
         $title = match ($guard) {
             'admin' => 'Admin logout.',
-            'employee' => 'Employee logout.',
+            'owner' => 'Owner logout.',
+            'customer' => 'Customer logout.',
             default => 'User logout.',
         };
 

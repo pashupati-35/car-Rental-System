@@ -15,14 +15,15 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('customer_id');
-            $table->unsignedBigInteger('car_id');
-            $table->unsignedBigInteger('booking_id');
-            $table->decimal('amount', 10, 2);
-            $table->string('card_number');
-            $table->string('expiry_date');
-            $table->string('cvv');
+            $table->unsignedBigInteger('customer_id')->nullable();
+            $table->unsignedBigInteger('car_id')->nullable();
+            $table->unsignedBigInteger('booking_id')->nullable();
+            $table->decimal('amount', 10, 2)->nullable();
+            $table->string('card_number')->nullable();
+            $table->string('expiry_date')->nullable();
+            $table->string('cvv')->nullable();
             $table->timestamps();
+            $table->softDeletes()->nullable();
 
             // Foreign keys
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');

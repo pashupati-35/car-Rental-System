@@ -5,7 +5,18 @@
  * Calendar page parse and format the same API dates the same way.
  */
 
-import type { CalendarEvent } from '@/types/employee/calendar/CalendarType'
+export interface CalendarEvent {
+  id?: number | string
+  title?: string
+  start_date?: string | null
+  end_date?: string | null
+  is_active?: boolean
+  is_all_day?: boolean
+  event_type?: {
+    color?: string
+  } | null
+  [key: string]: any
+}
 
 export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -101,8 +112,8 @@ export interface EventRange {
 /** Active events mapped to a start/end day-key range, earliest first. */
 export function toEventRanges(events: CalendarEvent[]): EventRange[] {
   return events
-    .filter(event => event.is_active)
-    .map(event => {
+    .filter((event: CalendarEvent) => event.is_active)
+    .map((event: CalendarEvent) => {
       const parsedStart = parseApiDate(event.start_date)
       const start = parsedStart ?? new Date()
       const end = parseApiDate(event.end_date) ?? start
@@ -110,7 +121,7 @@ export function toEventRanges(events: CalendarEvent[]): EventRange[] {
 
       return { event, start: from, startKey: dayKey(from), endKey: dayKey(to) }
     })
-    .sort((a, b) => a.startKey - b.startKey)
+    .sort((a: EventRange, b: EventRange) => a.startKey - b.startKey)
 }
 
 /** Every event whose range covers the given day. */
@@ -118,6 +129,6 @@ export function eventsOn(ranges: EventRange[], date: Date): CalendarEvent[] {
   const key = dayKey(date)
 
   return ranges
-    .filter(range => key >= range.startKey && key <= range.endKey)
-    .map(range => range.event)
+    .filter((range: EventRange) => key >= range.startKey && key <= range.endKey)
+    .map((range: EventRange) => range.event)
 }

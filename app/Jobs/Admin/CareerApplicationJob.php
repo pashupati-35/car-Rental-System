@@ -53,6 +53,7 @@ class CareerApplicationJob implements ShouldQueue
                 'name' => $this->careerApplication->file,
             ];
         }
+
         return $attachments;
     }
 }

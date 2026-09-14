@@ -43,6 +43,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $model = $this->findOrFail($id);
         $model->update($data);
+
         return $model;
     }
 
@@ -56,6 +57,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         if (is_null($value)) {
             return $this->model->where($column, $operator);
         }
+
         return $this->model->where($column, $operator, $value);
     }
 

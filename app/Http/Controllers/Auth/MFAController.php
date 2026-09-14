@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Admin;
+use App\Models\Customer;
+use App\Models\Owner;
 use App\Services\Authenticator\Authenticator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class MFAController extends Controller
 {
@@ -27,7 +31,7 @@ class MFAController extends Controller
     public function getMfaAuthenticatorCode(Request $request)
     {
         $user = $this->getActiveUser();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -50,7 +54,7 @@ class MFAController extends Controller
         ]);
 
         $user = $this->getActiveUser();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -72,7 +76,7 @@ class MFAController extends Controller
     public function deactivateMfaAuthenticator(Request $request)
     {
         $user = $this->getActiveUser();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
 
@@ -95,19 +99,21 @@ class MFAController extends Controller
 
         $guard = $request->input('guard', 'admin');
         $modelClass = match ($guard) {
-            'owner' => \App\Models\Owner::class,
-            'customer' => \App\Models\Customer::class,
-            default => \App\Models\Admin::class,
+            'owner' => Owner::class,
+            'customer' => Customer::class,
+            default => Admin::class,
         };
 
         $user = $modelClass::where('email', $request->input('email'))->first();
 
-        if ($user && \Illuminate\Support\Facades\Hash::check($request->input('password'), $user->password)) {
+        if ($user && Hash::check($request->input('password'), $user->password)) {
             if ($this->authenticator->verifyCode($user->mfa_secret_code, $request->input('verification_code'), 2)) {
                 Auth::guard($guard)->login($user);
                 $request->session()->regenerate();
+
                 return response()->json(['status' => 'OK', 'data' => $user]);
             }
+
             return response()->json(['status' => 'ERROR', 'errors' => 'The MFA verification code is invalid.'], 422);
         }
 

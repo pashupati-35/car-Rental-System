@@ -56,7 +56,7 @@ class EmailLogService
                 'ip_address' => Request::ip(),
                 'user_agent' => mb_substr((string) Request::userAgent(), 0, 65535),
                 'attachments' => $attachments ?: null,
-                'headers' => !empty($event->data) ? ['data_keys' => array_keys($event->data)] : null,
+                'headers' => ! empty($event->data) ? ['data_keys' => array_keys($event->data)] : null,
                 'sent_at' => now(),
             ]);
         } catch (\Throwable $e) {
@@ -173,14 +173,25 @@ class EmailLogService
     }
 
     /**
-     * Resolve the currently authenticated user across admin/employee/web guards.
+     * Resolve the currently authenticated user across admin/owner/customer guards.
      */
     private function resolveSender(): ?Model
     {
-        foreach (['admin', 'employee', 'web'] as $guard) {
-            $user = Auth::guard($guard)->user();
-            if ($user instanceof Model) {
-                return $user;
+        $guards = array_keys(config('auth.guards', []));
+        if (empty($guards)) {
+            $guards = ['admin', 'owner', 'customer'];
+        }
+
+        foreach ($guards as $guard) {
+            try {
+                if (Auth::guard($guard)->check()) {
+                    $user = Auth::guard($guard)->user();
+                    if ($user instanceof Model) {
+                        return $user;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore guard resolve failure
             }
         }
 

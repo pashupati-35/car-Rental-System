@@ -11,7 +11,7 @@ class ChatService
 {
     public function ask(string $prompt, array $conversationHistory = [], string $databaseContext = ''): string
     {
-        $config = new OllamaConfig();
+        $config = new OllamaConfig;
         $config->model = 'llama3';
         $chat = new OllamaChat($config);
         $messages = $this->buildMessages($prompt, $conversationHistory, $databaseContext);
@@ -21,7 +21,7 @@ class ChatService
 
     public function askStream(string $prompt, array $conversationHistory = [], string $databaseContext = ''): StreamInterface
     {
-        $config = new OllamaConfig();
+        $config = new OllamaConfig;
         $config->model = 'llama3';
         $chat = new OllamaChat($config);
         $messages = $this->buildMessages($prompt, $conversationHistory, $databaseContext);
@@ -30,7 +30,7 @@ class ChatService
     }
 
     /**
-     * @param array<int, array{prompt?: string, response?: string}> $conversationHistory
+     * @param  array<int, array{prompt?: string, response?: string}>  $conversationHistory
      * @return Message[]
      */
     private function buildMessages(string $prompt, array $conversationHistory, string $databaseContext): array

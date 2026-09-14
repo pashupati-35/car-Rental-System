@@ -2,6 +2,7 @@
 
 namespace App\Services\ActivityLog;
 
+use App\Models\ActivityLog\ActivityLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
@@ -12,11 +13,10 @@ class ActivityLogService
     /**
      * Log an activity entry.
      *
-     * @param  string  $logType     login, logout, create, update, delete, restore, export, import
-     * @param  string|null  $description
-     * @param  Model|null  $subject    The model the activity was performed on
-     * @param  array|null  $properties Extra data (old/new values, request data)
-     * @param  Model|null  $causer     Override the causer (defaults to the authenticated user)
+     * @param  string  $logType  login, logout, create, update, delete, restore, export, import
+     * @param  Model|null  $subject  The model the activity was performed on
+     * @param  array|null  $properties  Extra data (old/new values, request data)
+     * @param  Model|null  $causer  Override the causer (defaults to the authenticated user)
      */
     public function log(
         string $logType,
@@ -29,7 +29,7 @@ class ActivityLogService
         $causer ??= $this->resolveCauser();
         $properties ??= $this->requestContext();
 
-        \App\Models\ActivityLog\ActivityLog::query()->create([
+        ActivityLog::query()->create([
             'log_type' => $logType,
             'description' => $description,
             'causer_type' => $causer ? $causer->getMorphClass() : null,
@@ -48,7 +48,7 @@ class ActivityLogService
      */
     public function logModelEvent(string $logType, Model $model): void
     {
-        if ($model instanceof \App\Models\ActivityLog\ActivityLog) {
+        if ($model instanceof ActivityLog) {
             return;
         }
 
@@ -91,14 +91,25 @@ class ActivityLogService
     }
 
     /**
-     * Resolve the currently authenticated user across admin/employee/web guards.
+     * Resolve the currently authenticated user across admin/owner/customer guards.
      */
     private function resolveCauser(): ?Model
     {
-        foreach (['admin', 'employee', 'web'] as $guard) {
-            $user = Auth::guard($guard)->user();
-            if ($user instanceof Model) {
-                return $user;
+        $guards = array_keys(config('auth.guards', []));
+        if (empty($guards)) {
+            $guards = ['admin', 'owner', 'customer'];
+        }
+
+        foreach ($guards as $guard) {
+            try {
+                if (Auth::guard($guard)->check()) {
+                    $user = Auth::guard($guard)->user();
+                    if ($user instanceof Model) {
+                        return $user;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore guard resolve failure
             }
         }
 

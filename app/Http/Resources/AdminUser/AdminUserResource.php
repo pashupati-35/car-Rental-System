@@ -24,6 +24,7 @@ class AdminUserResource extends JsonResource
             'full_name' => $this->full_name,
             'image' => $this->image,
             'image_path' => $this->image_path,
+            'file_path' => $this->file_path ?? $this->image_path,
             'mobile' => $this->mobile,
             'phone' => $this->phone,
             'username' => $this->username,

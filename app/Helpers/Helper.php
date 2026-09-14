@@ -199,13 +199,23 @@ if (! function_exists('siteAssetFromSetting')) {
 if (! function_exists('getFavIcon')) {
     function getFavIcon(): string
     {
-        return siteAssetFromSetting('fav_icon', 'fav_icon_path', 'front/img/fav.png');
+        $setting = getSiteSetting();
+        if ($setting?->fav_icon && ! empty($setting->fav_icon_path['original'])) {
+            return $setting->fav_icon_path['original'];
+        }
+
+        return asset('favicon.ico');
     }
 }
 
 if (! function_exists('getLogo')) {
     function getLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->logo && ! empty($setting->logo_path['original'])) {
+            return $setting->logo_path['original'];
+        }
+
         return siteAssetFromSetting('logo', 'logo_path', 'front/img/logo.png');
     }
 }
@@ -213,6 +223,11 @@ if (! function_exists('getLogo')) {
 if (! function_exists('getFooterLogo')) {
     function getFooterLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->footer_logo && ! empty($setting->footer_logo_path['original'])) {
+            return $setting->footer_logo_path['original'];
+        }
+
         return siteAssetFromSetting('footer_logo', 'footer_logo_path', 'front/img/logo_footer.png');
     }
 }
@@ -220,6 +235,11 @@ if (! function_exists('getFooterLogo')) {
 if (! function_exists('getAppLogo')) {
     function getAppLogo(): string
     {
+        $setting = getSiteSetting();
+        if ($setting?->app_logo && ! empty($setting->app_logo_path['original'])) {
+            return $setting->app_logo_path['original'];
+        }
+
         return siteAssetFromSetting('app_logo', 'app_logo_path', 'front/img/logo.png');
     }
 }
@@ -256,29 +276,58 @@ if (! function_exists('getLoginBackground')) {
 if (! function_exists('getSiteSettingLogos')) {
     /**
      * @return array{
-     *     logo:string,
-     *     favicon:string,
-     *     app_logo:string,
-     *     footer_logo:string,
+     *     logo:string|null,
+     *     favicon:string|null,
+     *     app_logo:string|null,
+     *     footer_logo:string|null,
      *     login_bg_image:string|null,
-     *     company_name:string|null,
-     *     slogan:string|null
+     *     company_name:string,
+     *     slogan:string|null,
+     *     tagline:string|null,
+     *     primary_color:string|null,
+     *     secondary_color:string|null
      * }
      */
     function getSiteSettingLogos(): array
     {
         $setting = getSiteSetting();
 
+        $logo = null;
+        if ($setting?->logo && ! empty($setting->logo_path['original'])) {
+            $logo = $setting->logo_path['original'];
+        }
+
+        $favicon = null;
+        if ($setting?->fav_icon && ! empty($setting->fav_icon_path['original'])) {
+            $favicon = $setting->fav_icon_path['original'];
+        }
+
+        $appLogo = null;
+        if ($setting?->app_logo && ! empty($setting->app_logo_path['original'])) {
+            $appLogo = $setting->app_logo_path['original'];
+        }
+
+        $footerLogo = null;
+        if ($setting?->footer_logo && ! empty($setting->footer_logo_path['original'])) {
+            $footerLogo = $setting->footer_logo_path['original'];
+        }
+
+        $loginBgImage = null;
+        if ($setting?->login_bg_image && ! empty($setting->login_bg_path['original'])) {
+            $loginBgImage = $setting->login_bg_path['original'];
+        }
+
         return [
-            'logo' => $setting?->logo_path['original'] ?? asset('front/img/logo.png'),
-            'favicon' => $setting?->fav_icon_path['original'] ?? asset('front/img/fav.png'),
-            'app_logo' => $setting?->app_logo_path['original'] ?? asset('front/img/logo.png'),
-            'footer_logo' => $setting?->footer_logo_path['original'] ?? asset('front/img/logo_footer.png'),
-            'login_bg_image' => filled($setting?->login_bg_image)
-                ? siteAssetFromSetting('login_bg_image', 'login_bg_image_path', '')
-                : null,
-            'company_name' => $setting?->company_name,
+            'logo' => $logo,
+            'favicon' => $favicon,
+            'app_logo' => $appLogo,
+            'footer_logo' => $footerLogo,
+            'login_bg_image' => $loginBgImage,
+            'company_name' => $setting?->company_name ?: config('app.name', 'Car Rental System'),
             'slogan' => $setting?->slogan,
+            'tagline' => $setting?->tagline,
+            'primary_color' => $setting?->primary_color,
+            'secondary_color' => $setting?->secondary_color,
         ];
     }
 }
@@ -361,21 +410,18 @@ if (! function_exists('renderEmailData')) {
     /** @param iterable<int, string> $acceptedInputs @param array<string, mixed> $acceptedData */
     function renderEmailData(string $content, iterable $acceptedInputs, array $acceptedData): string
     {
-        foreach ($acceptedInputs as $input) {
-            $key = trim($input);
-
-            if (! array_key_exists($key, $acceptedData)) {
+        foreach ($acceptedData as $key => $value) {
+            $key = trim((string) $key);
+            if ($key === '') {
                 continue;
             }
-
-            $value = $acceptedData[$key];
 
             if ($key === 'note') {
                 $value = renderEmailPlainText($value);
             }
 
             $content = preg_replace(
-                '/\{\{\s*\$?'.preg_quote($key, '/').'\s*\}\}/',
+                '/\{\{\s*\$?'.preg_quote($key, '/').'\s*\}\}/i',
                 e((string) $value),
                 $content
             ) ?? $content;
@@ -428,26 +474,13 @@ if (! function_exists('buildTableNameToLogInfoTitle')) {
 if (! function_exists('setSMTP')) {
     function setSMTP(): void
     {
-        if (app()->environment('local')) {
-            return;
-        }
-
         $setting = getSiteSetting();
         if (! $setting) {
             return;
         }
 
-        // ℹ️ Never bail out quietly: without site-setting credentials the mailer
-        // silently falls back to the .env values, and a stale token there surfaces
-        // as "535 Authentication Failed" — which looks like wrong credentials
-        // rather than missing configuration. Say so in the log.
+        // Without site-setting credentials the mailer falls back to the .env values.
         if (blank($setting->mail_host) || blank($setting->mail_user_name) || blank($setting->mail_password)) {
-            Log::warning('SMTP is not fully configured in site settings; falling back to the .env mail config.', [
-                'has_host' => filled($setting->mail_host),
-                'has_username' => filled($setting->mail_user_name),
-                'has_password' => filled($setting->mail_password),
-            ]);
-
             return;
         }
 
@@ -484,13 +517,31 @@ if (! function_exists('getImagePath')) {
             return null;
         }
 
-        $fileType = checkFileType($imageName);
-        if ($fileType === 'other') {
-            return null;
+        $imageClean = ltrim($imageName, '/');
+
+        if (str_starts_with($imageClean, 'http://') || str_starts_with($imageClean, 'https://') || str_starts_with($imageClean, 'blob:')) {
+            return [
+                'original' => $imageClean,
+                'thumb' => $imageClean,
+            ];
         }
 
-        $basePath = trim($uploadPath, '/').'/'.ltrim($imageName, '/');
-        $thumbPath = trim($uploadPath, '/').'/thumb/'.ltrim($imageName, '/');
+        $fileType = checkFileType($imageClean);
+
+        $uploadClean = trim(str_replace('uploads/', '', $uploadPath), '/');
+
+        if (str_starts_with($imageClean, 'uploads/')) {
+            $basePath = $imageClean;
+            $relativeInside = substr($imageClean, strlen('uploads/'));
+            $thumbPath = 'uploads/thumb/'.$relativeInside;
+        } elseif (str_starts_with($imageClean, $uploadClean.'/')) {
+            $basePath = 'uploads/'.$imageClean;
+            $relativeInside = substr($imageClean, strlen($uploadClean) + 1);
+            $thumbPath = 'uploads/'.$uploadClean.'/thumb/'.$relativeInside;
+        } else {
+            $basePath = 'uploads/'.$uploadClean.'/'.$imageClean;
+            $thumbPath = 'uploads/'.$uploadClean.'/thumb/'.$imageClean;
+        }
 
         if (getStorageType() !== 'local' && app()->environment('production')) {
             $originalUrl = s3_image_url(buildUploadPathUrl($basePath), $signed);
@@ -504,6 +555,14 @@ if (! function_exists('getImagePath')) {
             'original' => $originalUrl,
             'thumb' => $thumbUrl,
         ], static fn (?string $value): bool => filled($value));
+    }
+}
+
+if (! function_exists('getFilePath')) {
+    /** @return array{original:string, thumb?:string}|null */
+    function getFilePath(string $uploadPath, ?string $fileName, bool $signed = false): ?array
+    {
+        return getImagePath($uploadPath, $fileName, $signed);
     }
 }
 
@@ -535,6 +594,7 @@ if (! function_exists('checkFileType')) {
             in_array($extension, ['csv', 'txt'], true) => 'csv',
             in_array($extension, ['xls', 'xlsx'], true) => 'xls',
             $extension === 'pdf' => 'pdf',
+            in_array($extension, ['zip', 'rar', '7z', 'tar', 'gz'], true) => 'archive',
             $extension !== '' => 'file',
             default => 'other',
         };

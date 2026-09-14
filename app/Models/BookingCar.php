@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BookingCar extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'booking_car';
 
@@ -44,5 +45,21 @@ class BookingCar extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    /**
+     * Get the payment associated with the booking.
+     */
+    public function payment()
+    {
+        return $this->hasOne(Payment::class, 'booking_id');
+    }
+
+    /**
+     * Get all payments associated with the booking.
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'booking_id');
     }
 }

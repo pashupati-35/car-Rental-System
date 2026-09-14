@@ -39,7 +39,23 @@ class BookingController extends Controller
         $booking = $this->bookingService->reserveCar($dto, $distanceTraveled);
 
         if ($booking === null) {
+            if ($request->wantsJson() || $request->isJson() || $request->ajax()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The selected dates are not available or already reserved.',
+                ], 422);
+            }
+
             return back()->withErrors('The selected dates are not available.');
+        }
+
+        if ($request->wantsJson() || $request->isJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Reservation confirmed successfully! Please proceed to complete payment or view booking.',
+                'booking_id' => $booking->id,
+                'redirect_url' => route('customer.bookings'),
+            ]);
         }
 
         return redirect()

@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Carbon\Carbon;
 use App\Models\BookingCar;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class DeleteOldBookings extends Command
 {
     protected $signature = 'bookings:cleanup';
+
     protected $description = 'Delete bookings that are more than 3 days old or have a status of "cancel"';
 
     public function __construct()

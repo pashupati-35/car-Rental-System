@@ -10,17 +10,16 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('booking_car', function (Blueprint $table) {
-        $table->text('total_price')->change();
-    });
-}
+    {
+        Schema::table('booking_car', function (Blueprint $table) {
+            $table->text('total_price')->change();
+        });
+    }
 
-public function down()
-{
-    Schema::table('booking_car', function (Blueprint $table) {
-        $table->string('total_price', 255)->change();
-    });
-}
-
+    public function down()
+    {
+        Schema::table('booking_car', function (Blueprint $table) {
+            $table->string('total_price', 255)->change();
+        });
+    }
 };

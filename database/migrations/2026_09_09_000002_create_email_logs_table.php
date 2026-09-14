@@ -31,6 +31,7 @@ return new class extends Migration
             $table->json('headers')->nullable();                  // Extra metadata/headers
             $table->timestamp('sent_at')->nullable();             // Timestamp when sent
             $table->timestamps();
+            $table->softDeletes()->nullable();
 
             $table->index('status');
             $table->index('created_at');

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 class CheckReservationTimeout extends Command
 {
     protected $signature = 'reservations:check-timeout';
+
     protected $description = 'Check for reservations that have timed out and update their status';
 
     public function handle()
@@ -20,7 +21,7 @@ class CheckReservationTimeout extends Command
             // Ensure timezone is set to Asia/Kathmandu
             Carbon::setLocale('Asia/kathmandu');
             $timeout = Carbon::now()->subHours(2);
-            $this->info('Timeout calculated as: ' . $timeout);
+            $this->info('Timeout calculated as: '.$timeout);
 
             // Log the query to debug
             DB::listen(function ($query) {
@@ -32,11 +33,11 @@ class CheckReservationTimeout extends Command
                 ->where('created_at', '<=', $timeout)
                 ->get();
 
-            $this->info('Number of records found: ' . $records->count());
+            $this->info('Number of records found: '.$records->count());
 
             // Log records before update
             foreach ($records as $record) {
-                $this->info('ID: ' . $record->id . ', Created At: ' . $record->created_at);
+                $this->info('ID: '.$record->id.', Created At: '.$record->created_at);
             }
 
             // Check if the records are correctly fetched
@@ -55,7 +56,7 @@ class CheckReservationTimeout extends Command
                 $this->info('No records found to update.');
             }
         } catch (Exception $e) {
-            Log::error('Error checking reservation timeouts: ' . $e->getMessage());
+            Log::error('Error checking reservation timeouts: '.$e->getMessage());
             $this->error('An error occurred while checking reservations.');
         }
     }

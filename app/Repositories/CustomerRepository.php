@@ -3,6 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Customer;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class CustomerRepository extends BaseRepository implements CustomerRepositoryInterface
 {
@@ -29,5 +31,57 @@ class CustomerRepository extends BaseRepository implements CustomerRepositoryInt
     public function getByAdmin($adminId)
     {
         return $this->model->where('admin_id', $adminId)->get();
+    }
+
+    public function getAdminPaginatedCustomers(array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $search = $filters['search'] ?? null;
+        $query = $this->model->withCount('bookings');
+
+        if (filled($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%")
+                    ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->latest('id')->paginate($perPage)->withQueryString();
+    }
+
+    public function getRecentCustomers(int $limit = 5): Collection
+    {
+        return $this->model->withCount('bookings')->latest()->take($limit)->get();
+    }
+
+    public function getCustomerDetails(int $id): Customer
+    {
+        return $this->model->withCount('bookings')->findOrFail($id);
+    }
+
+    public function createCustomer(array $data): Customer
+    {
+        return $this->model->create($data);
+    }
+
+    public function updateCustomer(int $id, array $data): Customer
+    {
+        $customer = $this->model->findOrFail($id);
+        $customer->update($data);
+
+        return $customer;
+    }
+
+    public function deleteCustomer(int $id): bool
+    {
+        $customer = $this->model->findOrFail($id);
+
+        return (bool) $customer->delete();
+    }
+
+    public function getTotalCustomersCount(): int
+    {
+        return $this->model->count();
     }
 }

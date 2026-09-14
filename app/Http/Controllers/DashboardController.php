@@ -2,72 +2,129 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BookingCar;
-use App\Models\Car;
+use App\Services\BookingService;
+use App\Services\CarService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function __construct(
+        protected CarService $carService,
+        protected BookingService $bookingService,
+    ) {}
+
+    public function index(?Request $request = null)
     {
-        $cars = Car::where('available', 'yes')->orWhereNull('available')->get();
+        $request = $request ?? request();
+        $page = (int) $request->input('page', 1);
+        $perPage = (int) $request->input('per_page', 12);
+
+        $cacheKey = "homepage_featured_cars_page_{$page}_per_{$perPage}";
+        $cars = Cache::remember($cacheKey, 300, function () use ($perPage) {
+            return $this->carService->paginateCars([], $perPage);
+        });
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $cars,
+            ]);
+        }
+
         return Inertia::render('Home', [
             'featuredCars' => $cars,
         ]);
     }
 
-    public function carsIndex()
+    public function carsIndex(Request $request)
     {
-        $cars = Car::all();
+        $perPage = (int) $request->input('per_page', 12);
+        $search = $request->input('search');
+        $seats = $request->input('seats');
+        $maxPrice = $request->input('max_price');
+        $sortBy = $request->input('sort_by', 'latest');
+
+        $filters = [
+            'search' => $search,
+            'seats' => $seats,
+            'max_price' => $maxPrice,
+            'sort_by' => $sortBy,
+        ];
+
+        $cars = $this->carService->paginateCars($filters, $perPage);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $cars,
+            ]);
+        }
+
         return Inertia::render('cars/Index', [
             'cars' => $cars,
+            'filters' => [
+                'search' => $search ?? '',
+                'seats' => $seats ?? '',
+                'max_price' => $maxPrice ?? '',
+                'sort_by' => $sortBy,
+                'per_page' => $perPage,
+            ],
         ]);
     }
 
-    public function view($id)
+    public function view(Request $request, $id)
     {
-        $car = Car::findOrFail($id);
+        $car = $this->carService->getCarDetails((int) $id);
+        $disabledDates = $this->bookingService->getDisabledDatesForCar((int) $id);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'car' => $car,
+                    'disabled_dates' => $disabledDates,
+                ],
+            ]);
+        }
+
         return Inertia::render('cars/Show', [
             'car' => $car,
+            'disabledDates' => $disabledDates,
         ]);
     }
 
-    public function showCalendar($id = null)
+    public function showCalendar(Request $request, $id = null)
     {
-        $bookings = BookingCar::select('pick_up_date', 'last_date', 'status')
-            ->when($id, fn($q) => $q->where('car_id', $id))
-            ->get();
+        $bookings = $this->bookingService->getCalendarBookings($id ? (int) $id : null);
+        $cars = $this->carService->getCalendarCars();
 
         return Inertia::render('Calendar', [
-            'carId' => $id,
+            'carId' => $id ? (int) $id : null,
+            'cars' => $cars,
             'bookings' => $bookings,
         ]);
     }
 
     public function getBookingDates($id)
     {
-        $bookings = BookingCar::where('car_id', $id)
-            ->select('pick_up_date', 'last_date', 'status')
-            ->get();
+        $dates = $this->bookingService->getActiveBookingDates((int) $id);
 
-        $dates = [
-            'booked' => [],
-            'reserved' => []
-        ];
+        return response()->json([
+            'status' => 'success',
+            'data' => $dates,
+        ]);
+    }
 
-        foreach ($bookings as $booking) {
-            $currentDate = $booking->pick_up_date;
-            while (strtotime($currentDate) <= strtotime($booking->last_date)) {
-                if ($booking->status === 'booked') {
-                    $dates['booked'][] = $currentDate;
-                } elseif ($booking->status === 'reserved') {
-                    $dates['reserved'][] = $currentDate;
-                }
-                $currentDate = date('Y-m-d', strtotime($currentDate . ' +1 day'));
-            }
-        }
-
-        return response()->json($dates);
+    public function getStats(Request $request)
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'totalCars' => $this->carService->getTotalCarsCount(),
+                'totalBookings' => $this->bookingService->getTotalBookingsCount(),
+            ],
+        ]);
     }
 }
