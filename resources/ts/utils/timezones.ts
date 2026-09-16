@@ -15,6 +15,7 @@ export const fetchTimezones = async (): Promise<string[]> => {
     const res = await axios.get('/timezones')
     if (res.data?.timezones && Array.isArray(res.data.timezones)) {
       cachedTimezones = res.data.timezones
+      
       return cachedTimezones
     }
   } catch (err) {
@@ -31,8 +32,9 @@ export function useTimezones(initialTimezones?: string[]) {
   const timezones = ref<string[]>(
     initialTimezones && initialTimezones.length > 0
       ? initialTimezones
-      : (cachedTimezones.length > 0 ? cachedTimezones : [])
+      : (cachedTimezones.length > 0 ? cachedTimezones : []),
   )
+
   const loading = ref(false)
 
   const loadTimezones = async () => {
@@ -40,12 +42,14 @@ export function useTimezones(initialTimezones?: string[]) {
       if (cachedTimezones.length === 0) {
         cachedTimezones = timezones.value
       }
+      
       return
     }
 
     loading.value = true
     try {
       const list = await fetchTimezones()
+
       timezones.value = list
     } finally {
       loading.value = false

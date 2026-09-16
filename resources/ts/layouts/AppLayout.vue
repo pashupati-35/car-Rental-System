@@ -98,7 +98,7 @@ const navItems = computed(() => {
 })
 
 const isActive = (href: string) => {
-  const current = page.url.split('?')[0]
+  const current = page.url.split('?')[0] ?? ''
   if (href === `/${rolePrefix.value}/dashboard`) {
     return current === `/${rolePrefix.value}/dashboard` || current === `/${rolePrefix.value}`
   }

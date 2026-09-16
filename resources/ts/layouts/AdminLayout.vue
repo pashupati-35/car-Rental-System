@@ -134,7 +134,7 @@ const cmsQuickLinks = [
 ]
 
 const isActive = (href: string) => {
-  const current = currentUrl.value.split('?')[0]
+  const current = currentUrl.value.split('?')[0] ?? ''
   if (href === '/admin/dashboard') {
     return current === '/admin/dashboard' || current === '/admin'
   }

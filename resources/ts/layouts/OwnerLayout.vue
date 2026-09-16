@@ -76,7 +76,7 @@ const ownerNav = computed(() => [
 ])
 
 const isActive = (href: string) => {
-  const current = currentUrl.value.split('?')[0]
+  const current = currentUrl.value.split('?')[0] ?? ''
   if (href === '/owner/dashboard') {
     return current === '/owner/dashboard' || current === '/owner'
   }
