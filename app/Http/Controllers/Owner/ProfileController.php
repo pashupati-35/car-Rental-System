@@ -8,6 +8,7 @@ use App\Http\Requests\Owner\Profile\UpdateProfileRequest;
 use App\Http\Requests\Owner\Profile\UpdateThemeStyleRequest;
 use App\Http\Resources\OwnerResource;
 use App\Services\OwnerService;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,6 +18,14 @@ class ProfileController extends Controller
     public function __construct(
         protected OwnerService $ownerService
     ) {}
+
+    /**
+     * Return list of all standard PHP timezones.
+     */
+    public function showTimeZone()
+    {
+        return response()->json(['timezones' => DateTimeZone::listIdentifiers()], 200);
+    }
 
     /**
      * Display the owner's profile form.
@@ -31,11 +40,13 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => 'OK',
                 'user' => $ownerResource,
+                'timezones' => DateTimeZone::listIdentifiers(),
             ]);
         }
 
         return Inertia::render('owner/Profile', [
             'user' => $ownerResource,
+            'timezones' => DateTimeZone::listIdentifiers(),
         ]);
     }
 

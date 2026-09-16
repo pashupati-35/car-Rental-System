@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\Traits\UploadPathTrait;
+use App\Traits\HasUserTimezone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -11,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Admin extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, UploadPathTrait;
+    use HasApiTokens, HasFactory, HasUserTimezone, Notifiable, SoftDeletes, UploadPathTrait;
 
     protected $guard = 'admin';
 
@@ -67,7 +68,7 @@ class Admin extends Authenticatable
         'mfa_authentication_image',
     ];
 
-    protected $appends = ['full_name', 'image_path', 'file_path'];
+    protected $appends = ['full_name', 'image_path', 'file_path', 'timezone'];
 
     protected function casts(): array
     {

@@ -41,6 +41,9 @@ require __DIR__.'/admin-auth.php';
 require __DIR__.'/owner-auth.php';
 require __DIR__.'/customer-auth.php';
 
+// Timezone lookup API
+Route::get('/timezones', [App\Http\Controllers\Admin\ProfileController::class, 'showTimeZone'])->name('timezones');
+
 // Social Auth routes
 Route::get('login/google', [SocialAuthController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('login/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);

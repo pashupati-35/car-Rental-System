@@ -46,3 +46,6 @@ Route::middleware('auth:admin')->prefix('admin')->group(function () {
 
 // AI Chatbot
 Route::post('/ask-ai', [AIController::class, 'ask']);
+
+// Timezone lookup API
+Route::get('/timezones', [App\Http\Controllers\Admin\ProfileController::class, 'showTimeZone']);

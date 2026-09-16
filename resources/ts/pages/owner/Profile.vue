@@ -5,10 +5,14 @@ import OwnerLayout from '@/layouts/OwnerLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
 import { useOwnerTheme, type OwnerThemeStyle } from '@/composable/useOwnerTheme'
+import { useTimezones } from '@/utils/timezones'
 
 const props = defineProps<{
   user?: any
+  timezones?: string[]
 }>()
+
+const { timezones } = useTimezones(props.timezones)
 
 const page = usePage()
 const authUser = computed(() => props.user || (page.props.auth as any)?.owner || (page.props.auth as any)?.user || {})
@@ -37,6 +41,7 @@ const profileForm = ref({
   emergency_contact: authUser.value?.emergency_contact || '',
   contact_person_name: authUser.value?.contact_person_name || '',
   contact_relationship: authUser.value?.contact_relationship || '',
+  timezone: authUser.value?.timezone || 'Asia/Kathmandu',
 })
 
 const resolveImageUrl = (userObj: any) => {
@@ -300,6 +305,13 @@ const themeOptions: { value: OwnerThemeStyle; label: string; desc: string; icon:
                   <i class="ri-map-pin-line text-emerald-600 dark:text-emerald-400" />
                   {{ profileForm.address }}
                 </span>
+                <span
+                  v-if="profileForm.timezone"
+                  class="flex items-center gap-1.5 font-mono"
+                >
+                  <i class="ri-time-line text-emerald-600 dark:text-emerald-400" />
+                  {{ profileForm.timezone }}
+                </span>
               </div>
             </div>
           </div>
@@ -465,6 +477,21 @@ const themeOptions: { value: OwnerThemeStyle; label: string; desc: string; icon:
                 placeholder="e.g. N12345678"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Account Timezone</span>
+                <span class="text-[10px] font-normal text-emerald-600 dark:text-emerald-400 font-mono">{{ profileForm.timezone }}</span>
+              </label>
+              <select
+                v-model="profileForm.timezone"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-mono"
+              >
+                <option v-for="tz in timezones" :key="tz" :value="tz">
+                  {{ tz }}
+                </option>
+              </select>
             </div>
           </div>
         </div>

@@ -8,6 +8,8 @@ use App\Models\Cms\SiteSetting\SiteSetting;
 use App\Models\EmailTemplate\EmailTemplate;
 use App\Repositories\Interfaces\Cms\SiteSetting\SiteSettingRepositoryInterface;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Crypt;
@@ -17,6 +19,112 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Nilambar\NepaliDate\NepaliDate;
+
+if (! function_exists('getUserTimezone')) {
+    function getUserTimezone(mixed $user = null): string
+    {
+        $defaultTimezone = config('app.timezone', 'Asia/Kathmandu') ?: 'UTC';
+
+        if (is_string($user) && filled($user)) {
+            try {
+                new \DateTimeZone($user);
+
+                return $user;
+            } catch (\Throwable) {
+                // Invalid timezone string, continue resolution
+            }
+        }
+
+        if ($user === null) {
+            foreach (['admin', 'owner', 'customer', 'web', 'student', 'agent', 'consultant', 'mypr', 'sanctum'] as $guard) {
+                try {
+                    if (auth()->guard($guard)->check()) {
+                        $user = auth()->guard($guard)->user();
+                        break;
+                    }
+                } catch (\Throwable) {
+                    continue;
+                }
+            }
+            $user ??= Auth::user() ?? request()?->user();
+        }
+
+        if (is_object($user)) {
+            $timezone = null;
+
+            if (isset($user->timezone)) {
+                $timezone = is_object($user->timezone) ? ($user->timezone->timezone ?? null) : $user->timezone;
+            } elseif (method_exists($user, 'timezone')) {
+                $timezone = $user->timezone()->value('timezone');
+            }
+
+            if (filled($timezone) && is_string($timezone)) {
+                try {
+                    new \DateTimeZone($timezone);
+
+                    return $timezone;
+                } catch (\Throwable) {
+                    // Invalid timezone in DB, fallback
+                }
+            }
+        }
+
+        return $defaultTimezone;
+    }
+}
+
+if (! function_exists('convertToUserTimezone')) {
+    function convertToUserTimezone(mixed $date, mixed $user = null): ?Carbon
+    {
+        if (blank($date)) {
+            return null;
+        }
+
+        $targetTimezone = getUserTimezone($user);
+        $appTimezone = config('app.timezone', 'Asia/Kathmandu') ?: 'UTC';
+
+        try {
+            if ($date instanceof CarbonInterface) {
+                return $date->copy()->setTimezone($targetTimezone);
+            }
+
+            if ($date instanceof \DateTimeInterface) {
+                return Carbon::instance($date)->setTimezone($targetTimezone);
+            }
+
+            if (is_numeric($date)) {
+                return Carbon::createFromTimestamp($date, $appTimezone)->setTimezone($targetTimezone);
+            }
+
+            return Carbon::parse((string) $date, $appTimezone)->setTimezone($targetTimezone);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+}
+
+if (! function_exists('formatUserDateTime')) {
+    function formatUserDateTime(mixed $date, string $format = 'd M Y, h:i A', mixed $user = null, mixed $default = null): mixed
+    {
+        $converted = convertToUserTimezone($date, $user);
+
+        return $converted ? $converted->format($format) : $default;
+    }
+}
+
+if (! function_exists('formatUserDate')) {
+    function formatUserDate(mixed $date, string $format = 'd M Y', mixed $user = null, mixed $default = null): mixed
+    {
+        return formatUserDateTime($date, $format, $user, $default);
+    }
+}
+
+if (! function_exists('formatUserTime')) {
+    function formatUserTime(mixed $date, string $format = 'g:i A', mixed $user = null, mixed $default = null): mixed
+    {
+        return formatUserDateTime($date, $format, $user, $default);
+    }
+}
 
 if (! function_exists('formatDate')) {
     function formatDate(mixed $date, string $format = 'd M Y', mixed $default = null): mixed

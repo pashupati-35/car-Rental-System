@@ -20,8 +20,10 @@ class PaymentResource extends JsonResource
             'cvv' => $this->cvv,
             'status' => $this->status,
             'booking' => $this->whenLoaded('booking') ? new BookingResource($this->booking) : null,
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
     }
 }
