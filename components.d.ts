@@ -13,6 +13,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AppDatePicker: typeof import('./resources/ts/components/AppDatePicker.vue')['default']
+    BookingLocationMap: typeof import('./resources/ts/components/BookingLocationMap.vue')['default']
     EventCalendar: typeof import('./resources/ts/components/EventCalendar.vue')['default']
     FormToggle: typeof import('./resources/ts/components/FormToggle.vue')['default']
     MessageBox: typeof import('./resources/ts/components/MessageBox.vue')['default']
@@ -29,6 +30,7 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const AppDatePicker: typeof import('./resources/ts/components/AppDatePicker.vue')['default']
+  const BookingLocationMap: typeof import('./resources/ts/components/BookingLocationMap.vue')['default']
   const EventCalendar: typeof import('./resources/ts/components/EventCalendar.vue')['default']
   const FormToggle: typeof import('./resources/ts/components/FormToggle.vue')['default']
   const MessageBox: typeof import('./resources/ts/components/MessageBox.vue')['default']

@@ -40,13 +40,30 @@ class BookingApiController extends Controller
         $car = Car::find($carId);
         $days = (int) $startDate->diffInDays($endDate) + 1;
         $pricePerDay = (float) ($car->car_price_per_day ?? 0);
-        $totalPrice = $days * $pricePerDay;
+        $pricePerKm = (float) ($car->car_price_per_km ?? 0);
+
+        $distanceKm = (float) $request->input('distance_km', 0);
+        $pricingMode = $request->input('pricing_mode', $distanceKm > 0 ? 'distance' : 'daily');
+        $distanceCost = $distanceKm > 0 ? round($distanceKm * $pricePerKm, 2) : 0;
+        $dailyCost = $days * $pricePerDay;
+
+        if ($pricingMode === 'distance' && $distanceCost > 0) {
+            $totalPrice = $distanceCost;
+        } elseif ($pricingMode === 'both' && $distanceCost > 0) {
+            $totalPrice = round($dailyCost + $distanceCost, 2);
+        } else {
+            $totalPrice = $dailyCost;
+        }
 
         return response()->json([
             'status' => 'success',
             'available' => ! $overlap,
             'days' => $days,
             'price_per_day' => $pricePerDay,
+            'price_per_km' => $pricePerKm,
+            'distance_km' => $distanceKm,
+            'distance_cost' => $distanceCost,
+            'pricing_mode' => $pricingMode,
             'total_price' => $totalPrice,
             'message' => $overlap
                 ? 'These dates are already booked or reserved. Please choose different dates.'
@@ -78,6 +95,8 @@ class BookingApiController extends Controller
             'pick_up_date' => 'required|date|after_or_equal:today',
             'last_date' => 'required|date|after_or_equal:pick_up_date',
             'purpose' => 'nullable|string|max:255',
+            'distance_km' => 'nullable|numeric|min:0',
+            'pricing_mode' => 'nullable|string|in:distance,daily,both',
         ]);
 
         $carId = (int) $validated['car_id'];
@@ -104,7 +123,21 @@ class BookingApiController extends Controller
 
             $car = Car::findOrFail($carId);
             $days = (int) $startDate->diffInDays($endDate) + 1;
-            $totalPrice = $days * (float) ($car->car_price_per_day ?? 100);
+            $pricePerDay = (float) ($car->car_price_per_day ?? 100);
+            $pricePerKm = (float) ($car->car_price_per_km ?? 0);
+
+            $distanceKm = (float) ($validated['distance_km'] ?? 0);
+            $pricingMode = $validated['pricing_mode'] ?? ($distanceKm > 0 ? 'distance' : 'daily');
+            $distanceCost = $distanceKm > 0 ? round($distanceKm * $pricePerKm, 2) : 0;
+            $dailyCost = $days * $pricePerDay;
+
+            if ($pricingMode === 'distance' && $distanceCost > 0) {
+                $totalPrice = $distanceCost;
+            } elseif ($pricingMode === 'both' && $distanceCost > 0) {
+                $totalPrice = round($dailyCost + $distanceCost, 2);
+            } else {
+                $totalPrice = $dailyCost;
+            }
 
             $booking = BookingCar::create([
                 'car_id' => $carId,
@@ -124,6 +157,9 @@ class BookingApiController extends Controller
                 'data' => [
                     'booking' => $booking->load(['car.owner', 'car.driver']),
                     'total_price' => $totalPrice,
+                    'distance_km' => $distanceKm,
+                    'distance_cost' => $distanceCost,
+                    'price_per_km' => $pricePerKm,
                     'days' => $days,
                 ],
             ], 201);
