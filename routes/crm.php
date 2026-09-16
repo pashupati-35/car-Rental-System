@@ -69,6 +69,15 @@ $registerCrmRoutes = function ($route) {
     $route->post('corporate-accounts', [CorporateAccountController::class, 'store'])->name('corporate-accounts.store');
     $route->put('corporate-accounts/{id}', [CorporateAccountController::class, 'update'])->name('corporate-accounts.update');
     $route->delete('corporate-accounts/{id}', [CorporateAccountController::class, 'destroy'])->name('corporate-accounts.destroy');
+
+    // Account Security & Multi-Factor Authentication (MFA)
+    $route->get('security', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'index'])->name('security');
+    $route->patch('security/password', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'updatePassword'])->name('security.password');
+    $route->post('security/mfa/generate', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'generateMfa'])->name('security.mfa.generate');
+    $route->post('security/mfa/activate', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'activateMfa'])->name('security.mfa.activate');
+    $route->post('security/mfa/deactivate', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'deactivateMfa'])->name('security.mfa.deactivate');
+    $route->post('security/mfa/email/activate', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'activateEmailAuth'])->name('security.mfa.email.activate');
+    $route->post('security/mfa/email/deactivate', [\App\Http\Controllers\Crm\CrmSecurityController::class, 'deactivateEmailAuth'])->name('security.mfa.email.deactivate');
 };
 
 // 2. Register with /crm prefix (Primary CRM Portal routes)

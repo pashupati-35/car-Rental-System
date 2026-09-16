@@ -140,7 +140,7 @@ const tierBadges: Record<string, { label: string; class: string }> = {
             <!-- Stats Counters -->
             <div class="grid grid-cols-4 gap-2 text-center py-1">
               <div class="bg-slate-50 dark:bg-slate-800/60 p-2 rounded-xl">
-                <span class="block text-xs font-bold text-slate-900 dark:text-white">{{ cust.booked_cars_count || 0 }}</span>
+                <span class="block text-xs font-bold text-slate-900 dark:text-white">{{ cust.bookings_count ?? cust.booked_cars_count ?? 0 }}</span>
                 <span class="text-[10px] text-slate-400">Rentals</span>
               </div>
               <div class="bg-slate-50 dark:bg-slate-800/60 p-2 rounded-xl">

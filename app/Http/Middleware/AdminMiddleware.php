@@ -25,6 +25,10 @@ class AdminMiddleware
             ], 401);
         }
 
+        if (str_starts_with($request->getHost(), 'portal.crmcarrental.') || $request->is('crm', 'crm/*')) {
+            return redirect()->route('crm.login');
+        }
+
         return redirect()->route('admin.login');
     }
 }

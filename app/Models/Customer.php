@@ -140,6 +140,11 @@ class Customer extends Authenticatable
         return $this->hasMany(BookingCar::class);
     }
 
+    public function bookedCars()
+    {
+        return $this->hasMany(BookingCar::class);
+    }
+
     public function payments()
     {
         return $this->hasMany(Payment::class);

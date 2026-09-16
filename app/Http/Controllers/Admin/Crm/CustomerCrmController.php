@@ -35,7 +35,7 @@ class CustomerCrmController extends Controller
             });
         }
 
-        $customers = $query->withCount(['bookedCars', 'interactions', 'supportTickets', 'quotations'])
+        $customers = $query->withCount(['bookings', 'interactions', 'supportTickets', 'quotations'])
             ->latest()
             ->paginate(12)
             ->withQueryString();
