@@ -90,8 +90,6 @@ export default defineConfig({
     strictPort: true,
     cors: true,
     allowedHosts: true,
-    hmr: {
-      host: 'carrental.local',
-    },
+    hmr: process.env.VITE_HMR_HOST ? { host: process.env.VITE_HMR_HOST } : undefined,
   },
 })

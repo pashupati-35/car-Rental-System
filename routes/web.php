@@ -3,31 +3,51 @@
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController as AdminAuthController;
 use App\Http\Controllers\AI\AIController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\Crm\Auth\CrmAuthController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// 1. Dedicated Admin Portal Subdomain Routes (e.g. portal.carrental.local)
-Route::domain('portal.{domain}')->group(function () {
+// 1. Dedicated CRM Portal Subdomain Routes (e.g. portal.crmcarrental.local / portal.crmcarrental.com)
+$host = request()->getHost();
+if (str_starts_with($host, 'portal.crmcarrental.')) {
     Route::get('/', function () {
         if (auth()->guard('admin')->check()) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('crm.dashboard');
         }
 
-        return redirect()->route('admin.login');
+        return redirect()->route('crm.login');
     });
 
-    Route::get('/login', [AdminAuthController::class, 'create'])->name('portal.admin.login');
-    Route::post('/login', [AdminAuthController::class, 'store']);
-    Route::match(['get', 'post'], '/logout', [AdminAuthController::class, 'destroy'])->name('portal.admin.logout');
+    Route::get('/login', [CrmAuthController::class, 'create'])->name('portal.crm.login');
+    Route::post('/login', [CrmAuthController::class, 'store']);
+    Route::match(['get', 'post'], '/logout', [CrmAuthController::class, 'destroy'])->name('portal.crm.logout');
     Route::get('/dashboard', function () {
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('crm.dashboard');
     });
-    Route::get('/cms', function (Request $request) {
-        return redirect('/admin/cms'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+} else {
+    // 2. Dedicated Admin Portal Subdomain Routes (e.g. portal.carrental.local)
+    Route::domain('portal.{domain}')->group(function () {
+        Route::get('/', function () {
+            if (auth()->guard('admin')->check()) {
+                return redirect()->route('admin.dashboard');
+            }
+
+            return redirect()->route('admin.login');
+        });
+
+        Route::get('/login', [AdminAuthController::class, 'create'])->name('portal.admin.login');
+        Route::post('/login', [AdminAuthController::class, 'store']);
+        Route::match(['get', 'post'], '/logout', [AdminAuthController::class, 'destroy'])->name('portal.admin.logout');
+        Route::get('/dashboard', function () {
+            return redirect()->route('admin.dashboard');
+        });
+        Route::get('/cms', function (Request $request) {
+            return redirect('/admin/cms'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
+        });
     });
-});
+}
 
 Route::get('/cms', function (Request $request) {
     return redirect('/admin/cms'.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
@@ -35,6 +55,9 @@ Route::get('/cms', function (Request $request) {
 
 // Admin Inertia Vue Page routes
 require __DIR__.'/admin-vue.php';
+
+// Enterprise CRM Suite routes
+require __DIR__.'/crm.php';
 
 // Authentication routes
 require __DIR__.'/admin-auth.php';
@@ -53,6 +76,14 @@ Route::get('login/facebook/callback', [SocialAuthController::class, 'handleFaceb
 // Public & Guest routes
 Route::get('/', function () {
     $host = request()->getHost();
+    if (str_starts_with($host, 'portal.crmcarrental.')) {
+        if (auth()->guard('admin')->check()) {
+            return redirect()->route('crm.dashboard');
+        }
+
+        return redirect()->route('crm.login');
+    }
+
     if (str_starts_with($host, 'portal.')) {
         if (auth()->guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
@@ -71,9 +102,12 @@ Route::get('/car/{id}/dates', [DashboardController::class, 'getBookingDates'])->
 Route::get('/car-calendar', [DashboardController::class, 'showCalendar'])->name('car.calendar.all');
 Route::get('/car-calendar/{id}', [DashboardController::class, 'showCalendar'])->name('car.calendar');
 
-// Main domain /login: Directly routes to Customer Login (or Admin if host is portal.*)
+// Main domain /login: Directly routes to Customer Login (or CRM / Admin if host is portal.*)
 Route::get('/login', function () {
     $host = request()->getHost();
+    if (str_starts_with($host, 'portal.crmcarrental.')) {
+        return redirect()->route('crm.login');
+    }
     if (str_starts_with($host, 'portal.')) {
         return redirect()->route('admin.login');
     }
