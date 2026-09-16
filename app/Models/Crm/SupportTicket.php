@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\BookingCar;
 use App\Models\Car;
 use App\Models\Customer;
+use App\Models\Owner;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,6 +22,7 @@ class SupportTicket extends Model
     protected $fillable = [
         'ticket_number',
         'customer_id',
+        'owner_id',
         'car_id',
         'booking_id',
         'subject',
@@ -38,6 +40,11 @@ class SupportTicket extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(Owner::class, 'owner_id');
     }
 
     public function car(): BelongsTo

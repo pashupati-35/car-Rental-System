@@ -143,4 +143,24 @@ class Owner extends Authenticatable
     {
         return $this->hasMany(Driver::class);
     }
+
+    public function interactions()
+    {
+        return $this->hasMany(\App\Models\Crm\CustomerInteraction::class, 'owner_id')->orderBy('interaction_date', 'desc');
+    }
+
+    public function preference()
+    {
+        return $this->hasOne(\App\Models\Crm\OwnerPreference::class, 'owner_id');
+    }
+
+    public function crmTasks()
+    {
+        return $this->hasMany(\App\Models\Crm\CrmTask::class, 'owner_id')->orderBy('due_date', 'asc');
+    }
+
+    public function supportTickets()
+    {
+        return $this->hasMany(\App\Models\Crm\SupportTicket::class, 'owner_id')->orderBy('created_at', 'desc');
+    }
 }

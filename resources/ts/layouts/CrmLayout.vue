@@ -44,6 +44,7 @@ const crmNav = computed(() => [
   { title: 'Deals & Sales Pipeline', icon: 'ri-kanban-view', href: '/crm/deals', badge: '' },
   { title: 'Rental Quotations (CPQ)', icon: 'ri-file-list-3-line', href: '/crm/quotations', badge: '' },
   { title: 'Customer 360 Directory', icon: 'ri-user-smile-line', href: '/crm/customers', badge: '' },
+  { title: 'Fleet Owner 360', icon: 'ri-building-line', href: '/crm/owners', badge: '' },
   { title: 'Support & Incident Desk', icon: 'ri-customer-service-2-line', href: '/crm/tickets', badge: '' },
   { title: 'Corporate B2B Fleet', icon: 'ri-building-4-line', href: '/crm/corporate-accounts', badge: '' },
   { title: 'Account Security & MFA', icon: 'ri-shield-keyhole-line', href: '/crm/security', badge: '' },

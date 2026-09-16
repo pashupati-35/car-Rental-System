@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\Crm\CrmDashboardController;
 use App\Http\Controllers\Admin\Crm\CustomerCrmController;
 use App\Http\Controllers\Admin\Crm\DealPipelineController;
 use App\Http\Controllers\Admin\Crm\LeadController;
+use App\Http\Controllers\Admin\Crm\OwnerCrmController;
 use App\Http\Controllers\Admin\Crm\QuotationController;
 use App\Http\Controllers\Admin\Crm\SupportTicketController;
 use App\Http\Controllers\Crm\Auth\CrmAuthController;
@@ -49,6 +50,13 @@ $registerCrmRoutes = function ($route) {
     $route->post('customers/{id}/preferences', [CustomerCrmController::class, 'updatePreferences'])->name('customers.preferences');
     $route->post('customers/{id}/tasks', [CustomerCrmController::class, 'addTask'])->name('customers.tasks');
     $route->patch('tasks/{id}/complete', [CustomerCrmController::class, 'completeTask'])->name('tasks.complete');
+
+    // Fleet Owner 360, Roster, Interactions & Preferences
+    $route->get('owners', [OwnerCrmController::class, 'index'])->name('owners.index');
+    $route->get('owners/{id}/timeline', [OwnerCrmController::class, 'timeline'])->name('owners.timeline');
+    $route->post('owners/{id}/interactions', [OwnerCrmController::class, 'logInteraction'])->name('owners.interactions');
+    $route->post('owners/{id}/preferences', [OwnerCrmController::class, 'updatePreferences'])->name('owners.preferences');
+    $route->post('owners/{id}/tasks', [OwnerCrmController::class, 'addTask'])->name('owners.tasks');
 
     // Quotations & Proposals (CPQ)
     $route->get('quotations', [QuotationController::class, 'index'])->name('quotations.index');
