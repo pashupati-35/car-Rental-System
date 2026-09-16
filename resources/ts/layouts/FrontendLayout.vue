@@ -7,7 +7,7 @@ import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
 const { theme, toggleTheme, initTheme } = useFrontendTheme()
-const { logoUrl, footerLogoUrl, companyName } = useSiteSettings()
+const { footerLogoUrl, companyName } = useSiteSettings()
 const auth = computed(() => page.props.auth as any)
 const user = computed(() => auth.value?.admin || auth.value?.owner || auth.value?.customer || auth.value?.user)
 
@@ -90,7 +90,7 @@ const handleClickOutside = (e: MouseEvent) => {
 }
 
 const isActive = (href: string) => {
-  const current = page.url.split('?')[0]
+  const current = page.url.split('?')[0] ?? ''
   if (href === '/') return current === '/'
   if (href === '/cars') return current === '/cars' || current.startsWith('/cars/')
   if (href === '/car-calendar') return current.startsWith('/car-calendar')
@@ -112,54 +112,56 @@ onUnmounted(() => {
 <template>
   <div class="min-h-screen flex flex-col bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
     <!-- Navbar -->
-    <header class="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 shadow-sm transition-colors duration-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <!-- Navbar -->
+    <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-850 shadow-xs transition-colors duration-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
         <Link
           href="/"
-          class="flex items-center gap-2.5"
+          class="flex items-center gap-3 group"
         >
-          <img
-            v-if="logoUrl"
-            :src="logoUrl"
-            :alt="companyName"
-            class="h-9 max-w-[150px] object-contain"
-          >
-          <template v-else>
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-blue-500/20">
-              CR
-            </div>
-            <span class="font-extrabold text-xl tracking-tight text-gray-900 dark:text-white">{{ companyName }}</span>
-          </template>
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform duration-200">
+            <i class="ri-car-fill text-xl" />
+          </div>
+          <div class="flex flex-col">
+            <span class="font-black text-lg tracking-tight text-gray-900 dark:text-white leading-none font-display">
+              Fleet<span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Master</span>
+            </span>
+            <span class="text-[10px] font-semibold tracking-wider text-gray-400 dark:text-gray-400 uppercase leading-none mt-1">Car Rental & Mobility</span>
+          </div>
         </Link>
 
-        <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+        <nav class="hidden md:flex items-center gap-1.5 p-1 rounded-2xl bg-gray-50/80 dark:bg-gray-900/80 border border-gray-200/60 dark:border-gray-800/60 text-xs font-semibold">
           <Link
             href="/"
-            :class="isActive('/') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
-            class="transition-colors"
+            :class="isActive('/') ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-800/50'"
+            class="px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
           >
-            Home
+            <i class="ri-home-5-line text-sm" />
+            <span>Home</span>
           </Link>
           <Link
             href="/cars"
-            :class="isActive('/cars') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
-            class="transition-colors"
+            :class="isActive('/cars') ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-800/50'"
+            class="px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
           >
-            Browse Fleet
+            <i class="ri-car-line text-sm" />
+            <span>Browse Fleet</span>
           </Link>
           <Link
             href="/car-calendar"
-            :class="isActive('/car-calendar') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
-            class="transition-colors"
+            :class="isActive('/car-calendar') ? 'bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-800/50'"
+            class="px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
           >
-            Availability Calendar
+            <i class="ri-calendar-event-line text-sm" />
+            <span>Schedule Calendar</span>
           </Link>
           <Link
             href="/ai-chat"
-            :class="isActive('/ai-chat') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 font-medium'"
-            class="transition-colors flex items-center gap-1.5"
+            :class="isActive('/ai-chat') ? 'bg-white dark:bg-gray-800 text-indigo-600 dark:text-indigo-400 shadow-xs font-bold' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white hover:bg-white/50 dark:hover:bg-gray-800/50'"
+            class="px-4 py-2 rounded-xl transition-all flex items-center gap-1.5"
           >
-            <span class="text-amber-500">✨</span> AI Assistant
+            <span class="inline-block animate-pulse text-amber-500">✨</span>
+            <span>AI Concierge</span>
           </Link>
         </nav>
 
@@ -167,7 +169,7 @@ onUnmounted(() => {
           <!-- Theme Toggle Switcher -->
           <button
             type="button"
-            class="w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 flex items-center justify-center text-base transition-all cursor-pointer shadow-2xs"
+            class="w-10 h-10 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-200 flex items-center justify-center text-base transition-all cursor-pointer shadow-xs"
             :title="theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
             @click="toggleTheme"
           >
@@ -180,6 +182,7 @@ onUnmounted(() => {
               class="ri-moon-line text-slate-700 text-base"
             />
           </button>
+
           <!-- Login / Sign In Choice Dropdown -->
           <div
             id="front-login-dropdown"
@@ -187,10 +190,10 @@ onUnmounted(() => {
           >
             <button
               type="button"
-              class="px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-1.5 cursor-pointer"
+              class="px-4 py-2.5 rounded-2xl text-xs font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
               @click="toggleLoginMenu"
             >
-              <i class="ri-login-box-line text-sm text-blue-600 dark:text-blue-400" />
+              <i class="ri-login-circle-line text-sm text-blue-600 dark:text-blue-400" />
               <span>Sign In</span>
               <i
                 class="ri-arrow-down-s-line text-xs transition-transform duration-200"
@@ -256,7 +259,7 @@ onUnmounted(() => {
           >
             <button
               type="button"
-              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              class="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all flex items-center gap-1.5 cursor-pointer"
               @click="toggleRegisterMenu"
             >
               <span>Register</span>

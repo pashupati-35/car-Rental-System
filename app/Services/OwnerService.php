@@ -162,6 +162,12 @@ class OwnerService
             $data['date_of_birth'] = null;
         }
 
+        if (! empty($data['timezone'])) {
+            $existingOwner = $this->ownerRepository->getOwnerById($ownerId);
+            $existingOwner->setTimezone($data['timezone']);
+            unset($data['timezone']);
+        }
+
         $owner = $this->ownerRepository->updateOwner($ownerId, $data);
         AdminCountCacheService::clear();
 

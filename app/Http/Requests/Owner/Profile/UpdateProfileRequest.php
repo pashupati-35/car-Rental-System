@@ -44,6 +44,7 @@ class UpdateProfileRequest extends FormRequest
             'emergency_contact' => 'nullable|string|max:50',
             'contact_person_name' => 'nullable|string|max:255',
             'contact_relationship' => 'nullable|string|max:100',
+            'timezone' => 'nullable|string|max:100|timezone:all',
             'image' => 'nullable|image|max:4096',
         ];
     }

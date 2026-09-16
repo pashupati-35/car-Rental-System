@@ -124,6 +124,12 @@ class CustomerService
             $data['last_name'] = count($parts) > 1 ? end($parts) : '';
         }
 
+        if (! empty($data['timezone'])) {
+            $existingCustomer = $this->customerRepository->getCustomerDetails($customerId);
+            $existingCustomer->setTimezone($data['timezone']);
+            unset($data['timezone']);
+        }
+
         $customer = $this->customerRepository->updateCustomer($customerId, $data);
         AdminCountCacheService::clear();
 

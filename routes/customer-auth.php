@@ -48,6 +48,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/dashboard', [AuthenticatedSessionController::class, 'dashboard'])->name('dashboard');
         Route::post('/theme-style', [ProfileController::class, 'updateThemeStyle'])->name('theme-style');
 
+        Route::get('/timezones', [ProfileController::class, 'showTimeZone'])->name('timezones');
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::get('/security', [ProfileController::class, 'security'])->name('security');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

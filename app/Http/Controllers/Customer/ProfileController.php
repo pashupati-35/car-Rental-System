@@ -7,6 +7,7 @@ use App\Http\Requests\Customer\Profile\UpdateCustomerPasswordRequest;
 use App\Http\Requests\Customer\Profile\UpdateCustomerProfileRequest;
 use App\Http\Resources\CustomerResource;
 use App\Services\CustomerService;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -16,6 +17,14 @@ class ProfileController extends Controller
     public function __construct(
         protected CustomerService $customerService
     ) {}
+
+    /**
+     * Return list of all standard PHP timezones.
+     */
+    public function showTimeZone()
+    {
+        return response()->json(['timezones' => DateTimeZone::listIdentifiers()], 200);
+    }
 
     /**
      * Display the customer's profile form.
@@ -30,11 +39,13 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => 'OK',
                 'user' => $customerResource,
+                'timezones' => DateTimeZone::listIdentifiers(),
             ]);
         }
 
         return Inertia::render('customer/Profile', [
             'user' => $customerResource,
+            'timezones' => DateTimeZone::listIdentifiers(),
         ]);
     }
 

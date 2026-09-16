@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\Admin\Profile\UpdateProfileRequest;
 use App\Http\Resources\AdminResource;
 use App\Http\Controllers\Controller;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -13,6 +14,14 @@ use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    /**
+     * Return list of all standard PHP timezones.
+     */
+    public function showTimeZone()
+    {
+        return response()->json(['timezones' => DateTimeZone::listIdentifiers()], 200);
+    }
+
     /**
      * Display the admin's profile page.
      */
@@ -25,11 +34,13 @@ class ProfileController extends Controller
             return response()->json([
                 'status' => 'OK',
                 'user' => $adminResource,
+                'timezones' => DateTimeZone::listIdentifiers(),
             ]);
         }
 
         return Inertia::render('admin/Profile', [
             'user' => $adminResource,
+            'timezones' => DateTimeZone::listIdentifiers(),
         ]);
     }
 
@@ -79,6 +90,11 @@ class ProfileController extends Controller
 
         if (empty($data['date_of_birth'])) {
             $data['date_of_birth'] = null;
+        }
+
+        if (! empty($data['timezone'])) {
+            $admin->setTimezone($data['timezone']);
+            unset($data['timezone']);
         }
 
         $admin->update($data);

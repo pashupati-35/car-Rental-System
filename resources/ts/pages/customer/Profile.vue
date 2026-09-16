@@ -5,11 +5,15 @@ import CustomerLayout from '@/layouts/CustomerLayout.vue'
 import MessageBox from '@/components/MessageBox.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 import { resolveMediaUrl } from '@/utils/helpers'
+import { useTimezones } from '@/utils/timezones'
 import axios from 'axios'
 
 const props = defineProps<{
   user?: any
+  timezones?: string[]
 }>()
+
+const { timezones } = useTimezones(props.timezones)
 
 const page = usePage()
 const auth = computed(() => (page.props.auth as any) || {})
@@ -40,6 +44,7 @@ const profileForm = ref({
   contact_person_name: customer.value?.contact_person_name || '',
   emergency_contact: customer.value?.emergency_contact || '',
   contact_relationship: customer.value?.contact_relationship || '',
+  timezone: customer.value?.timezone || 'Asia/Kathmandu',
 })
 
 const profileLoading = ref(false)
@@ -91,6 +96,7 @@ const resetForm = () => {
     contact_person_name: customer.value?.contact_person_name || '',
     emergency_contact: customer.value?.emergency_contact || '',
     contact_relationship: customer.value?.contact_relationship || '',
+    timezone: customer.value?.timezone || 'Asia/Kathmandu',
   }
   selectedImageFile.value = null
   imagePreviewUrl.value = resolveMediaUrl(customer.value?.image, customer.value?.image_path, 'customer') || ''
@@ -254,6 +260,12 @@ const updateProfile = async () => {
                     class="px-3 py-1 rounded-full text-[11px] font-black font-mono bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
                   >
                     {{ customer.unique_identifier }}
+                  </span>
+                  <span
+                    v-if="profileForm.timezone"
+                    class="px-3 py-1 rounded-full text-[11px] font-black font-mono bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 flex items-center gap-1 border border-blue-200/50 dark:border-blue-800/50"
+                  >
+                    <i class="ri-time-line text-xs" /> {{ profileForm.timezone }}
                   </span>
                 </div>
               </div>
@@ -482,7 +494,7 @@ const updateProfile = async () => {
             </h3>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Citizenship Number</label>
               <input
@@ -504,13 +516,32 @@ const updateProfile = async () => {
             </div>
 
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Profession / Designation</label>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Profession / Role</label>
               <input
                 v-model="profileForm.designation"
                 type="text"
-                placeholder="e.g. Software Engineer / Consultant"
+                placeholder="e.g. Software Engineer"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Account Timezone</span>
+                <span class="text-[10px] font-normal text-blue-600 dark:text-blue-400 font-mono">{{ profileForm.timezone }}</span>
+              </label>
+              <select
+                v-model="profileForm.timezone"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+              >
+                <option
+                  v-for="tz in timezones"
+                  :key="tz"
+                  :value="tz"
+                >
+                  {{ tz }}
+                </option>
+              </select>
             </div>
           </div>
         </div>
