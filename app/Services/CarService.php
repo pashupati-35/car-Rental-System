@@ -165,7 +165,7 @@ class CarService
         return new CarResource($car);
     }
 
-    public function toCollection(Collection $cars): CarResource
+    public function toCollection(Collection $cars)
     {
         return CarResource::collection($cars);
     }
