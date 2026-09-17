@@ -24,6 +24,22 @@ const adminEmail = computed(() => {
   return admin.value?.email || 'crm@crmcarrental.com'
 })
 
+const adminAvatarUrl = computed(() => {
+  const a = admin.value
+  if (!a) return null
+  if (a.image_url) return a.image_url
+  if (a.image_path?.original) return a.image_path.original
+  if (a.image_path?.thumb) return a.image_path.thumb
+  if (typeof a.image_path === 'string' && a.image_path) return a.image_path
+  if (typeof a.image === 'string' && a.image) {
+    return a.image.startsWith('http') ? a.image : `/${a.image.replace(/^\/+/, '')}`
+  }
+  if (typeof a.avatar === 'string' && a.avatar) {
+    return a.avatar.startsWith('http') ? a.avatar : `/${a.avatar.replace(/^\/+/, '')}`
+  }
+  return null
+})
+
 const flashSuccess = ref('')
 const flashError = ref('')
 
@@ -198,10 +214,17 @@ onUnmounted(() => {
           <button
             type="button"
             @click="showProfileMenu = !showProfileMenu"
-            class="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            class="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
           >
-            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center">
-              {{ displayName.charAt(0).toUpperCase() }}
+            <div class="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs border border-emerald-500/20">
+              <img
+                v-if="adminAvatarUrl"
+                :src="adminAvatarUrl"
+                class="w-full h-full object-cover"
+                :alt="displayName"
+                @error="(e: any) => (e.target.style.display = 'none')"
+              >
+              <span v-else>{{ displayName.charAt(0).toUpperCase() }}</span>
             </div>
             <div class="hidden sm:flex flex-col text-left">
               <span class="text-xs font-bold text-slate-900 dark:text-white leading-tight">
@@ -216,11 +239,23 @@ onUnmounted(() => {
 
           <div
             v-if="showProfileMenu"
-            class="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2 z-50 space-y-1"
+            class="absolute right-0 mt-2 w-60 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl p-2 z-50 space-y-1 font-sans"
           >
-            <div class="p-3 border-b border-slate-100 dark:border-slate-800">
-              <div class="font-bold text-xs text-slate-900 dark:text-white">{{ displayName }}</div>
-              <div class="text-[11px] text-slate-400 truncate">{{ adminEmail }}</div>
+            <div class="p-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs border border-emerald-500/20">
+                <img
+                  v-if="adminAvatarUrl"
+                  :src="adminAvatarUrl"
+                  class="w-full h-full object-cover"
+                  :alt="displayName"
+                  @error="(e: any) => (e.target.style.display = 'none')"
+                >
+                <span v-else>{{ displayName.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ displayName }}</div>
+                <div class="text-[11px] text-slate-400 truncate">{{ adminEmail }}</div>
+              </div>
             </div>
 
             <Link
@@ -235,7 +270,7 @@ onUnmounted(() => {
             <button
               type="button"
               @click="logout"
-              class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left"
+              class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left cursor-pointer"
             >
               <i class="ri-logout-box-r-line text-sm" />
               <span>Sign Out</span>
@@ -298,9 +333,21 @@ onUnmounted(() => {
         <div class="fixed inset-0 bg-black/60 backdrop-blur-xs" @click="isMobileDrawerOpen = false" />
         <div class="relative w-72 bg-white dark:bg-slate-900 p-5 flex flex-col z-10 space-y-4">
           <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div class="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
-              <i class="ri-shield-user-line text-emerald-500 text-lg" />
-              <span>CRM Portal</span>
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs border border-emerald-500/20">
+                <img
+                  v-if="adminAvatarUrl"
+                  :src="adminAvatarUrl"
+                  class="w-full h-full object-cover"
+                  :alt="displayName"
+                  @error="(e: any) => (e.target.style.display = 'none')"
+                >
+                <span v-else>{{ displayName.charAt(0).toUpperCase() }}</span>
+              </div>
+              <div class="flex flex-col">
+                <span class="font-bold text-xs text-slate-900 dark:text-white leading-tight truncate max-w-[150px]">{{ displayName }}</span>
+                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">CRM Portal</span>
+              </div>
             </div>
             <button @click="isMobileDrawerOpen = false" class="text-slate-400 hover:text-slate-600">
               <i class="ri-close-line text-xl" />

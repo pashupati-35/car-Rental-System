@@ -414,12 +414,24 @@ onUnmounted(() => {
               class="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-2 z-50 space-y-2 animate-in fade-in slide-in-from-top-2 duration-150 font-sans"
             >
               <!-- User Info Header -->
-              <div class="px-3 py-2 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-center space-y-0.5">
-                <div class="flex items-center justify-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span class="text-xs font-bold text-slate-900 dark:text-white">{{ displayName }}</span>
+              <div class="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl overflow-hidden bg-gradient-to-tr from-indigo-600 to-indigo-800 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
+                  <img
+                    v-if="admin?.image_url || admin?.image_path?.original || (typeof admin?.image_path === 'string' && admin?.image_path)"
+                    :src="admin?.image_url || admin?.image_path?.original || admin?.image_path"
+                    class="w-full h-full object-cover"
+                    alt="Admin"
+                    @error="(e: any) => (e.target.style.display = 'none')"
+                  >
+                  <span v-else>{{ (displayName || 'A')[0].toUpperCase() }}</span>
                 </div>
-                <span class="text-[11px] text-slate-500 block truncate">{{ adminEmail }}</span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                    <span class="text-xs font-bold text-slate-900 dark:text-white truncate">{{ displayName }}</span>
+                  </div>
+                  <span class="text-[11px] text-slate-500 block truncate">{{ adminEmail }}</span>
+                </div>
               </div>
 
               <!-- Menu Items -->
