@@ -199,8 +199,8 @@ const sourceIcons: Record<string, string> = {
                   {{ stageInfo.label }}
                 </span>
                 <span class="text-slate-500 dark:text-slate-400 font-semibold">
-                  {{ data.deals_by_stage[stageKey]?.count || 0 }} deals &bull;
-                  {{ formatCurrency(data.deals_by_stage[stageKey]?.total_value || 0) }}
+                  {{ data.deals_by_stage[String(stageKey)]?.count || 0 }} deals &bull;
+                  {{ formatCurrency(data.deals_by_stage[String(stageKey)]?.total_value || 0) }}
                 </span>
               </div>
               <div class="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -209,7 +209,7 @@ const sourceIcons: Record<string, string> = {
                   :class="stageInfo.color"
                   :style="{
                     width: data.metrics.total_pipeline_value > 0
-                      ? `${Math.min(100, Math.max(4, ((Number(data.deals_by_stage[stageKey]?.total_value || 0) / data.metrics.total_pipeline_value) * 100)))}%`
+                      ? `${Math.min(100, Math.max(4, ((Number(data.deals_by_stage[String(stageKey)]?.total_value || 0) / data.metrics.total_pipeline_value) * 100)))}%`
                       : '0%'
                   }"
                 />
@@ -236,10 +236,10 @@ const sourceIcons: Record<string, string> = {
               >
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                    <i :class="sourceIcons[source] || 'ri-record-circle-line'" />
+                    <i :class="sourceIcons[String(source)] || 'ri-record-circle-line'" />
                   </div>
                   <span class="capitalize text-slate-800 dark:text-slate-200 font-medium">
-                    {{ source.replace('_', ' ') }}
+                    {{ String(source).replace('_', ' ') }}
                   </span>
                 </div>
                 <span class="font-bold text-slate-900 dark:text-white px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-xs">

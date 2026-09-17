@@ -3,8 +3,16 @@ import { computed, watch } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import CrmLayout from '@/layouts/CrmLayout.vue'
 
+interface CarOption {
+  id: number
+  price_per_day?: number | string
+  brand_name?: string
+  name?: string
+  [key: string]: any
+}
+
 const props = defineProps<{
-  cars: any[]
+  cars: CarOption[]
   customers: any[]
   leads: any[]
 }>()
@@ -26,8 +34,8 @@ const form = useForm({
 })
 
 // Auto-fill car rate on selection
-watch(() => form.car_id, newCarId => {
-  const selected = props.cars.find(c => c.id === Number(newCarId))
+watch(() => form.car_id, (newCarId: string | number) => {
+  const selected = props.cars.find((c: CarOption) => c.id === Number(newCarId))
   if (selected && selected.price_per_day) {
     form.daily_rate = Number(selected.price_per_day)
   }
