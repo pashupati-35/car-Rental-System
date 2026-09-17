@@ -9,15 +9,37 @@ use App\Models\Crm\CustomerInteraction;
 use App\Models\Crm\OwnerPreference;
 use App\Models\Crm\SupportTicket;
 use App\Models\Owner;
+use App\Repositories\Crm\CrmTaskRepositoryInterface;
+use App\Repositories\Crm\OwnerCrmRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class OwnerCrmService
 {
+    public function __construct(
+        protected OwnerCrmRepositoryInterface $ownerCrmRepository,
+        protected CrmTaskRepositoryInterface $crmTaskRepository
+    ) {}
+
+    public function getPaginatedOwners(array $filters = [], int $perPage = 12): LengthAwarePaginator
+    {
+        return $this->ownerCrmRepository->getPaginatedCrmOwners($filters, $perPage);
+    }
+
+    public function getOwner(int $id): Owner
+    {
+        return $this->ownerCrmRepository->getOwnerForTimeline($id);
+    }
+
     /**
      * Get 360-degree timeline and relationship dossier for a Fleet Owner.
      */
-    public function getOwnerTimeline(Owner $owner): array
+    public function getOwnerTimeline(Owner|int $owner): array
     {
+        if (is_int($owner)) {
+            $owner = $this->ownerCrmRepository->getOwnerForTimeline($owner);
+        }
+
         $interactions = CustomerInteraction::where('owner_id', $owner->id)
             ->with('admin')
             ->latest('interaction_date')
@@ -75,8 +97,12 @@ class OwnerCrmService
     /**
      * Log a CRM interaction for a fleet owner.
      */
-    public function logInteraction(Owner $owner, array $data): CustomerInteraction
+    public function logInteraction(Owner|int $owner, array $data): CustomerInteraction
     {
+        if (is_int($owner)) {
+            $owner = $this->ownerCrmRepository->getOwnerForTimeline($owner);
+        }
+
         $data['owner_id'] = $owner->id;
         $data['customer_id'] = null;
         $data['admin_id'] = auth('admin')->id();
@@ -90,8 +116,12 @@ class OwnerCrmService
     /**
      * Update or create owner CRM partner preferences.
      */
-    public function updatePreference(Owner $owner, array $data): OwnerPreference
+    public function updatePreference(Owner|int $owner, array $data): OwnerPreference
     {
+        if (is_int($owner)) {
+            $owner = $this->ownerCrmRepository->getOwnerForTimeline($owner);
+        }
+
         $preference = OwnerPreference::firstOrCreate(['owner_id' => $owner->id]);
         $preference->update($data);
 
@@ -101,8 +131,12 @@ class OwnerCrmService
     /**
      * Add follow-up task for a fleet owner.
      */
-    public function addTask(Owner $owner, array $data): CrmTask
+    public function addTask(Owner|int $owner, array $data): CrmTask
     {
+        if (is_int($owner)) {
+            $owner = $this->ownerCrmRepository->getOwnerForTimeline($owner);
+        }
+
         $notifyRecipient = ! empty($data['to_owner']) || ! empty($data['notify_recipient']);
 
         $data['related_type'] = 'owner';
@@ -112,7 +146,7 @@ class OwnerCrmService
         $data['notify_recipient'] = $notifyRecipient;
         unset($data['to_owner']);
 
-        $task = CrmTask::create($data);
+        $task = $this->crmTaskRepository->createTask($data);
 
         if ($notifyRecipient) {
             try {
@@ -123,5 +157,10 @@ class OwnerCrmService
         }
 
         return $task;
+    }
+
+    public function completeTask(int $taskId): CrmTask
+    {
+        return $this->crmTaskRepository->completeTask($taskId);
     }
 }

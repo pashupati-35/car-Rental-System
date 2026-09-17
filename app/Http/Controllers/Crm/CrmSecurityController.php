@@ -4,17 +4,20 @@ namespace App\Http\Controllers\Crm;
 
 use App\Http\Controllers\Admin\Auth\MFAController;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Crm\Security\UpdateCrmPasswordRequest;
 use App\Http\Resources\AdminResource;
+use App\Services\Crm\CrmSecurityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class CrmSecurityController extends Controller
 {
-    public function __construct(protected MFAController $mfaController) {}
+    public function __construct(
+        protected MFAController $mfaController,
+        protected CrmSecurityService $crmSecurityService
+    ) {}
 
     /**
      * Display the CRM Account Security & MFA configuration view.
@@ -32,15 +35,10 @@ class CrmSecurityController extends Controller
     /**
      * Update password from the CRM portal.
      */
-    public function updatePassword(Request $request)
+    public function updatePassword(UpdateCrmPasswordRequest $request)
     {
-        $request->validate([
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ]);
-
         $admin = Auth::guard('admin')->user();
-        $admin->password = Hash::make($request->input('password'));
-        $admin->save();
+        $this->crmSecurityService->updatePassword($admin, $request->validated('password'));
 
         if ($request->wantsJson()) {
             return response()->json([

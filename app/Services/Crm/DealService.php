@@ -3,9 +3,12 @@
 namespace App\Services\Crm;
 
 use App\Models\Crm\Deal;
+use App\Repositories\CarRepositoryInterface;
+use App\Repositories\Crm\CorporateAccountRepositoryInterface;
+use App\Repositories\Crm\CustomerCrmRepositoryInterface;
+use App\Repositories\Crm\DealRepositoryInterface;
+use App\Repositories\Crm\LeadRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class DealService
 {
@@ -18,11 +21,17 @@ class DealService
         'lost' => ['name' => 'Lost', 'color' => 'rose', 'probability' => 0],
     ];
 
+    public function __construct(
+        protected DealRepositoryInterface $dealRepository,
+        protected CarRepositoryInterface $carRepository,
+        protected CustomerCrmRepositoryInterface $customerCrmRepository,
+        protected CorporateAccountRepositoryInterface $corporateAccountRepository,
+        protected LeadRepositoryInterface $leadRepository
+    ) {}
+
     public function getDealsByStage(): array
     {
-        $deals = Deal::with(['customer', 'lead', 'car', 'corporateAccount', 'assignedAdmin'])
-            ->latest('id')
-            ->get();
+        $deals = $this->dealRepository->getAllWithRelations();
 
         $grouped = [];
         foreach (array_keys(self::STAGES) as $stageKey) {
@@ -49,22 +58,22 @@ class DealService
 
     public function getDealsList(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = Deal::with(['customer', 'lead', 'car', 'corporateAccount', 'assignedAdmin'])
-            ->latest('id');
+        return $this->dealRepository->getFilteredDeals($filters, $perPage);
+    }
 
-        if (! empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('deal_number', 'like', "%{$search}%");
-            });
-        }
+    public function getDeal(int $id): Deal
+    {
+        return $this->dealRepository->getDealWithDetails($id);
+    }
 
-        if (! empty($filters['stage']) && $filters['stage'] !== 'all') {
-            $query->where('stage', $filters['stage']);
-        }
-
-        return $query->paginate($perPage)->withQueryString();
+    public function getFormData(): array
+    {
+        return [
+            'cars' => $this->carRepository->getCarsForSelect(),
+            'customers' => $this->customerCrmRepository->getCustomersForSelect(),
+            'corporate_accounts' => $this->corporateAccountRepository->getActiveAccountsForSelect(),
+            'leads' => $this->leadRepository->getActiveLeadsForSelect(),
+        ];
     }
 
     public function createDeal(array $data): Deal
@@ -77,29 +86,32 @@ class DealService
             $data['win_probability'] = self::STAGES[$data['stage'] ?? 'lead_in']['probability'];
         }
 
-        return Deal::create($data);
+        $data['assigned_admin_id'] = $data['assigned_admin_id'] ?? auth('admin')->id();
+
+        return $this->dealRepository->createDeal($data);
     }
 
-    public function updateDealStage(Deal $deal, string $stage): Deal
+    public function updateDealStage(Deal|int $deal, string $stage): Deal
     {
+        if (is_int($deal)) {
+            $deal = $this->dealRepository->findOrFail($deal);
+        }
+
         $winProb = self::STAGES[$stage]['probability'] ?? $deal->win_probability;
-        $deal->update([
+
+        return $this->dealRepository->updateDeal($deal, [
             'stage' => $stage,
             'win_probability' => $winProb,
         ]);
-
-        return $deal;
     }
 
-    public function updateDeal(Deal $deal, array $data): Deal
+    public function updateDeal(Deal|int $deal, array $data): Deal
     {
-        $deal->update($data);
-
-        return $deal;
+        return $this->dealRepository->updateDeal($deal, $data);
     }
 
-    public function deleteDeal(Deal $deal): bool
+    public function deleteDeal(Deal|int $deal): bool
     {
-        return $deal->delete();
+        return $this->dealRepository->deleteDeal($deal);
     }
 }

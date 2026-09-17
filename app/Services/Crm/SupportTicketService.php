@@ -4,39 +4,35 @@ namespace App\Services\Crm;
 
 use App\Models\Crm\SupportTicket;
 use App\Models\Crm\SupportTicketMessage;
+use App\Repositories\CarRepositoryInterface;
+use App\Repositories\Crm\CustomerCrmRepositoryInterface;
+use App\Repositories\Crm\SupportTicketRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class SupportTicketService
 {
+    public function __construct(
+        protected SupportTicketRepositoryInterface $ticketRepository,
+        protected CustomerCrmRepositoryInterface $customerCrmRepository,
+        protected CarRepositoryInterface $carRepository
+    ) {}
+
     public function getTickets(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = SupportTicket::with(['customer', 'car', 'booking', 'assignedAdmin'])
-            ->latest('id');
+        return $this->ticketRepository->getFilteredTickets($filters, $perPage);
+    }
 
-        if (! empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('ticket_number', 'like', "%{$search}%")
-                    ->orWhere('subject', 'like', "%{$search}%")
-                    ->orWhereHas('customer', function ($cq) use ($search) {
-                        $cq->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
-                    });
-            });
-        }
+    public function getTicket(int $id): SupportTicket
+    {
+        return $this->ticketRepository->getTicketWithDetails($id);
+    }
 
-        if (! empty($filters['status']) && $filters['status'] !== 'all') {
-            $query->where('status', $filters['status']);
-        }
-
-        if (! empty($filters['priority']) && $filters['priority'] !== 'all') {
-            $query->where('priority', $filters['priority']);
-        }
-
-        if (! empty($filters['category']) && $filters['category'] !== 'all') {
-            $query->where('category', $filters['category']);
-        }
-
-        return $query->paginate($perPage)->withQueryString();
+    public function getFormData(): array
+    {
+        return [
+            'customers' => $this->customerCrmRepository->getCustomersForSelect(),
+            'cars' => $this->carRepository->getCarsForSelect(),
+        ];
     }
 
     public function createTicket(array $data, ?string $initialMessage = null): SupportTicket
@@ -45,11 +41,10 @@ class SupportTicketService
             $data['ticket_number'] = 'TCK-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
         }
 
-        $ticket = SupportTicket::create($data);
+        $ticket = $this->ticketRepository->createTicket($data);
 
         if ($initialMessage) {
-            SupportTicketMessage::create([
-                'ticket_id' => $ticket->id,
+            $this->ticketRepository->addMessage($ticket->id, [
                 'sender_type' => 'admin',
                 'sender_id' => auth('admin')->id(),
                 'sender_name' => auth('admin')->user()->name ?? 'Support Agent',
@@ -60,32 +55,53 @@ class SupportTicketService
         return $ticket;
     }
 
-    public function addMessage(SupportTicket $ticket, string $message, string $senderType = 'admin'): SupportTicketMessage
+    public function addMessage(SupportTicket|int $ticket, string $message, string $senderType = 'admin'): SupportTicketMessage
     {
+        if (is_int($ticket)) {
+            $ticket = $this->ticketRepository->findOrFail($ticket);
+        }
+
         $admin = auth('admin')->user();
 
-        $ticketMessage = SupportTicketMessage::create([
-            'ticket_id' => $ticket->id,
+        $ticketMessage = $this->ticketRepository->addMessage($ticket->id, [
             'sender_type' => $senderType,
             'sender_id' => auth('admin')->id(),
             'sender_name' => $admin ? ($admin->name ?? 'Admin Staff') : 'Support Agent',
             'message' => $message,
         ]);
 
-        $ticket->touch(); // updates updated_at
+        $ticket->touch();
 
         return $ticketMessage;
     }
 
-    public function updateTicketStatus(SupportTicket $ticket, string $status): SupportTicket
+    public function updateTicketStatus(SupportTicket|int $ticket, string $status): SupportTicket
     {
+        if (is_int($ticket)) {
+            $ticket = $this->ticketRepository->findOrFail($ticket);
+        }
+
         $update = ['status' => $status];
         if (in_array($status, ['resolved', 'closed']) && ! $ticket->resolved_at) {
             $update['resolved_at'] = now();
         }
 
-        $ticket->update($update);
+        return $this->ticketRepository->updateTicket($ticket, $update);
+    }
 
-        return $ticket;
+    public function replyTicket(SupportTicket|int $ticket, string $message, string $senderType = 'admin'): SupportTicketMessage
+    {
+        if (is_int($ticket)) {
+            $ticket = $this->ticketRepository->findOrFail($ticket);
+        }
+
+        $msg = $this->addMessage($ticket, $message, $senderType);
+
+        if (in_array($ticket->status, ['resolved', 'closed'])) {
+            $this->updateTicketStatus($ticket, 'in_progress');
+        }
+
+        return $msg;
     }
 }
+

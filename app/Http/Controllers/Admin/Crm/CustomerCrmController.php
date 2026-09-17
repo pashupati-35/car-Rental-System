@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Admin\Crm;
 
 use App\Http\Controllers\Controller;
-use App\Models\Crm\CrmTask;
-use App\Models\Customer;
+use App\Http\Requests\Crm\Customer\LogCustomerInteractionRequest;
+use App\Http\Requests\Crm\Customer\ScheduleCustomerTaskRequest;
+use App\Http\Requests\Crm\Customer\UpdateCustomerPreferenceRequest;
 use App\Services\Crm\CustomerCrmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,26 +20,10 @@ class CustomerCrmController extends Controller
 
     public function index(Request $request): Response
     {
-        $query = Customer::query()->with('preference');
-
-        if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        if ($tier = $request->input('tier')) {
-            $query->whereHas('preference', function ($q) use ($tier) {
-                $q->where('loyalty_tier', $tier);
-            });
-        }
-
-        $customers = $query->withCount(['bookings', 'interactions', 'supportTickets', 'quotations'])
-            ->latest()
-            ->paginate(12)
-            ->withQueryString();
+        $customers = $this->customerCrmService->getPaginatedCustomers(
+            $request->only(['search', 'tier']),
+            12
+        );
 
         return Inertia::render('admin/crm/CustomerIndex', [
             'customers' => $customers,
@@ -48,64 +33,31 @@ class CustomerCrmController extends Controller
 
     public function timeline(int $customerId): Response
     {
-        $customer = Customer::findOrFail($customerId);
-        $timelineData = $this->customerCrmService->getCustomerTimeline($customer);
+        $timelineData = $this->customerCrmService->getCustomerTimeline($customerId);
 
         return Inertia::render('admin/crm/CustomerTimeline', $timelineData);
     }
 
-    public function logInteraction(Request $request, int $customerId): RedirectResponse
+    public function logInteraction(LogCustomerInteractionRequest $request, int $customerId): RedirectResponse
     {
-        $customer = Customer::findOrFail($customerId);
-
-        $validated = $request->validate([
-            'type' => 'required|string|in:call,email,meeting,note,whatsapp,sms',
-            'subject' => 'required|string|max:150',
-            'details' => 'required|string',
-            'interaction_date' => 'nullable|date',
-        ]);
-
-        $this->customerCrmService->logInteraction($customer, $validated);
+        $this->customerCrmService->logInteraction($customerId, $request->validated());
 
         return redirect()->back()->with('success', 'Customer interaction logged successfully.');
     }
 
-    public function updatePreferences(Request $request, int $customerId): RedirectResponse
+    public function updatePreferences(UpdateCustomerPreferenceRequest $request, int $customerId): RedirectResponse
     {
-        $customer = Customer::findOrFail($customerId);
-
-        $validated = $request->validate([
-            'preferred_car_type' => 'nullable|string|max:50',
-            'preferred_transmission' => 'nullable|string|in:Automatic,Manual',
-            'preferred_fuel_type' => 'nullable|string|in:Petrol,Diesel,Electric,Hybrid',
-            'needs_child_seat' => 'boolean',
-            'needs_chauffeur' => 'boolean',
-            'vip_status' => 'boolean',
-            'loyalty_tier' => 'required|string|in:Standard,Silver,Gold,Platinum',
-            'special_requests' => 'nullable|string',
-        ]);
-
-        $this->customerCrmService->updatePreference($customer, $validated);
+        $this->customerCrmService->updatePreference($customerId, $request->validated());
 
         return redirect()->back()->with('success', 'Customer CRM preferences updated successfully.');
     }
 
-    public function addTask(Request $request, int $customerId): RedirectResponse
+    public function addTask(ScheduleCustomerTaskRequest $request, int $customerId): RedirectResponse
     {
-        $customer = Customer::findOrFail($customerId);
+        $validated = $request->validated();
+        $this->customerCrmService->addTask($customerId, $validated);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:150',
-            'description' => 'nullable|string',
-            'due_date' => 'nullable|date',
-            'priority' => 'required|string|in:low,medium,high,urgent',
-            'to_customer' => 'nullable|boolean',
-            'notify_recipient' => 'nullable|boolean',
-        ]);
-
-        $this->customerCrmService->addTask($customer, $validated);
-
-        $message = ($request->boolean('to_customer') || $request->boolean('notify_recipient'))
+        $message = (! empty($validated['to_customer']) || ! empty($validated['notify_recipient']))
             ? 'Follow-up task scheduled and email dispatched to customer.'
             : 'Follow-up task scheduled successfully.';
 
@@ -114,11 +66,7 @@ class CustomerCrmController extends Controller
 
     public function completeTask(int $taskId): RedirectResponse
     {
-        $task = CrmTask::findOrFail($taskId);
-        $task->update([
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
+        $this->customerCrmService->completeTask($taskId);
 
         return redirect()->back()->with('success', 'Task marked as completed.');
     }

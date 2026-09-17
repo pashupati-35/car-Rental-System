@@ -4,35 +4,40 @@ namespace App\Services\Crm;
 
 use App\Models\Crm\Quotation;
 use App\Models\Crm\QuotationItem;
+use App\Repositories\CarRepositoryInterface;
+use App\Repositories\Crm\CustomerCrmRepositoryInterface;
+use App\Repositories\Crm\LeadRepositoryInterface;
+use App\Repositories\Crm\QuotationRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class QuotationService
 {
+    public function __construct(
+        protected QuotationRepositoryInterface $quotationRepository,
+        protected CarRepositoryInterface $carRepository,
+        protected CustomerCrmRepositoryInterface $customerCrmRepository,
+        protected LeadRepositoryInterface $leadRepository
+    ) {}
+
     public function getQuotations(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = Quotation::with(['customer', 'lead', 'car', 'creator'])
-            ->latest('id');
+        return $this->quotationRepository->getFilteredQuotations($filters, $perPage);
+    }
 
-        if (! empty($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('quotation_number', 'like', "%{$search}%")
-                    ->orWhereHas('customer', function ($cq) use ($search) {
-                        $cq->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");
-                    })
-                    ->orWhereHas('lead', function ($lq) use ($search) {
-                        $lq->where('first_name', 'like', "%{$search}%")->orWhere('last_name', 'like', "%{$search}%");
-                    });
-            });
-        }
+    public function getQuotation(int $id): Quotation
+    {
+        return $this->quotationRepository->getQuotationWithDetails($id);
+    }
 
-        if (! empty($filters['status']) && $filters['status'] !== 'all') {
-            $query->where('status', $filters['status']);
-        }
-
-        return $query->paginate($perPage)->withQueryString();
+    public function getFormData(): array
+    {
+        return [
+            'cars' => $this->carRepository->getCarsForSelect(),
+            'customers' => $this->customerCrmRepository->getCustomersForSelect(),
+            'leads' => $this->leadRepository->getActiveLeadsForSelect(),
+        ];
     }
 
     public function createQuotation(array $data, array $items = []): Quotation
@@ -58,7 +63,7 @@ class QuotationService
             $taxAmount = round(($taxable * $taxRate) / 100, 2);
             $totalAmount = $taxable + $taxAmount;
 
-            $quotation = Quotation::create([
+            $quotation = $this->quotationRepository->createQuotation([
                 'quotation_number' => 'QUO-'.now()->format('Ymd').'-'.str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT),
                 'customer_id' => $data['customer_id'] ?? null,
                 'lead_id' => $data['lead_id'] ?? null,
@@ -89,19 +94,17 @@ class QuotationService
                 ]);
             }
 
-            return $quotation->load(['items', 'car', 'customer', 'lead']);
+            return $this->quotationRepository->getQuotationWithDetails($quotation->id);
         });
     }
 
-    public function updateStatus(Quotation $quotation, string $status): Quotation
+    public function updateStatus(Quotation|int $quotation, string $status): Quotation
     {
-        $quotation->update(['status' => $status]);
-
-        return $quotation;
+        return $this->quotationRepository->updateQuotation($quotation, ['status' => $status]);
     }
 
-    public function deleteQuotation(Quotation $quotation): bool
+    public function deleteQuotation(Quotation|int $quotation): bool
     {
-        return $quotation->delete();
+        return $this->quotationRepository->deleteQuotation($quotation);
     }
 }

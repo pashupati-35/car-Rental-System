@@ -43,4 +43,6 @@ interface CarRepositoryInterface extends BaseRepositoryInterface
     public function getCarsByOwnerWithRelations(int $ownerId): Collection;
 
     public function getOwnerCar(int $ownerId, int $carId): Car;
+
+    public function getCarsForSelect(): Collection;
 }

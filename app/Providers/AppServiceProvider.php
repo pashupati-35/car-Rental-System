@@ -50,6 +50,22 @@ use App\Repositories\Cms\TeamRepository;
 use App\Repositories\Cms\TeamRepositoryInterface;
 use App\Repositories\Cms\TestimonialRepository;
 use App\Repositories\Cms\TestimonialRepositoryInterface;
+use App\Repositories\Crm\CorporateAccountRepository;
+use App\Repositories\Crm\CorporateAccountRepositoryInterface;
+use App\Repositories\Crm\CrmTaskRepository;
+use App\Repositories\Crm\CrmTaskRepositoryInterface;
+use App\Repositories\Crm\CustomerCrmRepository;
+use App\Repositories\Crm\CustomerCrmRepositoryInterface;
+use App\Repositories\Crm\DealRepository;
+use App\Repositories\Crm\DealRepositoryInterface;
+use App\Repositories\Crm\LeadRepository;
+use App\Repositories\Crm\LeadRepositoryInterface;
+use App\Repositories\Crm\OwnerCrmRepository;
+use App\Repositories\Crm\OwnerCrmRepositoryInterface;
+use App\Repositories\Crm\QuotationRepository;
+use App\Repositories\Crm\QuotationRepositoryInterface;
+use App\Repositories\Crm\SupportTicketRepository;
+use App\Repositories\Crm\SupportTicketRepositoryInterface;
 use App\Repositories\CustomerRepository;
 use App\Repositories\CustomerRepositoryInterface;
 use App\Repositories\DriverRepository;
@@ -74,6 +90,16 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(DriverRepositoryInterface::class, DriverRepository::class);
         $this->app->bind(OwnerRepositoryInterface::class, OwnerRepository::class);
+
+        // CRM Repositories
+        $this->app->bind(LeadRepositoryInterface::class, LeadRepository::class);
+        $this->app->bind(DealRepositoryInterface::class, DealRepository::class);
+        $this->app->bind(QuotationRepositoryInterface::class, QuotationRepository::class);
+        $this->app->bind(SupportTicketRepositoryInterface::class, SupportTicketRepository::class);
+        $this->app->bind(CorporateAccountRepositoryInterface::class, CorporateAccountRepository::class);
+        $this->app->bind(CrmTaskRepositoryInterface::class, CrmTaskRepository::class);
+        $this->app->bind(CustomerCrmRepositoryInterface::class, CustomerCrmRepository::class);
+        $this->app->bind(OwnerCrmRepositoryInterface::class, OwnerCrmRepository::class);
 
         // CMS Repositories
         $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);
