@@ -99,11 +99,17 @@ class CustomerCrmController extends Controller
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
             'priority' => 'required|string|in:low,medium,high,urgent',
+            'to_customer' => 'nullable|boolean',
+            'notify_recipient' => 'nullable|boolean',
         ]);
 
         $this->customerCrmService->addTask($customer, $validated);
 
-        return redirect()->back()->with('success', 'Follow-up task scheduled successfully.');
+        $message = ($request->boolean('to_customer') || $request->boolean('notify_recipient'))
+            ? 'Follow-up task scheduled and email dispatched to customer.'
+            : 'Follow-up task scheduled successfully.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     public function completeTask(int $taskId): RedirectResponse

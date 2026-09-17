@@ -2,12 +2,14 @@
 
 namespace App\Services\Crm;
 
+use App\Jobs\Admin\FollowUpTaskJob;
 use App\Models\BookingCar;
 use App\Models\Crm\CrmTask;
 use App\Models\Crm\CustomerInteraction;
 use App\Models\Crm\OwnerPreference;
 use App\Models\Crm\SupportTicket;
 use App\Models\Owner;
+use Illuminate\Support\Facades\Log;
 
 class OwnerCrmService
 {
@@ -101,11 +103,25 @@ class OwnerCrmService
      */
     public function addTask(Owner $owner, array $data): CrmTask
     {
+        $notifyRecipient = ! empty($data['to_owner']) || ! empty($data['notify_recipient']);
+
         $data['related_type'] = 'owner';
         $data['related_id'] = $owner->id;
         $data['owner_id'] = $owner->id;
         $data['assigned_admin_id'] = auth('admin')->id();
+        $data['notify_recipient'] = $notifyRecipient;
+        unset($data['to_owner']);
 
-        return CrmTask::create($data);
+        $task = CrmTask::create($data);
+
+        if ($notifyRecipient) {
+            try {
+                FollowUpTaskJob::dispatch($task, $owner);
+            } catch (\Throwable $e) {
+                Log::error("Failed to dispatch FollowUpTaskJob for owner #{$owner->id}: ".$e->getMessage());
+            }
+        }
+
+        return $task;
     }
 }

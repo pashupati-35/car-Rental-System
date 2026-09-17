@@ -24,6 +24,7 @@ class CrmTask extends Model
         'due_date',
         'priority',
         'status',
+        'notify_recipient',
         'assigned_admin_id',
         'completed_at',
     ];
@@ -31,6 +32,7 @@ class CrmTask extends Model
     protected $casts = [
         'due_date' => 'datetime',
         'completed_at' => 'datetime',
+        'notify_recipient' => 'boolean',
     ];
 
     public function assignedAdmin(): BelongsTo

@@ -2,10 +2,12 @@
 
 namespace App\Services\Crm;
 
+use App\Jobs\Admin\FollowUpTaskJob;
 use App\Models\Crm\CrmTask;
 use App\Models\Crm\CustomerInteraction;
 use App\Models\Crm\CustomerPreference;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Log;
 
 class CustomerCrmService
 {
@@ -63,10 +65,24 @@ class CustomerCrmService
 
     public function addTask(Customer $customer, array $data): CrmTask
     {
+        $notifyRecipient = ! empty($data['to_customer']) || ! empty($data['notify_recipient']);
+
         $data['related_type'] = 'customer';
         $data['related_id'] = $customer->id;
         $data['assigned_admin_id'] = auth('admin')->id();
+        $data['notify_recipient'] = $notifyRecipient;
+        unset($data['to_customer']);
 
-        return CrmTask::create($data);
+        $task = CrmTask::create($data);
+
+        if ($notifyRecipient) {
+            try {
+                FollowUpTaskJob::dispatch($task, $customer);
+            } catch (\Throwable $e) {
+                Log::error("Failed to dispatch FollowUpTaskJob for customer #{$customer->id}: ".$e->getMessage());
+            }
+        }
+
+        return $task;
     }
 }

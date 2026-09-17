@@ -118,11 +118,17 @@ class OwnerCrmController extends Controller
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
             'priority' => 'required|string|in:low,medium,high,urgent',
+            'to_owner' => 'nullable|boolean',
+            'notify_recipient' => 'nullable|boolean',
         ]);
 
         $this->ownerCrmService->addTask($owner, $validated);
 
-        return redirect()->back()->with('success', 'Partner task scheduled successfully.');
+        $message = ($request->boolean('to_owner') || $request->boolean('notify_recipient'))
+            ? 'Partner task scheduled and email dispatched to fleet owner.'
+            : 'Partner task scheduled successfully.';
+
+        return redirect()->back()->with('success', $message);
     }
 
     /**
