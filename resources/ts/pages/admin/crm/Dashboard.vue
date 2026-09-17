@@ -20,12 +20,13 @@ interface DashboardData {
   recent_quotations: any[]
 }
 
-const props = defineProps<{
+defineProps<{
   data: DashboardData
 }>()
 
 const formatCurrency = (val: number | string) => {
   const num = Number(val) || 0
+  
   return '$' + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
@@ -168,8 +169,12 @@ const sourceIcons: Record<string, string> = {
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between mb-5">
             <div>
-              <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Deal Pipeline Stages</h2>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Volume and projected revenue by rental contract stage</p>
+              <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+                Deal Pipeline Stages
+              </h2>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Volume and projected revenue by rental contract stage
+              </p>
             </div>
             <Link
               href="/admin/crm/deals"
@@ -187,7 +192,10 @@ const sourceIcons: Record<string, string> = {
             >
               <div class="flex items-center justify-between text-xs">
                 <span class="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full" :class="stageInfo.color" />
+                  <span
+                    class="w-2.5 h-2.5 rounded-full"
+                    :class="stageInfo.color"
+                  />
                   {{ stageInfo.label }}
                 </span>
                 <span class="text-slate-500 dark:text-slate-400 font-semibold">
@@ -214,7 +222,9 @@ const sourceIcons: Record<string, string> = {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
           <div>
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-lg font-semibold text-slate-900 dark:text-white">Lead Channels</h2>
+              <h2 class="text-lg font-semibold text-slate-900 dark:text-white">
+                Lead Channels
+              </h2>
               <span class="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-lg">Sources</span>
             </div>
 
@@ -254,8 +264,12 @@ const sourceIcons: Record<string, string> = {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h3 class="text-base font-semibold text-slate-900 dark:text-white">Recent Leads & Inquiries</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Newly captured rental prospects</p>
+              <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+                Recent Leads & Inquiries
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Newly captured rental prospects
+              </p>
             </div>
             <Link
               href="/admin/crm/leads"
@@ -265,11 +279,17 @@ const sourceIcons: Record<string, string> = {
             </Link>
           </div>
 
-          <div v-if="!data.recent_leads?.length" class="text-center py-8 text-sm text-slate-400">
+          <div
+            v-if="!data.recent_leads?.length"
+            class="text-center py-8 text-sm text-slate-400"
+          >
             No leads captured yet.
           </div>
 
-          <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
+          <div
+            v-else
+            class="divide-y divide-slate-100 dark:divide-slate-800"
+          >
             <div
               v-for="lead in data.recent_leads"
               :key="lead.id"
@@ -288,7 +308,10 @@ const sourceIcons: Record<string, string> = {
                   </Link>
                   <div class="text-xs text-slate-500 flex items-center gap-2">
                     <span>{{ lead.phone || lead.email || 'No contact info' }}</span>
-                    <span v-if="lead.interested_car" class="text-indigo-500 font-medium">
+                    <span
+                      v-if="lead.interested_car"
+                      class="text-indigo-500 font-medium"
+                    >
                       &bull; {{ lead.interested_car.brand_name }} {{ lead.interested_car.name }}
                     </span>
                   </div>
@@ -296,7 +319,8 @@ const sourceIcons: Record<string, string> = {
               </div>
 
               <div class="text-right">
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize"
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium capitalize"
                   :class="{
                     'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300': lead.status === 'new',
                     'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300': lead.status === 'contacted',
@@ -319,8 +343,12 @@ const sourceIcons: Record<string, string> = {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
           <div class="flex items-center justify-between mb-4">
             <div>
-              <h3 class="text-base font-semibold text-slate-900 dark:text-white">Customer Interactions Timeline</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Latest client touchpoints logged by staff</p>
+              <h3 class="text-base font-semibold text-slate-900 dark:text-white">
+                Customer Interactions Timeline
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Latest client touchpoints logged by staff
+              </p>
             </div>
             <Link
               href="/admin/customers"
@@ -330,25 +358,33 @@ const sourceIcons: Record<string, string> = {
             </Link>
           </div>
 
-          <div v-if="!data.recent_interactions?.length" class="text-center py-8 text-sm text-slate-400">
+          <div
+            v-if="!data.recent_interactions?.length"
+            class="text-center py-8 text-sm text-slate-400"
+          >
             No customer interactions logged yet.
           </div>
 
-          <div v-else class="space-y-3">
+          <div
+            v-else
+            class="space-y-3"
+          >
             <div
               v-for="interaction in data.recent_interactions"
               :key="interaction.id"
               class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 text-sm flex items-start gap-3"
             >
               <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
-                <i :class="{
-                  'ri-phone-fill': interaction.type === 'call',
-                  'ri-mail-fill': interaction.type === 'email',
-                  'ri-team-fill': interaction.type === 'meeting',
-                  'ri-file-text-fill': interaction.type === 'note',
-                  'ri-whatsapp-fill': interaction.type === 'whatsapp',
-                  'ri-message-3-fill': interaction.type === 'sms',
-                }" />
+                <i
+                  :class="{
+                    'ri-phone-fill': interaction.type === 'call',
+                    'ri-mail-fill': interaction.type === 'email',
+                    'ri-team-fill': interaction.type === 'meeting',
+                    'ri-file-text-fill': interaction.type === 'note',
+                    'ri-whatsapp-fill': interaction.type === 'whatsapp',
+                    'ri-message-3-fill': interaction.type === 'sms',
+                  }"
+                />
               </div>
 
               <div class="min-w-0 flex-1">
@@ -367,7 +403,10 @@ const sourceIcons: Record<string, string> = {
                   <span v-if="interaction.customer">
                     <i class="ri-user-line" /> {{ interaction.customer.name }}
                   </span>
-                  <span v-if="interaction.admin" class="text-slate-400">
+                  <span
+                    v-if="interaction.admin"
+                    class="text-slate-400"
+                  >
                     &bull; by {{ interaction.admin.name }}
                   </span>
                 </div>

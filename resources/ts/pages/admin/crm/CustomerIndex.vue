@@ -15,6 +15,7 @@ const searchQuery = ref(props.filters.search || '')
 const selectedTier = ref(props.filters.tier || '')
 
 let debounceTimer: any = null
+
 const handleSearch = () => {
   clearTimeout(debounceTimer)
   debounceTimer = setTimeout(() => {
@@ -68,13 +69,13 @@ const tierBadges: Record<string, { label: string; class: string }> = {
             v-model="searchQuery"
             type="text"
             placeholder="Search by customer name, email, phone..."
-            class="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+            class="w-full ps-10 pe-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
             @input="handleSearch"
           >
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs font-semibold text-slate-500 uppercase mr-1">Loyalty Tier:</span>
+          <span class="text-xs font-semibold text-slate-500 uppercase me-1">Loyalty Tier:</span>
           <button
             v-for="t in ['Standard', 'Silver', 'Gold', 'Platinum']"
             :key="t"
@@ -89,7 +90,10 @@ const tierBadges: Record<string, { label: string; class: string }> = {
       </div>
 
       <!-- Customer Cards Grid -->
-      <div v-if="customers.data && customers.data.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div
+        v-if="customers.data && customers.data.length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+      >
         <div
           v-for="cust in customers.data"
           :key="cust.id"
@@ -123,11 +127,17 @@ const tierBadges: Record<string, { label: string; class: string }> = {
 
             <!-- Contact & Details -->
             <div class="space-y-1.5 text-xs text-slate-600 dark:text-slate-300 py-2 border-y border-slate-100 dark:border-slate-800/80 mb-4">
-              <div v-if="cust.phone_number || cust.mobile" class="flex items-center gap-2">
+              <div
+                v-if="cust.phone_number || cust.mobile"
+                class="flex items-center gap-2"
+              >
                 <i class="ri-phone-line text-slate-400" />
                 <span>{{ cust.phone_number || cust.mobile }}</span>
               </div>
-              <div v-if="cust.preference?.preferred_car_type" class="flex items-center gap-2">
+              <div
+                v-if="cust.preference?.preferred_car_type"
+                class="flex items-center gap-2"
+              >
                 <i class="ri-roadster-line text-slate-400" />
                 <span>Prefers: <b class="text-slate-800 dark:text-slate-200">{{ cust.preference.preferred_car_type }}</b></span>
               </div>
@@ -160,10 +170,16 @@ const tierBadges: Record<string, { label: string; class: string }> = {
 
           <!-- Actions footer -->
           <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <span v-if="cust.preference?.vip_status" class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+            <span
+              v-if="cust.preference?.vip_status"
+              class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400"
+            >
               <i class="ri-vip-crown-fill" /> VIP Client
             </span>
-            <span v-else class="text-[11px] text-slate-400">
+            <span
+              v-else
+              class="text-[11px] text-slate-400"
+            >
               Regular Account
             </span>
 
@@ -179,26 +195,38 @@ const tierBadges: Record<string, { label: string; class: string }> = {
       </div>
 
       <!-- Empty State -->
-      <div v-else class="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8">
+      <div
+        v-else
+        class="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8"
+      >
         <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center text-3xl mb-3">
           <i class="ri-user-search-line" />
         </div>
-        <h3 class="text-lg font-bold text-slate-900 dark:text-white">No Customers Found</h3>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+          No Customers Found
+        </h3>
         <p class="text-sm text-slate-500 max-w-sm mx-auto mt-1">
           No customer records match your filter criteria. Try adjusting your search keyword or loyalty tier.
         </p>
       </div>
 
       <!-- Pagination -->
-      <div v-if="customers.links && customers.links.length > 3" class="flex items-center justify-center gap-1 pt-4">
-        <template v-for="(link, i) in customers.links" :key="i">
+      <div
+        v-if="customers.links && customers.links.length > 3"
+        class="flex items-center justify-center gap-1 pt-4"
+      >
+        <template
+          v-for="(link, i) in customers.links"
+          :key="i"
+        >
           <Link
             v-if="link.url"
             :href="link.url"
             class="px-3.5 py-2 rounded-xl text-xs font-semibold transition"
             :class="link.active ? 'bg-emerald-600 text-white' : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'"
-            v-html="link.label"
-          />
+          >
+            <span v-html="link.label" />
+          </Link>
           <span
             v-else
             class="px-3.5 py-2 text-xs text-slate-400 cursor-not-allowed"

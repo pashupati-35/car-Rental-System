@@ -35,7 +35,10 @@ const updateStatus = (newStatus: string) => {
     <div class="space-y-6 pb-12">
       <!-- Breadcrumbs -->
       <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-        <Link href="/crm/tickets" class="hover:text-indigo-600 transition flex items-center gap-1">
+        <Link
+          href="/crm/tickets"
+          class="hover:text-indigo-600 transition flex items-center gap-1"
+        >
           <i class="ri-arrow-left-line" /> Back to Support Desk
         </Link>
         <span>/</span>
@@ -47,7 +50,8 @@ const updateStatus = (newStatus: string) => {
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
             <span class="font-mono text-xs font-bold text-slate-400">{{ ticket.ticket_number }}</span>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize"
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize"
               :class="{
                 'bg-slate-100 text-slate-700 dark:bg-slate-800': ticket.priority === 'low',
                 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300': ticket.priority === 'medium',
@@ -74,7 +78,6 @@ const updateStatus = (newStatus: string) => {
           <span class="text-xs font-semibold text-slate-500">Case Status:</span>
           <select
             :value="ticket.status"
-            @change="updateStatus(($event.target as HTMLSelectElement).value)"
             class="px-3 py-2 rounded-xl text-xs font-bold border-0 capitalize shadow-xs"
             :class="{
               'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300': ticket.status === 'open',
@@ -83,12 +86,23 @@ const updateStatus = (newStatus: string) => {
               'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300': ticket.status === 'resolved',
               'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300': ticket.status === 'closed',
             }"
+            @change="updateStatus(($event.target as HTMLSelectElement).value)"
           >
-            <option value="open">Open</option>
-            <option value="in_progress">In Progress</option>
-            <option value="waiting_customer">Waiting on Customer</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
+            <option value="open">
+              Open
+            </option>
+            <option value="in_progress">
+              In Progress
+            </option>
+            <option value="waiting_customer">
+              Waiting on Customer
+            </option>
+            <option value="resolved">
+              Resolved
+            </option>
+            <option value="closed">
+              Closed
+            </option>
           </select>
         </div>
       </div>
@@ -126,7 +140,10 @@ const updateStatus = (newStatus: string) => {
           </div>
 
           <!-- Vehicle in Question -->
-          <div v-if="ticket.car" class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
+          <div
+            v-if="ticket.car"
+            class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3"
+          >
             <h2 class="text-base font-bold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-3">
               Rented Vehicle
             </h2>
@@ -158,7 +175,10 @@ const updateStatus = (newStatus: string) => {
               >
                 <div class="flex items-center justify-between mb-2">
                   <div class="flex items-center gap-2">
-                    <span class="font-bold text-xs" :class="msg.sender_type === 'admin' ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200'">
+                    <span
+                      class="font-bold text-xs"
+                      :class="msg.sender_type === 'admin' ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-800 dark:text-slate-200'"
+                    >
                       {{ msg.sender_name || (msg.sender_type === 'admin' ? 'Staff Agent' : 'Customer') }}
                     </span>
                     <span
@@ -179,7 +199,10 @@ const updateStatus = (newStatus: string) => {
             </div>
 
             <!-- Reply Box -->
-            <form @submit.prevent="submitReply" class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <form
+              class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-3"
+              @submit.prevent="submitReply"
+            >
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300">Post Agent Response</label>
               <textarea
                 v-model="replyForm.message"

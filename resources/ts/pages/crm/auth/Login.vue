@@ -25,6 +25,7 @@ const handleLogin = async () => {
   errorMessage.value = ''
   if (!form.email || !form.password) {
     errorMessage.value = 'Please enter both email and password.'
+    
     return
   }
 
@@ -151,7 +152,10 @@ const handleLogin = async () => {
           class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
           <span v-if="form.processing">Authenticating...</span>
-          <span v-else class="flex items-center gap-1.5">
+          <span
+            v-else
+            class="flex items-center gap-1.5"
+          >
             <span>Enter CRM Operations</span>
             <i class="ri-arrow-right-line" />
           </span>

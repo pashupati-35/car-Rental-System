@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { usePage, router, Link } from '@inertiajs/vue3'
-import MessageBox from '@/components/MessageBox.vue'
 import { useAdminTheme, type AdminThemeStyle } from '@/composable/useAdminTheme'
 import { useSiteSettings } from '@/composable/useSiteSettings'
 
 const page = usePage()
 const { theme, setTheme, initTheme } = useAdminTheme()
-const { logoUrl, companyName } = useSiteSettings()
+const { companyName } = useSiteSettings()
 
 const isMobileDrawerOpen = ref(false)
 const showProfileMenu = ref(false)
@@ -37,6 +36,7 @@ const adminAvatarUrl = computed(() => {
   if (typeof a.avatar === 'string' && a.avatar) {
     return a.avatar.startsWith('http') ? a.avatar : `/${a.avatar.replace(/^\/+/, '')}`
   }
+  
   return null
 })
 
@@ -71,6 +71,7 @@ const isActive = (href: string) => {
   if (href === '/crm/dashboard') {
     return current === '/crm/dashboard' || current === '/crm' || current === '/dashboard'
   }
+  
   return current.startsWith(href)
 }
 
@@ -119,7 +120,10 @@ onUnmounted(() => {
           <i class="ri-menu-line text-xl" />
         </button>
 
-        <Link href="/crm/dashboard" class="flex items-center gap-2.5">
+        <Link
+          href="/crm/dashboard"
+          class="flex items-center gap-2.5"
+        >
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
             <i class="ri-shield-user-line" />
           </div>
@@ -179,12 +183,15 @@ onUnmounted(() => {
         </a>
 
         <!-- Theme Selector -->
-        <div id="crm-theme-menu-container" class="relative">
+        <div
+          id="crm-theme-menu-container"
+          class="relative"
+        >
           <button
             type="button"
-            @click="showThemeMenu = !showThemeMenu"
             class="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition"
             title="Switch Theme"
+            @click="showThemeMenu = !showThemeMenu"
           >
             <i class="ri-palette-line text-lg" />
           </button>
@@ -197,24 +204,33 @@ onUnmounted(() => {
               v-for="th in themeStyles"
               :key="th.id"
               type="button"
-              @click="setTheme(th.id); showThemeMenu = false"
               class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              @click="setTheme(th.id); showThemeMenu = false"
             >
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full" :class="th.dotClass" />
+                <span
+                  class="w-2.5 h-2.5 rounded-full"
+                  :class="th.dotClass"
+                />
                 <span>{{ th.label }}</span>
               </div>
-              <i v-if="theme === th.id" class="ri-check-line text-indigo-600 text-sm" />
+              <i
+                v-if="theme === th.id"
+                class="ri-check-line text-indigo-600 text-sm"
+              />
             </button>
           </div>
         </div>
 
         <!-- User Profile Dropdown -->
-        <div id="crm-profile-menu-container" class="relative">
+        <div
+          id="crm-profile-menu-container"
+          class="relative"
+        >
           <button
             type="button"
-            @click="showProfileMenu = !showProfileMenu"
             class="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+            @click="showProfileMenu = !showProfileMenu"
           >
             <div class="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-emerald-600 to-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs border border-emerald-500/20">
               <img
@@ -253,8 +269,12 @@ onUnmounted(() => {
                 <span v-else>{{ displayName.charAt(0).toUpperCase() }}</span>
               </div>
               <div class="min-w-0 flex-1">
-                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">{{ displayName }}</div>
-                <div class="text-[11px] text-slate-400 truncate">{{ adminEmail }}</div>
+                <div class="font-bold text-xs text-slate-900 dark:text-white truncate">
+                  {{ displayName }}
+                </div>
+                <div class="text-[11px] text-slate-400 truncate">
+                  {{ adminEmail }}
+                </div>
               </div>
             </div>
 
@@ -269,8 +289,8 @@ onUnmounted(() => {
 
             <button
               type="button"
-              @click="logout"
               class="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition text-left cursor-pointer"
+              @click="logout"
             >
               <i class="ri-logout-box-r-line text-sm" />
               <span>Sign Out</span>
@@ -330,7 +350,10 @@ onUnmounted(() => {
         v-if="isMobileDrawerOpen"
         class="fixed inset-0 z-50 lg:hidden flex"
       >
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-xs" @click="isMobileDrawerOpen = false" />
+        <div
+          class="fixed inset-0 bg-black/60 backdrop-blur-xs"
+          @click="isMobileDrawerOpen = false"
+        />
         <div class="relative w-72 bg-white dark:bg-slate-900 p-5 flex flex-col z-10 space-y-4">
           <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2.5">
@@ -349,7 +372,10 @@ onUnmounted(() => {
                 <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">CRM Portal</span>
               </div>
             </div>
-            <button @click="isMobileDrawerOpen = false" class="text-slate-400 hover:text-slate-600">
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="isMobileDrawerOpen = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
@@ -364,7 +390,10 @@ onUnmounted(() => {
               @click="isMobileDrawerOpen = false"
             >
               <div class="flex items-center gap-3">
-                <i :class="item.icon" class="text-lg" />
+                <i
+                  :class="item.icon"
+                  class="text-lg"
+                />
                 <span>{{ item.title }}</span>
               </div>
             </Link>
@@ -375,22 +404,34 @@ onUnmounted(() => {
       <!-- Main Content Area -->
       <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <!-- Flash Alert Messages -->
-        <div v-if="flashSuccess" class="mb-5 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-sm flex items-center justify-between">
+        <div
+          v-if="flashSuccess"
+          class="mb-5 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-emerald-800 dark:text-emerald-200 text-sm flex items-center justify-between"
+        >
           <div class="flex items-center gap-2">
             <i class="ri-checkbox-circle-fill text-lg text-emerald-600" />
             <span>{{ flashSuccess }}</span>
           </div>
-          <button @click="flashSuccess = ''" class="text-emerald-500 hover:text-emerald-700">
+          <button
+            class="text-emerald-500 hover:text-emerald-700"
+            @click="flashSuccess = ''"
+          >
             <i class="ri-close-line text-lg" />
           </button>
         </div>
 
-        <div v-if="flashError" class="mb-5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-sm flex items-center justify-between">
+        <div
+          v-if="flashError"
+          class="mb-5 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-800/60 text-rose-800 dark:text-rose-200 text-sm flex items-center justify-between"
+        >
           <div class="flex items-center gap-2">
             <i class="ri-error-warning-fill text-lg text-rose-600" />
             <span>{{ flashError }}</span>
           </div>
-          <button @click="flashError = ''" class="text-rose-500 hover:text-rose-700">
+          <button
+            class="text-rose-500 hover:text-rose-700"
+            @click="flashError = ''"
+          >
             <i class="ri-close-line text-lg" />
           </button>
         </div>

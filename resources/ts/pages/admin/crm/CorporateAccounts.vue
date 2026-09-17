@@ -59,6 +59,7 @@ const applyFilters = () => {
 }
 
 let searchTimer: any = null
+
 const onSearch = () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(() => {
@@ -124,7 +125,9 @@ const deleteAccount = (acc: any) => {
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Corporate B2B Fleet Accounts</h1>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+            Corporate B2B Fleet Accounts
+          </h1>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Manage corporate contracts, dedicated fleet discounts, credit limits, and Net-term billing.
           </p>
@@ -132,8 +135,8 @@ const deleteAccount = (acc: any) => {
 
         <button
           type="button"
-          @click="openCreateModal"
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition shadow-sm"
+          @click="openCreateModal"
         >
           <i class="ri-building-line text-base" />
           <span>New Corporate Account</span>
@@ -146,22 +149,30 @@ const deleteAccount = (acc: any) => {
           <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             v-model="searchQuery"
-            @input="onSearch"
             type="text"
             placeholder="Search company, contact, tax ID..."
-            class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+            class="w-full ps-10 pe-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            @input="onSearch"
+          >
         </div>
 
         <select
           v-model="selectedStatus"
-          @change="applyFilters"
           class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-medium"
+          @change="applyFilters"
         >
-          <option value="all">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="pending">Pending Approval</option>
-          <option value="suspended">Suspended</option>
+          <option value="all">
+            All Statuses
+          </option>
+          <option value="active">
+            Active
+          </option>
+          <option value="pending">
+            Pending Approval
+          </option>
+          <option value="suspended">
+            Suspended
+          </option>
         </select>
       </div>
 
@@ -171,18 +182,35 @@ const deleteAccount = (acc: any) => {
           <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th class="px-5 py-3.5">Company Profile</th>
-                <th class="px-5 py-3.5">Contact Person</th>
-                <th class="px-5 py-3.5">Contract Discount</th>
-                <th class="px-5 py-3.5">Credit Limit</th>
-                <th class="px-5 py-3.5">Payment Terms</th>
-                <th class="px-5 py-3.5">Status</th>
-                <th class="px-5 py-3.5 text-right">Actions</th>
+                <th class="px-5 py-3.5">
+                  Company Profile
+                </th>
+                <th class="px-5 py-3.5">
+                  Contact Person
+                </th>
+                <th class="px-5 py-3.5">
+                  Contract Discount
+                </th>
+                <th class="px-5 py-3.5">
+                  Credit Limit
+                </th>
+                <th class="px-5 py-3.5">
+                  Payment Terms
+                </th>
+                <th class="px-5 py-3.5">
+                  Status
+                </th>
+                <th class="px-5 py-3.5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr v-if="!accounts?.data?.length">
-                <td colspan="7" class="text-center py-10 text-slate-400 text-sm">
+                <td
+                  colspan="7"
+                  class="text-center py-10 text-slate-400 text-sm"
+                >
                   No corporate accounts registered yet.
                 </td>
               </tr>
@@ -203,9 +231,18 @@ const deleteAccount = (acc: any) => {
 
                 <!-- Contact -->
                 <td class="px-5 py-4 text-xs">
-                  <div class="font-semibold text-slate-800 dark:text-slate-200">{{ acc.contact_person }}</div>
-                  <div class="text-slate-500">{{ acc.email }}</div>
-                  <div v-if="acc.phone" class="text-slate-400">{{ acc.phone }}</div>
+                  <div class="font-semibold text-slate-800 dark:text-slate-200">
+                    {{ acc.contact_person }}
+                  </div>
+                  <div class="text-slate-500">
+                    {{ acc.email }}
+                  </div>
+                  <div
+                    v-if="acc.phone"
+                    class="text-slate-400"
+                  >
+                    {{ acc.phone }}
+                  </div>
                 </td>
 
                 <!-- Discount -->
@@ -244,17 +281,17 @@ const deleteAccount = (acc: any) => {
                   <div class="flex items-center justify-end gap-1.5">
                     <button
                       type="button"
-                      @click="openEditModal(acc)"
                       class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
                       title="Edit Account"
+                      @click="openEditModal(acc)"
                     >
                       <i class="ri-edit-line" />
                     </button>
                     <button
                       type="button"
-                      @click="deleteAccount(acc)"
                       class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
                       title="Delete Account"
+                      @click="deleteAccount(acc)"
                     >
                       <i class="ri-delete-bin-line" />
                     </button>
@@ -267,55 +304,104 @@ const deleteAccount = (acc: any) => {
       </div>
 
       <!-- Create Account Modal -->
-      <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showCreateModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Register Corporate Account</h3>
-            <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Register Corporate Account
+            </h3>
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="showCreateModal = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
 
-          <form @submit.prevent="submitCreate" class="space-y-4">
+          <form
+            class="space-y-4"
+            @submit.prevent="submitCreate"
+          >
             <div>
               <label class="block text-xs font-semibold mb-1">Company Name *</label>
-              <input v-model="accountForm.company_name" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="accountForm.company_name"
+                required
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Business Reg Number</label>
-                <input v-model="accountForm.business_reg_number" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.business_reg_number"
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Tax / VAT ID</label>
-                <input v-model="accountForm.tax_id" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.tax_id"
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Contact Person *</label>
-                <input v-model="accountForm.contact_person" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.contact_person"
+                  required
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Contact Email *</label>
-                <input v-model="accountForm.email" required type="email" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.email"
+                  required
+                  type="email"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Phone Number</label>
-                <input v-model="accountForm.phone" type="tel" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.phone"
+                  type="tel"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Billing Terms</label>
-                <select v-model="accountForm.payment_terms" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="Net 15">Net 15 Days</option>
-                  <option value="Net 30">Net 30 Days</option>
-                  <option value="Net 60">Net 60 Days</option>
-                  <option value="Due on Receipt">Due on Receipt</option>
+                <select
+                  v-model="accountForm.payment_terms"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="Net 15">
+                    Net 15 Days
+                  </option>
+                  <option value="Net 30">
+                    Net 30 Days
+                  </option>
+                  <option value="Net 60">
+                    Net 60 Days
+                  </option>
+                  <option value="Due on Receipt">
+                    Due on Receipt
+                  </option>
                 </select>
               </div>
             </div>
@@ -323,24 +409,47 @@ const deleteAccount = (acc: any) => {
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Credit Limit ($)</label>
-                <input v-model="accountForm.credit_limit" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.credit_limit"
+                  type="number"
+                  step="0.01"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Contract Discount (%)</label>
-                <input v-model="accountForm.contract_discount_percent" type="number" step="0.01" max="100" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="accountForm.contract_discount_percent"
+                  type="number"
+                  step="0.01"
+                  max="100"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-semibold mb-1">Office Address</label>
-              <input v-model="accountForm.address" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="accountForm.address"
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
 
             <div class="flex justify-end gap-2.5 pt-2">
-              <button type="button" @click="showCreateModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+                @click="showCreateModal = false"
+              >
                 Cancel
               </button>
-              <button type="submit" :disabled="accountForm.processing" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm">
+              <button
+                type="submit"
+                :disabled="accountForm.processing"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm"
+              >
                 {{ accountForm.processing ? 'Registering...' : 'Register Corporate Account' }}
               </button>
             </div>
@@ -349,56 +458,110 @@ const deleteAccount = (acc: any) => {
       </div>
 
       <!-- Edit Modal -->
-      <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showEditModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Corporate Account</h3>
-            <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-600">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Edit Corporate Account
+            </h3>
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="showEditModal = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
 
-          <form @submit.prevent="submitEdit" class="space-y-4">
+          <form
+            class="space-y-4"
+            @submit.prevent="submitEdit"
+          >
             <div>
               <label class="block text-xs font-semibold mb-1">Company Name</label>
-              <input v-model="editForm.company_name" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="editForm.company_name"
+                required
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Contact Person</label>
-                <input v-model="editForm.contact_person" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.contact_person"
+                  required
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Contact Email</label>
-                <input v-model="editForm.email" required type="email" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.email"
+                  required
+                  type="email"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-3 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Credit Limit ($)</label>
-                <input v-model="editForm.credit_limit" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.credit_limit"
+                  type="number"
+                  step="0.01"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Discount (%)</label>
-                <input v-model="editForm.contract_discount_percent" type="number" step="0.01" max="100" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.contract_discount_percent"
+                  type="number"
+                  step="0.01"
+                  max="100"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Status</label>
-                <select v-model="editForm.status" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="active">Active</option>
-                  <option value="pending">Pending</option>
-                  <option value="suspended">Suspended</option>
+                <select
+                  v-model="editForm.status"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="active">
+                    Active
+                  </option>
+                  <option value="pending">
+                    Pending
+                  </option>
+                  <option value="suspended">
+                    Suspended
+                  </option>
                 </select>
               </div>
             </div>
 
             <div class="flex justify-end gap-2.5 pt-2">
-              <button type="button" @click="showEditModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+                @click="showEditModal = false"
+              >
                 Cancel
               </button>
-              <button type="submit" :disabled="editForm.processing" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm">
+              <button
+                type="submit"
+                :disabled="editForm.processing"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm"
+              >
                 Save Changes
               </button>
             </div>

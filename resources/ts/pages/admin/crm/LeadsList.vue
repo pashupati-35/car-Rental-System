@@ -68,6 +68,7 @@ const setTab = (tab: string) => {
 }
 
 let searchTimer: any = null
+
 const onSearch = () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(() => {
@@ -122,7 +123,9 @@ const deleteLead = (lead: any) => {
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Leads & Inquiries</h1>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+            Leads & Inquiries
+          </h1>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Capture, track, qualify and convert prospective car rental clients.
           </p>
@@ -130,8 +133,8 @@ const deleteLead = (lead: any) => {
 
         <button
           type="button"
-          @click="openCreateModal"
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition shadow-sm"
+          @click="openCreateModal"
         >
           <i class="ri-user-add-line text-base" />
           <span>New Lead</span>
@@ -142,12 +145,15 @@ const deleteLead = (lead: any) => {
       <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
         <button
           type="button"
-          @click="setTab('all')"
           class="px-4 py-2 text-sm font-medium rounded-xl transition flex items-center gap-2 shrink-0"
           :class="activeTab === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+          @click="setTab('all')"
         >
           <span>All Leads</span>
-          <span class="text-xs px-2 py-0.5 rounded-full" :class="activeTab === 'all' ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'">
+          <span
+            class="text-xs px-2 py-0.5 rounded-full"
+            :class="activeTab === 'all' ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'"
+          >
             {{ counts.all || 0 }}
           </span>
         </button>
@@ -156,12 +162,15 @@ const deleteLead = (lead: any) => {
           v-for="statusKey in ['new', 'contacted', 'qualified', 'proposal_sent', 'converted', 'lost']"
           :key="statusKey"
           type="button"
-          @click="setTab(statusKey)"
           class="px-4 py-2 text-sm font-medium rounded-xl transition flex items-center gap-2 shrink-0 capitalize"
           :class="activeTab === statusKey ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+          @click="setTab(statusKey)"
         >
           <span>{{ statusKey.replace('_', ' ') }}</span>
-          <span class="text-xs px-2 py-0.5 rounded-full" :class="activeTab === statusKey ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'">
+          <span
+            class="text-xs px-2 py-0.5 rounded-full"
+            :class="activeTab === statusKey ? 'bg-indigo-700 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'"
+          >
             {{ counts[statusKey] || 0 }}
           </span>
         </button>
@@ -173,41 +182,67 @@ const deleteLead = (lead: any) => {
           <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             v-model="searchQuery"
-            @input="onSearch"
             type="text"
             placeholder="Search leads by name, email, phone..."
-            class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+            class="w-full ps-10 pe-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            @input="onSearch"
+          >
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto">
           <!-- Source Filter -->
           <select
             v-model="selectedSource"
-            @change="applyFilters"
             class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            @change="applyFilters"
           >
-            <option value="all">All Sources</option>
-            <option value="website">Website</option>
-            <option value="phone">Phone Call</option>
-            <option value="walk_in">Walk In</option>
-            <option value="referral">Referral</option>
-            <option value="corporate">Corporate</option>
-            <option value="ai_chat">AI Chatbot</option>
-            <option value="other">Other</option>
+            <option value="all">
+              All Sources
+            </option>
+            <option value="website">
+              Website
+            </option>
+            <option value="phone">
+              Phone Call
+            </option>
+            <option value="walk_in">
+              Walk In
+            </option>
+            <option value="referral">
+              Referral
+            </option>
+            <option value="corporate">
+              Corporate
+            </option>
+            <option value="ai_chat">
+              AI Chatbot
+            </option>
+            <option value="other">
+              Other
+            </option>
           </select>
 
           <!-- Priority Filter -->
           <select
             v-model="selectedPriority"
-            @change="applyFilters"
             class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            @change="applyFilters"
           >
-            <option value="all">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
+            <option value="all">
+              All Priorities
+            </option>
+            <option value="low">
+              Low
+            </option>
+            <option value="medium">
+              Medium
+            </option>
+            <option value="high">
+              High
+            </option>
+            <option value="urgent">
+              Urgent
+            </option>
           </select>
         </div>
       </div>
@@ -218,18 +253,35 @@ const deleteLead = (lead: any) => {
           <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th class="px-5 py-3.5">Lead Contact</th>
-                <th class="px-5 py-3.5">Vehicle Interest</th>
-                <th class="px-5 py-3.5">Source</th>
-                <th class="px-5 py-3.5">Priority</th>
-                <th class="px-5 py-3.5">Status</th>
-                <th class="px-5 py-3.5">Estimated Value</th>
-                <th class="px-5 py-3.5 text-right">Actions</th>
+                <th class="px-5 py-3.5">
+                  Lead Contact
+                </th>
+                <th class="px-5 py-3.5">
+                  Vehicle Interest
+                </th>
+                <th class="px-5 py-3.5">
+                  Source
+                </th>
+                <th class="px-5 py-3.5">
+                  Priority
+                </th>
+                <th class="px-5 py-3.5">
+                  Status
+                </th>
+                <th class="px-5 py-3.5">
+                  Estimated Value
+                </th>
+                <th class="px-5 py-3.5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr v-if="!leadsList.length">
-                <td colspan="7" class="text-center py-10 text-slate-400 text-sm">
+                <td
+                  colspan="7"
+                  class="text-center py-10 text-slate-400 text-sm"
+                >
                   No leads found matching your criteria.
                 </td>
               </tr>
@@ -251,7 +303,10 @@ const deleteLead = (lead: any) => {
                       >
                         {{ lead.first_name }} {{ lead.last_name }}
                       </Link>
-                      <div v-if="lead.company_name" class="text-xs text-slate-400 font-medium">
+                      <div
+                        v-if="lead.company_name"
+                        class="text-xs text-slate-400 font-medium"
+                      >
                         {{ lead.company_name }}
                       </div>
                       <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
@@ -264,13 +319,22 @@ const deleteLead = (lead: any) => {
 
                 <!-- Vehicle Interest -->
                 <td class="px-5 py-4">
-                  <div v-if="lead.interested_car" class="font-medium text-slate-800 dark:text-slate-200">
+                  <div
+                    v-if="lead.interested_car"
+                    class="font-medium text-slate-800 dark:text-slate-200"
+                  >
                     {{ lead.interested_car.brand_name }} {{ lead.interested_car.name }}
                   </div>
-                  <div v-else class="text-xs text-slate-400">
+                  <div
+                    v-else
+                    class="text-xs text-slate-400"
+                  >
                     Any available vehicle
                   </div>
-                  <div v-if="lead.pickup_date" class="text-xs text-slate-500 mt-0.5">
+                  <div
+                    v-if="lead.pickup_date"
+                    class="text-xs text-slate-500 mt-0.5"
+                  >
                     {{ lead.pickup_date }} <span v-if="lead.return_date">to {{ lead.return_date }}</span>
                   </div>
                 </td>
@@ -327,9 +391,9 @@ const deleteLead = (lead: any) => {
                     <button
                       v-if="lead.status !== 'converted'"
                       type="button"
-                      @click="openConvertModal(lead)"
                       title="Convert to Customer & Deal"
                       class="px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 font-semibold text-xs transition flex items-center gap-1"
+                      @click="openConvertModal(lead)"
                     >
                       <i class="ri-user-follow-line" />
                       <span>Convert</span>
@@ -345,9 +409,9 @@ const deleteLead = (lead: any) => {
 
                     <button
                       type="button"
-                      @click="deleteLead(lead)"
                       class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
                       title="Delete Lead"
+                      @click="deleteLead(lead)"
                     >
                       <i class="ri-delete-bin-line text-base" />
                     </button>
@@ -359,7 +423,10 @@ const deleteLead = (lead: any) => {
         </div>
 
         <!-- Pagination -->
-        <div v-if="leads?.links && leads.links.length > 3" class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div
+          v-if="leads?.links && leads.links.length > 3"
+          class="p-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between"
+        >
           <div class="text-xs text-slate-500">
             Showing {{ leads.from || 0 }} to {{ leads.to || 0 }} of {{ leads.total || 0 }} leads
           </div>
@@ -368,84 +435,156 @@ const deleteLead = (lead: any) => {
               v-for="(link, i) in leads.links"
               :key="i"
               :href="link.url || '#'"
-              v-html="link.label"
               class="px-3 py-1.5 text-xs rounded-lg font-medium transition"
               :class="link.active ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
               :disabled="!link.url"
-            />
+            >
+              <span v-html="link.label" />
+            </Link>
           </div>
         </div>
       </div>
 
       <!-- Create Lead Modal -->
-      <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showCreateModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-bold text-slate-900 dark:text-white">Create New Lead</h2>
-            <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600">
+            <h2 class="text-lg font-bold text-slate-900 dark:text-white">
+              Create New Lead
+            </h2>
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="showCreateModal = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
 
-          <form @submit.prevent="submitCreateLead" class="space-y-4">
+          <form
+            class="space-y-4"
+            @submit.prevent="submitCreateLead"
+          >
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">First Name *</label>
-                <input v-model="leadForm.first_name" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="leadForm.first_name"
+                  required
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
-                <input v-model="leadForm.last_name" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="leadForm.last_name"
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                <input v-model="leadForm.email" type="email" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="leadForm.email"
+                  type="email"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone</label>
-                <input v-model="leadForm.phone" type="tel" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="leadForm.phone"
+                  type="tel"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Company Name (Optional)</label>
-              <input v-model="leadForm.company_name" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="leadForm.company_name"
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Source</label>
-                <select v-model="leadForm.source" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="website">Website</option>
-                  <option value="phone">Phone</option>
-                  <option value="walk_in">Walk-in</option>
-                  <option value="referral">Referral</option>
-                  <option value="corporate">Corporate</option>
-                  <option value="ai_chat">AI Chat</option>
-                  <option value="other">Other</option>
+                <select
+                  v-model="leadForm.source"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="website">
+                    Website
+                  </option>
+                  <option value="phone">
+                    Phone
+                  </option>
+                  <option value="walk_in">
+                    Walk-in
+                  </option>
+                  <option value="referral">
+                    Referral
+                  </option>
+                  <option value="corporate">
+                    Corporate
+                  </option>
+                  <option value="ai_chat">
+                    AI Chat
+                  </option>
+                  <option value="other">
+                    Other
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Status</label>
-                <select v-model="leadForm.status" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="new">New</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="qualified">Qualified</option>
-                  <option value="proposal_sent">Proposal Sent</option>
+                <select
+                  v-model="leadForm.status"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="new">
+                    New
+                  </option>
+                  <option value="contacted">
+                    Contacted
+                  </option>
+                  <option value="qualified">
+                    Qualified
+                  </option>
+                  <option value="proposal_sent">
+                    Proposal Sent
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Priority</label>
-                <select v-model="leadForm.priority" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
+                <select
+                  v-model="leadForm.priority"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="low">
+                    Low
+                  </option>
+                  <option value="medium">
+                    Medium
+                  </option>
+                  <option value="high">
+                    High
+                  </option>
+                  <option value="urgent">
+                    Urgent
+                  </option>
                 </select>
               </div>
             </div>
@@ -453,13 +592,27 @@ const deleteLead = (lead: any) => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Estimated Value ($)</label>
-                <input v-model="leadForm.estimated_value" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="leadForm.estimated_value"
+                  type="number"
+                  step="0.01"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Vehicle Interest</label>
-                <select v-model="leadForm.interested_car_id" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="">Select a Vehicle</option>
-                  <option v-for="car in cars" :key="car.id" :value="car.id">
+                <select
+                  v-model="leadForm.interested_car_id"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="">
+                    Select a Vehicle
+                  </option>
+                  <option
+                    v-for="car in cars"
+                    :key="car.id"
+                    :value="car.id"
+                  >
                     {{ car.brand_name }} {{ car.name }} (${{ car.price_per_day }}/day)
                   </option>
                 </select>
@@ -468,14 +621,27 @@ const deleteLead = (lead: any) => {
 
             <div>
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Notes / Requirements</label>
-              <textarea v-model="leadForm.notes" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" placeholder="Rental requirements, special requests, timeline..." />
+              <textarea
+                v-model="leadForm.notes"
+                rows="3"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                placeholder="Rental requirements, special requests, timeline..."
+              />
             </div>
 
             <div class="flex justify-end gap-3 pt-3">
-              <button type="button" @click="showCreateModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+                @click="showCreateModal = false"
+              >
                 Cancel
               </button>
-              <button :disabled="leadForm.processing" type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium">
+              <button
+                :disabled="leadForm.processing"
+                type="submit"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
+              >
                 {{ leadForm.processing ? 'Saving...' : 'Save Lead' }}
               </button>
             </div>
@@ -484,45 +650,68 @@ const deleteLead = (lead: any) => {
       </div>
 
       <!-- 1-Click Convert Modal -->
-      <div v-if="showConvertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showConvertModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">
               <i class="ri-user-follow-line" />
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-900 dark:text-white">Convert Lead to Customer</h3>
-              <p class="text-xs text-slate-500">Transform this inquiry into an active client record</p>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">
+                Convert Lead to Customer
+              </h3>
+              <p class="text-xs text-slate-500">
+                Transform this inquiry into an active client record
+              </p>
             </div>
           </div>
 
           <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-600 dark:text-slate-300 space-y-1">
             <p><strong>Name:</strong> {{ selectedLeadForConvert?.first_name }} {{ selectedLeadForConvert?.last_name }}</p>
-            <p v-if="selectedLeadForConvert?.email"><strong>Email:</strong> {{ selectedLeadForConvert?.email }}</p>
-            <p v-if="selectedLeadForConvert?.phone"><strong>Phone:</strong> {{ selectedLeadForConvert?.phone }}</p>
+            <p v-if="selectedLeadForConvert?.email">
+              <strong>Email:</strong> {{ selectedLeadForConvert?.email }}
+            </p>
+            <p v-if="selectedLeadForConvert?.phone">
+              <strong>Phone:</strong> {{ selectedLeadForConvert?.phone }}
+            </p>
           </div>
 
           <div class="space-y-3">
             <label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-800 dark:text-slate-200">
-              <input v-model="convertForm.create_deal" type="checkbox" class="w-4 h-4 rounded text-indigo-600" />
+              <input
+                v-model="convertForm.create_deal"
+                type="checkbox"
+                class="w-4 h-4 rounded text-indigo-600"
+              >
               <span>Also create an active Deal in sales pipeline</span>
             </label>
 
             <div v-if="convertForm.create_deal">
               <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Deal Title</label>
-              <input v-model="convertForm.deal_title" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="convertForm.deal_title"
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
           </div>
 
           <div class="flex justify-end gap-2.5 pt-3">
-            <button type="button" @click="showConvertModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+              @click="showConvertModal = false"
+            >
               Cancel
             </button>
             <button
               type="button"
-              @click="submitConvertLead"
               :disabled="convertForm.processing"
               class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm"
+              @click="submitConvertLead"
             >
               {{ convertForm.processing ? 'Converting...' : 'Confirm Conversion' }}
             </button>

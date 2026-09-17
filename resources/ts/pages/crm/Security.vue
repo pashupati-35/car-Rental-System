@@ -45,10 +45,12 @@ const copySecretKey = () => {
 const updatePassword = async () => {
   if (!passwordForm.value.password || passwordForm.value.password.length < 8) {
     passwordError.value = 'New password must be at least 8 characters.'
+    
     return
   }
   if (passwordForm.value.password !== passwordForm.value.password_confirmation) {
     passwordError.value = 'Password confirmation does not match.'
+    
     return
   }
 
@@ -108,6 +110,7 @@ const openMfaSetup = async () => {
 const confirmMfaSetup = async () => {
   if (!verificationCode.value || verificationCode.value.length < 6) {
     mfaError.value = 'Please enter the 6-digit code from your authenticator app.'
+    
     return
   }
   mfaLoading.value = true
@@ -159,7 +162,10 @@ const disableMfa = async () => {
     <div class="max-w-4xl mx-auto space-y-8 pb-16">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-        <Link href="/crm/dashboard" class="hover:text-emerald-600 transition flex items-center gap-1">
+        <Link
+          href="/crm/dashboard"
+          class="hover:text-emerald-600 transition flex items-center gap-1"
+        >
           <i class="ri-dashboard-3-line" /> CRM Dashboard
         </Link>
         <span>/</span>
@@ -248,8 +254,14 @@ const disableMfa = async () => {
               class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold text-xs shadow-xs disabled:opacity-50 transition cursor-pointer flex items-center gap-1.5"
               @click="openMfaSetup"
             >
-              <i v-if="mfaLoading" class="ri-loader-4-line animate-spin" />
-              <i v-else class="ri-qr-code-line" />
+              <i
+                v-if="mfaLoading"
+                class="ri-loader-4-line animate-spin"
+              />
+              <i
+                v-else
+                class="ri-qr-code-line"
+              />
               <span>Enable Authenticator</span>
             </button>
 
@@ -260,15 +272,24 @@ const disableMfa = async () => {
               class="px-4 py-2 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/50 font-semibold text-xs disabled:opacity-50 transition cursor-pointer flex items-center gap-1.5"
               @click="disableMfa"
             >
-              <i v-if="mfaLoading" class="ri-loader-4-line animate-spin" />
-              <i v-else class="ri-close-circle-line" />
+              <i
+                v-if="mfaLoading"
+                class="ri-loader-4-line animate-spin"
+              />
+              <i
+                v-else
+                class="ri-close-circle-line"
+              />
               <span>Disable Authenticator</span>
             </button>
           </div>
         </div>
 
         <!-- MFA Setup Modal / Panel -->
-        <div v-if="showMfaSetup" class="p-6 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-50/30 dark:bg-emerald-950/10 space-y-6">
+        <div
+          v-if="showMfaSetup"
+          class="p-6 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-50/30 dark:bg-emerald-950/10 space-y-6"
+        >
           <div class="flex items-center justify-between">
             <h3 class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
               <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs">1</span>
@@ -335,7 +356,10 @@ const disableMfa = async () => {
                     class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-xs disabled:opacity-50 transition cursor-pointer flex items-center gap-1.5"
                     @click="confirmMfaSetup"
                   >
-                    <i v-if="mfaLoading" class="ri-loader-4-line animate-spin" />
+                    <i
+                      v-if="mfaLoading"
+                      class="ri-loader-4-line animate-spin"
+                    />
                     <span>Verify & Activate</span>
                   </button>
                 </div>
@@ -344,7 +368,7 @@ const disableMfa = async () => {
           </div>
         </div>
 
-        <hr class="border-slate-100 dark:border-slate-800" />
+        <hr class="border-slate-100 dark:border-slate-800">
 
         <!-- Section 2: Email Two-Factor Authentication -->
         <div>
@@ -388,8 +412,14 @@ const disableMfa = async () => {
             :class="emailAuthEnabled ? 'border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 hover:bg-rose-100' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'"
             @click="toggleEmailAuth"
           >
-            <i v-if="mfaLoading" class="ri-loader-4-line animate-spin" />
-            <i v-else :class="emailAuthEnabled ? 'ri-toggle-line' : 'ri-toggle-fill'" />
+            <i
+              v-if="mfaLoading"
+              class="ri-loader-4-line animate-spin"
+            />
+            <i
+              v-else
+              :class="emailAuthEnabled ? 'ri-toggle-line' : 'ri-toggle-fill'"
+            />
             <span>{{ emailAuthEnabled ? 'Disable Email 2FA' : 'Enable Email 2FA' }}</span>
           </button>
         </div>
@@ -420,7 +450,10 @@ const disableMfa = async () => {
           @close="passwordError = ''"
         />
 
-        <form class="space-y-4 max-w-lg" @submit.prevent="updatePassword">
+        <form
+          class="space-y-4 max-w-lg"
+          @submit.prevent="updatePassword"
+        >
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
               New Password
@@ -453,7 +486,10 @@ const disableMfa = async () => {
               :disabled="passwordLoading"
               class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold text-xs hover:bg-slate-800 dark:hover:bg-slate-100 disabled:opacity-50 transition cursor-pointer flex items-center gap-1.5"
             >
-              <i v-if="passwordLoading" class="ri-loader-4-line animate-spin" />
+              <i
+                v-if="passwordLoading"
+                class="ri-loader-4-line animate-spin"
+              />
               <span>Update CRM Password</span>
             </button>
           </div>

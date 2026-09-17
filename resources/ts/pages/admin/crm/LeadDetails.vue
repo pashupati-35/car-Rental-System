@@ -62,7 +62,10 @@ const deleteLead = () => {
     <div class="space-y-6 pb-12">
       <!-- Breadcrumbs & Back -->
       <div class="flex items-center gap-2 text-xs font-medium text-slate-500 dark:text-slate-400">
-        <Link href="/admin/crm/leads" class="hover:text-indigo-600 transition flex items-center gap-1">
+        <Link
+          href="/admin/crm/leads"
+          class="hover:text-indigo-600 transition flex items-center gap-1"
+        >
           <i class="ri-arrow-left-line" /> Back to Leads
         </Link>
         <span>/</span>
@@ -80,7 +83,8 @@ const deleteLead = () => {
               <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
                 {{ lead.first_name }} {{ lead.last_name }}
               </h1>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize"
+              <span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize"
                 :class="{
                   'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300': lead.status === 'new',
                   'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300': lead.status === 'contacted',
@@ -96,7 +100,10 @@ const deleteLead = () => {
                 Priority: {{ lead.priority }}
               </span>
             </div>
-            <p v-if="lead.company_name" class="text-sm text-slate-500 mt-0.5 font-medium">
+            <p
+              v-if="lead.company_name"
+              class="text-sm text-slate-500 mt-0.5 font-medium"
+            >
               {{ lead.company_name }}
             </p>
           </div>
@@ -106,8 +113,8 @@ const deleteLead = () => {
           <button
             v-if="lead.status !== 'converted'"
             type="button"
-            @click="showConvertModal = true"
             class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition flex items-center gap-1.5 shadow-sm"
+            @click="showConvertModal = true"
           >
             <i class="ri-user-follow-line" />
             <span>Convert to Customer</span>
@@ -115,8 +122,8 @@ const deleteLead = () => {
 
           <button
             type="button"
-            @click="showEditModal = true"
             class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 text-sm font-medium transition flex items-center gap-1.5"
+            @click="showEditModal = true"
           >
             <i class="ri-edit-line" />
             <span>Edit</span>
@@ -124,8 +131,8 @@ const deleteLead = () => {
 
           <button
             type="button"
-            @click="deleteLead"
             class="px-3.5 py-2 rounded-xl border border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-sm font-medium transition"
+            @click="deleteLead"
           >
             <i class="ri-delete-bin-line" />
           </button>
@@ -170,7 +177,10 @@ const deleteLead = () => {
           </div>
 
           <!-- Converted Customer reference if converted -->
-          <div v-if="lead.converted_customer" class="bg-emerald-50 dark:bg-emerald-950/40 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/40 space-y-2">
+          <div
+            v-if="lead.converted_customer"
+            class="bg-emerald-50 dark:bg-emerald-950/40 p-5 rounded-2xl border border-emerald-200 dark:border-emerald-900/40 space-y-2"
+          >
             <div class="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-semibold text-sm">
               <i class="ri-checkbox-circle-fill text-base" /> Converted Customer Record
             </div>
@@ -197,7 +207,10 @@ const deleteLead = () => {
               Vehicle & Rental Interest
             </h2>
 
-            <div v-if="lead.interested_car" class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 gap-4">
+            <div
+              v-if="lead.interested_car"
+              class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 gap-4"
+            >
               <div>
                 <div class="font-bold text-slate-900 dark:text-white text-base">
                   {{ lead.interested_car.brand_name }} {{ lead.interested_car.name }}
@@ -205,7 +218,10 @@ const deleteLead = () => {
                 <div class="text-xs text-slate-500 mt-0.5">
                   Model: {{ lead.interested_car.model || 'Standard' }} &bull; ${{ lead.interested_car.price_per_day }}/day
                 </div>
-                <div v-if="lead.pickup_date" class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-1">
+                <div
+                  v-if="lead.pickup_date"
+                  class="text-xs text-indigo-600 dark:text-indigo-400 font-medium mt-1"
+                >
                   Requested Dates: {{ lead.pickup_date }} to {{ lead.return_date || 'TBD' }}
                 </div>
               </div>
@@ -217,13 +233,18 @@ const deleteLead = () => {
                 View Vehicle
               </Link>
             </div>
-            <div v-else class="text-sm text-slate-400 py-4 text-center">
+            <div
+              v-else
+              class="text-sm text-slate-400 py-4 text-center"
+            >
               No specific vehicle requested. Open to suggestions.
             </div>
 
             <!-- Notes -->
             <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Requirements & Notes</h3>
+              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                Requirements & Notes
+              </h3>
               <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
                 {{ lead.notes || 'No special requirements noted for this lead.' }}
               </div>
@@ -233,20 +254,39 @@ const deleteLead = () => {
           <!-- Associated Pipeline Deals -->
           <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div class="flex items-center justify-between mb-4">
-              <h2 class="text-base font-semibold text-slate-900 dark:text-white">Associated Deals</h2>
-              <Link href="/admin/crm/deals" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+              <h2 class="text-base font-semibold text-slate-900 dark:text-white">
+                Associated Deals
+              </h2>
+              <Link
+                href="/admin/crm/deals"
+                class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+              >
                 View Sales Pipeline
               </Link>
             </div>
 
-            <div v-if="!lead.deals?.length" class="text-center py-6 text-sm text-slate-400">
+            <div
+              v-if="!lead.deals?.length"
+              class="text-center py-6 text-sm text-slate-400"
+            >
               No active deals created for this lead yet.
             </div>
-            <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
-              <div v-for="deal in lead.deals" :key="deal.id" class="py-3 flex items-center justify-between text-sm">
+            <div
+              v-else
+              class="divide-y divide-slate-100 dark:divide-slate-800"
+            >
+              <div
+                v-for="deal in lead.deals"
+                :key="deal.id"
+                class="py-3 flex items-center justify-between text-sm"
+              >
                 <div>
-                  <div class="font-semibold text-slate-900 dark:text-white">{{ deal.title }}</div>
-                  <div class="text-xs text-slate-500">{{ deal.deal_number }} &bull; Stage: {{ deal.stage }}</div>
+                  <div class="font-semibold text-slate-900 dark:text-white">
+                    {{ deal.title }}
+                  </div>
+                  <div class="text-xs text-slate-500">
+                    {{ deal.deal_number }} &bull; Stage: {{ deal.stage }}
+                  </div>
                 </div>
                 <div class="font-bold text-indigo-600 dark:text-indigo-400">
                   ${{ Number(deal.value).toFixed(2) }}
@@ -258,75 +298,146 @@ const deleteLead = () => {
       </div>
 
       <!-- Edit Modal -->
-      <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showEditModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Edit Lead Information</h3>
-            <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-600">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Edit Lead Information
+            </h3>
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="showEditModal = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
 
-          <form @submit.prevent="submitEdit" class="space-y-4">
+          <form
+            class="space-y-4"
+            @submit.prevent="submitEdit"
+          >
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">First Name</label>
-                <input v-model="editForm.first_name" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.first_name"
+                  required
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Last Name</label>
-                <input v-model="editForm.last_name" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.last_name"
+                  type="text"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Email</label>
-                <input v-model="editForm.email" type="email" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.email"
+                  type="email"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Phone</label>
-                <input v-model="editForm.phone" type="tel" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.phone"
+                  type="tel"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div class="grid grid-cols-3 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Status</label>
-                <select v-model="editForm.status" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="new">New</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="qualified">Qualified</option>
-                  <option value="proposal_sent">Proposal Sent</option>
-                  <option value="converted">Converted</option>
-                  <option value="lost">Lost</option>
+                <select
+                  v-model="editForm.status"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="new">
+                    New
+                  </option>
+                  <option value="contacted">
+                    Contacted
+                  </option>
+                  <option value="qualified">
+                    Qualified
+                  </option>
+                  <option value="proposal_sent">
+                    Proposal Sent
+                  </option>
+                  <option value="converted">
+                    Converted
+                  </option>
+                  <option value="lost">
+                    Lost
+                  </option>
                 </select>
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Priority</label>
-                <select v-model="editForm.priority" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
+                <select
+                  v-model="editForm.priority"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="low">
+                    Low
+                  </option>
+                  <option value="medium">
+                    Medium
+                  </option>
+                  <option value="high">
+                    High
+                  </option>
+                  <option value="urgent">
+                    Urgent
+                  </option>
                 </select>
               </div>
               <div>
                 <label class="block text-xs font-semibold mb-1">Est. Value ($)</label>
-                <input v-model="editForm.estimated_value" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+                <input
+                  v-model="editForm.estimated_value"
+                  type="number"
+                  step="0.01"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-semibold mb-1">Notes</label>
-              <textarea v-model="editForm.notes" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <textarea
+                v-model="editForm.notes"
+                rows="3"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              />
             </div>
 
             <div class="flex justify-end gap-2.5 pt-2">
-              <button type="button" @click="showEditModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+                @click="showEditModal = false"
+              >
                 Cancel
               </button>
-              <button type="submit" :disabled="editForm.processing" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium">
+              <button
+                type="submit"
+                :disabled="editForm.processing"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium"
+              >
                 {{ editForm.processing ? 'Saving...' : 'Save Changes' }}
               </button>
             </div>
@@ -335,34 +446,58 @@ const deleteLead = () => {
       </div>
 
       <!-- Convert Modal -->
-      <div v-if="showConvertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showConvertModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
               <i class="ri-user-follow-line" />
             </div>
             <div>
-              <h3 class="text-base font-bold text-slate-900 dark:text-white">Convert to Customer</h3>
-              <p class="text-xs text-slate-500">Create client profile from lead details</p>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">
+                Convert to Customer
+              </h3>
+              <p class="text-xs text-slate-500">
+                Create client profile from lead details
+              </p>
             </div>
           </div>
 
           <div class="space-y-3">
             <label class="flex items-center gap-2 text-sm font-medium">
-              <input v-model="convertForm.create_deal" type="checkbox" class="w-4 h-4 rounded text-indigo-600" />
+              <input
+                v-model="convertForm.create_deal"
+                type="checkbox"
+                class="w-4 h-4 rounded text-indigo-600"
+              >
               <span>Create active deal in sales pipeline</span>
             </label>
             <div v-if="convertForm.create_deal">
               <label class="block text-xs font-semibold mb-1">Deal Title</label>
-              <input v-model="convertForm.deal_title" type="text" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="convertForm.deal_title"
+                type="text"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
           </div>
 
           <div class="flex justify-end gap-2.5 pt-3">
-            <button type="button" @click="showConvertModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+            <button
+              type="button"
+              class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+              @click="showConvertModal = false"
+            >
               Cancel
             </button>
-            <button type="button" @click="submitConvert" :disabled="convertForm.processing" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm">
+            <button
+              type="button"
+              :disabled="convertForm.processing"
+              class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm"
+              @click="submitConvert"
+            >
               Confirm Conversion
             </button>
           </div>

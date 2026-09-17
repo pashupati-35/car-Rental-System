@@ -45,6 +45,7 @@ const applyFilters = () => {
 }
 
 let searchTimer: any = null
+
 const onSearch = () => {
   clearTimeout(searchTimer)
   searchTimer = setTimeout(() => {
@@ -75,7 +76,9 @@ const submitCreateTicket = () => {
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Customer Support & Incidents</h1>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+            Customer Support & Incidents
+          </h1>
           <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Resolve roadside breakdowns, rental extensions, vehicle complaints, and billing issues.
           </p>
@@ -83,8 +86,8 @@ const submitCreateTicket = () => {
 
         <button
           type="button"
-          @click="showCreateModal = true"
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm transition shadow-sm"
+          @click="showCreateModal = true"
         >
           <i class="ri-customer-service-2-line text-base" />
           <span>New Support Ticket</span>
@@ -95,9 +98,9 @@ const submitCreateTicket = () => {
       <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
         <button
           type="button"
-          @click="setStatusTab('all')"
           class="px-4 py-2 text-sm font-medium rounded-xl transition"
           :class="activeStatus === 'all' ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+          @click="setStatusTab('all')"
         >
           All Tickets
         </button>
@@ -105,9 +108,9 @@ const submitCreateTicket = () => {
           v-for="st in ['open', 'in_progress', 'waiting_customer', 'resolved', 'closed']"
           :key="st"
           type="button"
-          @click="setStatusTab(st)"
           class="px-4 py-2 text-sm font-medium rounded-xl transition capitalize"
           :class="activeStatus === st ? 'bg-indigo-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+          @click="setStatusTab(st)"
         >
           {{ st.replace('_', ' ') }}
         </button>
@@ -119,39 +122,61 @@ const submitCreateTicket = () => {
           <i class="ri-search-line absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             v-model="searchQuery"
-            @input="onSearch"
             type="text"
             placeholder="Search tickets or customer..."
-            class="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+            class="w-full ps-10 pe-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            @input="onSearch"
+          >
         </div>
 
         <div class="flex items-center gap-3 w-full md:w-auto">
           <!-- Priority Filter -->
           <select
             v-model="selectedPriority"
-            @change="applyFilters"
             class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+            @change="applyFilters"
           >
-            <option value="all">All Priorities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
+            <option value="all">
+              All Priorities
+            </option>
+            <option value="low">
+              Low
+            </option>
+            <option value="medium">
+              Medium
+            </option>
+            <option value="high">
+              High
+            </option>
+            <option value="urgent">
+              Urgent
+            </option>
           </select>
 
           <!-- Category Filter -->
           <select
             v-model="selectedCategory"
-            @change="applyFilters"
             class="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+            @change="applyFilters"
           >
-            <option value="all">All Categories</option>
-            <option value="roadside_assistance">Roadside Assistance</option>
-            <option value="billing">Billing & Deposits</option>
-            <option value="extension">Rental Extension</option>
-            <option value="vehicle_complaint">Vehicle Complaint</option>
-            <option value="general">General Inquiries</option>
+            <option value="all">
+              All Categories
+            </option>
+            <option value="roadside_assistance">
+              Roadside Assistance
+            </option>
+            <option value="billing">
+              Billing & Deposits
+            </option>
+            <option value="extension">
+              Rental Extension
+            </option>
+            <option value="vehicle_complaint">
+              Vehicle Complaint
+            </option>
+            <option value="general">
+              General Inquiries
+            </option>
           </select>
         </div>
       </div>
@@ -162,18 +187,35 @@ const submitCreateTicket = () => {
           <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300">
             <thead class="bg-slate-50 dark:bg-slate-800/60 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
               <tr>
-                <th class="px-5 py-3.5">Ticket #</th>
-                <th class="px-5 py-3.5">Subject & Category</th>
-                <th class="px-5 py-3.5">Customer</th>
-                <th class="px-5 py-3.5">Vehicle</th>
-                <th class="px-5 py-3.5">Priority</th>
-                <th class="px-5 py-3.5">Status</th>
-                <th class="px-5 py-3.5 text-right">Actions</th>
+                <th class="px-5 py-3.5">
+                  Ticket #
+                </th>
+                <th class="px-5 py-3.5">
+                  Subject & Category
+                </th>
+                <th class="px-5 py-3.5">
+                  Customer
+                </th>
+                <th class="px-5 py-3.5">
+                  Vehicle
+                </th>
+                <th class="px-5 py-3.5">
+                  Priority
+                </th>
+                <th class="px-5 py-3.5">
+                  Status
+                </th>
+                <th class="px-5 py-3.5 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
               <tr v-if="!tickets?.data?.length">
-                <td colspan="7" class="text-center py-10 text-slate-400 text-sm">
+                <td
+                  colspan="7"
+                  class="text-center py-10 text-slate-400 text-sm"
+                >
                   No support tickets found.
                 </td>
               </tr>
@@ -204,15 +246,24 @@ const submitCreateTicket = () => {
                 <!-- Customer -->
                 <td class="px-5 py-4 text-xs font-medium text-slate-800 dark:text-slate-200">
                   <span v-if="ticket.customer">{{ ticket.customer.name }}</span>
-                  <span v-else class="text-slate-400">Anonymous</span>
+                  <span
+                    v-else
+                    class="text-slate-400"
+                  >Anonymous</span>
                 </td>
 
                 <!-- Vehicle -->
                 <td class="px-5 py-4 text-xs">
-                  <span v-if="ticket.car" class="font-medium text-slate-700 dark:text-slate-300">
+                  <span
+                    v-if="ticket.car"
+                    class="font-medium text-slate-700 dark:text-slate-300"
+                  >
                     {{ ticket.car.brand_name }} {{ ticket.car.name }}
                   </span>
-                  <span v-else class="text-slate-400">-</span>
+                  <span
+                    v-else
+                    class="text-slate-400"
+                  >-</span>
                 </td>
 
                 <!-- Priority -->
@@ -263,70 +314,148 @@ const submitCreateTicket = () => {
       </div>
 
       <!-- Create Ticket Modal -->
-      <div v-if="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+      <div
+        v-if="showCreateModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs"
+      >
         <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full p-6 border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
           <div class="flex items-center justify-between">
-            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Create Support Ticket</h3>
-            <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600">
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white">
+              Create Support Ticket
+            </h3>
+            <button
+              class="text-slate-400 hover:text-slate-600"
+              @click="showCreateModal = false"
+            >
               <i class="ri-close-line text-xl" />
             </button>
           </div>
 
-          <form @submit.prevent="submitCreateTicket" class="space-y-4">
+          <form
+            class="space-y-4"
+            @submit.prevent="submitCreateTicket"
+          >
             <div>
               <label class="block text-xs font-semibold mb-1">Customer *</label>
-              <select v-model="ticketForm.customer_id" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                <option value="">Select customer</option>
-                <option v-for="c in customers" :key="c.id" :value="c.id">{{ c.name }} ({{ c.email }})</option>
+              <select
+                v-model="ticketForm.customer_id"
+                required
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
+                <option value="">
+                  Select customer
+                </option>
+                <option
+                  v-for="c in customers"
+                  :key="c.id"
+                  :value="c.id"
+                >
+                  {{ c.name }} ({{ c.email }})
+                </option>
               </select>
             </div>
 
             <div>
               <label class="block text-xs font-semibold mb-1">Related Car (Optional)</label>
-              <select v-model="ticketForm.car_id" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                <option value="">None / Not vehicle specific</option>
-                <option v-for="car in cars" :key="car.id" :value="car.id">{{ car.brand_name }} {{ car.name }}</option>
+              <select
+                v-model="ticketForm.car_id"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
+                <option value="">
+                  None / Not vehicle specific
+                </option>
+                <option
+                  v-for="car in cars"
+                  :key="car.id"
+                  :value="car.id"
+                >
+                  {{ car.brand_name }} {{ car.name }}
+                </option>
               </select>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold mb-1">Category</label>
-                <select v-model="ticketForm.category" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="roadside_assistance">Roadside Breakdown / Flat Tire</option>
-                  <option value="billing">Deposit & Billing Query</option>
-                  <option value="extension">Rental Extension</option>
-                  <option value="vehicle_complaint">Vehicle Cleanliness / Issue</option>
-                  <option value="general">General Support</option>
+                <select
+                  v-model="ticketForm.category"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="roadside_assistance">
+                    Roadside Breakdown / Flat Tire
+                  </option>
+                  <option value="billing">
+                    Deposit & Billing Query
+                  </option>
+                  <option value="extension">
+                    Rental Extension
+                  </option>
+                  <option value="vehicle_complaint">
+                    Vehicle Cleanliness / Issue
+                  </option>
+                  <option value="general">
+                    General Support
+                  </option>
                 </select>
               </div>
 
               <div>
                 <label class="block text-xs font-semibold mb-1">Priority</label>
-                <select v-model="ticketForm.priority" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
+                <select
+                  v-model="ticketForm.priority"
+                  class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+                >
+                  <option value="low">
+                    Low
+                  </option>
+                  <option value="medium">
+                    Medium
+                  </option>
+                  <option value="high">
+                    High
+                  </option>
+                  <option value="urgent">
+                    Urgent
+                  </option>
                 </select>
               </div>
             </div>
 
             <div>
               <label class="block text-xs font-semibold mb-1">Subject / Issue Summary *</label>
-              <input v-model="ticketForm.subject" required type="text" placeholder="e.g. Battery dead near airport parking lot" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="ticketForm.subject"
+                required
+                type="text"
+                placeholder="e.g. Battery dead near airport parking lot"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
 
             <div>
               <label class="block text-xs font-semibold mb-1">Initial Incident Description *</label>
-              <textarea v-model="ticketForm.initial_message" required rows="3" placeholder="Provide complete incident details..." class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <textarea
+                v-model="ticketForm.initial_message"
+                required
+                rows="3"
+                placeholder="Provide complete incident details..."
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              />
             </div>
 
             <div class="flex justify-end gap-2.5 pt-2">
-              <button type="button" @click="showCreateModal = false" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm">
+              <button
+                type="button"
+                class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-sm"
+                @click="showCreateModal = false"
+              >
                 Cancel
               </button>
-              <button type="submit" :disabled="ticketForm.processing" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm">
+              <button
+                type="submit"
+                :disabled="ticketForm.processing"
+                class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-sm"
+              >
                 {{ ticketForm.processing ? 'Opening...' : 'Open Case Ticket' }}
               </button>
             </div>

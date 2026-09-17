@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import CrmLayout from '@/layouts/CrmLayout.vue'
 
@@ -26,7 +26,7 @@ const form = useForm({
 })
 
 // Auto-fill car rate on selection
-watch(() => form.car_id, (newCarId) => {
+watch(() => form.car_id, newCarId => {
   const selected = props.cars.find(c => c.id === Number(newCarId))
   if (selected && selected.price_per_day) {
     form.daily_rate = Number(selected.price_per_day)
@@ -38,22 +38,26 @@ const daysCount = computed(() => {
   const start = new Date(form.start_date).getTime()
   const end = new Date(form.end_date).getTime()
   const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24))
+  
   return Math.max(1, diff)
 })
 
 const rentalSubtotal = computed(() => {
   const base = Number(form.daily_rate || 0) * daysCount.value
   const itemsTotal = form.items.reduce((acc, it) => acc + (Number(it.quantity || 1) * Number(it.unit_price || 0)), 0)
+  
   return base + itemsTotal
 })
 
 const taxAmount = computed(() => {
   const taxable = Math.max(0, rentalSubtotal.value - Number(form.discount_amount || 0))
+  
   return Number(((taxable * Number(form.tax_rate || 0)) / 100).toFixed(2))
 })
 
 const grandTotal = computed(() => {
   const taxable = Math.max(0, rentalSubtotal.value - Number(form.discount_amount || 0))
+  
   return Number((taxable + taxAmount.value).toFixed(2))
 })
 
@@ -81,7 +85,10 @@ const submitQuotation = () => {
     <div class="max-w-4xl mx-auto space-y-6 pb-12">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-xs font-medium text-slate-500">
-        <Link href="/crm/quotations" class="hover:text-indigo-600 transition flex items-center gap-1">
+        <Link
+          href="/crm/quotations"
+          class="hover:text-indigo-600 transition flex items-center gap-1"
+        >
           <i class="ri-arrow-left-line" /> Back to Quotations
         </Link>
         <span>/</span>
@@ -91,7 +98,9 @@ const submitQuotation = () => {
       <!-- Header Card -->
       <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Rental Proposal Builder (CPQ)</h1>
+          <h1 class="text-2xl font-bold text-slate-900 dark:text-white">
+            Rental Proposal Builder (CPQ)
+          </h1>
           <p class="text-sm text-slate-500 mt-0.5">
             Configure vehicle, rental duration, insurance and custom equipment to generate an official quote.
           </p>
@@ -99,7 +108,10 @@ const submitQuotation = () => {
       </div>
 
       <!-- Form -->
-      <form @submit.prevent="submitQuotation" class="space-y-6">
+      <form
+        class="space-y-6"
+        @submit.prevent="submitQuotation"
+      >
         <!-- 1. Recipient Selection -->
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <h2 class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -109,9 +121,18 @@ const submitQuotation = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold mb-1">Select Registered Customer</label>
-              <select v-model="form.customer_id" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                <option value="">Choose Customer (or choose Lead)</option>
-                <option v-for="c in customers" :key="c.id" :value="c.id">
+              <select
+                v-model="form.customer_id"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
+                <option value="">
+                  Choose Customer (or choose Lead)
+                </option>
+                <option
+                  v-for="c in customers"
+                  :key="c.id"
+                  :value="c.id"
+                >
                   {{ c.name }} ({{ c.email || c.phone_number }})
                 </option>
               </select>
@@ -119,9 +140,18 @@ const submitQuotation = () => {
 
             <div>
               <label class="block text-xs font-semibold mb-1">Or Select Inquiring Lead</label>
-              <select v-model="form.lead_id" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                <option value="">None</option>
-                <option v-for="l in leads" :key="l.id" :value="l.id">
+              <select
+                v-model="form.lead_id"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
+                <option value="">
+                  None
+                </option>
+                <option
+                  v-for="l in leads"
+                  :key="l.id"
+                  :value="l.id"
+                >
                   {{ l.first_name }} {{ l.last_name }} ({{ l.company_name || 'Individual' }})
                 </option>
               </select>
@@ -138,9 +168,19 @@ const submitQuotation = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold mb-1">Select Fleet Vehicle *</label>
-              <select v-model="form.car_id" required class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm">
-                <option value="">Select vehicle</option>
-                <option v-for="car in cars" :key="car.id" :value="car.id">
+              <select
+                v-model="form.car_id"
+                required
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
+                <option value="">
+                  Select vehicle
+                </option>
+                <option
+                  v-for="car in cars"
+                  :key="car.id"
+                  :value="car.id"
+                >
                   {{ car.brand_name }} {{ car.name }} (${{ car.price_per_day }}/day)
                 </option>
               </select>
@@ -148,18 +188,34 @@ const submitQuotation = () => {
 
             <div>
               <label class="block text-xs font-semibold mb-1">Agreed Daily Rental Rate ($) *</label>
-              <input v-model="form.daily_rate" required type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="form.daily_rate"
+                required
+                type="number"
+                step="0.01"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs font-semibold mb-1">Start Date *</label>
-              <input v-model="form.start_date" required type="date" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="form.start_date"
+                required
+                type="date"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold mb-1">End Date *</label>
-              <input v-model="form.end_date" required type="date" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="form.end_date"
+                required
+                type="date"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold mb-1">Total Duration</label>
@@ -180,33 +236,39 @@ const submitQuotation = () => {
             <div class="flex items-center gap-2">
               <button
                 type="button"
-                @click="addLineItem('Zero Excess Damage Waiver Insurance', 25)"
                 class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-200"
+                @click="addLineItem('Zero Excess Damage Waiver Insurance', 25)"
               >
                 + Insurance Waiver
               </button>
               <button
                 type="button"
-                @click="addLineItem('Child Safety Seat', 10)"
                 class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-200"
+                @click="addLineItem('Child Safety Seat', 10)"
               >
                 + Child Seat
               </button>
               <button
                 type="button"
-                @click="addLineItem('Professional Chauffeur Service', 40)"
                 class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium hover:bg-slate-200"
+                @click="addLineItem('Professional Chauffeur Service', 40)"
               >
                 + Chauffeur
               </button>
             </div>
           </div>
 
-          <div v-if="!form.items.length" class="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+          <div
+            v-if="!form.items.length"
+            class="text-center py-6 text-xs text-slate-400 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl"
+          >
             No extra add-ons selected. Use buttons above or click "Custom Item" to add accessories.
           </div>
 
-          <div v-else class="space-y-3">
+          <div
+            v-else
+            class="space-y-3"
+          >
             <div
               v-for="(item, idx) in form.items"
               :key="idx"
@@ -217,7 +279,7 @@ const submitQuotation = () => {
                 type="text"
                 placeholder="Description"
                 class="flex-1 px-3 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs"
-              />
+              >
               <div class="w-24">
                 <input
                   v-model="item.quantity"
@@ -225,7 +287,7 @@ const submitQuotation = () => {
                   min="1"
                   placeholder="Qty"
                   class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs text-center"
-                />
+                >
               </div>
               <div class="w-28">
                 <input
@@ -234,15 +296,15 @@ const submitQuotation = () => {
                   step="0.01"
                   placeholder="Price"
                   class="w-full px-2 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-xs text-right"
-                />
+                >
               </div>
               <div class="w-24 text-right text-xs font-bold text-slate-800 dark:text-slate-200">
                 ${{ (Number(item.quantity || 1) * Number(item.unit_price || 0)).toFixed(2) }}
               </div>
               <button
                 type="button"
-                @click="removeLineItem(idx)"
                 class="text-slate-400 hover:text-rose-500 transition"
+                @click="removeLineItem(idx)"
               >
                 <i class="ri-delete-bin-line" />
               </button>
@@ -251,8 +313,8 @@ const submitQuotation = () => {
 
           <button
             type="button"
-            @click="addLineItem('', 0)"
             class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline flex items-center gap-1"
+            @click="addLineItem('', 0)"
           >
             <i class="ri-add-line" /> Add Custom Line Item
           </button>
@@ -267,11 +329,21 @@ const submitQuotation = () => {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-semibold mb-1">Promotional Discount ($)</label>
-              <input v-model="form.discount_amount" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="form.discount_amount"
+                type="number"
+                step="0.01"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
             <div>
               <label class="block text-xs font-semibold mb-1">VAT / Tax Rate (%)</label>
-              <input v-model="form.tax_rate" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm" />
+              <input
+                v-model="form.tax_rate"
+                type="number"
+                step="0.01"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm"
+              >
             </div>
           </div>
 
@@ -281,7 +353,10 @@ const submitQuotation = () => {
               <span>Rental Base + Add-ons Subtotal:</span>
               <span class="font-semibold text-slate-800 dark:text-slate-200">${{ rentalSubtotal.toFixed(2) }}</span>
             </div>
-            <div v-if="Number(form.discount_amount) > 0" class="flex justify-between text-rose-500">
+            <div
+              v-if="Number(form.discount_amount) > 0"
+              class="flex justify-between text-rose-500"
+            >
               <span>Discount Applied:</span>
               <span>-${{ Number(form.discount_amount).toFixed(2) }}</span>
             </div>
@@ -300,7 +375,11 @@ const submitQuotation = () => {
         <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
           <div>
             <label class="block text-xs font-semibold mb-1">Terms & Conditions</label>
-            <textarea v-model="form.terms_conditions" rows="3" class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono" />
+            <textarea
+              v-model="form.terms_conditions"
+              rows="3"
+              class="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-mono"
+            />
           </div>
 
           <div class="flex items-center justify-end gap-3 pt-3">
