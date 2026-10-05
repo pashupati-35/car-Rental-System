@@ -10,6 +10,13 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Class Admin
+ *
+ * @package App\Models
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method bool save(array $options = [])
+ */
 class Admin extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasUserTimezone, Notifiable, SoftDeletes, UploadPathTrait;

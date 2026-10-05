@@ -6,7 +6,7 @@ use App\Models\AdminUser\AdminUser;
 use App\Models\Cms\Menu\Menu;
 use App\Models\Cms\SiteSetting\SiteSetting;
 use App\Models\EmailTemplate\EmailTemplate;
-use App\Repositories\Interfaces\Cms\SiteSetting\SiteSettingRepositoryInterface;
+use App\Repositories\Cms\SiteSettingRepositoryInterface;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Auth;
