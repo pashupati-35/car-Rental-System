@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import axios from 'axios'
+import { resolveMediaUrl } from '@/utils/helpers'
 import OwnerFormModal from './owners/components/OwnerFormModal.vue'
 
 const props = defineProps<{
@@ -108,6 +109,7 @@ const driverForm = ref({
   status: 'active',
   address: '',
   photo: null as File | null,
+  license_photo: null as File | null,
 })
 
 // Computed filtered lists

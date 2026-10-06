@@ -66,6 +66,7 @@ const customerForm = ref<{
   emergency_contact: '',
   contact_person_name: '',
   contact_relationship: '',
+  notes: '',
   is_active: true,
   is_mfa_enabled: false,
   password: '',
