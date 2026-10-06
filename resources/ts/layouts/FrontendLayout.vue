@@ -45,9 +45,7 @@ const portalName = computed(() => {
 
 const portalDashboardUrl = computed(() => {
   if (auth.value?.admin) {
-    const base = auth.value?.adminPortalUrl || ''
-    
-    return base ? `${base}/admin/dashboard` : '/admin/dashboard'
+    return '/admin/dashboard'
   }
   if (auth.value?.owner) {
     return '/owner/dashboard'
@@ -114,7 +112,7 @@ onUnmounted(() => {
     <!-- Navbar -->
     <!-- Navbar -->
     <header class="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-xl border-b border-gray-100 dark:border-gray-850 shadow-xs transition-colors duration-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      <div class="max-w-7xl 2xl:max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-18 flex items-center justify-between">
         <Link
           href="/"
           class="flex items-center gap-3 group"
@@ -351,7 +349,7 @@ onUnmounted(() => {
     <main class="flex-1">
       <div
         v-if="flashSuccess || flashError"
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6"
+        class="max-w-7xl 2xl:max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 pt-4"
       >
         <MessageBox
           v-model="flashSuccess"
@@ -369,7 +367,7 @@ onUnmounted(() => {
 
     <!-- Footer -->
     <footer class="bg-gray-950 text-gray-400 py-12 border-t border-gray-800">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl 2xl:max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-8 border-b border-gray-800">
           <div class="space-y-3">
             <div class="flex items-center gap-2">

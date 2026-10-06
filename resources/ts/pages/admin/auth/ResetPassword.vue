@@ -8,7 +8,7 @@ const props = defineProps<{
   email?: string
 }>()
 
-const form = useForm({
+const resetForm = useForm({
   token: props.token,
   email: props.email || '',
   password: '',
@@ -19,8 +19,8 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const submit = () => {
-  form.post('/admin/reset-password', {
-    onFinish: () => form.reset('password', 'password_confirmation'),
+  resetForm.post('/admin/reset-password', {
+    onFinish: () => resetForm.reset('password', 'password_confirmation'),
   })
 }
 </script>
@@ -47,23 +47,23 @@ const submit = () => {
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">Admin Email</label>
           <input
-            v-model="form.email"
+            v-model="resetForm.email"
             type="email"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
             placeholder="admin@carrental.com"
           >
           <span
-            v-if="form.errors.email"
+            v-if="resetForm.errors.email"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.email }}</span>
+          >{{ resetForm.errors.email }}</span>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">New Password</label>
           <div class="relative">
             <input
-              v-model="form.password"
+              v-model="resetForm.password"
               :type="showPassword ? 'text' : 'password'"
               required
               class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
@@ -82,16 +82,16 @@ const submit = () => {
             </button>
           </div>
           <span
-            v-if="form.errors.password"
+            v-if="resetForm.errors.password"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.password }}</span>
+          >{{ resetForm.errors.password }}</span>
         </div>
 
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">Confirm New Password</label>
           <div class="relative">
             <input
-              v-model="form.password_confirmation"
+              v-model="resetForm.password_confirmation"
               :type="showConfirmPassword ? 'text' : 'password'"
               required
               class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
@@ -113,10 +113,10 @@ const submit = () => {
 
         <button
           type="submit"
-          :disabled="form.processing"
+          :disabled="resetForm.processing"
           class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold text-sm shadow-lg shadow-indigo-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
         >
-          <span v-if="form.processing">Updating Password...</span>
+          <span v-if="resetForm.processing">Updating Password...</span>
           <span v-else>Update Password & Enter Admin</span>
         </button>
 

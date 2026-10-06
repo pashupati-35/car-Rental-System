@@ -8,7 +8,7 @@ const props = defineProps<{
   drivers?: Array<{ id: number; name: string; phone: string }>
 }>()
 
-const form = useForm({
+const carForm = useForm({
   car_name: '',
   car_model: '',
   car_number: '',
@@ -30,7 +30,7 @@ const bluebookPreview = ref<string | null>(null)
 const onPhotoChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
-    form.car_photo = target.files[0]
+    carForm.car_photo = target.files[0]
     photoPreview.value = URL.createObjectURL(target.files[0])
   }
 }
@@ -38,27 +38,27 @@ const onPhotoChange = (e: Event) => {
 const onBluebookChange = (e: Event) => {
   const target = e.target as HTMLInputElement
   if (target.files && target.files[0]) {
-    form.blue_book_photo = target.files[0]
+    carForm.blue_book_photo = target.files[0]
     bluebookPreview.value = URL.createObjectURL(target.files[0])
   }
 }
 
 const onDriverSelected = () => {
-  if (!form.driver_id) {
-    form.driver_name = ''
-    form.driver_number = ''
+  if (!carForm.driver_id) {
+    carForm.driver_name = ''
+    carForm.driver_number = ''
     
     return
   }
-  const selected = props.drivers?.find(d => d.id == form.driver_id)
+  const selected = props.drivers?.find((d: any) => d.id == carForm.driver_id)
   if (selected) {
-    form.driver_name = selected.name
-    form.driver_number = selected.phone
+    carForm.driver_name = selected.name
+    carForm.driver_number = selected.phone
   }
 }
 
 const submit = () => {
-  form.post('/owner/cars', {
+  carForm.post('/owner/cars', {
     forceFormData: true,
   })
 }
@@ -104,31 +104,31 @@ const submit = () => {
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Car Brand / Make *</label>
                 <input
-                  v-model="form.car_name"
+                  v-model="carForm.car_name"
                   type="text"
                   required
                   placeholder="e.g. Hyundai, Toyota, Tesla"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
-                  v-if="form.errors.car_name"
+                  v-if="carForm.errors.car_name"
                   class="text-xs text-rose-500 mt-1 block"
-                >{{ form.errors.car_name }}</span>
+                >{{ carForm.errors.car_name }}</span>
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Model *</label>
                 <input
-                  v-model="form.car_model"
+                  v-model="carForm.car_model"
                   type="text"
                   required
                   placeholder="e.g. Creta SX, Fortuner 4x4, Model Y"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
-                  v-if="form.errors.car_model"
+                  v-if="carForm.errors.car_model"
                   class="text-xs text-rose-500 mt-1 block"
-                >{{ form.errors.car_model }}</span>
+                >{{ carForm.errors.car_model }}</span>
               </div>
             </div>
           </div>
@@ -138,22 +138,22 @@ const submit = () => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">License Plate / Registration No *</label>
               <input
-                v-model="form.car_number"
+                v-model="carForm.car_number"
                 type="text"
                 required
                 placeholder="e.g. BA 1 PA 1234 or NY-8823"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               >
               <span
-                v-if="form.errors.car_number"
+                v-if="carForm.errors.car_number"
                 class="text-xs text-rose-500 mt-1 block"
-              >{{ form.errors.car_number }}</span>
+              >{{ carForm.errors.car_number }}</span>
             </div>
 
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Seating Capacity *</label>
               <input
-                v-model.number="form.number_of_seats"
+                v-model.number="carForm.number_of_seats"
                 type="number"
                 min="1"
                 max="60"
@@ -161,9 +161,9 @@ const submit = () => {
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               >
               <span
-                v-if="form.errors.number_of_seats"
+                v-if="carForm.errors.number_of_seats"
                 class="text-xs text-rose-500 mt-1 block"
-              >{{ form.errors.number_of_seats }}</span>
+              >{{ carForm.errors.number_of_seats }}</span>
             </div>
           </div>
 
@@ -177,7 +177,7 @@ const submit = () => {
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price Per Day ($) *</label>
                 <input
-                  v-model.number="form.car_price_per_day"
+                  v-model.number="carForm.car_price_per_day"
                   type="number"
                   step="0.01"
                   required
@@ -185,24 +185,24 @@ const submit = () => {
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
-                  v-if="form.errors.car_price_per_day"
+                  v-if="carForm.errors.car_price_per_day"
                   class="text-xs text-rose-500 mt-1 block"
-                >{{ form.errors.car_price_per_day }}</span>
+                >{{ carForm.errors.car_price_per_day }}</span>
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Price Per Extra KM ($) (Optional)</label>
                 <input
-                  v-model.number="form.car_price_per_km"
+                  v-model.number="carForm.car_price_per_km"
                   type="number"
                   step="0.01"
                   placeholder="15.00"
                   class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
                 >
                 <span
-                  v-if="form.errors.car_price_per_km"
+                  v-if="carForm.errors.car_price_per_km"
                   class="text-xs text-rose-500 mt-1 block"
-                >{{ form.errors.car_price_per_km }}</span>
+                >{{ carForm.errors.car_price_per_km }}</span>
               </div>
             </div>
           </div>
@@ -211,7 +211,7 @@ const submit = () => {
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Vehicle Description & Features (Rich Text)</label>
             <RichTextEditor
-              v-model="form.description"
+              v-model="carForm.description"
               placeholder="List vehicle features like Bluetooth, AC, Sunroof, safety ratings, luggage capacity..."
               min-height="160px"
             />
@@ -240,7 +240,7 @@ const submit = () => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Select Roster Driver</label>
               <select
-                v-model="form.driver_id"
+                v-model="carForm.driver_id"
                 class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 @change="onDriverSelected"
               >
@@ -258,13 +258,13 @@ const submit = () => {
             </div>
 
             <div
-              v-if="form.driver_id"
+              v-if="carForm.driver_id"
               class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1"
             >
               <div>
                 <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Driver Name</label>
                 <input
-                  v-model="form.driver_name"
+                  v-model="carForm.driver_name"
                   type="text"
                   class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
                 >
@@ -272,7 +272,7 @@ const submit = () => {
               <div>
                 <label class="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">Driver Phone Number</label>
                 <input
-                  v-model="form.driver_number"
+                  v-model="carForm.driver_number"
                   type="text"
                   class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs"
                 >
@@ -303,9 +303,9 @@ const submit = () => {
                   @change="onPhotoChange"
                 >
                 <span
-                  v-if="form.errors.car_photo"
+                  v-if="carForm.errors.car_photo"
                   class="text-xs text-rose-500 block"
-                >{{ form.errors.car_photo }}</span>
+                >{{ carForm.errors.car_photo }}</span>
               </div>
 
               <!-- Blue Book Upload -->
@@ -322,9 +322,9 @@ const submit = () => {
                   @change="onBluebookChange"
                 >
                 <span
-                  v-if="form.errors.blue_book_photo"
+                  v-if="carForm.errors.blue_book_photo"
                   class="text-xs text-rose-500 block"
-                >{{ form.errors.blue_book_photo }}</span>
+                >{{ carForm.errors.blue_book_photo }}</span>
               </div>
             </div>
           </div>
@@ -339,14 +339,14 @@ const submit = () => {
             </Link>
             <button
               type="submit"
-              :disabled="form.processing"
+              :disabled="carForm.processing"
               class="px-8 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center gap-2 cursor-pointer"
             >
               <i
-                v-if="form.processing"
+                v-if="carForm.processing"
                 class="ri-loader-4-line animate-spin text-sm"
               />
-              <span>{{ form.processing ? 'Registering Vehicle...' : 'Register & Submit for Approval' }}</span>
+              <span>{{ carForm.processing ? 'Registering Vehicle...' : 'Register & Submit for Approval' }}</span>
             </button>
           </div>
         </form>

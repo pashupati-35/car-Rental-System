@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 
-const form = useForm({
+const registerForm = useForm({
   name: '',
   email: '',
   phone_number: '',
@@ -17,8 +17,8 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const submit = () => {
-  form.post('/customer/register', {
-    onFinish: () => form.reset('password', 'password_confirmation'),
+  registerForm.post('/customer/register', {
+    onFinish: () => registerForm.reset('password', 'password_confirmation'),
   })
 }
 </script>
@@ -45,46 +45,46 @@ const submit = () => {
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Full Name *</label>
           <input
-            v-model="form.name"
+            v-model="registerForm.name"
             type="text"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             placeholder="John Doe"
           >
           <span
-            v-if="form.errors.name"
+            v-if="registerForm.errors.name"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.name }}</span>
+          >{{ registerForm.errors.name }}</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Email Address *</label>
             <input
-              v-model="form.email"
+              v-model="registerForm.email"
               type="email"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="you@example.com"
             >
             <span
-              v-if="form.errors.email"
+              v-if="registerForm.errors.email"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.email }}</span>
+            >{{ registerForm.errors.email }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Phone Number *</label>
             <input
-              v-model="form.phone_number"
+              v-model="registerForm.phone_number"
               type="text"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all font-mono"
               placeholder="+977 9800000000"
             >
             <span
-              v-if="form.errors.phone_number"
+              v-if="registerForm.errors.phone_number"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.phone_number }}</span>
+            >{{ registerForm.errors.phone_number }}</span>
           </div>
         </div>
 
@@ -92,21 +92,21 @@ const submit = () => {
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">City / Address *</label>
             <input
-              v-model="form.address"
+              v-model="registerForm.address"
               type="text"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               placeholder="Kathmandu, Nepal"
             >
             <span
-              v-if="form.errors.address"
+              v-if="registerForm.errors.address"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.address }}</span>
+            >{{ registerForm.errors.address }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Gender</label>
             <select
-              v-model="form.gender"
+              v-model="registerForm.gender"
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             >
               <option value="male">
@@ -127,7 +127,7 @@ const submit = () => {
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Password *</label>
             <div class="relative">
               <input
-                v-model="form.password"
+                v-model="registerForm.password"
                 :type="showPassword ? 'text' : 'password'"
                 required
                 class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
@@ -146,15 +146,15 @@ const submit = () => {
               </button>
             </div>
             <span
-              v-if="form.errors.password"
+              v-if="registerForm.errors.password"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.password }}</span>
+            >{{ registerForm.errors.password }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
             <div class="relative">
               <input
-                v-model="form.password_confirmation"
+                v-model="registerForm.password_confirmation"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 required
                 class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
@@ -177,14 +177,14 @@ const submit = () => {
 
         <button
           type="submit"
-          :disabled="form.processing"
+          :disabled="registerForm.processing"
           class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
           <i
-            v-if="form.processing"
+            v-if="registerForm.processing"
             class="ri-loader-4-line animate-spin text-lg"
           />
-          <span v-if="form.processing">Creating Customer Account...</span>
+          <span v-if="registerForm.processing">Creating Customer Account...</span>
           <span v-else>Register as Customer</span>
         </button>
 

@@ -18,7 +18,7 @@ const emit = defineEmits<{
   (e: 'save', formData: FormData): void
 }>()
 
-const form = ref<{
+const ownerForm = ref<{
   full_name: string
   first_name: string
   middle_name: string
@@ -83,7 +83,7 @@ watch(
   () => props.owner,
   (newOwner: OwnerItem | null | undefined) => {
     if (newOwner && props.isEditing) {
-      form.value = {
+      ownerForm.value = {
         full_name: newOwner.full_name || newOwner.name || '',
         first_name: newOwner.first_name || '',
         middle_name: newOwner.middle_name || '',
@@ -112,7 +112,7 @@ watch(
       }
       photoPreview.value = resolveImageUrl(newOwner.image, newOwner.image_path)
     } else {
-      form.value = {
+      ownerForm.value = {
         full_name: '',
         first_name: '',
         middle_name: '',
@@ -160,32 +160,32 @@ const handlePhotoChange = (event: Event) => {
 const handleSubmit = () => {
   const data = new FormData()
 
-  data.append('full_name', form.value.full_name || `${form.value.first_name} ${form.value.last_name}`.trim())
-  data.append('first_name', form.value.first_name)
-  data.append('middle_name', form.value.middle_name)
-  data.append('last_name', form.value.last_name)
-  data.append('username', form.value.username)
-  data.append('email', form.value.email)
-  data.append('contact_number', form.value.contact_number)
-  data.append('phone', form.value.phone)
-  data.append('mobile', form.value.mobile)
-  data.append('gender', form.value.gender)
-  data.append('date_of_birth', form.value.date_of_birth)
-  data.append('marital_status', form.value.marital_status)
-  data.append('nationality', form.value.nationality)
-  data.append('citizenship_number', form.value.citizenship_number)
-  data.append('passport_number', form.value.passport_number)
-  data.append('position', form.value.position)
-  data.append('designation', form.value.designation)
-  data.append('address', form.value.address)
-  data.append('emergency_contact', form.value.emergency_contact)
-  data.append('contact_person_name', form.value.contact_person_name)
-  data.append('contact_relationship', form.value.contact_relationship)
-  data.append('is_active', form.value.is_active ? '1' : '0')
-  data.append('is_mfa_enabled', form.value.is_mfa_enabled ? '1' : '0')
+  data.append('full_name', ownerForm.value.full_name || `${ownerForm.value.first_name} ${ownerForm.value.last_name}`.trim())
+  data.append('first_name', ownerForm.value.first_name)
+  data.append('middle_name', ownerForm.value.middle_name)
+  data.append('last_name', ownerForm.value.last_name)
+  data.append('username', ownerForm.value.username)
+  data.append('email', ownerForm.value.email)
+  data.append('contact_number', ownerForm.value.contact_number)
+  data.append('phone', ownerForm.value.phone)
+  data.append('mobile', ownerForm.value.mobile)
+  data.append('gender', ownerForm.value.gender)
+  data.append('date_of_birth', ownerForm.value.date_of_birth)
+  data.append('marital_status', ownerForm.value.marital_status)
+  data.append('nationality', ownerForm.value.nationality)
+  data.append('citizenship_number', ownerForm.value.citizenship_number)
+  data.append('passport_number', ownerForm.value.passport_number)
+  data.append('position', ownerForm.value.position)
+  data.append('designation', ownerForm.value.designation)
+  data.append('address', ownerForm.value.address)
+  data.append('emergency_contact', ownerForm.value.emergency_contact)
+  data.append('contact_person_name', ownerForm.value.contact_person_name)
+  data.append('contact_relationship', ownerForm.value.contact_relationship)
+  data.append('is_active', ownerForm.value.is_active ? '1' : '0')
+  data.append('is_mfa_enabled', ownerForm.value.is_mfa_enabled ? '1' : '0')
 
-  if (form.value.password) {
-    data.append('password', form.value.password)
+  if (ownerForm.value.password) {
+    data.append('password', ownerForm.value.password)
   }
 
   if (photoFile.value) {
@@ -292,7 +292,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">First Name</label>
               <input
-                v-model="form.first_name"
+                v-model="ownerForm.first_name"
                 type="text"
                 placeholder="e.g. John"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -301,7 +301,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Middle Name</label>
               <input
-                v-model="form.middle_name"
+                v-model="ownerForm.middle_name"
                 type="text"
                 placeholder="Optional"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -310,7 +310,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Last Name</label>
               <input
-                v-model="form.last_name"
+                v-model="ownerForm.last_name"
                 type="text"
                 placeholder="e.g. Doe"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -322,7 +322,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Display / Business Name *</label>
               <input
-                v-model="form.full_name"
+                v-model="ownerForm.full_name"
                 type="text"
                 required
                 placeholder="e.g. Premier Auto Holdings"
@@ -332,7 +332,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Username</label>
               <input
-                v-model="form.username"
+                v-model="ownerForm.username"
                 type="text"
                 placeholder="e.g. premier_fleet"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono"
@@ -344,7 +344,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Gender</label>
               <select
-                v-model="form.gender"
+                v-model="ownerForm.gender"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               >
                 <option value="male">
@@ -361,7 +361,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Date of Birth</label>
               <input
-                v-model="form.date_of_birth"
+                v-model="ownerForm.date_of_birth"
                 type="date"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               >
@@ -369,7 +369,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Marital Status</label>
               <select
-                v-model="form.marital_status"
+                v-model="ownerForm.marital_status"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
               >
                 <option value="single">
@@ -389,7 +389,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Nationality</label>
               <input
-                v-model="form.nationality"
+                v-model="ownerForm.nationality"
                 type="text"
                 placeholder="e.g. Nepalese / US"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -398,7 +398,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Citizenship Number</label>
               <input
-                v-model="form.citizenship_number"
+                v-model="ownerForm.citizenship_number"
                 type="text"
                 placeholder="27-01-76-12345"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono"
@@ -407,7 +407,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Passport Number</label>
               <input
-                v-model="form.passport_number"
+                v-model="ownerForm.passport_number"
                 type="text"
                 placeholder="N1234567"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 font-mono"
@@ -425,7 +425,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Email Address *</label>
               <input
-                v-model="form.email"
+                v-model="ownerForm.email"
                 type="email"
                 required
                 :disabled="isEditing"
@@ -436,7 +436,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Contact Number *</label>
               <input
-                v-model="form.contact_number"
+                v-model="ownerForm.contact_number"
                 type="text"
                 placeholder="+1 (555) 019-2834"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -448,7 +448,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Telephone / Secondary</label>
               <input
-                v-model="form.phone"
+                v-model="ownerForm.phone"
                 type="text"
                 placeholder="+1 (555) 111-2233"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -457,7 +457,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Mobile Number</label>
               <input
-                v-model="form.mobile"
+                v-model="ownerForm.mobile"
                 type="text"
                 placeholder="+1 (555) 999-8877"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -469,7 +469,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Position</label>
               <input
-                v-model="form.position"
+                v-model="ownerForm.position"
                 type="text"
                 placeholder="e.g. Managing Director"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -478,7 +478,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Designation</label>
               <input
-                v-model="form.designation"
+                v-model="ownerForm.designation"
                 type="text"
                 placeholder="e.g. Fleet Partner"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -489,7 +489,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Office / Physical Address</label>
             <input
-              v-model="form.address"
+              v-model="ownerForm.address"
               type="text"
               placeholder="e.g. 450 North Canon Dr, Beverly Hills, CA"
               class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -499,7 +499,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Fleet Owner Notes & Business Overview (Rich Text)</label>
             <RichTextEditor
-              v-model="form.notes"
+              v-model="ownerForm.notes"
               placeholder="Fleet owner background, business contract notes, fleet capacity, terms..."
               min-height="130px"
             />
@@ -515,7 +515,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Contact Person Name</label>
               <input
-                v-model="form.contact_person_name"
+                v-model="ownerForm.contact_person_name"
                 type="text"
                 placeholder="e.g. Sarah Hayes"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -524,7 +524,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Relationship</label>
               <input
-                v-model="form.contact_relationship"
+                v-model="ownerForm.contact_relationship"
                 type="text"
                 placeholder="e.g. Spouse / Manager"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -533,7 +533,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Emergency Phone</label>
               <input
-                v-model="form.emergency_contact"
+                v-model="ownerForm.emergency_contact"
                 type="text"
                 placeholder="+1 (555) 999-0000"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -547,7 +547,7 @@ const handleSubmit = () => {
                 {{ isEditing ? 'Change Password (leave blank to keep current)' : 'Account Password' }}
               </label>
               <input
-                v-model="form.password"
+                v-model="ownerForm.password"
                 type="password"
                 placeholder="••••••••"
                 class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
@@ -557,7 +557,7 @@ const handleSubmit = () => {
             <div class="space-y-2 pt-4">
               <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
                 <input
-                  v-model="form.is_active"
+                  v-model="ownerForm.is_active"
                   type="checkbox"
                   class="rounded text-indigo-600 focus:ring-indigo-500"
                 >
@@ -565,7 +565,7 @@ const handleSubmit = () => {
               </label>
               <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700 dark:text-slate-300">
                 <input
-                  v-model="form.is_mfa_enabled"
+                  v-model="ownerForm.is_mfa_enabled"
                   type="checkbox"
                   class="rounded text-indigo-600 focus:ring-indigo-500"
                 >

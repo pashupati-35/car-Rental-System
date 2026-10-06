@@ -15,7 +15,7 @@ const authType = ref<'totp' | 'email'>('totp')
 const errorMessage = ref('')
 const showPassword = ref(false)
 
-const form = useForm({
+const loginForm = useForm({
   email: '',
   password: '',
   remember: false,
@@ -23,7 +23,7 @@ const form = useForm({
 
 const handleLogin = async () => {
   errorMessage.value = ''
-  if (!form.email || !form.password) {
+  if (!loginForm.email || !loginForm.password) {
     errorMessage.value = 'Please enter both email and password.'
     
     return
@@ -32,8 +32,8 @@ const handleLogin = async () => {
   try {
     // API check verification for MFA or Email Auth on CRM portal
     const res = await axios.post('/crm/mfa/check-verification', {
-      email: form.email,
-      password: form.password,
+      email: loginForm.email,
+      password: loginForm.password,
     })
 
     if (res.data.status === 'OK' && (res.data.data?.is_mfa_enabled || res.data.data?.is_email_authentication_enabled)) {
@@ -41,8 +41,8 @@ const handleLogin = async () => {
       isMfaStep.value = true
     } else {
       // Normal direct CRM login
-      form.post('/crm/login', {
-        onFinish: () => form.reset('password'),
+      loginForm.post('/crm/login', {
+        onFinish: () => loginForm.reset('password'),
         onError: errs => {
           errorMessage.value = Object.values(errs)[0] as string || 'CRM Login failed.'
         },
@@ -93,16 +93,16 @@ const handleLogin = async () => {
             Staff / Manager Email
           </label>
           <input
-            v-model="form.email"
+            v-model="loginForm.email"
             type="email"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all text-sm"
             placeholder="crm@crmcarrental.com"
           >
           <span
-            v-if="form.errors.email"
+            v-if="loginForm.errors.email"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.email }}</span>
+          >{{ loginForm.errors.email }}</span>
         </div>
 
         <div>
@@ -111,7 +111,7 @@ const handleLogin = async () => {
           </label>
           <div class="relative">
             <input
-              v-model="form.password"
+              v-model="loginForm.password"
               :type="showPassword ? 'text' : 'password'"
               required
               class="w-full px-4 py-2.5 pe-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all text-sm"
@@ -130,15 +130,15 @@ const handleLogin = async () => {
             </button>
           </div>
           <span
-            v-if="form.errors.password"
+            v-if="loginForm.errors.password"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.password }}</span>
+          >{{ loginForm.errors.password }}</span>
         </div>
 
         <div class="flex items-center justify-between text-sm pt-1">
           <label class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 cursor-pointer">
             <input
-              v-model="form.remember"
+              v-model="loginForm.remember"
               type="checkbox"
               class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
             >
@@ -148,10 +148,10 @@ const handleLogin = async () => {
 
         <button
           type="submit"
-          :disabled="form.processing"
+          :disabled="loginForm.processing"
           class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
-          <span v-if="form.processing">Authenticating...</span>
+          <span v-if="loginForm.processing">Authenticating...</span>
           <span
             v-else
             class="flex items-center gap-1.5"
@@ -165,9 +165,9 @@ const handleLogin = async () => {
 
     <div v-else>
       <MFAVerification
-        :email="form.email"
-        :password="form.password"
-        :remember="form.remember"
+        :email="loginForm.email"
+        :password="loginForm.password"
+        :remember="loginForm.remember"
         :auth-type="authType"
         @back="isMfaStep = false"
       />

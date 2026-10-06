@@ -17,7 +17,7 @@ const isChecking = ref(false)
 const showPassword = ref(false)
 const redirectPortal = ref<{ url: string; label: string } | null>(null)
 
-const form = useForm({
+const loginForm = useForm({
   email: '',
   password: '',
   remember: false,
@@ -28,17 +28,17 @@ onMounted(() => {
     const params = new URLSearchParams(window.location.search)
     const emailParam = params.get('email')
     if (emailParam) {
-      form.email = emailParam
+      loginForm.email = emailParam
     }
   }
 })
 
-const isProcessing = computed(() => form.processing || isChecking.value)
+const isProcessing = computed(() => loginForm.processing || isChecking.value)
 
 const handleLogin = async () => {
   errorMessage.value = ''
   redirectPortal.value = null
-  if (!form.email || !form.password) {
+  if (!loginForm.email || !loginForm.password) {
     errorMessage.value = 'Please enter both email and password.'
 
     return
@@ -47,8 +47,8 @@ const handleLogin = async () => {
   isChecking.value = true
   try {
     const res = await axios.post('/customer/mfa/check-verification', {
-      email: form.email,
-      password: form.password,
+      email: loginForm.email,
+      password: loginForm.password,
     })
 
     if (res.data.status === 'OK' && (res.data.data?.is_mfa_enabled || res.data.data?.is_email_authentication_enabled)) {
@@ -56,9 +56,9 @@ const handleLogin = async () => {
       isMfaStep.value = true
       isChecking.value = false
     } else {
-      form.post('/customer/login', {
+      loginForm.post('/customer/login', {
         onFinish: () => {
-          form.reset('password')
+          loginForm.reset('password')
           isChecking.value = false
         },
         onError: errs => {
@@ -145,16 +145,16 @@ const handleLogin = async () => {
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
           <input
-            v-model="form.email"
+            v-model="loginForm.email"
             type="email"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
             placeholder="you@example.com"
           >
           <span
-            v-if="form.errors.email"
+            v-if="loginForm.errors.email"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.email }}</span>
+          >{{ loginForm.errors.email }}</span>
         </div>
 
         <div>
@@ -169,7 +169,7 @@ const handleLogin = async () => {
           </div>
           <div class="relative">
             <input
-              v-model="form.password"
+              v-model="loginForm.password"
               :type="showPassword ? 'text' : 'password'"
               required
               class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all text-sm"
@@ -188,15 +188,15 @@ const handleLogin = async () => {
             </button>
           </div>
           <span
-            v-if="form.errors.password"
+            v-if="loginForm.errors.password"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.password }}</span>
+          >{{ loginForm.errors.password }}</span>
         </div>
 
         <div class="flex items-center justify-between text-sm pt-1">
           <label class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
             <input
-              v-model="form.remember"
+              v-model="loginForm.remember"
               type="checkbox"
               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             >
@@ -243,9 +243,9 @@ const handleLogin = async () => {
 
     <div v-else>
       <MFAVerification
-        :email="form.email"
-        :password="form.password"
-        :remember="form.remember"
+        :email="loginForm.email"
+        :password="loginForm.password"
+        :remember="loginForm.remember"
         :auth-type="authType"
         @back="isMfaStep = false"
       />

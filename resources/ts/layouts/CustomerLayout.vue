@@ -29,9 +29,7 @@ const isImpersonating = computed(() => {
 })
 
 const adminReturnUrl = computed(() => {
-  const base = auth.value?.adminPortalUrl || ''
-
-  return base ? `${base}/admin/customers` : '/admin/customers'
+  return '/admin/customers'
 })
 
 const flashSuccess = ref('')

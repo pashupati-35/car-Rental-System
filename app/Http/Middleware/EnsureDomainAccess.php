@@ -58,8 +58,8 @@ class EnsureDomainAccess
 
         // 2. DEDICATED ADMIN PORTAL SUBDOMAIN (e.g. portal.carrental.local)
         if ($isAdminPortal) {
-            // CRM routes should not be accessed on the old Admin portal - redirect to CRM portal
-            if ($request->is('admin/crm', 'admin/crm/*', 'crm', 'crm/*')) {
+            // CRM routes should only redirect if subdomain routing is explicitly enforced
+            if (env('FORCE_PORTAL_SUBDOMAINS', false) && $request->is('admin/crm', 'admin/crm/*', 'crm', 'crm/*')) {
                 $portSuffix = ($request->getPort() && ! in_array($request->getPort(), [80, 443])) ? ':' . $request->getPort() : '';
                 $crmHost = str_replace('portal.carrental.', 'portal.crmcarrental.', $host);
                 if (! str_starts_with($crmHost, 'portal.crmcarrental.')) {
@@ -78,6 +78,8 @@ class EnsureDomainAccess
             $isAllowedOnPortal = $request->is(
                 'admin',
                 'admin/*',
+                'crm',
+                'crm/*',
                 'login',
                 'logout',
                 'dashboard',
@@ -107,35 +109,38 @@ class EnsureDomainAccess
         }
 
         // 3. MAIN APPLICATION DOMAIN (e.g. carrental.local)
-        // Admin portal routes should only be accessed on the admin portal subdomain
-        if ($request->is('admin', 'admin/*')) {
-            $portSuffix = ($request->getPort() && ! in_array($request->getPort(), [80, 443])) ? ':' . $request->getPort() : '';
-            $portalHost = 'portal.' . $host;
-            $portalBaseUrl = $request->getScheme() . '://' . $portalHost . $portSuffix;
-            $targetUrl = $portalBaseUrl . '/' . ltrim($request->getRequestUri(), '/');
+        // If subdomain enforcement is explicitly enabled via environment, redirect to dedicated subdomains.
+        // By default, allow admin and CRM routes directly on the current domain to avoid unmatched virtualhost fallback.
+        if (env('FORCE_PORTAL_SUBDOMAINS', false)) {
+            if ($request->is('admin', 'admin/*')) {
+                $portSuffix = ($request->getPort() && ! in_array($request->getPort(), [80, 443])) ? ':' . $request->getPort() : '';
+                $portalHost = 'portal.' . $host;
+                $portalBaseUrl = $request->getScheme() . '://' . $portalHost . $portSuffix;
+                $targetUrl = $portalBaseUrl . '/' . ltrim($request->getRequestUri(), '/');
 
-            if ($request->header('X-Inertia')) {
-                return Inertia::location($targetUrl);
+                if ($request->header('X-Inertia')) {
+                    return Inertia::location($targetUrl);
+                }
+
+                return redirect()->to($targetUrl);
             }
 
-            return redirect()->to($targetUrl);
-        }
+            // CRM routes should be accessed on the dedicated CRM portal subdomain
+            if ($request->is('crm', 'crm/*')) {
+                $portSuffix = ($request->getPort() && ! in_array($request->getPort(), [80, 443])) ? ':' . $request->getPort() : '';
+                $crmHost = 'portal.crm' . ltrim($host, 'portal.');
+                if (! str_contains($crmHost, 'crmcarrental.')) {
+                    $crmHost = 'portal.crmcarrental.local';
+                }
+                $crmBaseUrl = $request->getScheme() . '://' . $crmHost . $portSuffix;
+                $targetUrl = $crmBaseUrl . '/' . ltrim($request->getRequestUri(), '/');
 
-        // CRM routes should be accessed on the dedicated CRM portal subdomain
-        if ($request->is('crm', 'crm/*')) {
-            $portSuffix = ($request->getPort() && ! in_array($request->getPort(), [80, 443])) ? ':' . $request->getPort() : '';
-            $crmHost = 'portal.crm' . ltrim($host, 'portal.');
-            if (! str_contains($crmHost, 'crmcarrental.')) {
-                $crmHost = 'portal.crmcarrental.local';
+                if ($request->header('X-Inertia')) {
+                    return Inertia::location($targetUrl);
+                }
+
+                return redirect()->to($targetUrl);
             }
-            $crmBaseUrl = $request->getScheme() . '://' . $crmHost . $portSuffix;
-            $targetUrl = $crmBaseUrl . '/' . ltrim($request->getRequestUri(), '/');
-
-            if ($request->header('X-Inertia')) {
-                return Inertia::location($targetUrl);
-            }
-
-            return redirect()->to($targetUrl);
         }
 
         return $next($request);

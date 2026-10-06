@@ -18,7 +18,7 @@ const emit = defineEmits<{
   (e: 'save', formData: FormData): void
 }>()
 
-const form = ref<{
+const customerForm = ref<{
   name: string
   first_name: string
   middle_name: string
@@ -83,7 +83,7 @@ watch(
   () => props.customer,
   (newCustomer: CustomerItem | null | undefined) => {
     if (newCustomer && props.isEditing) {
-      form.value = {
+      customerForm.value = {
         name: newCustomer.name || newCustomer.full_name || '',
         first_name: newCustomer.first_name || '',
         middle_name: newCustomer.middle_name || '',
@@ -112,7 +112,7 @@ watch(
       }
       photoPreview.value = resolveImageUrl(newCustomer.image, newCustomer.image_path)
     } else {
-      form.value = {
+      customerForm.value = {
         name: '',
         first_name: '',
         middle_name: '',
@@ -163,25 +163,25 @@ const removePhoto = () => {
 }
 
 const onNameInput = () => {
-  if (!form.value.first_name && !form.value.last_name && form.value.name) {
-    const parts = form.value.name.trim().split(' ')
+  if (!customerForm.value.first_name && !customerForm.value.last_name && customerForm.value.name) {
+    const parts = customerForm.value.name.trim().split(' ')
     if (parts.length === 1) {
-      form.value.first_name = parts[0]
+      customerForm.value.first_name = parts[0]
     } else if (parts.length === 2) {
-      form.value.first_name = parts[0]
-      form.value.last_name = parts[1]
+      customerForm.value.first_name = parts[0]
+      customerForm.value.last_name = parts[1]
     } else if (parts.length > 2) {
-      form.value.first_name = parts[0]
-      form.value.middle_name = parts.slice(1, -1).join(' ')
-      form.value.last_name = parts[parts.length - 1]
+      customerForm.value.first_name = parts[0]
+      customerForm.value.middle_name = parts.slice(1, -1).join(' ')
+      customerForm.value.last_name = parts[parts.length - 1]
     }
   }
 }
 
 const onNamePartInput = () => {
-  const parts = [form.value.first_name, form.value.middle_name, form.value.last_name].filter(Boolean)
+  const parts = [customerForm.value.first_name, customerForm.value.middle_name, customerForm.value.last_name].filter(Boolean)
   if (parts.length > 0) {
-    form.value.name = parts.join(' ')
+    customerForm.value.name = parts.join(' ')
   }
 }
 
@@ -189,14 +189,14 @@ const handleSubmit = () => {
   const data = new FormData()
 
   // Auto-compose name if missing
-  if (!form.value.name) {
-    const parts = [form.value.first_name, form.value.middle_name, form.value.last_name].filter(Boolean)
+  if (!customerForm.value.name) {
+    const parts = [customerForm.value.first_name, customerForm.value.middle_name, customerForm.value.last_name].filter(Boolean)
 
-    form.value.name = parts.join(' ')
+    customerForm.value.name = parts.join(' ')
   }
 
   // Populate formData
-  Object.entries(form.value).forEach(([key, val]) => {
+  Object.entries(customerForm.value).forEach(([key, val]) => {
     if (key === 'is_active') {
       data.append(key, val ? '1' : '0')
     } else if (key === 'is_mfa_enabled') {
@@ -371,7 +371,7 @@ const handleSubmit = () => {
                 Full Display Name <span class="text-rose-500">*</span>
               </label>
               <input
-                v-model="form.name"
+                v-model="customerForm.name"
                 type="text"
                 required
                 placeholder="e.g. Johnathan Doe"
@@ -384,7 +384,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">First Name</label>
                 <input
-                  v-model="form.first_name"
+                  v-model="customerForm.first_name"
                   type="text"
                   placeholder="First name"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -394,7 +394,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Middle Name</label>
                 <input
-                  v-model="form.middle_name"
+                  v-model="customerForm.middle_name"
                   type="text"
                   placeholder="Middle name"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -404,7 +404,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
                 <input
-                  v-model="form.last_name"
+                  v-model="customerForm.last_name"
                   type="text"
                   placeholder="Last name"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -417,7 +417,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Gender</label>
                 <select
-                  v-model="form.gender"
+                  v-model="customerForm.gender"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                   <option value="male">
@@ -434,7 +434,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Date of Birth</label>
                 <input
-                  v-model="form.date_of_birth"
+                  v-model="customerForm.date_of_birth"
                   type="date"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
@@ -442,7 +442,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Marital Status</label>
                 <select
-                  v-model="form.marital_status"
+                  v-model="customerForm.marital_status"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                 >
                   <option value="single">
@@ -465,7 +465,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Nationality</label>
                 <input
-                  v-model="form.nationality"
+                  v-model="customerForm.nationality"
                   type="text"
                   placeholder="e.g. Nepalese"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -474,7 +474,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Citizenship Number</label>
                 <input
-                  v-model="form.citizenship_number"
+                  v-model="customerForm.citizenship_number"
                   type="text"
                   placeholder="Citizenship ID"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -483,7 +483,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Passport Number</label>
                 <input
-                  v-model="form.passport_number"
+                  v-model="customerForm.passport_number"
                   type="text"
                   placeholder="Passport ID"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -510,7 +510,7 @@ const handleSubmit = () => {
                   Email Address <span class="text-rose-500">*</span>
                 </label>
                 <input
-                  v-model="form.email"
+                  v-model="customerForm.email"
                   type="email"
                   required
                   placeholder="customer@example.com"
@@ -522,7 +522,7 @@ const handleSubmit = () => {
                   Primary Phone Number <span class="text-rose-500">*</span>
                 </label>
                 <input
-                  v-model="form.phone_number"
+                  v-model="customerForm.phone_number"
                   type="text"
                   required
                   placeholder="+977 9801234567"
@@ -535,7 +535,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Mobile Number</label>
                 <input
-                  v-model="form.mobile"
+                  v-model="customerForm.mobile"
                   type="text"
                   placeholder="+977 9841000000"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -544,7 +544,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Secondary Phone</label>
                 <input
-                  v-model="form.phone"
+                  v-model="customerForm.phone"
                   type="text"
                   placeholder="Alternate phone"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -556,7 +556,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Position</label>
                 <input
-                  v-model="form.position"
+                  v-model="customerForm.position"
                   type="text"
                   placeholder="e.g. Senior Consultant"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -565,7 +565,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Designation</label>
                 <input
-                  v-model="form.designation"
+                  v-model="customerForm.designation"
                   type="text"
                   placeholder="e.g. Enterprise Client"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -576,7 +576,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Residential / Billing Address</label>
               <textarea
-                v-model="form.address"
+                v-model="customerForm.address"
                 rows="2"
                 placeholder="Street address, City, Province, Postal Code"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
@@ -586,7 +586,7 @@ const handleSubmit = () => {
             <div>
               <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Customer Preferences, Notes & Requirements (Rich Text)</label>
               <RichTextEditor
-                v-model="form.notes"
+                v-model="customerForm.notes"
                 placeholder="Customer VIP notes, vehicle preferences, special handling requirements, past history..."
                 min-height="130px"
               />
@@ -610,7 +610,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Emergency Phone</label>
                 <input
-                  v-model="form.emergency_contact"
+                  v-model="customerForm.emergency_contact"
                   type="text"
                   placeholder="+977 9800000000"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -619,7 +619,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Contact Person Name</label>
                 <input
-                  v-model="form.contact_person_name"
+                  v-model="customerForm.contact_person_name"
                   type="text"
                   placeholder="Emergency contact name"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -628,7 +628,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Relationship</label>
                 <input
-                  v-model="form.contact_relationship"
+                  v-model="customerForm.contact_relationship"
                   type="text"
                   placeholder="e.g. Spouse / Sibling / Manager"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -648,7 +648,7 @@ const handleSubmit = () => {
               <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Username (Optional)</label>
                 <input
-                  v-model="form.username"
+                  v-model="customerForm.username"
                   type="text"
                   placeholder="e.g. johndoe"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -659,7 +659,7 @@ const handleSubmit = () => {
                   {{ isEditing ? 'Set New Password (Leave blank to keep current)' : 'Password (Optional - generates setup link if empty)' }}
                 </label>
                 <input
-                  v-model="form.password"
+                  v-model="customerForm.password"
                   type="password"
                   placeholder="••••••••"
                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -670,7 +670,7 @@ const handleSubmit = () => {
             <div class="flex flex-wrap items-center gap-6 pt-2">
               <label class="flex items-center gap-2 cursor-pointer select-none">
                 <input
-                  v-model="form.is_active"
+                  v-model="customerForm.is_active"
                   type="checkbox"
                   class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700"
                 >
@@ -679,7 +679,7 @@ const handleSubmit = () => {
 
               <label class="flex items-center gap-2 cursor-pointer select-none">
                 <input
-                  v-model="form.is_mfa_enabled"
+                  v-model="customerForm.is_mfa_enabled"
                   type="checkbox"
                   class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 dark:border-slate-700"
                 >
