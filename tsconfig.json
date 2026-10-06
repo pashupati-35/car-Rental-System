@@ -1,8 +1,6 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-    "baseUrl": "./",
     "paths": {
       "@/*": [
         "./resources/ts/*"
@@ -26,10 +24,10 @@
         "./resources/ts/assets/styles"
       ],
       "@components/*": [
-        "resources/ts/pages/components/*"
+        "./resources/ts/pages/components/*"
       ],
       "@components": [
-        "resources/ts/pages/components"
+        "./resources/ts/pages/components"
       ]
     },
     "allowImportingTsExtensions": false,
