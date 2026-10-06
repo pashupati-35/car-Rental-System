@@ -422,9 +422,6 @@ declare global {
   export type { CustomerThemeStyle } from './resources/ts/composable/useCustomerTheme'
   import('./resources/ts/composable/useCustomerTheme')
   // @ts-ignore
-  export type { ThemeMode } from './resources/ts/composable/useDashboardTheme'
-  import('./resources/ts/composable/useDashboardTheme')
-  // @ts-ignore
   export type { FrontendTheme } from './resources/ts/composable/useFrontendTheme'
   import('./resources/ts/composable/useFrontendTheme')
   // @ts-ignore
@@ -439,9 +436,6 @@ declare global {
   // @ts-ignore
   export type { CalendarEvent, EventRange } from './resources/ts/utils/calendarEvents'
   import('./resources/ts/utils/calendarEvents')
-  // @ts-ignore
-  export type { FileCheck } from './resources/ts/utils/chatAttachments'
-  import('./resources/ts/utils/chatAttachments')
   // @ts-ignore
   export type { NotificationIcon } from './resources/ts/utils/notificationIcons'
   import('./resources/ts/utils/notificationIcons')
@@ -464,7 +458,6 @@ declare module 'vue' {
     readonly asyncComputed: UnwrapRef<typeof import('@vueuse/core')['asyncComputed']>
     readonly autoResetRef: UnwrapRef<typeof import('@vueuse/core')['autoResetRef']>
     readonly betweenValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['betweenValidator']>
-    readonly checkFile: UnwrapRef<typeof import('./resources/ts/utils/chatAttachments')['checkFile']>
     readonly computed: UnwrapRef<typeof import('vue')['computed']>
     readonly computedAsync: UnwrapRef<typeof import('@vueuse/core')['computedAsync']>
     readonly computedEager: UnwrapRef<typeof import('@vueuse/core')['computedEager']>
@@ -496,7 +489,6 @@ declare module 'vue' {
     readonly eagerComputed: UnwrapRef<typeof import('@vueuse/core')['eagerComputed']>
     readonly effectScope: UnwrapRef<typeof import('vue')['effectScope']>
     readonly emailValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['emailValidator']>
-    readonly employeeImageUrl: UnwrapRef<typeof import('./resources/ts/composable/useAuthEmployee')['employeeImageUrl']>
     readonly eventColor: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['eventColor']>
     readonly eventStamp: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['eventStamp']>
     readonly eventTime: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['eventTime']>
@@ -504,14 +496,11 @@ declare module 'vue' {
     readonly extendRef: UnwrapRef<typeof import('@vueuse/core')['extendRef']>
     readonly fetchTimezones: UnwrapRef<typeof import('./resources/ts/utils/timezones')['fetchTimezones']>
     readonly filterRequired: UnwrapRef<typeof import('./resources/ts/utils/documents')['filterRequired']>
-    readonly formatConversationTime: UnwrapRef<typeof import('./resources/ts/utils/chat')['formatConversationTime']>
     readonly formatLongDay: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['formatLongDay']>
-    readonly formatMessageTime: UnwrapRef<typeof import('./resources/ts/utils/chat')['formatMessageTime']>
     readonly formatShortDay: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['formatShortDay']>
     readonly getCurrentInstance: UnwrapRef<typeof import('vue')['getCurrentInstance']>
     readonly getCurrentScope: UnwrapRef<typeof import('vue')['getCurrentScope']>
     readonly getCurrentWatcher: UnwrapRef<typeof import('vue')['getCurrentWatcher']>
-    readonly getInitials: UnwrapRef<typeof import('./resources/ts/utils/chat')['getInitials']>
     readonly h: UnwrapRef<typeof import('vue')['h']>
     readonly hasPasswordComplexity: UnwrapRef<typeof import('./resources/ts/utils/validators')['hasPasswordComplexity']>
     readonly iconFor: UnwrapRef<typeof import('./resources/ts/utils/notificationIcons')['iconFor']>
@@ -533,16 +522,13 @@ declare module 'vue' {
     readonly isRequiredDocument: UnwrapRef<typeof import('./resources/ts/utils/documents')['isRequiredDocument']>
     readonly isShallow: UnwrapRef<typeof import('vue')['isShallow']>
     readonly isSubmittedDocument: UnwrapRef<typeof import('./resources/ts/utils/documents')['isSubmittedDocument']>
-    readonly isThemeMode: UnwrapRef<typeof import('./resources/ts/composable/useDashboardTheme')['isThemeMode']>
     readonly isToday: UnwrapRef<typeof import('./resources/ts/utils/helpers')['isToday']>
     readonly lengthValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['lengthValidator']>
     readonly makeDestructurable: UnwrapRef<typeof import('@vueuse/core')['makeDestructurable']>
     readonly markRaw: UnwrapRef<typeof import('vue')['markRaw']>
-    readonly messagePreview: UnwrapRef<typeof import('./resources/ts/utils/chat')['messagePreview']>
     readonly nameValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['nameValidator']>
     readonly namespaceConfig: UnwrapRef<typeof import('./resources/ts/utils/helpers')['namespaceConfig']>
     readonly nextTick: UnwrapRef<typeof import('vue')['nextTick']>
-    readonly normalizeThemeStyle: UnwrapRef<typeof import('./resources/ts/composable/useDashboardTheme')['normalizeThemeStyle']>
     readonly numericValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['numericValidator']>
     readonly onActivated: UnwrapRef<typeof import('vue')['onActivated']>
     readonly onBeforeMount: UnwrapRef<typeof import('vue')['onBeforeMount']>
@@ -564,8 +550,6 @@ declare module 'vue' {
     readonly onUpdated: UnwrapRef<typeof import('vue')['onUpdated']>
     readonly onWatcherCleanup: UnwrapRef<typeof import('vue')['onWatcherCleanup']>
     readonly parseApiDate: UnwrapRef<typeof import('./resources/ts/utils/calendarEvents')['parseApiDate']>
-    readonly partitionByMime: UnwrapRef<typeof import('./resources/ts/utils/chatAttachments')['partitionByMime']>
-    readonly partitionFiles: UnwrapRef<typeof import('./resources/ts/utils/chatAttachments')['partitionFiles']>
     readonly passwordComplexityValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['passwordComplexityValidator']>
     readonly passwordValidator: UnwrapRef<typeof import('./resources/ts/utils/validators')['passwordValidator']>
     readonly pausableWatch: UnwrapRef<typeof import('@vueuse/core')['pausableWatch']>
@@ -645,7 +629,6 @@ declare module 'vue' {
     readonly useAsyncQueue: UnwrapRef<typeof import('@vueuse/core')['useAsyncQueue']>
     readonly useAsyncState: UnwrapRef<typeof import('@vueuse/core')['useAsyncState']>
     readonly useAttrs: UnwrapRef<typeof import('vue')['useAttrs']>
-    readonly useAuthEmployee: UnwrapRef<typeof import('./resources/ts/composable/useAuthEmployee')['useAuthEmployee']>
     readonly useBase64: UnwrapRef<typeof import('@vueuse/core')['useBase64']>
     readonly useBattery: UnwrapRef<typeof import('@vueuse/core')['useBattery']>
     readonly useBluetooth: UnwrapRef<typeof import('@vueuse/core')['useBluetooth']>
@@ -670,7 +653,6 @@ declare module 'vue' {
     readonly useCustomerTheme: UnwrapRef<typeof import('./resources/ts/composable/useCustomerTheme')['useCustomerTheme']>
     readonly useCycleList: UnwrapRef<typeof import('@vueuse/core')['useCycleList']>
     readonly useDark: UnwrapRef<typeof import('@vueuse/core')['useDark']>
-    readonly useDashboardTheme: UnwrapRef<typeof import('./resources/ts/composable/useDashboardTheme')['useDashboardTheme']>
     readonly useDateFormat: UnwrapRef<typeof import('@vueuse/core')['useDateFormat']>
     readonly useDebounce: UnwrapRef<typeof import('@vueuse/core')['useDebounce']>
     readonly useDebounceFn: UnwrapRef<typeof import('@vueuse/core')['useDebounceFn']>
@@ -689,7 +671,6 @@ declare module 'vue' {
     readonly useElementOverflow: UnwrapRef<typeof import('@vueuse/core')['useElementOverflow']>
     readonly useElementSize: UnwrapRef<typeof import('@vueuse/core')['useElementSize']>
     readonly useElementVisibility: UnwrapRef<typeof import('@vueuse/core')['useElementVisibility']>
-    readonly useEmployeeNotifications: UnwrapRef<typeof import('./resources/ts/composable/useEmployeeNotifications')['useEmployeeNotifications']>
     readonly useErrors: UnwrapRef<typeof import('./resources/ts/composable/useHelpers')['useErrors']>
     readonly useEventBus: UnwrapRef<typeof import('@vueuse/core')['useEventBus']>
     readonly useEventListener: UnwrapRef<typeof import('@vueuse/core')['useEventListener']>
@@ -738,7 +719,6 @@ declare module 'vue' {
     readonly useObjectUrl: UnwrapRef<typeof import('@vueuse/core')['useObjectUrl']>
     readonly useOffsetPagination: UnwrapRef<typeof import('@vueuse/core')['useOffsetPagination']>
     readonly useOnline: UnwrapRef<typeof import('@vueuse/core')['useOnline']>
-    readonly useOtpVerification: UnwrapRef<typeof import('./resources/ts/composable/useOtpVerification')['useOtpVerification']>
     readonly useOwnerTheme: UnwrapRef<typeof import('./resources/ts/composable/useOwnerTheme')['useOwnerTheme']>
     readonly usePage: UnwrapRef<typeof import('@inertiajs/vue3')['usePage']>
     readonly usePageLeave: UnwrapRef<typeof import('@vueuse/core')['usePageLeave']>
@@ -783,7 +763,6 @@ declare module 'vue' {
     readonly useTextDirection: UnwrapRef<typeof import('@vueuse/core')['useTextDirection']>
     readonly useTextSelection: UnwrapRef<typeof import('@vueuse/core')['useTextSelection']>
     readonly useTextareaAutosize: UnwrapRef<typeof import('@vueuse/core')['useTextareaAutosize']>
-    readonly useTheme: UnwrapRef<typeof import('./resources/ts/composable/UseTheme')['useTheme']>
     readonly useThrottle: UnwrapRef<typeof import('@vueuse/core')['useThrottle']>
     readonly useThrottleFn: UnwrapRef<typeof import('@vueuse/core')['useThrottleFn']>
     readonly useThrottledRefHistory: UnwrapRef<typeof import('@vueuse/core')['useThrottledRefHistory']>

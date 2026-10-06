@@ -50,6 +50,7 @@
   ],
   "exclude": [
     "./dist",
-    "./node_modules"
+    "./node_modules",
+    "resources/ts/plugins/iconify/build-icons.ts"
   ]
 }
