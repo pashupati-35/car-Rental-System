@@ -10,7 +10,6 @@ const props = defineProps<{
 
 const isSubmitting = ref(false)
 const errorMessage = ref('')
-const isSuccess = ref(false)
 
 const paymentForm = useForm({
   booking_id: props.booking?.id,

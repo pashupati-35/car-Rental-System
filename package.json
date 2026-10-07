@@ -13,6 +13,9 @@
         "lint:fix": "eslint resources/ts --fix",
         "type-check": "vue-tsc --noEmit"
     },
+    "overrides": {
+        "postcss-selector-parser": "^7.1.6"
+    },
     "devDependencies": {
         "@iconify-json/mdi": "^1.2.3",
         "@iconify-json/ri": "^1.2.10",

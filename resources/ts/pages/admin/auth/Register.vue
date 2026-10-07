@@ -90,12 +90,12 @@ const submit = () => {
               v-model="registerForm.password"
               :type="showPassword ? 'text' : 'password'"
               required
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm pr-10"
+              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm pe-10"
               placeholder="••••••••"
             >
             <button
               type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              class="absolute inset-y-0 right-0 pe-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               @click="showPassword = !showPassword"
             >
               <i :class="showPassword ? 'ri-eye-off-line' : 'ri-eye-line'" />
@@ -116,12 +116,12 @@ const submit = () => {
               v-model="registerForm.password_confirmation"
               :type="showConfirmPassword ? 'text' : 'password'"
               required
-              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm pr-10"
+              class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all text-sm pe-10"
               placeholder="••••••••"
             >
             <button
               type="button"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              class="absolute inset-y-0 right-0 pe-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               @click="showConfirmPassword = !showConfirmPassword"
             >
               <i :class="showConfirmPassword ? 'ri-eye-off-line' : 'ri-eye-line'" />
