@@ -43,8 +43,10 @@ class CarResource extends JsonResource
             'transmission' => $this->transmission,
             'owner' => new OwnerResource($this->whenLoaded('owner')),
             'driver' => new DriverResource($this->whenLoaded('driver')),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
     }
 }

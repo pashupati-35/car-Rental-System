@@ -29,9 +29,7 @@ const isImpersonating = computed(() => {
 })
 
 const adminReturnUrl = computed(() => {
-  const base = auth.value?.adminPortalUrl || ''
-
-  return base ? `${base}/admin/customers` : '/admin/customers'
+  return '/admin/customers'
 })
 
 const flashSuccess = ref('')
@@ -75,7 +73,7 @@ const customerNav = computed(() => [
 ])
 
 const isActive = (href: string) => {
-  const current = currentUrl.value.split('?')[0]
+  const current = currentUrl.value.split('?')[0] ?? ''
   if (href === '/customer/dashboard') {
     return current === '/customer/dashboard' || current === '/customer'
   }

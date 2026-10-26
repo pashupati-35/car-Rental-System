@@ -37,7 +37,7 @@ class AdminResource extends JsonResource
             'image_path' => $this->image_path,
             'image_url' => $imageUrl,
             'file_path' => $this->file_path ?? $this->image_path,
-            'date_of_birth' => $this->date_of_birth?->format('Y-m-d'),
+            'date_of_birth' => formatUserDate($this->date_of_birth, 'Y-m-d'),
             'gender' => $this->gender,
             'marital_status' => $this->marital_status,
             'nationality' => $this->nationality,
@@ -51,6 +51,7 @@ class AdminResource extends JsonResource
             'register_type' => $this->register_type,
             'is_submitted' => (bool) $this->is_submitted,
             'theme_style' => $this->theme_style,
+            'timezone' => $this->timezone,
             'emergency_contact' => $this->emergency_contact,
             'contact_person_name' => $this->contact_person_name,
             'contact_relationship' => $this->contact_relationship,
@@ -58,9 +59,12 @@ class AdminResource extends JsonResource
             'is_email_authentication_enabled' => (bool) $this->is_email_authentication_enabled,
             'is_active' => (bool) $this->is_active,
             'is_login_verified' => (bool) $this->is_login_verified,
-            'last_logged_in' => $this->last_logged_in?->toIso8601String(),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'last_logged_in' => convertToUserTimezone($this->last_logged_in)?->toIso8601String(),
+            'last_logged_in_formatted' => formatUserDateTime($this->last_logged_in),
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
     }
 }

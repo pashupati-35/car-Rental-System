@@ -29,7 +29,7 @@ class EmailTemplateService
             if ($request->filled('is_active')) {
                 $qry->whereIsActive($request->is_active);
             }
-        })->orderBy('id', 'DESC')->paginate($limit);
+        })->orderBy('id', 'DESC')->paginate($limit)->withQueryString();
 
         return EmailTemplateResource::collection($emailTemplate);
     }

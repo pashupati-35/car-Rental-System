@@ -14,6 +14,7 @@ export interface CalendarEvent {
   is_all_day?: boolean
   event_type?: {
     color?: string
+    title?: string
   } | null
   [key: string]: any
 }
@@ -88,7 +89,7 @@ export function eventTime(event: CalendarEvent): string {
 }
 
 /** "Sep 4, 2026, 12:00 AM" — all-day events drop the clock time. */
-export function eventStamp(event: CalendarEvent, raw: string | null): string {
+export function eventStamp(event: CalendarEvent, raw?: string | null): string {
   const date = parseApiDate(raw)
 
   if (!date) return '—'

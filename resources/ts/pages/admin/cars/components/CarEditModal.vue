@@ -19,7 +19,7 @@ const emit = defineEmits<{
   (e: 'save', formData: FormData): void
 }>()
 
-const form = ref<{
+const carForm = ref<{
   car_name: string
   car_model: string
   car_number: string
@@ -62,7 +62,7 @@ watch(
   () => props.car,
   (newCar: CarItem | null | undefined) => {
     if (newCar) {
-      form.value = {
+      carForm.value = {
         car_name: newCar.car_name || newCar.brand || '',
         car_model: newCar.car_model || newCar.model || '',
         car_number: newCar.car_number || newCar.plate_number || '',
@@ -109,26 +109,26 @@ const handleBlueBookPhotoChange = (event: Event) => {
 const handleSubmit = () => {
   const data = new FormData()
 
-  data.append('car_name', form.value.car_name)
-  data.append('car_model', form.value.car_model)
-  data.append('car_number', form.value.car_number)
-  data.append('number_of_seats', String(form.value.number_of_seats))
-  data.append('car_price_per_day', String(form.value.car_price_per_day || 0))
-  data.append('car_price_per_km', String(form.value.car_price_per_km || 0))
-  data.append('fuel_type', form.value.fuel_type)
-  data.append('transmission', form.value.transmission)
+  data.append('car_name', carForm.value.car_name)
+  data.append('car_model', carForm.value.car_model)
+  data.append('car_number', carForm.value.car_number)
+  data.append('number_of_seats', String(carForm.value.number_of_seats))
+  data.append('car_price_per_day', String(carForm.value.car_price_per_day || 0))
+  data.append('car_price_per_km', String(carForm.value.car_price_per_km || 0))
+  data.append('fuel_type', carForm.value.fuel_type)
+  data.append('transmission', carForm.value.transmission)
 
-  if (form.value.owner_id) {
-    data.append('owner_id', String(form.value.owner_id))
+  if (carForm.value.owner_id) {
+    data.append('owner_id', String(carForm.value.owner_id))
   }
 
-  if (form.value.driver_id) {
-    data.append('driver_id', String(form.value.driver_id))
+  if (carForm.value.driver_id) {
+    data.append('driver_id', String(carForm.value.driver_id))
   }
 
-  data.append('status', form.value.status)
-  data.append('available', form.value.available)
-  data.append('description', form.value.description)
+  data.append('status', carForm.value.status)
+  data.append('available', carForm.value.available)
+  data.append('description', carForm.value.description)
 
   if (carPhotoFile.value) {
     data.append('car_photo', carPhotoFile.value)
@@ -187,7 +187,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Car Brand / Name *</label>
             <input
-              v-model="form.car_name"
+              v-model="carForm.car_name"
               type="text"
               required
               placeholder="e.g. Toyota Land Cruiser"
@@ -198,7 +198,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Model / Trim *</label>
             <input
-              v-model="form.car_model"
+              v-model="carForm.car_model"
               type="text"
               required
               placeholder="e.g. Prado VX 2.8L"
@@ -212,7 +212,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">License Plate / Car Number *</label>
             <input
-              v-model="form.car_number"
+              v-model="carForm.car_number"
               type="text"
               required
               placeholder="e.g. BA-17-PA-8782"
@@ -223,7 +223,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Seating Capacity *</label>
             <input
-              v-model="form.number_of_seats"
+              v-model="carForm.number_of_seats"
               type="number"
               min="1"
               max="60"
@@ -239,7 +239,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Daily Rental Price ($) *</label>
             <input
-              v-model="form.car_price_per_day"
+              v-model="carForm.car_price_per_day"
               type="number"
               step="0.01"
               min="0"
@@ -252,7 +252,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Rate per KM ($) (Optional)</label>
             <input
-              v-model="form.car_price_per_km"
+              v-model="carForm.car_price_per_km"
               type="number"
               step="0.01"
               min="0"
@@ -267,7 +267,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Fuel Type</label>
             <select
-              v-model="form.fuel_type"
+              v-model="carForm.fuel_type"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
             >
               <option value="Petrol">
@@ -291,7 +291,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Transmission</label>
             <select
-              v-model="form.transmission"
+              v-model="carForm.transmission"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
             >
               <option value="Automatic">
@@ -309,7 +309,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Fleet Owner</label>
             <select
-              v-model="form.owner_id"
+              v-model="carForm.owner_id"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
             >
               <option value="">
@@ -328,7 +328,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Assigned Driver</label>
             <select
-              v-model="form.driver_id"
+              v-model="carForm.driver_id"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
             >
               <option value="">
@@ -350,7 +350,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Admin Approval Status *</label>
             <select
-              v-model="form.status"
+              v-model="carForm.status"
               required
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold"
             >
@@ -369,7 +369,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Booking Availability</label>
             <select
-              v-model="form.available"
+              v-model="carForm.available"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold"
             >
               <option value="yes">
@@ -386,7 +386,7 @@ const handleSubmit = () => {
         <div>
           <label class="block font-bold mb-1.5 text-slate-700 dark:text-slate-300">Vehicle Description / Highlights (Rich Text)</label>
           <RichTextEditor
-            v-model="form.description"
+            v-model="carForm.description"
             placeholder="Vehicle condition, safety features, GPS, Bluetooth, rental policies..."
             min-height="160px"
           />

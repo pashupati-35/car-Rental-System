@@ -8,6 +8,7 @@ interface CarItem {
   car_name: string
   brand?: string
   car_model?: string
+  model?: string
   car_number?: string
   car_price_per_day?: number
 }

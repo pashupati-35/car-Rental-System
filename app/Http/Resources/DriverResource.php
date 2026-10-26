@@ -30,8 +30,10 @@ class DriverResource extends JsonResource
             'file_path' => $this->file_path,
             'owner' => new OwnerResource($this->whenLoaded('owner')),
             'cars' => CarResource::collection($this->whenLoaded('cars')),
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
     }
 }

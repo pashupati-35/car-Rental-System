@@ -7,12 +7,12 @@ defineProps<{
   status?: string
 }>()
 
-const form = useForm({
+const forgotForm = useForm({
   email: '',
 })
 
 const submit = () => {
-  form.post('/customer/forgot-password')
+  forgotForm.post('/customer/forgot-password')
 }
 </script>
 
@@ -44,28 +44,28 @@ const submit = () => {
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5">Your Account Email</label>
           <input
-            v-model="form.email"
+            v-model="forgotForm.email"
             type="email"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
             placeholder="you@example.com"
           >
           <span
-            v-if="form.errors.email"
+            v-if="forgotForm.errors.email"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.email }}</span>
+          >{{ forgotForm.errors.email }}</span>
         </div>
 
         <button
           type="submit"
-          :disabled="form.processing"
+          :disabled="forgotForm.processing"
           class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-sm shadow-lg shadow-blue-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <i
-            v-if="form.processing"
+            v-if="forgotForm.processing"
             class="ri-loader-4-line animate-spin text-lg"
           />
-          <span v-if="form.processing">Sending Reset Link...</span>
+          <span v-if="forgotForm.processing">Sending Reset Link...</span>
           <span v-else>Email Password Reset Link</span>
         </button>
 

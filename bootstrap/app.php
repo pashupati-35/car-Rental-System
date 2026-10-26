@@ -31,6 +31,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->redirectTo(
             guests: function (Request $request) {
+                if (str_starts_with($request->getHost(), 'portal.crmcarrental.') || $request->is('crm', 'crm/*')) {
+                    return route('crm.login');
+                }
                 if ($request->is('admin', 'admin/*') || str_starts_with($request->getHost(), 'portal.')) {
                     return route('admin.login');
                 }

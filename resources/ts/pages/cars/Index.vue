@@ -30,10 +30,47 @@ const carsList = computed<Array<any>>(() => {
   return Array.isArray(props.cars) ? props.cars : []
 })
 
+const fallbackCarImages = [
+  'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?w=1000&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1551830820-330a71b99659?w=1000&auto=format&fit=crop&q=85',
+]
+
 const getCarImage = (car: any) => {
   const url = resolveMediaUrl(car.car_photo || car.image, car.car_photo_path || car.image_path, 'car')
+  if (url) return url
+
+  const name = `${car.car_name || ''} ${car.car_model || ''}`.toLowerCase()
+  if (name.includes('fortuner') || name.includes('prado') || name.includes('land cruiser')) {
+    return 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('thar') || name.includes('jeep') || name.includes('scorpio')) {
+    return 'https://images.unsplash.com/photo-1533106497176-45ae19e68ba2?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('creta') || name.includes('seltos') || name.includes('vitara') || name.includes('taigun')) {
+    return 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('byd') || name.includes('electric') || name.includes('ev') || name.includes('tesla')) {
+    return 'https://images.unsplash.com/photo-1563720223185-11003d516935?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('innova') || name.includes('carnival') || name.includes('limousine')) {
+    return 'https://images.unsplash.com/photo-1559416523-140ddc3d238c?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('hilux') || name.includes('pickup')) {
+    return 'https://images.unsplash.com/photo-1551830820-330a71b99659?w=1000&auto=format&fit=crop&q=85'
+  }
+  if (name.includes('bmw') || name.includes('mercedes') || name.includes('sedan') || name.includes('audi')) {
+    return 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1000&auto=format&fit=crop&q=85'
+  }
+
+  const id = Number(car.id) || 0
   
-  return url || 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80'
+  return fallbackCarImages[id % fallbackCarImages.length]
 }
 
 let searchTimeout: any = null

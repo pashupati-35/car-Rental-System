@@ -19,7 +19,7 @@ const emit = defineEmits<{
   (e: 'save', formData: FormData): void
 }>()
 
-const form = ref<{
+const driverForm = ref<{
   name: string
   phone: string
   email: string
@@ -54,7 +54,7 @@ watch(
   () => props.driver,
   (newDriver: DriverItem | null | undefined) => {
     if (newDriver && props.isEditing) {
-      form.value = {
+      driverForm.value = {
         name: newDriver.name || '',
         phone: newDriver.phone || '',
         email: newDriver.email || '',
@@ -68,7 +68,7 @@ watch(
       photoPreview.value = resolveImageUrl(newDriver.image || newDriver.photo, newDriver.image_path)
       licensePhotoPreview.value = resolveImageUrl(newDriver.license_photo_url || newDriver.license_photo)
     } else {
-      form.value = {
+      driverForm.value = {
         name: '',
         phone: '',
         email: '',
@@ -111,17 +111,17 @@ const handleLicensePhotoChange = (event: Event) => {
 const handleSubmit = () => {
   const data = new FormData()
 
-  data.append('name', form.value.name)
-  data.append('phone', form.value.phone)
-  data.append('email', form.value.email || '')
-  data.append('license_number', form.value.license_number)
-  data.append('experience_years', String(form.value.experience_years || 1))
-  data.append('status', form.value.status || 'active')
-  if (form.value.owner_id) {
-    data.append('owner_id', String(form.value.owner_id))
+  data.append('name', driverForm.value.name)
+  data.append('phone', driverForm.value.phone)
+  data.append('email', driverForm.value.email || '')
+  data.append('license_number', driverForm.value.license_number)
+  data.append('experience_years', String(driverForm.value.experience_years || 1))
+  data.append('status', driverForm.value.status || 'active')
+  if (driverForm.value.owner_id) {
+    data.append('owner_id', String(driverForm.value.owner_id))
   }
-  data.append('address', form.value.address || '')
-  data.append('description', form.value.description || '')
+  data.append('address', driverForm.value.address || '')
+  data.append('description', driverForm.value.description || '')
 
   if (photoFile.value) {
     data.append('photo', photoFile.value)
@@ -167,7 +167,7 @@ const handleSubmit = () => {
         <div>
           <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Driver Full Name *</label>
           <input
-            v-model="form.name"
+            v-model="driverForm.name"
             type="text"
             required
             placeholder="e.g. Samuel Rodriguez"
@@ -179,7 +179,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Phone Number *</label>
             <input
-              v-model="form.phone"
+              v-model="driverForm.phone"
               type="text"
               required
               placeholder="+1 (555) 456-7890"
@@ -189,7 +189,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Email Address (Optional)</label>
             <input
-              v-model="form.email"
+              v-model="driverForm.email"
               type="email"
               placeholder="driver@example.com"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
@@ -201,7 +201,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Commercial License # *</label>
             <input
-              v-model="form.license_number"
+              v-model="driverForm.license_number"
               type="text"
               required
               placeholder="DL-928172648"
@@ -211,7 +211,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Years of Experience</label>
             <input
-              v-model="form.experience_years"
+              v-model="driverForm.experience_years"
               type="number"
               min="0"
               placeholder="3"
@@ -224,7 +224,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Fleet Owner Affiliation</label>
             <select
-              v-model="form.owner_id"
+              v-model="driverForm.owner_id"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
             >
               <option value="">
@@ -242,7 +242,7 @@ const handleSubmit = () => {
           <div>
             <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Status</label>
             <select
-              v-model="form.status"
+              v-model="driverForm.status"
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-bold"
             >
               <option value="active">
@@ -258,7 +258,7 @@ const handleSubmit = () => {
         <div>
           <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Residential Address</label>
           <input
-            v-model="form.address"
+            v-model="driverForm.address"
             type="text"
             placeholder="San Diego, CA"
             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:outline-none font-medium"
@@ -268,7 +268,7 @@ const handleSubmit = () => {
         <div>
           <label class="block font-bold mb-1 text-slate-700 dark:text-slate-300">Driver Bio, Experience & Background (Rich Text)</label>
           <RichTextEditor
-            v-model="form.description"
+            v-model="driverForm.description"
             placeholder="Professional chauffeur experience, certifications, route familiarity, customer service record..."
             min-height="140px"
           />

@@ -15,7 +15,7 @@ const submitting = ref(false)
 const feedbackMsg = ref('')
 const errorMsg = ref('')
 
-const form = ref({
+const driverForm = ref({
   name: '',
   phone: '',
   email: '',
@@ -31,7 +31,7 @@ const licensePhotoPreview = ref<string | null>(null)
 
 const openCreateModal = () => {
   editingDriver.value = null
-  form.value = {
+  driverForm.value = {
     name: '',
     phone: '',
     email: '',
@@ -48,7 +48,7 @@ const openCreateModal = () => {
 
 const openEditModal = (driver: any) => {
   editingDriver.value = driver
-  form.value = {
+  driverForm.value = {
     name: driver.name,
     phone: driver.phone,
     email: driver.email || '',
@@ -65,20 +65,20 @@ const openEditModal = (driver: any) => {
 
 const handlePhotoUpload = (e: any) => {
   if (e.target.files && e.target.files[0]) {
-    form.value.photo = e.target.files[0]
+    driverForm.value.photo = e.target.files[0]
     photoPreview.value = URL.createObjectURL(e.target.files[0])
   }
 }
 
 const handleLicenseUpload = (e: any) => {
   if (e.target.files && e.target.files[0]) {
-    form.value.license_photo = e.target.files[0]
+    driverForm.value.license_photo = e.target.files[0]
     licensePhotoPreview.value = URL.createObjectURL(e.target.files[0])
   }
 }
 
 const saveDriver = async () => {
-  if (!form.value.name || !form.value.phone || !form.value.license_number) {
+  if (!driverForm.value.name || !driverForm.value.phone || !driverForm.value.license_number) {
     errorMsg.value = 'Please fill in required fields: Name, Phone, and License Number.'
     
     return
@@ -90,14 +90,14 @@ const saveDriver = async () => {
 
   const formData = new FormData()
 
-  formData.append('name', form.value.name)
-  formData.append('phone', form.value.phone)
-  if (form.value.email) formData.append('email', form.value.email)
-  formData.append('license_number', form.value.license_number)
-  formData.append('experience_years', form.value.experience_years)
-  formData.append('status', form.value.status)
-  if (form.value.photo) formData.append('photo', form.value.photo)
-  if (form.value.license_photo) formData.append('license_photo', form.value.license_photo)
+  formData.append('name', driverForm.value.name)
+  formData.append('phone', driverForm.value.phone)
+  if (driverForm.value.email) formData.append('email', driverForm.value.email)
+  formData.append('license_number', driverForm.value.license_number)
+  formData.append('experience_years', driverForm.value.experience_years)
+  formData.append('status', driverForm.value.status)
+  if (driverForm.value.photo) formData.append('photo', driverForm.value.photo)
+  if (driverForm.value.license_photo) formData.append('license_photo', driverForm.value.license_photo)
 
   try {
     if (editingDriver.value) {
@@ -306,7 +306,7 @@ const deleteDriver = async (id: number, name: string) => {
           <div>
             <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
             <input
-              v-model="form.name"
+              v-model="driverForm.name"
               type="text"
               required
               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -318,7 +318,7 @@ const deleteDriver = async (id: number, name: string) => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Phone Number *</label>
               <input
-                v-model="form.phone"
+                v-model="driverForm.phone"
                 type="text"
                 required
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -328,7 +328,7 @@ const deleteDriver = async (id: number, name: string) => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Email (Optional)</label>
               <input
-                v-model="form.email"
+                v-model="driverForm.email"
                 type="email"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
                 placeholder="driver@gmail.com"
@@ -340,7 +340,7 @@ const deleteDriver = async (id: number, name: string) => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">License Number *</label>
               <input
-                v-model="form.license_number"
+                v-model="driverForm.license_number"
                 type="text"
                 required
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -350,7 +350,7 @@ const deleteDriver = async (id: number, name: string) => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Experience (Years)</label>
               <input
-                v-model="form.experience_years"
+                v-model="driverForm.experience_years"
                 type="number"
                 min="0"
                 max="50"
@@ -363,7 +363,7 @@ const deleteDriver = async (id: number, name: string) => {
             <div>
               <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Status</label>
               <select
-                v-model="form.status"
+                v-model="driverForm.status"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none"
               >
                 <option value="active">

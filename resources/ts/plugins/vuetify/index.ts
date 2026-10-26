@@ -6,8 +6,8 @@ import defaults from './defaults'
 import { icons } from './icons'
 import { staticPrimaryColor, staticPrimaryDarkenColor, themes } from './theme'
 
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
+// import '@mdi/font/css/materialdesignicons.css'
+// import 'vuetify/styles'
 
 export default function (app: App) {
   const cookieThemeValues = {

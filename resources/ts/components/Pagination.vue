@@ -10,6 +10,7 @@ interface LinkItem {
 
 const props = withDefaults(
   defineProps<{
+    pagination?: any
     links?: LinkItem[]
     from?: number
     to?: number
@@ -20,11 +21,15 @@ const props = withDefaults(
     perPageOptions?: number[]
   }>(),
   {
-    from: 0,
-    to: 0,
-    total: 0,
-    perPage: 10,
-    perPageOptions: () => [6, 10, 12, 20, 25, 50, 100],
+    pagination: undefined,
+    links: undefined,
+    from: undefined,
+    to: undefined,
+    total: undefined,
+    currentPage: undefined,
+    lastPage: undefined,
+    perPage: undefined,
+    perPageOptions: () => [6, 10, 12, 15, 20, 25, 50, 100],
   },
 )
 
@@ -33,10 +38,71 @@ const emit = defineEmits<{
   (e: 'update:perPage', perPage: number): void
 }>()
 
+const rawSource = computed(() => props.pagination || {})
+const meta = computed(() => rawSource.value.meta || {})
+
+const normalizedLinks = computed<LinkItem[]>(() => {
+  if (Array.isArray(props.links) && props.links.length > 0) return props.links
+  if (Array.isArray(rawSource.value.links)) return rawSource.value.links
+  if (Array.isArray(meta.value.links)) return meta.value.links
+
+  return []
+})
+
+const effectiveTotal = computed(() => {
+  if (typeof props.total === 'number') return props.total
+  if (typeof rawSource.value.total === 'number') return rawSource.value.total
+  if (typeof meta.value.total === 'number') return meta.value.total
+
+  return 0
+})
+
+const effectivePerPage = computed(() => {
+  if (typeof props.perPage === 'number' && props.perPage > 0) return props.perPage
+  if (typeof rawSource.value.per_page === 'number') return rawSource.value.per_page
+  if (typeof meta.value.per_page === 'number') return meta.value.per_page
+
+  if (typeof window !== 'undefined') {
+    const urlParam = new URLSearchParams(window.location.search).get('per_page')
+    const parsed = parseInt(urlParam || '', 10)
+    if (!isNaN(parsed) && parsed > 0) return parsed
+  }
+
+  return 10
+})
+
+const computedPerPageOptions = computed(() => {
+  const opts = [...props.perPageOptions]
+  if (effectivePerPage.value && !opts.includes(effectivePerPage.value)) {
+    opts.push(effectivePerPage.value)
+    opts.sort((a, b) => a - b)
+  }
+
+  return opts
+})
+
+const effectiveFrom = computed(() => {
+  if (effectiveTotal.value === 0) return 0
+  if (typeof props.from === 'number' && props.from > 0) return props.from
+  if (typeof rawSource.value.from === 'number' && rawSource.value.from > 0) return rawSource.value.from
+  if (typeof meta.value.from === 'number' && meta.value.from > 0) return meta.value.from
+
+  return 1
+})
+
+const effectiveTo = computed(() => {
+  if (effectiveTotal.value === 0) return 0
+  if (typeof props.to === 'number' && props.to > 0) return props.to
+  if (typeof rawSource.value.to === 'number' && rawSource.value.to > 0) return rawSource.value.to
+  if (typeof meta.value.to === 'number' && meta.value.to > 0) return meta.value.to
+
+  return Math.min(effectivePerPage.value, effectiveTotal.value)
+})
+
 // Calculate current page & last page properly
 const computedCurrentPage = computed(() => {
-  if (props.links && props.links.length > 0) {
-    const activeLink = props.links.find((item: LinkItem) => item.active)
+  if (normalizedLinks.value.length > 0) {
+    const activeLink = normalizedLinks.value.find((item: LinkItem) => item.active)
     if (activeLink) {
       const page = parseInt(activeLink.label, 10)
       if (!isNaN(page) && page > 0) return page
@@ -44,6 +110,8 @@ const computedCurrentPage = computed(() => {
   }
 
   if (props.currentPage && props.currentPage > 0) return props.currentPage
+  if (rawSource.value.current_page && rawSource.value.current_page > 0) return rawSource.value.current_page
+  if (meta.value.current_page && meta.value.current_page > 0) return meta.value.current_page
 
   if (typeof window !== 'undefined') {
     const urlParam = new URLSearchParams(window.location.search).get('page')
@@ -55,14 +123,16 @@ const computedCurrentPage = computed(() => {
 })
 
 const computedLastPage = computed(() => {
-  if (props.total && props.perPage && props.total > 0 && props.perPage > 0) {
-    return Math.max(1, Math.ceil(props.total / props.perPage))
+  if (props.lastPage && props.lastPage > 0) return props.lastPage
+  if (rawSource.value.last_page && rawSource.value.last_page > 0) return rawSource.value.last_page
+  if (meta.value.last_page && meta.value.last_page > 0) return meta.value.last_page
+
+  if (effectiveTotal.value > 0 && effectivePerPage.value > 0) {
+    return Math.max(1, Math.ceil(effectiveTotal.value / effectivePerPage.value))
   }
 
-  if (props.lastPage && props.lastPage > 0) return props.lastPage
-
-  if (props.links && props.links.length > 0) {
-    const numericLinks = props.links
+  if (normalizedLinks.value.length > 0) {
+    const numericLinks = normalizedLinks.value
       .map((item: LinkItem) => parseInt(item.label, 10))
       .filter((n: number) => !isNaN(n) && n > 0)
 
@@ -83,7 +153,7 @@ const visiblePages = computed(() => {
 
   if (total <= 7) {
     for (let i = 1; i <= total; i++) range.push(i)
-    
+
     return range
   }
 
@@ -120,14 +190,14 @@ const goToPage = (page: number) => {
   emit('page-change', page)
 
   // If using Inertia pagination with direct link url
-  if (props.links && props.links.length > 0) {
-    const targetLink = props.links.find(
+  if (normalizedLinks.value.length > 0) {
+    const targetLink = normalizedLinks.value.find(
       (item: LinkItem) => item.label === String(page),
     )
 
     if (targetLink && targetLink.url) {
       router.visit(targetLink.url, { preserveScroll: true, preserveState: true })
-      
+
       return
     }
   }
@@ -136,8 +206,8 @@ const goToPage = (page: number) => {
   const currentUrl = new URL(window.location.href)
 
   currentUrl.searchParams.set('page', String(page))
-  if (props.perPage) {
-    currentUrl.searchParams.set('per_page', String(props.perPage))
+  if (effectivePerPage.value) {
+    currentUrl.searchParams.set('per_page', String(effectivePerPage.value))
   }
   router.visit(currentUrl.toString(), { preserveScroll: true, preserveState: true })
 }
@@ -162,21 +232,21 @@ const onPerPageChange = (event: Event) => {
     <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400 font-medium">
       <div>
         Showing
-        <span class="font-bold text-slate-900 dark:text-white">{{ from || 1 }} – {{ to || Math.min(perPage, total || 0) }}</span>
+        <span class="font-bold text-slate-900 dark:text-white">{{ effectiveFrom }} – {{ effectiveTo }}</span>
         of
-        <span class="font-bold text-slate-900 dark:text-white">{{ total }}</span>
+        <span class="font-bold text-slate-900 dark:text-white">{{ effectiveTotal }}</span>
       </div>
 
       <!-- Per page dropdown matching 3rd screenshot -->
       <div class="relative">
         <select
-          :value="perPage"
+          :value="effectivePerPage"
           class="appearance-none px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer shadow-2xs"
           style="padding-right: 1.5rem"
           @change="onPerPageChange"
         >
           <option
-            v-for="opt in perPageOptions"
+            v-for="opt in computedPerPageOptions"
             :key="opt"
             :value="opt"
           >

@@ -47,8 +47,7 @@ class HandleInertiaRequests extends Middleware
         $portSuffix = ($port && ! in_array($port, [80, 443])) ? ':'.$port : '';
         $isPortal = str_starts_with($host, 'portal.');
         $mainHost = $isPortal ? preg_replace('/^portal\./', '', $host) : $host;
-        $portalHost = $isPortal ? $host : 'portal.'.$host;
-        $adminPortalBaseUrl = $scheme.'://'.$portalHost.$portSuffix;
+        $adminPortalBaseUrl = $scheme.'://'.$host.$portSuffix;
         $mainAppBaseUrl = config('app.url') ? rtrim(config('app.url'), '/') : ($scheme.'://'.$mainHost.$portSuffix);
 
         return array_merge(parent::share($request), [

@@ -44,6 +44,7 @@ class UpdateCustomerProfileRequest extends FormRequest
             'emergency_contact' => 'nullable|string|max:50',
             'contact_person_name' => 'nullable|string|max:255',
             'contact_relationship' => 'nullable|string|max:100',
+            'timezone' => 'nullable|string|max:100|timezone:all',
             'image' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg,webp,bmp,heic,heif,avif|max:5120',
             'remove_image' => 'nullable|boolean',
         ];

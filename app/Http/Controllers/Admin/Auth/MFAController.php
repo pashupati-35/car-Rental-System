@@ -16,6 +16,17 @@ class MFAController extends Controller
     public function __construct(protected Authenticator $authenticator) {}
 
     /**
+     * Get the authenticated admin user.
+     */
+    protected function getAdmin(): ?Admin
+    {
+        /** @var Admin|null $admin */
+        $admin = Auth::guard('admin')->user();
+
+        return $admin;
+    }
+
+    /**
      * Check if Admin has MFA or Email Authentication enabled before logging in.
      */
     public function checkVerification(Request $request)
@@ -25,6 +36,7 @@ class MFAController extends Controller
             'password' => 'required|string',
         ]);
 
+        /** @var Admin|null $admin */
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
@@ -78,6 +90,7 @@ class MFAController extends Controller
             'password' => 'required|string',
         ]);
 
+        /** @var Admin|null $admin */
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password) && $admin->is_email_authentication_enabled) {
@@ -114,6 +127,7 @@ class MFAController extends Controller
             'verification_code' => 'required|string',
         ]);
 
+        /** @var Admin|null $admin */
         $admin = Admin::where('email', $request->input('email'))->first();
 
         if ($admin && Hash::check($request->input('password'), $admin->password)) {
@@ -165,7 +179,7 @@ class MFAController extends Controller
      */
     public function generate(Request $request)
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = $this->getAdmin();
         if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
@@ -198,7 +212,7 @@ class MFAController extends Controller
             'verification_code' => 'required|string',
         ]);
 
-        $admin = Auth::guard('admin')->user();
+        $admin = $this->getAdmin();
         if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
@@ -236,7 +250,7 @@ class MFAController extends Controller
      */
     public function deactivate(Request $request)
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = $this->getAdmin();
         if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
@@ -261,7 +275,7 @@ class MFAController extends Controller
 
     public function activateEmailAuthenticator()
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = $this->getAdmin();
         if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }
@@ -273,7 +287,7 @@ class MFAController extends Controller
 
     public function deactivateEmailAuthenticator()
     {
-        $admin = Auth::guard('admin')->user();
+        $admin = $this->getAdmin();
         if (! $admin) {
             return response()->json(['status' => 'UNAUTHORIZED'], 401);
         }

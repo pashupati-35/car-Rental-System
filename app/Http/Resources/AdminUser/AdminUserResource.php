@@ -35,9 +35,14 @@ class AdminUserResource extends JsonResource
             'has_email_access' => $this->has_email_access,
             'access_email_type' => $this->access_email_type,
             'user_type_text' => ucwords($this->user_type),
+            'timezone' => $this->timezone,
             'is_mfa_enabled' => $this->is_mfa_enabled ? true : false,
             'is_email_authentication_enabled' => $this->is_email_authentication_enabled ? true : false,
             'is_active' => $this->is_active ? true : false,
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
 
         if ($request->route()->getName() == 'admin-user.user-type') {

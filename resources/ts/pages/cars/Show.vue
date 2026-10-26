@@ -4,6 +4,7 @@ import { Head, Link, usePage } from '@inertiajs/vue3'
 import FrontendLayout from '@/layouts/FrontendLayout.vue'
 import AppDatePicker from '@/components/AppDatePicker.vue'
 import MessageBox from '@/components/MessageBox.vue'
+import BookingLocationMap from '@/components/BookingLocationMap.vue'
 import axios from 'axios'
 
 const props = defineProps<{
@@ -27,10 +28,68 @@ const loading = ref(false)
 
 // Booking form
 const pickupLocation = ref('Kathmandu Central Hub')
-const dropLocation = ref('Kathmandu Central Hub')
+const dropLocation = ref('Tribhuvan International Airport (TIA)')
 const pickupDate = ref('')
 const returnDate = ref('')
 const rentalPurpose = ref('Vacation / Personal Trip')
+
+// Interactive Map & Distance State
+const showMapModal = ref(false)
+const mapActiveTarget = ref<'pickup' | 'drop'>('pickup')
+const mapDistanceKm = ref(0)
+const pricingMode = ref<'distance' | 'both' | 'daily'>('distance')
+
+const openMapModal = (target: 'pickup' | 'drop' = 'pickup') => {
+  mapActiveTarget.value = target
+  showMapModal.value = true
+}
+
+const onMapPickupUpdate = (loc: { lat: number; lng: number; address: string }) => {
+  pickupLocation.value = loc.address
+}
+
+const onMapDropUpdate = (loc: { lat: number; lng: number; address: string }) => {
+  dropLocation.value = loc.address
+}
+
+const onMapDistanceUpdate = (dist: number) => {
+  mapDistanceKm.value = dist
+  if (pickupDate.value && returnDate.value) {
+    checkCalendarAvailability()
+  }
+}
+
+const onMapApply = (data: { pickup: { address: string }; drop: { address: string }; distanceKm: number }) => {
+  pickupLocation.value = data.pickup.address
+  dropLocation.value = data.drop.address
+  mapDistanceKm.value = data.distanceKm
+  if (pickupDate.value && returnDate.value) {
+    checkCalendarAvailability()
+  }
+}
+
+const calculatedDistancePrice = computed(() => {
+  const rate = Number(carData.value.car_price_per_km) || 0
+  const dist = Number(mapDistanceKm.value) || 0
+
+  return Math.round(dist * rate * 100) / 100
+})
+
+const finalCalculatedPrice = computed(() => {
+  const dailyRate = Number(carData.value.car_price_per_day) || 0
+  const days = availabilityResult.value?.days || 1
+  const dailyTotal = days * dailyRate
+  const distTotal = calculatedDistancePrice.value
+
+  if (pricingMode.value === 'distance') {
+    return distTotal > 0 ? distTotal : dailyTotal
+  }
+  if (pricingMode.value === 'both') {
+    return Math.round((dailyTotal + distTotal) * 100) / 100
+  }
+
+  return dailyTotal
+})
 
 // Availability status
 const checkingAvailability = ref(false)
@@ -86,6 +145,8 @@ const checkCalendarAvailability = async () => {
       car_id: carData.value.id,
       pick_up_date: pickupDate.value,
       last_date: returnDate.value,
+      distance_km: mapDistanceKm.value,
+      pricing_mode: pricingMode.value,
     })
 
     if (res.data.status === 'success') {
@@ -137,6 +198,8 @@ const submitBookingAndPayment = async () => {
       pick_up_date: pickupDate.value,
       last_date: returnDate.value,
       purpose: rentalPurpose.value,
+      distance_km: mapDistanceKm.value,
+      pricing_mode: pricingMode.value,
     })
 
     if (bookingRes.data.status === 'success') {
@@ -338,13 +401,25 @@ const submitBookingAndPayment = async () => {
         <!-- Sticky Reservation & Calendar Box (Right col) -->
         <div class="space-y-6 sticky top-24">
           <div class="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-xl space-y-6">
-            <div>
-              <h3 class="font-bold text-xl text-gray-900 dark:text-white">
-                Reserve Car & Schedule
-              </h3>
-              <p class="text-xs text-gray-500 mt-0.5">
-                Overlap Protection: Real-time calendar conflict check
-              </p>
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-800">
+              <div>
+                <h3 class="font-bold text-xl text-gray-900 dark:text-white">
+                  Reserve Car & Schedule
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  Overlap Protection: Real-time calendar conflict check
+                </p>
+              </div>
+
+              <!-- Map Popup Trigger Button -->
+              <button
+                type="button"
+                class="px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-100 dark:hover:bg-blue-900 transition-all cursor-pointer shadow-xs"
+                @click="openMapModal('pickup')"
+              >
+                <i class="ri-road-map-line text-sm" />
+                <span>{{ mapDistanceKm > 0 ? `${mapDistanceKm} km mapped` : 'Open Map' }}</span>
+              </button>
             </div>
 
             <!-- Login Prompt Banner when Guest -->
@@ -405,24 +480,124 @@ const submitBookingAndPayment = async () => {
               class="space-y-4"
               @submit.prevent="proceedToPayment"
             >
-              <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Pickup Location</label>
-                <input
-                  v-model="pickupLocation"
-                  type="text"
-                  required
-                  class="w-full px-3.5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
+              <!-- Pricing Calculation Mode Selector -->
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="block text-xs font-bold text-gray-700 dark:text-gray-300">
+                    Pricing Mode (Owner Rate: ${{ carData.car_price_per_km }}/km)
+                  </label>
+                  <span
+                    v-if="mapDistanceKm > 0"
+                    class="text-[10px] font-mono font-bold text-blue-600 dark:text-blue-400"
+                  >
+                    {{ mapDistanceKm }} km mapped
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-gray-100 dark:bg-gray-800 text-[11px] font-bold">
+                  <button
+                    type="button"
+                    class="py-1.5 px-2 rounded-xl transition-all cursor-pointer text-center truncate"
+                    :class="pricingMode === 'distance' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'"
+                    @click="pricingMode = 'distance'"
+                  >
+                    Per KM (${{ carData.car_price_per_km }})
+                  </button>
+                  <button
+                    type="button"
+                    class="py-1.5 px-2 rounded-xl transition-all cursor-pointer text-center truncate"
+                    :class="pricingMode === 'both' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'"
+                    @click="pricingMode = 'both'"
+                  >
+                    Daily + KM
+                  </button>
+                  <button
+                    type="button"
+                    class="py-1.5 px-2 rounded-xl transition-all cursor-pointer text-center truncate"
+                    :class="pricingMode === 'daily' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-xs' : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'"
+                    @click="pricingMode = 'daily'"
+                  >
+                    Daily Flat
+                  </button>
+                </div>
+              </div>
+
+              <!-- Interactive Route Summary Banner -->
+              <div
+                class="p-3 rounded-2xl bg-gradient-to-r from-blue-50/90 to-indigo-50/90 dark:from-gray-800 dark:to-gray-800/80 border border-blue-100 dark:border-gray-700 flex items-center justify-between cursor-pointer hover:border-blue-300 dark:hover:border-gray-600 transition-all shadow-xs group"
+                @click="openMapModal('pickup')"
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-8 h-8 rounded-xl bg-blue-600 group-hover:bg-blue-700 text-white flex items-center justify-center text-sm shadow-xs shrink-0 transition-colors">
+                    <i class="ri-route-line" />
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-xs font-bold text-gray-900 dark:text-white truncate">Route & Distance Map</span>
+                      <span
+                        v-if="mapDistanceKm > 0"
+                        class="px-1.5 py-0.2 rounded-md bg-blue-600 text-white text-[10px] font-mono font-bold shrink-0"
+                      >
+                        {{ mapDistanceKm }} km
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                      <span v-if="mapDistanceKm > 0">{{ pickupLocation }} &rarr; {{ dropLocation }}</span>
+                      <span v-else>Click to search locations & calculate driving distance</span>
+                    </p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 shrink-0 ms-2">
+                  <span>{{ mapDistanceKm > 0 ? 'Edit' : 'Select' }}</span>
+                  <i class="ri-arrow-right-s-line" />
+                </div>
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Drop-off Location</label>
-                <input
-                  v-model="dropLocation"
-                  type="text"
-                  required
-                  class="w-full px-3.5 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                >
+                <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Pickup Location</span>
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="pickupLocation"
+                    type="text"
+                    required
+                    class="w-full ps-3.5 pe-24 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                  <button
+                    type="button"
+                    title="Click to search / pick on map"
+                    class="absolute end-2 top-1.5 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                    @click="openMapModal('pickup')"
+                  >
+                    <i class="ri-map-pin-2-fill text-xs" />
+                    <span>Pick on Map</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="flex items-center gap-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500" />
+                  <span>Drop-off Location</span>
+                </label>
+                <div class="relative">
+                  <input
+                    v-model="dropLocation"
+                    type="text"
+                    required
+                    class="w-full ps-3.5 pe-24 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  >
+                  <button
+                    type="button"
+                    title="Click to search / drop on map"
+                    class="absolute end-2 top-1.5 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 text-[11px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow-2xs"
+                    @click="openMapModal('drop')"
+                  >
+                    <i class="ri-flag-2-fill text-xs" />
+                    <span>Drop on Map</span>
+                  </button>
+                </div>
               </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -458,18 +633,39 @@ const submitBookingAndPayment = async () => {
                 @close="availabilityError = ''"
               />
 
-              <!-- Calculation Result (if available) -->
-              <div
-                v-if="availabilityResult?.available"
-                class="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2"
-              >
-                <div class="flex justify-between items-center text-emerald-800 dark:text-emerald-300 font-bold">
-                  <span>✓ Dates Available!</span>
-                  <span>{{ availabilityResult.days }} Day(s)</span>
+              <!-- Dynamic Price Breakdown Card -->
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-blue-50/90 via-indigo-50/80 to-purple-50/70 dark:from-gray-800 dark:via-gray-800 dark:to-gray-800/90 border border-blue-100 dark:border-gray-700 space-y-2.5 text-xs">
+                <div class="flex items-center justify-between font-bold text-gray-900 dark:text-white">
+                  <span class="flex items-center gap-1.5">
+                    <i class="ri-calculator-line text-blue-600" />
+                    <span>Calculated Total Price</span>
+                  </span>
+                  <span class="text-base font-black text-blue-600 dark:text-blue-400">
+                    ${{ finalCalculatedPrice.toFixed(2) }}
+                  </span>
                 </div>
-                <div class="flex justify-between items-center text-gray-600 dark:text-gray-400">
-                  <span>${{ carData.car_price_per_day }} × {{ availabilityResult.days }} days</span>
-                  <span class="text-base font-black text-gray-900 dark:text-white">${{ availabilityResult.total_price }}</span>
+
+                <div class="space-y-1.5 pt-1.5 border-t border-gray-200/60 dark:border-gray-700/60 text-[11px] text-gray-600 dark:text-gray-300">
+                  <div
+                    v-if="mapDistanceKm > 0 && pricingMode !== 'daily'"
+                    class="flex justify-between items-center"
+                  >
+                    <span>Distance ({{ mapDistanceKm }} km &times; ${{ carData.car_price_per_km }}/km)</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${{ calculatedDistancePrice.toFixed(2) }}</span>
+                  </div>
+
+                  <div
+                    v-if="pricingMode !== 'distance'"
+                    class="flex justify-between items-center"
+                  >
+                    <span>Daily Rental (${{ carData.car_price_per_day }}/day &times; {{ availabilityResult?.days || 1 }} day)</span>
+                    <span class="font-semibold text-gray-900 dark:text-white">${{ ((availabilityResult?.days || 1) * Number(carData.car_price_per_day || 0)).toFixed(2) }}</span>
+                  </div>
+
+                  <div class="flex justify-between items-center font-bold text-gray-800 dark:text-gray-200 pt-1.5 border-t border-gray-200/40 dark:border-gray-700/40">
+                    <span>Final Amount:</span>
+                    <span class="text-blue-600 dark:text-blue-400 text-xs">${{ finalCalculatedPrice.toFixed(2) }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -485,9 +681,9 @@ const submitBookingAndPayment = async () => {
                   class="flex items-center gap-1.5"
                 >
                   <i class="ri-login-box-line" />
-                  <span>Login to Book & Pay (${{ availabilityResult?.total_price || carData.car_price_per_day }})</span>
+                  <span>Login to Book & Pay (${{ finalCalculatedPrice.toFixed(2) }})</span>
                 </span>
-                <span v-else>Book Now & Pay (${{ availabilityResult?.total_price || carData.car_price_per_day }})</span>
+                <span v-else>Book Now & Pay (${{ finalCalculatedPrice.toFixed(2) }})</span>
               </button>
             </form>
           </div>
@@ -724,5 +920,19 @@ const submitBookingAndPayment = async () => {
         </div>
       </div>
     </div>
+
+    <!-- Interactive Map Modal Popup -->
+    <BookingLocationMap
+      v-model:is-open="showMapModal"
+      :active-target="mapActiveTarget"
+      :car-price-per-km="Number(carData.car_price_per_km || 0)"
+      :car-price-per-day="Number(carData.car_price_per_day || 0)"
+      :initial-pickup="pickupLocation"
+      :initial-drop="dropLocation"
+      @update:pickup="onMapPickupUpdate"
+      @update:drop="onMapDropUpdate"
+      @update:distance="onMapDistanceUpdate"
+      @apply="onMapApply"
+    />
   </FrontendLayout>
 </template>

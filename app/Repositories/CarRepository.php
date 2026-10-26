@@ -224,4 +224,10 @@ class CarRepository extends BaseRepository implements CarRepositoryInterface
     {
         return $this->model->where('owner_id', $ownerId)->findOrFail($carId);
     }
+
+    public function getCarsForSelect(): Collection
+    {
+        return $this->model->select('id', 'car_name', 'car_model', 'car_number', 'car_price_per_day')->get();
+    }
 }
+

@@ -9,6 +9,7 @@ use App\Services\CarService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class BookingController extends Controller
 {
@@ -101,7 +102,9 @@ class BookingController extends Controller
     {
         $booking = $this->bookingService->getBookingWithCar((int) $id);
 
-        return view('customer.payment', compact('booking'));
+        return Inertia::render('customer/Payment', [
+            'booking' => $booking,
+        ]);
     }
 
     public function processPayment(Request $request)
@@ -121,7 +124,9 @@ class BookingController extends Controller
     {
         $booking = $this->bookingService->getBookingById((int) $id);
 
-        return view('customer.confirmation', compact('booking'));
+        return Inertia::render('customer/Confirmation', [
+            'booking' => $booking,
+        ]);
     }
 
     public function availableDates($id)

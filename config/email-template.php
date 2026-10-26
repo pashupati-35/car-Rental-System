@@ -255,6 +255,39 @@ return [
                 'secondary_cta_text' => null,
                 'is_active' => true,
             ],
+
+            'follow_up_task' => [
+                'title' => 'Fleet Partner Follow-up Task',
+                'identifier' => 'crm-followup-owner',
+                'subject' => 'Action Required / Follow-Up: {{$task_title}}',
+                'role' => 'owner',
+                'type' => 'follow_up_task',
+                'description' => '<p>Hello {{$first_name}},</p>
+<p>We are reaching out with an update / action item regarding your fleet partnership with AutoRent:</p>
+<p><strong>Task / Subject:</strong> {{$task_title}}</p>
+<p><strong>Details:</strong> {{$task_description}}</p>
+<p><strong>Target / Due Date:</strong> {{$due_date}}</p>
+<p><strong>Priority:</strong> {{$priority}}</p>
+<p>Please review this item in your Fleet Partner Portal or contact your assigned account coordinator.</p>',
+                'message_content' => 'Partner follow-up from AutoRent: {{$task_title}}. {{$task_description}}',
+                'accepted_inputs' => [
+                    'first_name',
+                    'email',
+                    'task_title',
+                    'task_description',
+                    'due_date',
+                    'priority',
+                    'portal_link',
+                ],
+                'message_data' => [],
+                'info_message' => 'Follow-up notification sent to fleet partner.',
+                'alert_message' => null,
+                'cta_url' => '{{$portal_link}}',
+                'cta_text' => 'Partner Portal',
+                'secondary_cta_url' => null,
+                'secondary_cta_text' => null,
+                'is_active' => true,
+            ],
         ],
 
         'customer' => [
@@ -471,6 +504,39 @@ return [
                 'alert_message' => null,
                 'cta_url' => '{{$review_link}}',
                 'cta_text' => 'Rate Your Trip',
+                'secondary_cta_url' => null,
+                'secondary_cta_text' => null,
+                'is_active' => true,
+            ],
+
+            'follow_up_task' => [
+                'title' => 'Customer Follow-up Task',
+                'identifier' => 'crm-followup-customer',
+                'subject' => 'Follow-up regarding your rental: {{$task_title}}',
+                'role' => 'customer',
+                'type' => 'follow_up_task',
+                'description' => '<p>Hello {{$first_name}},</p>
+<p>We are reaching out with an update regarding your inquiry / account with AutoRent:</p>
+<p><strong>Task / Subject:</strong> {{$task_title}}</p>
+<p><strong>Details:</strong> {{$task_description}}</p>
+<p><strong>Due Date / Reminder:</strong> {{$due_date}}</p>
+<p><strong>Priority:</strong> {{$priority}}</p>
+<p>If you have any questions or require immediate assistance, please feel free to contact our customer support team.</p>',
+                'message_content' => 'Follow-up from AutoRent: {{$task_title}}. {{$task_description}}',
+                'accepted_inputs' => [
+                    'first_name',
+                    'email',
+                    'task_title',
+                    'task_description',
+                    'due_date',
+                    'priority',
+                    'portal_link',
+                ],
+                'message_data' => [],
+                'info_message' => 'Follow-up notification sent to customer.',
+                'alert_message' => null,
+                'cta_url' => '{{$portal_link}}',
+                'cta_text' => 'Customer Portal',
                 'secondary_cta_url' => null,
                 'secondary_cta_text' => null,
                 'is_active' => true,

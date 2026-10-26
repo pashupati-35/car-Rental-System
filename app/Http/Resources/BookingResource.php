@@ -13,8 +13,10 @@ class BookingResource extends JsonResource
             'id' => $this->id,
             'pickup_location' => $this->pickup_location,
             'drop_location' => $this->drop_location,
-            'pick_up_date' => $this->pick_up_date?->format('Y-m-d'),
-            'last_date' => $this->last_date?->format('Y-m-d'),
+            'pick_up_date' => formatUserDate($this->pick_up_date, 'Y-m-d'),
+            'pick_up_date_formatted' => formatUserDate($this->pick_up_date),
+            'last_date' => formatUserDate($this->last_date, 'Y-m-d'),
+            'last_date_formatted' => formatUserDate($this->last_date),
             'total_price' => $this->total_price,
             'status' => $this->status,
             'car_id' => $this->car_id,
@@ -23,8 +25,10 @@ class BookingResource extends JsonResource
             'other_purpose' => $this->other_purpose,
             'car' => new CarResource($this->whenLoaded('car')),
             'customer' => $this->whenLoaded('customer') ? new CustomerResource($this->customer) : null,
-            'created_at' => $this->created_at?->toIso8601String(),
-            'updated_at' => $this->updated_at?->toIso8601String(),
+            'created_at' => convertToUserTimezone($this->created_at)?->toIso8601String(),
+            'created_at_formatted' => formatUserDateTime($this->created_at),
+            'updated_at' => convertToUserTimezone($this->updated_at)?->toIso8601String(),
+            'updated_at_formatted' => formatUserDateTime($this->updated_at),
         ];
     }
 }

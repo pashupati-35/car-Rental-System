@@ -142,6 +142,7 @@ export default defineConfig([
       'vue/component-name-in-template-casing': ['error', 'PascalCase', { registeredComponentsOnly: false, ignores: ['/^swiper-/'] }],
       // Allow existing kebab-case events used widely in the project
       'vue/custom-event-name-casing': ['off', 'camelCase'],
+      'vue/prop-name-casing': 'off',
       'vue/define-macros-order': 'error',
       'vue/html-comment-content-newline': 'error',
       'vue/html-comment-content-spacing': 'error',

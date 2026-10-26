@@ -100,6 +100,7 @@ Route::group(['middleware' => ['admin'], 'prefix' => 'admin'], function ($route)
     $route->delete('email-logs/{emailLog}', [EmailLogController::class, 'destroy'])->name('admin.email-logs.destroy');
 
     // Admin User & Profile Actions
+    $route->get('timezones', [ProfileController::class, 'showTimeZone'])->name('admin.timezones');
     $route->match(['put', 'patch', 'post'], 'profile', [ProfileController::class, 'update'])->name('admin.profile.update');
     $route->patch('password', [ProfileController::class, 'updatePassword'])->name('admin.password.update');
     $route->delete('profile', [ProfileController::class, 'destroy'])->name('admin.profile.destroy');

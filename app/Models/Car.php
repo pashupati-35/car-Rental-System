@@ -44,7 +44,31 @@ class Car extends Model
         'driver_photo_path',
         'licence_photo_path',
         'file_path',
+        'name',
+        'model',
+        'brand_name',
+        'price_per_day',
     ];
+
+    public function getNameAttribute()
+    {
+        return $this->car_name;
+    }
+
+    public function getModelAttribute()
+    {
+        return $this->car_model;
+    }
+
+    public function getBrandNameAttribute()
+    {
+        return $this->car_name;
+    }
+
+    public function getPricePerDayAttribute()
+    {
+        return $this->car_price_per_day;
+    }
 
     public function getImagePathAttribute()
     {

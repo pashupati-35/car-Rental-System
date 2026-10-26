@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 
-const form = useForm({
+const registerForm = useForm({
   full_name: '',
   email: '',
   contact_number: '',
@@ -17,8 +17,8 @@ const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 
 const submit = () => {
-  form.post('/owner/register', {
-    onFinish: () => form.reset('password', 'password_confirmation'),
+  registerForm.post('/owner/register', {
+    onFinish: () => registerForm.reset('password', 'password_confirmation'),
   })
 }
 </script>
@@ -45,46 +45,46 @@ const submit = () => {
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Owner / Company Name *</label>
           <input
-            v-model="form.full_name"
+            v-model="registerForm.full_name"
             type="text"
             required
             class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
             placeholder="e.g. Apex Travel & Car Rentals"
           >
           <span
-            v-if="form.errors.full_name"
+            v-if="registerForm.errors.full_name"
             class="text-xs text-red-500 mt-1 block"
-          >{{ form.errors.full_name }}</span>
+          >{{ registerForm.errors.full_name }}</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Owner Email *</label>
             <input
-              v-model="form.email"
+              v-model="registerForm.email"
               type="email"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               placeholder="owner@fleet.com"
             >
             <span
-              v-if="form.errors.email"
+              v-if="registerForm.errors.email"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.email }}</span>
+            >{{ registerForm.errors.email }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Contact Phone *</label>
             <input
-              v-model="form.contact_number"
+              v-model="registerForm.contact_number"
               type="text"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all font-mono"
               placeholder="+977 9841000000"
             >
             <span
-              v-if="form.errors.contact_number"
+              v-if="registerForm.errors.contact_number"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.contact_number }}</span>
+            >{{ registerForm.errors.contact_number }}</span>
           </div>
         </div>
 
@@ -92,21 +92,21 @@ const submit = () => {
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Business Address *</label>
             <input
-              v-model="form.address"
+              v-model="registerForm.address"
               type="text"
               required
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
               placeholder="Kathmandu Hub, Nepal"
             >
             <span
-              v-if="form.errors.address"
+              v-if="registerForm.errors.address"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.address }}</span>
+            >{{ registerForm.errors.address }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Gender / Type</label>
             <select
-              v-model="form.gender"
+              v-model="registerForm.gender"
               class="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
             >
               <option value="male">
@@ -127,7 +127,7 @@ const submit = () => {
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Password *</label>
             <div class="relative">
               <input
-                v-model="form.password"
+                v-model="registerForm.password"
                 :type="showPassword ? 'text' : 'password'"
                 required
                 class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
@@ -146,15 +146,15 @@ const submit = () => {
               </button>
             </div>
             <span
-              v-if="form.errors.password"
+              v-if="registerForm.errors.password"
               class="text-xs text-red-500 mt-1 block"
-            >{{ form.errors.password }}</span>
+            >{{ registerForm.errors.password }}</span>
           </div>
           <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1">Confirm Password *</label>
             <div class="relative">
               <input
-                v-model="form.password_confirmation"
+                v-model="registerForm.password_confirmation"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 required
                 class="w-full px-4 py-2.5 pe-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
@@ -177,14 +177,14 @@ const submit = () => {
 
         <button
           type="submit"
-          :disabled="form.processing"
+          :disabled="registerForm.processing"
           class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 disabled:opacity-50 transition-all flex items-center justify-center gap-2 mt-2 cursor-pointer"
         >
           <i
-            v-if="form.processing"
+            v-if="registerForm.processing"
             class="ri-loader-4-line animate-spin text-lg"
           />
-          <span v-if="form.processing">Registering Fleet Partner...</span>
+          <span v-if="registerForm.processing">Registering Fleet Partner...</span>
           <span v-else>Register as Fleet Owner</span>
         </button>
 

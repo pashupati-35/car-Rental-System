@@ -5,10 +5,14 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import axios from 'axios'
 import MessageBox from '@/components/MessageBox.vue'
 import { useAdminTheme, type AdminThemeStyle } from '@/composable/useAdminTheme'
+import { useTimezones } from '@/utils/timezones'
 
 const props = defineProps<{
   user?: any
+  timezones?: string[]
 }>()
+
+const { timezones } = useTimezones(props.timezones)
 
 const page = usePage()
 const authUser = computed(() => props.user || (page.props.auth as any)?.admin || (page.props.auth as any)?.user || {})
@@ -38,6 +42,7 @@ const profileForm = ref({
   contact_person_name: authUser.value?.contact_person_name || '',
   contact_relationship: authUser.value?.contact_relationship || '',
   theme_style: (authUser.value?.theme_style as AdminThemeStyle) || theme.value || 'dark',
+  timezone: authUser.value?.timezone || 'Asia/Kathmandu',
 })
 
 const resolveImageUrl = (userObj: any) => {
@@ -343,6 +348,13 @@ const updatePassword = async () => {
                   <i class="ri-map-pin-line text-indigo-600 dark:text-indigo-400" />
                   {{ profileForm.address }}
                 </span>
+                <span
+                  v-if="profileForm.timezone"
+                  class="flex items-center gap-1.5 font-mono"
+                >
+                  <i class="ri-time-line text-indigo-600 dark:text-indigo-400" />
+                  {{ profileForm.timezone }}
+                </span>
               </div>
             </div>
           </div>
@@ -518,6 +530,25 @@ const updatePassword = async () => {
                 placeholder="e.g. NP12345678"
                 class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Account Timezone</span>
+                <span class="text-[10px] font-normal text-indigo-600 dark:text-indigo-400 font-mono">{{ profileForm.timezone }}</span>
+              </label>
+              <select
+                v-model="profileForm.timezone"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+              >
+                <option
+                  v-for="tz in timezones"
+                  :key="tz"
+                  :value="tz"
+                >
+                  {{ tz }}
+                </option>
+              </select>
             </div>
           </div>
         </div>

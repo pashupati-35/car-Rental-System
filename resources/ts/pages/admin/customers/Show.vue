@@ -292,6 +292,14 @@ const deletePayment = async (paymentId: number) => {
         <!-- Header Actions -->
         <div class="flex items-center gap-2">
           <Link
+            :href="`/admin/crm/customers/${customer.id}/timeline`"
+            class="px-3.5 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60 font-bold text-xs flex items-center gap-1.5 transition-colors"
+            title="Customer 360 timeline & CRM touchpoints"
+          >
+            <i class="ri-shield-user-line text-indigo-600 dark:text-indigo-400 text-sm" />
+            <span>CRM 360</span>
+          </Link>
+          <Link
             :href="`/admin/activity-logs?customer_id=${customer.id}&search=${encodeURIComponent(customer.name || customer.email || '')}`"
             class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-200 font-bold text-xs flex items-center gap-1.5 transition-colors"
             title="View customer activity logs"

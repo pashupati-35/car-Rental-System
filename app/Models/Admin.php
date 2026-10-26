@@ -3,15 +3,23 @@
 namespace App\Models;
 
 use App\Services\Traits\UploadPathTrait;
+use App\Traits\HasUserTimezone;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * Class Admin
+ *
+ * @package App\Models
+ * @mixin \Illuminate\Database\Eloquent\Builder
+ * @method bool save(array $options = [])
+ */
 class Admin extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, UploadPathTrait;
+    use HasApiTokens, HasFactory, HasUserTimezone, Notifiable, SoftDeletes, UploadPathTrait;
 
     protected $guard = 'admin';
 
@@ -67,7 +75,7 @@ class Admin extends Authenticatable
         'mfa_authentication_image',
     ];
 
-    protected $appends = ['full_name', 'image_path', 'file_path'];
+    protected $appends = ['full_name', 'image_path', 'file_path', 'timezone', 'image_url'];
 
     protected function casts(): array
     {
@@ -113,6 +121,22 @@ class Admin extends Authenticatable
     public function getFilePathAttribute()
     {
         return $this->image_path;
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (! empty($this->image_path['original'] ?? null)) {
+            return $this->image_path['original'];
+        }
+        if (is_string($this->image_path) && filled($this->image_path)) {
+            return $this->image_path;
+        }
+        $img = $this->image ?? $this->avatar ?? null;
+        if (! empty($img)) {
+            return str_starts_with($img, 'http') ? $img : asset($img);
+        }
+
+        return null;
     }
 
     protected static function booted(): void

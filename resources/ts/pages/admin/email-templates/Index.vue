@@ -1,19 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Head, Link, router } from '@inertiajs/vue3'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import Pagination from '@/components/Pagination.vue'
 
 const props = defineProps<{
-  templates: {
-    data: Array<any>
-    links: Array<any>
-    from?: number
-    to?: number
-    total?: number
-    current_page: number
-    last_page: number
-  }
+  templates: any
   counts?: {
     all?: number
     owner?: number
@@ -23,18 +15,39 @@ const props = defineProps<{
   filters?: {
     title?: string
     role?: string
+    per_page?: number | string
   }
 }>()
 
 const activeRole = ref(props.filters?.role || 'all')
 const searchQuery = ref(props.filters?.title || '')
 
+const paginationData = computed(() => {
+  const t = props.templates || {}
+  const meta = t.meta || {}
+  const linksArray = Array.isArray(t.links) ? t.links : (Array.isArray(meta.links) ? meta.links : [])
+
+  return {
+    links: linksArray,
+    from: t.from ?? meta.from ?? 0,
+    to: t.to ?? meta.to ?? 0,
+    total: t.total ?? meta.total ?? 0,
+    currentPage: t.current_page ?? meta.current_page ?? 1,
+    lastPage: t.last_page ?? meta.last_page ?? 1,
+    perPage: t.per_page ?? meta.per_page ?? (Number(props.filters?.per_page) || 10),
+  }
+})
+
 let searchTimeout: any = null
 
 const applyFilters = () => {
+  const currentUrl = typeof window !== 'undefined' ? new URL(window.location.href) : null
+  const currentPerPage = currentUrl?.searchParams.get('per_page') || props.filters?.per_page
+
   router.get('/admin/email-templates', {
     role: activeRole.value === 'all' ? undefined : activeRole.value,
     title: searchQuery.value || undefined,
+    per_page: currentPerPage ? Number(currentPerPage) : undefined,
   }, {
     preserveState: true,
     preserveScroll: true,
@@ -274,10 +287,14 @@ const getRoleBadgeClass = (role: string) => {
 
         <!-- Pagination -->
         <Pagination
-          :links="templates.links || []"
-          :from="templates.from"
-          :to="templates.to"
-          :total="templates.total"
+          :pagination="templates"
+          :links="paginationData.links"
+          :from="paginationData.from"
+          :to="paginationData.to"
+          :total="paginationData.total"
+          :current-page="paginationData.currentPage"
+          :last-page="paginationData.lastPage"
+          :per-page="paginationData.perPage"
         />
       </div>
     </div>
