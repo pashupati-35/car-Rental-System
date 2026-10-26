@@ -144,7 +144,11 @@ importers:
         version: 1.106.1
       sass-loader:
         specifier: ^17.0.1
+<<<<<<< HEAD
         version: 17.0.1(sass@1.106.1)
+=======
+        version: 17.0.1(sass@1.104.0)
+>>>>>>> 399b47a3eac893ece919d8785be5ba7b0b378f85
       type-fest:
         specifier: ^0.20.2
         version: 0.20.2
